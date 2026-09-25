@@ -20,6 +20,7 @@ import { rhythmInstrument } from './rhythm';
 import { seismicNetworkInstrument } from './seismic-network';
 import { seismographInstrument } from './seismograph';
 import { sonarInstrument } from './sonar';
+import { singTheNoteInstrument } from './sing-the-note';
 import { soundLocatorInstrument } from './sound-locator';
 import { superzoomInstrument } from './superzoom';
 import { traditionalTunerInstrument } from './traditional-tuner';
@@ -48,6 +49,7 @@ export const instrumentRegistry: readonly AnyInstrumentDefinition[] = [
   colorHuntInstrument,
   metronomeInstrument,
   traditionalTunerInstrument,
+  singTheNoteInstrument,
   colorimeterInstrument,
   poolStripsInstrument,
   beerWineColorInstrument,
