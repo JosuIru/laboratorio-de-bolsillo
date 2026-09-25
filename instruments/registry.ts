@@ -13,6 +13,7 @@ import { motionMagnifierInstrument } from './motion-magnifier';
 import { poolStripsInstrument } from './pool-strips';
 import { resonanceScaleInstrument } from './resonance-scale';
 import { rhythmInstrument } from './rhythm';
+import { seismicNetworkInstrument } from './seismic-network';
 import { seismographInstrument } from './seismograph';
 import { sonarInstrument } from './sonar';
 import { superzoomInstrument } from './superzoom';
@@ -26,6 +27,7 @@ import { trackerHunterInstrument } from './tracker-hunter';
 export const instrumentRegistry: readonly AnyInstrumentDefinition[] = [
   audioSpectrumInstrument,
   seismographInstrument,
+  seismicNetworkInstrument,
   tachometerInstrument,
   machineDiagnosisInstrument,
   metalDetectorInstrument,
