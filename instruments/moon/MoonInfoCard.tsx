@@ -30,32 +30,50 @@ const phaseGlyphs: Record<MoonPhaseName, string> = {
   waningCrescent: '🌘',
 };
 
+async function readObserverLocation(): Promise<ObserverLocation | null> {
+  const geoLocation = await getLocationForMeasurement({ maxAgeMilliseconds: 10 * 60_000, timeoutMilliseconds: 10_000 });
+  return geoLocation ? { latitudeDegrees: geoLocation.latitude, longitudeDegrees: geoLocation.longitude } : null;
+}
+
 /**
  * Ubicación del observador: se lee sola si ya hay permiso; si no, `requestLocation` lo pide.
  */
 export function useObserverLocation(locationAvailability: SensorAvailability | undefined) {
   const requestSensorPermission = useSensorAvailabilityStore((storeState) => storeState.requestSensorPermission);
   const [observerLocation, setObserverLocation] = useState<ObserverLocation | null>(null);
-  const [isLocating, setIsLocating] = useState(false);
+  const [isRequestingLocation, setIsRequestingLocation] = useState(false);
+  const [hasAutomaticAttemptFinished, setHasAutomaticAttemptFinished] = useState(false);
   const hasLocationPermission = locationAvailability?.status === 'available';
 
-  async function readLocation() {
-    setIsLocating(true);
-    const geoLocation = await getLocationForMeasurement({ maxAgeMilliseconds: 10 * 60_000, timeoutMilliseconds: 10_000 });
-    setIsLocating(false);
-    if (geoLocation) {
-      setObserverLocation({ latitudeDegrees: geoLocation.latitude, longitudeDegrees: geoLocation.longitude });
-    }
-  }
-
+  // Con permiso, se lee sola. El estado solo se actualiza tras el await (nunca de forma
+  // síncrona dentro del efecto) y se ignora el resultado si el efecto ya se ha limpiado.
   useEffect(() => {
-    if (hasLocationPermission) void readLocation();
+    if (!hasLocationPermission) return;
+    let isCancelled = false;
+    void readObserverLocation().then((geoLocation) => {
+      if (isCancelled) return;
+      if (geoLocation) setObserverLocation(geoLocation);
+      setHasAutomaticAttemptFinished(true);
+    });
+    return () => {
+      isCancelled = true;
+    };
   }, [hasLocationPermission]);
 
   async function requestLocation() {
-    const updatedAvailability = await requestSensorPermission('location');
-    if (updatedAvailability.status === 'available') await readLocation();
+    setIsRequestingLocation(true);
+    try {
+      const updatedAvailability = await requestSensorPermission('location');
+      if (updatedAvailability.status !== 'available') return;
+      const geoLocation = await readObserverLocation();
+      if (geoLocation) setObserverLocation(geoLocation);
+    } finally {
+      setIsRequestingLocation(false);
+    }
   }
+
+  const isLocating =
+    isRequestingLocation || (hasLocationPermission && observerLocation === null && !hasAutomaticAttemptFinished);
 
   return { observerLocation, isLocating, requestLocation, canAskForLocation: locationAvailability?.canAskAgain !== false };
 }
