@@ -124,7 +124,19 @@ export interface StrongestEchoOptions {
   minimumRelativeAmplitude?: number;
   /** Posición fraccionaria del acoplamiento directo respecto al índice 0 del perfil. */
   directPeakFractionalOffset?: number;
+  /**
+   * Fondo grabado sin nada delante. Si se da, se busca en la diferencia con signo (sin recortar
+   * en 0): su mitad negativa es puro ruido y permite estimar bien la dispersión aunque no haya
+   * ningún objeto nuevo.
+   */
+  backgroundProfile?: ArrayLike<number>;
 }
+
+/**
+ * Dispersión mínima del ruido, relativa al acoplamiento directo (−80 dB). Evita que un perfil
+ * casi constante (dispersión ≈ 0) convierta cualquier resto numérico en un «eco» enorme.
+ */
+export const minimumNoiseSpread = 1e-4;
 
 /**
  * El eco más fuerte dentro del rango de distancias, o null si no destaca del ruido.
@@ -133,6 +145,9 @@ export interface StrongestEchoOptions {
  *   principio del rango, eso no es un eco sino el final del pulso directo.
  * - El umbral es la mediana más varias veces la dispersión (MAD). Así, al promediar pulsos, el
  *   ruido fluctúa menos, el umbral baja y aparecen ecos más débiles.
+ * - Con fondo, no se le pasa el perfil ya restado y recortado en 0: si más de la mitad del rango
+ *   queda en 0, mediana y MAD valen 0 y cualquier resto parecería un eco. Se pasa el perfil sin
+ *   restar y `backgroundProfile`, y se trabaja con la diferencia con signo.
  */
 export function findStrongestEcho(profile: ArrayLike<number>, options: StrongestEchoOptions): StrongestEcho | null {
   const {
@@ -143,7 +158,15 @@ export function findStrongestEcho(profile: ArrayLike<number>, options: Strongest
     minimumSignalToNoiseRatio = 6,
     minimumRelativeAmplitude = 0.002,
     directPeakFractionalOffset = 0,
+    backgroundProfile,
   } = options;
+  if (backgroundProfile) {
+    const differenceProfile = Float64Array.from(
+      { length: profile.length },
+      (_, sampleIndex) => profile[sampleIndex]! - (backgroundProfile[sampleIndex] ?? 0),
+    );
+    return findStrongestEcho(differenceProfile, { ...options, backgroundProfile: undefined });
+  }
   const rangeStartIndex = Math.max(
     1,
     Math.ceil(distanceToEchoDelaySeconds(minimumDistanceMeters, temperatureCelsius) * sampleRateHz),
@@ -162,7 +185,7 @@ export function findStrongestEcho(profile: ArrayLike<number>, options: Strongest
   const absoluteDeviations = Array.from({ length: endIndex - rangeStartIndex }, (_, offset) =>
     Math.abs(profile[rangeStartIndex + offset]! - noiseMedian),
   );
-  const noiseSpread = Math.max(1.4826 * medianOf(absoluteDeviations), 1e-9);
+  const noiseSpread = Math.max(1.4826 * medianOf(absoluteDeviations), minimumNoiseSpread);
 
   const peakIndex = indexOfMaximum(profile, searchStartIndex, endIndex);
   const { position, amplitude } = interpolatePeak(profile, peakIndex);

@@ -302,7 +302,12 @@ export function SonarScreen({ saveMeasurement }: InstrumentScreenProps<SonarMeas
             label={t('core:common.save')}
             onPress={() => void handleSave()}
             isBusy={isSaving}
-            isDisabled={!strongestEcho || !isPulseModeActive}
+            isDisabled={
+              !strongestEcho ||
+              !isPulseModeActive ||
+              pulsesStatus.status !== 'running' ||
+              !snapshot.isDirectPathDetected
+            }
           />
           <BodyText tone="secondary" style={styles.smallText}>
             {t('distanceHelp')}

@@ -244,8 +244,27 @@ describe('sonar de pulsos', () => {
       new Float64Array(profileLength),
     );
     expect(subtractedProfile.every((profileValue) => profileValue >= 0)).toBe(true);
-    const movingEcho = findStrongestEcho(subtractedProfile, echoSearchOptions);
+    const movingEcho = findStrongestEcho(sceneProfile, { ...echoSearchOptions, backgroundProfile });
     expect(Math.abs(movingEcho!.distanceMeters - 0.75)).toBeLessThan(0.03);
+    // Claridad razonable: ni al límite del umbral ni disparada por una dispersión nula.
+    expect(movingEcho!.signalToNoiseRatio).toBeGreaterThan(10);
+    expect(movingEcho!.signalToNoiseRatio).toBeLessThan(1000);
+
+    // Fondo restado y nada nuevo delante: otra grabación del mismo escenario no da ningún eco.
+    const emptySceneResults = processRecording(
+      simulateRecording({
+        pulseCount: 10,
+        latencySamples: 987.6,
+        directAmplitude: 0.4,
+        reflectors: [staticReflector],
+        noiseAmplitude: 0.02,
+        seed: 13,
+      }),
+    );
+    const emptySceneAverager = createProfileAverager(profileLength, 8);
+    let emptySceneProfile: Float64Array = new Float64Array(0);
+    for (const pulseResult of emptySceneResults) emptySceneProfile = emptySceneAverager.push(pulseResult.profile);
+    expect(findStrongestEcho(emptySceneProfile, { ...echoSearchOptions, backgroundProfile })).toBeNull();
   });
 });
 

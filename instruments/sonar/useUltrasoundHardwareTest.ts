@@ -155,7 +155,12 @@ export function useUltrasoundHardwareTest(volume: number) {
           measureBandResult(frequencyHz, readToneAmplitude(frequencyHz), noiseAmplitudes[frequencyIndex]!),
         );
       }
-      toneGain.gain.linearRampToValueAtTime(0, audioContext.currentTime + fadeSeconds);
+      // Fundido de salida anclado al valor actual: sin el ancla la rampa empezaría en el último
+      // evento programado y la ganancia caería de golpe (clic).
+      const fadeOutStartSeconds = audioContext.currentTime;
+      toneGain.gain.cancelScheduledValues(fadeOutStartSeconds);
+      toneGain.gain.setValueAtTime(toneGain.gain.value, fadeOutStartSeconds);
+      toneGain.gain.linearRampToValueAtTime(0, fadeOutStartSeconds + fadeSeconds);
       await waitMilliseconds(fadeSeconds * 2000);
       if (!isCurrentTest()) return;
       stopAudio();

@@ -107,6 +107,8 @@ export function useSonarPulses({ isRunning, bandPreset, volume, temperatureCelsi
   if (currentRunKey !== runKey) {
     setCurrentRunKey(runKey);
     setPulsesStatus(shouldRun ? { status: 'starting' } : { status: 'idle' });
+    // Al parar (o cambiar de banda) la última distancia deja de ser válida.
+    setSnapshot((previousSnapshot) => ({ ...previousSnapshot, strongestEcho: null, isDirectPathDetected: false }));
   }
 
   useEffect(() => {
@@ -115,6 +117,23 @@ export function useSonarPulses({ isRunning, bandPreset, volume, temperatureCelsi
     const audioContext = new AudioContext();
     const audioRecorder = new AudioRecorder();
     const pulseSource = audioContext.createBufferSource();
+    let isAudioReleased = false;
+
+    /** Cierra grabador, pulso y contexto. Se puede llamar más de una vez. */
+    function releaseAudio() {
+      isCancelled = true;
+      if (isAudioReleased) return;
+      isAudioReleased = true;
+      gainNodeRef.current = null;
+      audioRecorder.clearOnAudioReady();
+      void audioRecorder.stop().catch(() => undefined);
+      try {
+        pulseSource.stop();
+      } catch {
+        // No había empezado.
+      }
+      void audioContext.close().catch(() => undefined);
+    }
 
     async function startSonar() {
       try {
@@ -168,6 +187,8 @@ export function useSonarPulses({ isRunning, bandPreset, volume, temperatureCelsi
               ...previousSnapshot,
               isDirectPathDetected: false,
               directLevelDecibels,
+              // Sin pulso directo no hay tiempo cero: una distancia anterior ya no vale.
+              strongestEcho: null,
               pulseCount,
             }));
             return;
@@ -199,12 +220,15 @@ export function useSonarPulses({ isRunning, bandPreset, volume, temperatureCelsi
             : averagedProfile;
 
           const currentTemperatureCelsius = temperatureCelsiusRef.current;
-          const strongestEcho = findStrongestEcho(displayedProfile, {
+          // Con fondo se busca en la diferencia con signo (no en el perfil recortado en 0), para
+          // que el ruido se mida bien y no salgan ecos falsos con nada delante.
+          const strongestEcho = findStrongestEcho(averagedProfile, {
             sampleRateHz: inputSampleRateHz,
             temperatureCelsius: currentTemperatureCelsius,
             minimumDistanceMeters: minimumRangeMeters,
             maximumDistanceMeters: maximumRangeMeters,
             directPeakFractionalOffset: meanFractionalOffset,
+            backgroundProfile: backgroundProfile ?? undefined,
           });
           if (!columnMapping || columnMappingTemperatureCelsius !== currentTemperatureCelsius) {
             columnMapping = createDistanceColumnMapping(
@@ -247,7 +271,7 @@ export function useSonarPulses({ isRunning, bandPreset, volume, temperatureCelsi
             if (!pulseProcessor) {
               inputSampleRateHz = audioEvent.buffer.sampleRate;
               if (band.highFrequencyHz > inputSampleRateHz / 2 - 500) {
-                isCancelled = true;
+                releaseAudio();
                 setPulsesStatus({ status: 'inputSampleRateTooLow', inputSampleRateHz });
                 return;
               }
@@ -283,18 +307,7 @@ export function useSonarPulses({ isRunning, bandPreset, volume, temperatureCelsi
     }
 
     void startSonar();
-    return () => {
-      isCancelled = true;
-      gainNodeRef.current = null;
-      audioRecorder.clearOnAudioReady();
-      void audioRecorder.stop().catch(() => undefined);
-      try {
-        pulseSource.stop();
-      } catch {
-        // No había empezado.
-      }
-      void audioContext.close().catch(() => undefined);
-    };
+    return releaseAudio;
   }, [shouldRun, bandPreset, echogramHistory]);
 
   const recordBackground = useCallback(() => {
