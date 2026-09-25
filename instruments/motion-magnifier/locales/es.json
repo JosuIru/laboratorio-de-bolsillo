@@ -1,0 +1,92 @@
+{
+  "name": "Lupa de movimiento",
+  "description": "Amplificación euleriana de vídeo: hace visibles el pulso en la piel, la respiración o vibraciones diminutas, y mide su frecuencia.",
+  "notMedical": "No es un aparato médico. Las lecturas de pulso y respiración son una curiosidad científica: no las uses para diagnosticar ni vigilar la salud de nadie.",
+  "intro": "Apoya el móvil en algo firme (no lo sujetes a mano) y encuadra lo que quieras observar. La imagen de la cámara se reduce a una rejilla pequeña y cada punto se filtra en el tiempo: lo que cambia al ritmo de la banda elegida se amplifica.",
+  "bandTitle": "Qué quieres ver",
+  "bands": {
+    "pulse": {
+      "label": "Pulso",
+      "hint": "Cambios de color de la piel con cada latido (0,8-3 Hz, 48-180 lpm). Encuadra la cara o la palma de la mano, bien iluminada y sin moverte."
+    },
+    "breathing": {
+      "label": "Respiración",
+      "hint": "Movimiento lento del pecho o del abdomen (0,1-0,7 Hz, 6-42 rpm). Encuadra el torso, mejor con ropa de rayas o con pliegues que marquen bordes."
+    },
+    "vibration": {
+      "label": "Vibración",
+      "hint": "Movimientos pequeños y repetitivos de una estructura o una máquina, en la banda que elijas."
+    }
+  },
+  "lowCutoff": "Desde {{frequency}} Hz",
+  "highCutoff": "Hasta {{frequency}} Hz",
+  "vibrationLimits": "La cámara toma unos 30 fotogramas/s, así que solo se ven vibraciones de hasta unos 13 Hz. Una vibración más rápida aparece «plegada» a una frecuencia falsa (aliasing).",
+  "deviceMoving": "El móvil se mueve: apóyalo en algo firme. Cualquier movimiento de la cámara se amplifica también.",
+  "startingUp": "Midiendo la cadencia de la cámara…",
+  "bandAboveFrameRate": "Con {{framesPerSecond}} fotogramas/s esta banda queda por encima de lo que la cámara puede captar. Baja las frecuencias.",
+  "highCutoffLimited": "La frecuencia superior se ha limitado a {{frequency}} Hz por la cadencia de la cámara.",
+  "tapToLockHint": "Toca la imagen para fijar la exposición y el enfoque: si la cámara los reajusta, ese cambio de brillo también se amplifica.",
+  "exposureLocked": "Exposición y enfoque fijados.",
+  "unlockExposure": "Soltar",
+  "displayTitle": "Visualización",
+  "viewModes": {
+    "amplified": "Amplificada",
+    "overlay": "Mapa sobre la cámara",
+    "camera": "Original"
+  },
+  "viewModeHints": {
+    "amplified": "La imagen reconstruida con los cambios multiplicados. Es de baja resolución (96 × 128 puntos): lo que importa es el cambio, no el detalle.",
+    "overlay": "Sobre la imagen real, en cálido donde la señal sube y en frío donde baja. Con el pulso, la piel debería latir en rojo y azul a la vez.",
+    "camera": "La cámara sin procesar, para comparar."
+  },
+  "amplificationTitle": "Amplificación (α)",
+  "cameraTitle": "Cámara",
+  "cameras": {
+    "back": "Trasera",
+    "front": "Delantera"
+  },
+  "frameRate": "Cámara: {{framesPerSecond}} fotogramas/s",
+  "measureTitle": "Medida",
+  "screenModes": {
+    "view": "Solo ver",
+    "measure": "Medir frecuencia"
+  },
+  "measureHints": {
+    "pulse": "Deja la piel dentro del recuadro amarillo durante al menos 12 s, sin moverte ni hablar.",
+    "breathing": "Deja el pecho o el abdomen dentro del recuadro amarillo durante unos 30 s, respirando con normalidad.",
+    "vibration": "Deja la pieza que vibra dentro del recuadro amarillo, con algún borde o contraste visible."
+  },
+  "measuredQuantity": {
+    "pulse": "Pulso estimado",
+    "breathing": "Respiración estimada",
+    "vibration": "Frecuencia dominante"
+  },
+  "units": {
+    "beatsPerMinute": "lpm",
+    "breathsPerMinute": "rpm",
+    "hertz": "Hz"
+  },
+  "collecting": "Reuniendo datos… {{stored}} / {{window}} s",
+  "peakQuality": {
+    "clear": "Pico claro (×{{ratio}} sobre el fondo).",
+    "fair": "Pico discreto (×{{ratio}} sobre el fondo): tómalo con cautela.",
+    "weak": "Señal débil (×{{ratio}} sobre el fondo): la lectura no es fiable. Mejora la luz y quédate quieto."
+  },
+  "spectrumTitle": "Espectro de la región central en la banda",
+  "tipsTitle": "Consejos y límites",
+  "tips": "Consejos: luz abundante y constante (la luz del día es la mejor; algunos fluorescentes y LED parpadean y el parpadeo puede colarse como una vibración falsa). Móvil apoyado y quieto. Para el pulso, la cara o la palma llenando el recuadro; la cámara delantera te deja verte.",
+  "howItWorks": "Cómo funciona (amplificación euleriana, Wu y colaboradores, MIT 2012): cada fotograma se reduce a una rejilla de 96 × 128 y se suaviza con una pirámide gaussiana (24 × 32 para el color del pulso, 48 × 64 para el movimiento). La serie temporal de cada punto pasa por un filtro pasabanda Butterworth; esa variación se multiplica por α y se suma a la imagen. La medida usa la FFT de la región central: para el pulso, la media del verde; para el movimiento, la suma de los espectros de los puntos que más cambian.",
+  "limits": "Límites: la resolución es muy baja, así que solo se ven cambios que afectan a zonas amplias o a bordes marcados. Con α alto también se amplifica el ruido de la cámara. El móvil debe estar quieto: un movimiento de la cámara se confunde con la señal. La medida de pulso o respiración puede equivocarse (por ejemplo, dar el doble o la mitad) y no sustituye a un pulsioxímetro ni a ningún aparato médico.",
+  "fields": {
+    "band": "Banda",
+    "displayedRate": "Frecuencia medida",
+    "displayedUnit": "Unidad",
+    "dominantFrequency": "Frecuencia dominante",
+    "peakToMedianPowerRatio": "Claridad del pico",
+    "analysisWindow": "Ventana analizada",
+    "framesPerSecond": "Cadencia de la cámara",
+    "lowCutoff": "Frecuencia inferior",
+    "highCutoff": "Frecuencia superior",
+    "amplificationFactor": "Amplificación"
+  }
+}

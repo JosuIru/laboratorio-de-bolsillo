@@ -1,0 +1,92 @@
+{
+  "name": "Mugimendu-lupa",
+  "description": "Bideoaren anplifikazio euleriarra: larruazaleko pultsua, arnasketa edo bibrazio txiki-txikiak ikusgai egiten ditu, eta haien maiztasuna neurtzen du.",
+  "notMedical": "Ez da gailu medikoa. Pultsuaren eta arnasketaren irakurketak jakin-min zientifikoa dira: ez erabili inoren osasuna diagnostikatzeko edo zaintzeko.",
+  "intro": "Jarri mugikorra zerbait sendoren gainean (ez eutsi eskuan) eta enkoadratu behatu nahi duzuna. Kameraren irudia sareta txiki batera murrizten da eta puntu bakoitza denboran iragazten da: aukeratutako bandaren erritmoan aldatzen dena anplifikatzen da.",
+  "bandTitle": "Zer ikusi nahi duzu",
+  "bands": {
+    "pulse": {
+      "label": "Pultsua",
+      "hint": "Larruazalaren kolore-aldaketak taupada bakoitzean (0,8-3 Hz, 48-180 tpm). Enkoadratu aurpegia edo esku-ahurra, ondo argiztatuta eta mugitu gabe."
+    },
+    "breathing": {
+      "label": "Arnasketa",
+      "hint": "Bularraren edo sabelaren mugimendu motela (0,1-0,7 Hz, 6-42 apm). Enkoadratu enborra, hobe ertzak markatzen dituzten marradun edo tolesdun arropekin."
+    },
+    "vibration": {
+      "label": "Bibrazioa",
+      "hint": "Egitura edo makina baten mugimendu txiki eta errepikakorrak, zuk aukeratutako bandan."
+    }
+  },
+  "lowCutoff": "{{frequency}} Hz-tik",
+  "highCutoff": "{{frequency}} Hz-ra arte",
+  "vibrationLimits": "Kamerak 30 fotograma/s inguru hartzen ditu; beraz, 13 Hz ingurura arteko bibrazioak baino ez dira ikusten. Bibrazio azkarragoak maiztasun faltsu batera «tolesten» dira (aliasing).",
+  "deviceMoving": "Mugikorra mugitzen ari da: jarri zerbait sendoren gainean. Kameraren edozein mugimendu ere anplifikatzen da.",
+  "startingUp": "Kameraren kadentzia neurtzen…",
+  "bandAboveFrameRate": "{{framesPerSecond}} fotograma/s-rekin banda hau kamerak har dezakeenaren gainetik dago. Jaitsi maiztasunak.",
+  "highCutoffLimited": "Goiko maiztasuna {{frequency}} Hz-ra mugatu da kameraren kadentziagatik.",
+  "tapToLockHint": "Ukitu irudia esposizioa eta fokua finkatzeko: kamerak berriro doitzen baditu, distira-aldaketa hori ere anplifikatzen da.",
+  "exposureLocked": "Esposizioa eta fokua finkatuta.",
+  "unlockExposure": "Askatu",
+  "displayTitle": "Bistaratzea",
+  "viewModes": {
+    "amplified": "Anplifikatua",
+    "overlay": "Mapa kameraren gainean",
+    "camera": "Jatorrizkoa"
+  },
+  "viewModeHints": {
+    "amplified": "Aldaketak biderkatuta dituen irudi berreraikia. Bereizmen txikikoa da (96 × 128 puntu): aldaketa da garrantzitsua, ez xehetasuna.",
+    "overlay": "Benetako irudiaren gainean, kolore beroz seinalea igotzen den tokian eta hotzez jaisten den tokian. Pultsuarekin, larruazalak gorriz eta urdinez taupadaka egin beharko luke.",
+    "camera": "Kamera prozesatu gabe, alderatzeko."
+  },
+  "amplificationTitle": "Anplifikazioa (α)",
+  "cameraTitle": "Kamera",
+  "cameras": {
+    "back": "Atzekoa",
+    "front": "Aurrekoa"
+  },
+  "frameRate": "Kamera: {{framesPerSecond}} fotograma/s",
+  "measureTitle": "Neurketa",
+  "screenModes": {
+    "view": "Ikusi bakarrik",
+    "measure": "Maiztasuna neurtu"
+  },
+  "measureHints": {
+    "pulse": "Utzi larruazala lauki horiaren barruan gutxienez 12 s-z, mugitu eta hitz egin gabe.",
+    "breathing": "Utzi bularra edo sabela lauki horiaren barruan 30 s inguruz, normal arnastuz.",
+    "vibration": "Utzi bibratzen duen pieza lauki horiaren barruan, ertz edo kontraste ikusgarriren batekin."
+  },
+  "measuredQuantity": {
+    "pulse": "Kalkulatutako pultsua",
+    "breathing": "Kalkulatutako arnasketa",
+    "vibration": "Maiztasun nagusia"
+  },
+  "units": {
+    "beatsPerMinute": "tpm",
+    "breathsPerMinute": "apm",
+    "hertz": "Hz"
+  },
+  "collecting": "Datuak biltzen… {{stored}} / {{window}} s",
+  "peakQuality": {
+    "clear": "Gailur argia (×{{ratio}} hondoaren gainetik).",
+    "fair": "Gailur apala (×{{ratio}} hondoaren gainetik): kontuz hartu.",
+    "weak": "Seinale ahula (×{{ratio}} hondoaren gainetik): irakurketa ez da fidagarria. Hobetu argia eta egon geldi."
+  },
+  "spectrumTitle": "Erdiko eskualdearen espektroa bandan",
+  "tipsTitle": "Aholkuak eta mugak",
+  "tips": "Aholkuak: argi ugari eta konstantea (eguneko argia da onena; fluoreszente eta LED batzuek dir-dir egiten dute, eta dir-dir hori bibrazio faltsu gisa sar daiteke). Mugikorra bermatuta eta geldi. Pultsurako, aurpegiak edo esku-ahurrak laukia bete dezala; aurreko kamerarekin zeure burua ikus dezakezu.",
+  "howItWorks": "Nola dabilen (anplifikazio euleriarra, Wu eta lankideak, MIT 2012): fotograma bakoitza 96 × 128ko sareta batera murrizten da eta piramide gaussiar batekin leuntzen da (24 × 32 pultsuaren kolorerako, 48 × 64 mugimendurako). Puntu bakoitzaren denbora-seriea Butterworth banda-igarotze iragazki batetik pasatzen da; aldakuntza hori α-rekin biderkatu eta irudiari gehitzen zaio. Neurketak erdiko eskualdearen FFTa erabiltzen du: pultsurako, berdearen batez bestekoa; mugimendurako, gehien aldatzen diren puntuen espektroen batura.",
+  "limits": "Mugak: bereizmena oso txikia da; beraz, eremu zabalei edo ertz nabarmenei eragiten dieten aldaketak baino ez dira ikusten. α altuarekin kameraren zarata ere anplifikatzen da. Mugikorrak geldi egon behar du: kameraren mugimendua seinalearekin nahasten da. Pultsuaren edo arnasketaren neurketak huts egin dezake (adibidez, bikoitza edo erdia eman) eta ez du pultsioximetroa ez beste inolako gailu medikorik ordezkatzen.",
+  "fields": {
+    "band": "Banda",
+    "displayedRate": "Neurtutako maiztasuna",
+    "displayedUnit": "Unitatea",
+    "dominantFrequency": "Maiztasun nagusia",
+    "peakToMedianPowerRatio": "Gailurraren argitasuna",
+    "analysisWindow": "Aztertutako leihoa",
+    "framesPerSecond": "Kameraren kadentzia",
+    "lowCutoff": "Beheko maiztasuna",
+    "highCutoff": "Goiko maiztasuna",
+    "amplificationFactor": "Anplifikazioa"
+  }
+}
