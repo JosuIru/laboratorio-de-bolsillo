@@ -8,6 +8,7 @@ import { machineDiagnosisInstrument } from './machine-diagnosis';
 import { metalDetectorInstrument } from './metal-detector';
 import { metronomeInstrument } from './metronome';
 import { moonInstrument } from './moon';
+import { muonDetectorInstrument } from './muon-detector';
 import { poolStripsInstrument } from './pool-strips';
 import { rhythmInstrument } from './rhythm';
 import { seismographInstrument } from './seismograph';
@@ -33,5 +34,6 @@ export const instrumentRegistry: readonly AnyInstrumentDefinition[] = [
   poolStripsInstrument,
   moonInstrument,
   superzoomInstrument,
+  muonDetectorInstrument,
   exampleLevelInstrument,
 ];
