@@ -1,6 +1,7 @@
 import type { AnyInstrumentDefinition } from '@/core/instruments/types';
 
 import { audioSpectrumInstrument } from './audio-spectrum';
+import { colorHuntInstrument } from './color-hunt';
 import { colorimeterInstrument } from './colorimeter';
 import { exampleLevelInstrument } from './example-level';
 import { machineDiagnosisInstrument } from './machine-diagnosis';
@@ -22,6 +23,7 @@ export const instrumentRegistry: readonly AnyInstrumentDefinition[] = [
   machineDiagnosisInstrument,
   metalDetectorInstrument,
   rhythmInstrument,
+  colorHuntInstrument,
   metronomeInstrument,
   colorimeterInstrument,
   moonInstrument,
