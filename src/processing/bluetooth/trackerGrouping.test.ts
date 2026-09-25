@@ -6,7 +6,9 @@ import {
   forgetStaleDevices,
   ingestAdvertisement,
   linkRotatedAddresses,
-  markScanResumed,
+  markScanStarted,
+  markScanStopped,
+  scannedMillisecondsBetween,
   type TrackerSession,
 } from './trackerGrouping';
 
@@ -61,17 +63,40 @@ describe('agrupamiento de direcciones', () => {
     expect(ingestAdvertisement(session, airTagNearOwnerAdvertisement('NEW', -66, rotationMilliseconds + 22 * seconds))?.groupId).toBe('tracker-1');
   });
 
-  it('un hueco que abarca una pausa del escaneo no abre otro episodio', () => {
+  it('un hueco que abarca una pausa del escaneo no abre otro episodio ni suma tiempo observado', () => {
+    // Escanea 1 min, el móvil se bloquea 10 min y escanea 30 s más.
     const pausedSession = createTrackerSession();
+    markScanStarted(pausedSession, 0);
     advertiseRepeatedly(pausedSession, (timestamp) => airTagSeparatedAdvertisement('PAUSED', -60, timestamp), 0, minutes);
-    markScanResumed(pausedSession, 5 * minutes);
-    advertiseRepeatedly(pausedSession, (timestamp) => airTagSeparatedAdvertisement('PAUSED', -60, timestamp), 5 * minutes + seconds, 6 * minutes);
-    expect(pausedSession.groupsById.get('tracker-1')?.episodes).toHaveLength(1);
+    markScanStopped(pausedSession, minutes);
+    markScanStarted(pausedSession, 11 * minutes);
+    advertiseRepeatedly(pausedSession, (timestamp) => airTagSeparatedAdvertisement('PAUSED', -60, timestamp), 11 * minutes, 11 * minutes + 30 * seconds);
+    const pausedGroup = pausedSession.groupsById.get('tracker-1');
+    expect(pausedGroup?.episodes).toHaveLength(1);
+    expect(pausedGroup?.observedScanningMilliseconds).toBe(minutes + 30 * seconds);
 
     const continuousSession = createTrackerSession();
+    markScanStarted(continuousSession, 0);
     advertiseRepeatedly(continuousSession, (timestamp) => airTagSeparatedAdvertisement('GONE', -60, timestamp), 0, minutes);
     advertiseRepeatedly(continuousSession, (timestamp) => airTagSeparatedAdvertisement('GONE', -60, timestamp), 5 * minutes + seconds, 6 * minutes);
     expect(continuousSession.groupsById.get('tracker-1')?.episodes).toHaveLength(2);
+    expect(continuousSession.groupsById.get('tracker-1')?.observedScanningMilliseconds).toBe(6 * minutes - seconds);
+  });
+
+  it('un hueco largo con parte escaneada abre episodio solo si lo escaneado supera el umbral', () => {
+    // Visto en el minuto 1; escaneo encendido hasta el 3, parado hasta el 10 y encendido de nuevo.
+    const session = createTrackerSession();
+    markScanStarted(session, 0);
+    ingestAdvertisement(session, tileAdvertisement('T', -60, minutes));
+    markScanStopped(session, 3 * minutes);
+    markScanStarted(session, 10 * minutes);
+    // 2 min escaneados sin verlo antes de la pausa y 1 min después: 3 min, justo el umbral.
+    ingestAdvertisement(session, tileAdvertisement('T', -60, 11 * minutes));
+    expect(session.groupsById.get('tracker-1')?.episodes).toHaveLength(1);
+    // 4 min escaneados sin verlo: ahora sí es «otro momento».
+    ingestAdvertisement(session, tileAdvertisement('T', -60, 15 * minutes));
+    expect(session.groupsById.get('tracker-1')?.episodes).toHaveLength(2);
+    expect(scannedMillisecondsBetween(session, 0, 15 * minutes)).toBe(8 * minutes);
   });
 
   it('no funde dos rastreadores iguales presentes a la vez', () => {
@@ -113,6 +138,19 @@ describe('agrupamiento de direcciones', () => {
     expect(tileGroup?.places).toHaveLength(2);
   });
 
+  it('no cuenta como sitio distinto una posición imprecisa (salto de wifi a red móvil)', () => {
+    const session = createTrackerSession();
+    const homeByWifi = { latitude: 43.2627, longitude: -2.9253, accuracyMeters: 20 };
+    // Misma casa, pero la red móvil sitúa el móvil a ~1,5 km con 1500 m de incertidumbre.
+    const homeByCellNetwork = { latitude: 43.2760, longitude: -2.9253, accuracyMeters: 1500 };
+    const office = { latitude: 43.2700, longitude: -2.9400, accuracyMeters: 30 };
+    ingestAdvertisement(session, tileAdvertisement('T', -60, 0), homeByWifi);
+    ingestAdvertisement(session, tileAdvertisement('T', -60, minutes), homeByCellNetwork);
+    expect(session.groupsById.get('tracker-1')?.places).toHaveLength(1);
+    ingestAdvertisement(session, tileAdvertisement('T', -60, 2 * minutes), office);
+    expect(session.groupsById.get('tracker-1')?.places).toHaveLength(2);
+  });
+
   it('olvida lo que no se oye desde hace mucho', () => {
     const session = createTrackerSession({ forgetAfterMilliseconds: 10 * minutes });
     ingestAdvertisement(session, tileAdvertisement('T', -60, 0));
@@ -121,6 +159,16 @@ describe('agrupamiento de direcciones', () => {
     expect(session.groupsById.size).toBe(0);
     expect(session.groupIdByAddress.size).toBe(0);
     expect(session.otherDeviceLastSeenByAddress.size).toBe(0);
+  });
+
+  it('olvida los tramos de escaneo viejos pero conserva el último', () => {
+    const session = createTrackerSession({ forgetAfterMilliseconds: 10 * minutes });
+    markScanStarted(session, 0);
+    markScanStopped(session, minutes);
+    markScanStarted(session, 2 * minutes);
+    markScanStopped(session, 3 * minutes);
+    forgetStaleDevices(session, 30 * minutes);
+    expect(session.scanIntervals).toEqual([{ startMilliseconds: 2 * minutes, endMilliseconds: 3 * minutes }]);
   });
 
   it('calcula distancias geográficas razonables', () => {

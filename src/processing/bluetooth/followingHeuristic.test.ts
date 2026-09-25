@@ -1,6 +1,6 @@
 import { airTagNearOwnerAdvertisement, airTagSeparatedAdvertisement, iPhoneFindMyAdvertisement, tileAdvertisement } from './exampleAdvertisements';
 import { assessFollowing, compareGroupsForDisplay } from './followingHeuristic';
-import { createTrackerSession, ingestAdvertisement, type TrackerGroup } from './trackerGrouping';
+import { createTrackerSession, ingestAdvertisement, markScanStarted, markScanStopped, type TrackerGroup } from './trackerGrouping';
 
 const minutes = 60_000;
 
@@ -45,6 +45,26 @@ describe('heurística «te sigue»', () => {
     const sightingMinutes = Array.from({ length: 31 }, (_, minuteIndex) => minuteIndex);
     const group = groupFromSightings((timestamp) => tileAdvertisement('T', -70, timestamp), sightingMinutes);
     expect(assessFollowing(group).level).toBe('watch');
+  });
+
+  it('una pausa del escaneo no convierte en «te sigue» a un rastreador quieto', () => {
+    // Escanea 1 min, el móvil se bloquea 10 min y escanea 30 s más, con el mismo AirTag al lado.
+    const session = createTrackerSession();
+    markScanStarted(session, 0);
+    for (let elapsedSeconds = 0; elapsedSeconds <= 60; elapsedSeconds += 2) {
+      ingestAdvertisement(session, airTagSeparatedAdvertisement('A', -60, elapsedSeconds * 1000));
+    }
+    markScanStopped(session, minutes);
+    markScanStarted(session, 11 * minutes);
+    let airTagGroup: TrackerGroup | null = null;
+    for (let elapsedSeconds = 0; elapsedSeconds <= 30; elapsedSeconds += 2) {
+      airTagGroup = ingestAdvertisement(session, airTagSeparatedAdvertisement('A', -60, 11 * minutes + elapsedSeconds * 1000));
+    }
+    if (!airTagGroup) throw new Error('sin grupo');
+    const assessment = assessFollowing(airTagGroup);
+    expect(assessment.observedMinutes).toBeCloseTo(1.5);
+    expect(assessment.episodeCount).toBe(1);
+    expect(assessment.level).toBe('passing');
   });
 
   it('en modo «cerca de su dueño» se queda en vigilar aunque cumpla el criterio', () => {
