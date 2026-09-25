@@ -10,6 +10,7 @@ import { metronomeInstrument } from './metronome';
 import { moonInstrument } from './moon';
 import { poolStripsInstrument } from './pool-strips';
 import { rhythmInstrument } from './rhythm';
+import { seismicNetworkInstrument } from './seismic-network';
 import { seismographInstrument } from './seismograph';
 import { sonarInstrument } from './sonar';
 import { superzoomInstrument } from './superzoom';
@@ -22,6 +23,7 @@ import { tachometerInstrument } from './tachometer';
 export const instrumentRegistry: readonly AnyInstrumentDefinition[] = [
   audioSpectrumInstrument,
   seismographInstrument,
+  seismicNetworkInstrument,
   tachometerInstrument,
   machineDiagnosisInstrument,
   metalDetectorInstrument,
