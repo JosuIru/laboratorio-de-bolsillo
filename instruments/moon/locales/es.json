@@ -46,7 +46,7 @@
   "stackedFrames": "{{count}} apilados",
   "stackingExplanation": "De {{captured}} fotogramas se han elegido los {{stacked}} más nítidos (la turbulencia del aire emborrona unos más que otros), se han alineado y promediado. Al promediar N fotogramas, el ruido baja como √N y se puede realzar el detalle.",
   "tipsTitle": "Consejos",
-  "tips": "• Apoya el móvil en algo firme (o usa un trípode): cualquier temblor emborrona.\n• Toca la Luna para enfocar y medir la luz sobre ella; el cielo negro engaña a la cámara.\n• Baja la exposición hasta que no aparezca el aviso de sobreexposición.\n• Acerca el zoom, pero sin pasarte: más allá del zoom óptico solo se amplía el ruido.\n• Los mejores detalles se ven cerca de la línea de sombra (terminador), no en luna llena.",
+  "tips": "• Apoya el móvil en algo firme (o usa un trípode): cualquier temblor emborrona.\n• Toca la Luna para enfocar y medir la luz sobre ella; el cielo negro engaña a la cámara.\n• Baja la exposición hasta que no aparezca el aviso de sobreexposición.\n• Acerca el zoom, pero sin pasarte: más allá del zoom óptico solo se amplía el ruido.\n• Los mejores detalles se ven cerca de la línea de sombra (terminador), no en luna llena.\n• Si tu móvil no permite fijar el tiempo de exposición y la Luna sigue quemada, pon unas gafas de sol delante del objetivo (o dos polarizadas, cruzadas).",
   "guideTurnRight": "Gira {{degrees}}° a la derecha",
   "guideTurnLeft": "Gira {{degrees}}° a la izquierda",
   "guideRaise": "sube {{degrees}}°",
@@ -83,6 +83,12 @@
     "zoomFactor": "Zoom",
     "exposureBias": "Compensación de exposición",
     "exposureCompensationSteps": "Compensación de exposición (pasos)",
-    "sharpeningAmount": "Realce"
-  }
+    "sharpeningAmount": "Realce",
+    "exposureMilliseconds": "Tiempo de exposición",
+    "iso": "ISO"
+  },
+  "exposureTimeLabel": "Exposición {{duration}} · ISO {{iso}}",
+  "automaticLunarExposure": "Exposición ajustada sola sobre la Luna: lo más clara posible sin quemarse.",
+  "manualLunarExposure": "Exposición manual.",
+  "useAutomaticLunarExposure": "Automática"
 }

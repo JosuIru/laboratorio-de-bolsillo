@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { CommonResolutions, type Frame, useFrameOutput } from 'react-native-vision-camera';
 import { scheduleOnRN } from 'react-native-worklets';
 
@@ -40,8 +40,9 @@ const maximumCaptureMilliseconds = 20_000;
  * Procesa los fotogramas en el hilo de la cámara. Sin captura, localiza la Luna y envía unas
  * pocas cifras (posición, tamaño, saturación). Durante la captura, además recorta en cada
  * fotograma un cuadrado centrado en ella y lo envía al hilo JS, que lo acumula.
+ * `onDetection` recibe cada detección que llega al hilo JS (para ajustar la exposición).
  */
-export function useMoonFrames(isDeviceSteady: () => boolean) {
+export function useMoonFrames(isDeviceSteady: () => boolean, onDetection?: (detection: LiveMoonDetection) => void) {
   const [liveDetection, setLiveDetection] = useState<LiveMoonDetection | null>(null);
   const [captureCropSize, setCaptureCropSize] = useState<number | null>(null);
   const [captureProgress, setCaptureProgress] = useState<CaptureProgress | null>(null);
@@ -51,12 +52,18 @@ export function useMoonFrames(isDeviceSteady: () => boolean) {
   const resolveCapture = useRef<((captureResult: CaptureResult) => void) | null>(null);
   const rejectedCropCount = useRef(0);
   const captureTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // En una ref para no recrear la salida de fotogramas cada vez que cambia la función.
+  const onDetectionRef = useRef(onDetection);
+  useEffect(() => {
+    onDetectionRef.current = onDetection;
+  }, [onDetection]);
 
   const deliverDetection = useCallback((detection: LiveMoonDetection | null) => {
     const currentTime = Date.now();
     if (currentTime - lastDetectionDeliveryTime.current < 1000 / maximumDetectionsPerSecond) return;
     lastDetectionDeliveryTime.current = currentTime;
     setLiveDetection(detection);
+    if (detection) onDetectionRef.current?.(detection);
   }, []);
 
   const finishCapture = useCallback(() => {
