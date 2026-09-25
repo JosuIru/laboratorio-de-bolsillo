@@ -1,14 +1,20 @@
 import { Canvas, Image as SkiaImageView, type SkImage } from '@shopify/react-native-skia';
-import { useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { type GestureResponderEvent, type LayoutChangeEvent, Pressable, StyleSheet, View } from 'react-native';
+import { type GestureResponderEvent, type LayoutChangeEvent, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { Camera, type CameraRef, type MeteringMode, useCameraDevice } from 'react-native-vision-camera';
 
 import type { InstrumentScreenProps } from '@/core/instruments/types';
 import type { PointingGuidance } from '@/processing/astronomy/pointingGuide';
 import { isExpectedCameraInterruption } from '@/core/sensors/cameraErrors';
 import { useIsCameraAllowed } from '@/core/sensors/useIsCameraAllowed';
-import { chooseCropSize, stackSharpestCrops } from '@/processing/image/lunarStacking';
+import {
+  chooseCropSize,
+  type FloatRgbImage,
+  sharpenImage,
+  sharpeningSigmaForCropSize,
+  stackSharpestCrops,
+} from '@/processing/image/lunarStacking';
 import { AppButton, BodyText, Card, ScreenContainer, SectionTitle } from '@/ui/components';
 import { useThemePalette } from '@/ui/theme';
 
@@ -16,6 +22,8 @@ import { moonInstrumentId } from './instrumentId';
 import { MoonInfoCard, useMoonReport, useObserverLocation } from './MoonInfoCard';
 import type { MoonMeasurementValues } from './schema';
 import { createSkiaImage, writeImageToCachePng } from './stackedImage';
+import { createExposureScale, formatExposureValue, stepExposure } from './exposureScale';
+import { useDeviceSteadiness } from './useDeviceSteadiness';
 import { useMoonFrames } from './useMoonFrames';
 import { useMoonPointingGuide } from './useMoonPointingGuide';
 
@@ -24,10 +32,16 @@ const previewHeight = 340;
 const capturedFrameTarget = 30;
 /** Fracción más nítida que se apila; el resto se descarta por la turbulencia. */
 const keptFrameFraction = 0.5;
-const sharpeningAmount = 1.2;
-/** La Luna suele quemarse: se empieza con la exposición bajada (sin pasar del mínimo del móvil). */
-const initialExposureBias = -2;
-const exposureBiasStep = 0.5;
+/** Niveles de realce del detalle (máscara de enfoque) que se pueden elegir tras apilar. */
+const sharpeningLevels = [
+  { labelKey: 'sharpening.none', amount: 0 },
+  { labelKey: 'sharpening.soft', amount: 0.6 },
+  { labelKey: 'sharpening.medium', amount: 1.2 },
+  { labelKey: 'sharpening.strong', amount: 2 },
+] as const;
+const defaultSharpeningLevelIndex = 2;
+/** Cuenta atrás antes de capturar, para que el toque en la pantalla no mueva la imagen. */
+const captureCountdownSeconds = 3;
 const zoomStepFactor = Math.SQRT2;
 /** Por encima de esta fracción de píxeles saturados, los mares y cráteres se pierden. */
 const overexposedSaturatedFraction = 0.02;
@@ -41,13 +55,20 @@ const negligibleCorrectionDegrees = 2;
 const recommendedMoonDiameterPixels = 80;
 
 interface StackingOutcome {
-  stackedSkiaImage: SkImage;
+  /** Apilado sin realzar: el realce se aplica después, según el nivel elegido. */
+  stackedBaseImage: FloatRgbImage;
+  sharpeningSigma: number;
   bestSingleSkiaImage: SkImage;
   capturedFrameCount: number;
+  rejectedFrameCount: number;
   stackedFrameCount: number;
   moonDiameterPixels: number;
   zoomFactor: number;
   exposureBias?: number;
+}
+
+function waitMilliseconds(durationMilliseconds: number) {
+  return new Promise((resolve) => setTimeout(resolve, durationMilliseconds));
 }
 
 function clampNumber(value: number, minimumValue: number, maximumValue: number): number {
@@ -64,7 +85,10 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
     sensorAvailability.location,
   );
   const moonReport = useMoonReport(observerLocation);
-  const { frameOutput, liveDetection, isCapturing, captureProgress, captureCrops, stopCapture } = useMoonFrames();
+  const hasGyroscope = sensorAvailability.gyroscope.status === 'available';
+  const { isDeviceSteady, isSteadyForDisplay } = useDeviceSteadiness(isCameraAllowed, hasGyroscope);
+  const { frameOutput, liveDetection, isCapturing, captureProgress, captureCrops, stopCapture } =
+    useMoonFrames(isDeviceSteady);
   const hasOrientationSensors =
     sensorAvailability.accelerometer.status === 'available' && sensorAvailability.magnetometer.status === 'available';
   const pointingGuidance = useMoonPointingGuide(moonReport.horizontalPosition, isCameraAllowed && hasOrientationSensors);
@@ -77,16 +101,47 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
   const supportsExposureBias = cameraDevice?.supportsExposureBias ?? false;
   const minimumExposureBias = cameraDevice?.minExposureBias ?? 0;
   const maximumExposureBias = cameraDevice?.maxExposureBias ?? 0;
-  const [requestedExposureBias, setRequestedExposureBias] = useState(initialExposureBias);
+  // En Android la compensación va en pasos enteros de tamaño desconocido; en iOS, en EV.
+  const exposureScale = useMemo(
+    () => createExposureScale(minimumExposureBias, maximumExposureBias, Platform.OS === 'android'),
+    [minimumExposureBias, maximumExposureBias],
+  );
+  const [requestedExposureBias, setRequestedExposureBias] = useState<number | null>(null);
   const exposureBias = supportsExposureBias
-    ? clampNumber(requestedExposureBias, minimumExposureBias, maximumExposureBias)
+    ? clampNumber(requestedExposureBias ?? exposureScale.initialValue, minimumExposureBias, maximumExposureBias)
     : undefined;
+
+  // Cuenta los arranques de la sesión de cámara para volver a aplicar zoom y exposición.
+  const [cameraStartCount, setCameraStartCount] = useState(0);
+
+  // vision-camera envía zoom y exposición en cuanto hay controlador, a menudo antes de que la
+  // cámara arranque: Android cancela la orden («Camera is not active») y no se reintenta mientras
+  // el valor no cambie. Se reaplican cada vez que la sesión arranca.
+  useEffect(() => {
+    if (cameraStartCount === 0) return;
+    const cameraController = cameraRef.current?.controller;
+    if (!cameraController) return;
+    cameraController.setZoom(zoomFactor).catch(() => undefined);
+    if (exposureBias !== undefined) cameraController.setExposureBias(exposureBias).catch(() => undefined);
+  }, [cameraStartCount, zoomFactor, exposureBias]);
 
   const [meteringViewPoint, setMeteringViewPoint] = useState<{ x: number; y: number } | null>(null);
   const [stackingOutcome, setStackingOutcome] = useState<StackingOutcome | null>(null);
+  const [sharpeningLevelIndex, setSharpeningLevelIndex] = useState(defaultSharpeningLevelIndex);
+  const [countdownSecondsLeft, setCountdownSecondsLeft] = useState<number | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+
+  const stackedSkiaImage = useMemo(() => {
+    if (!stackingOutcome) return null;
+    const sharpeningAmount = sharpeningLevels[sharpeningLevelIndex]?.amount ?? 0;
+    const displayedImage =
+      sharpeningAmount > 0
+        ? sharpenImage(stackingOutcome.stackedBaseImage, stackingOutcome.sharpeningSigma, sharpeningAmount)
+        : stackingOutcome.stackedBaseImage;
+    return createSkiaImage(displayedImage);
+  }, [stackingOutcome, sharpeningLevelIndex]);
 
   const canMeter = Boolean(cameraDevice?.supportsExposureMetering || cameraDevice?.supportsFocusMetering);
 
@@ -105,6 +160,8 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
         adaptiveness: 'locked',
         autoResetAfter: null,
       });
+      // Tras medir sobre la Luna, se vuelve a aplicar la compensación sobre esa medida.
+      if (exposureBias !== undefined) await cameraRef.current?.controller?.setExposureBias(exposureBias);
     } catch {
       // Cancelado por otro toque o no admitido: la vista previa sigue funcionando.
     }
@@ -132,23 +189,32 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
     const captureExposureBias = exposureBias;
     setStackingOutcome(null);
     setStatusMessage(null);
-    const capturedCrops = await captureCrops(capturedFrameTarget, cropSize);
+    for (let secondsLeft = captureCountdownSeconds; secondsLeft > 0; secondsLeft--) {
+      setCountdownSecondsLeft(secondsLeft);
+      await waitMilliseconds(1000);
+    }
+    setCountdownSecondsLeft(null);
+    const { crops: capturedCrops, rejectedCropCount: rejectedFrameCount } = await captureCrops(
+      capturedFrameTarget,
+      cropSize,
+    );
     if (capturedCrops.length === 0) {
-      setStatusMessage(t('moonLostDuringCapture'));
+      setStatusMessage(t(rejectedFrameCount > 0 ? 'tooMuchMovement' : 'moonLostDuringCapture'));
       return;
     }
     setIsProcessing(true);
     // Deja que se pinte el indicador antes del cálculo, que ocupa el hilo JS un par de segundos.
     await new Promise((resolve) => setTimeout(resolve, 50));
     try {
-      const stackingResult = stackSharpestCrops(capturedCrops, cropSize, keptFrameFraction, sharpeningAmount);
-      const stackedSkiaImage = createSkiaImage(stackingResult.stackedImage);
+      const stackingResult = stackSharpestCrops(capturedCrops, cropSize, keptFrameFraction, 0);
       const bestSingleSkiaImage = createSkiaImage(stackingResult.bestSingleImage);
-      if (!stackedSkiaImage || !bestSingleSkiaImage) throw new Error('Skia no pudo crear la imagen');
+      if (!bestSingleSkiaImage) throw new Error('Skia no pudo crear la imagen');
       setStackingOutcome({
-        stackedSkiaImage,
+        stackedBaseImage: stackingResult.stackedImage,
+        sharpeningSigma: sharpeningSigmaForCropSize(cropSize),
         bestSingleSkiaImage,
         capturedFrameCount: capturedCrops.length,
+        rejectedFrameCount,
         stackedFrameCount: stackingResult.usedCropCount,
         moonDiameterPixels,
         zoomFactor: captureZoomFactor,
@@ -162,14 +228,14 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
   }
 
   async function handleSave() {
-    if (!stackingOutcome) return;
+    if (!stackingOutcome || !stackedSkiaImage) return;
     setIsSaving(true);
     setStatusMessage(null);
     const roundTo = (numericValue: number, fractionDigits: number) =>
       Math.round(numericValue * 10 ** fractionDigits) / 10 ** fractionDigits;
     const horizontalPosition = moonReport.horizontalPosition;
     try {
-      const pngFile = writeImageToCachePng(stackingOutcome.stackedSkiaImage);
+      const pngFile = writeImageToCachePng(stackedSkiaImage);
       await saveMeasurement({
         values: {
           phaseName: moonReport.phaseName,
@@ -187,7 +253,12 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
           stackedFrameCount: stackingOutcome.stackedFrameCount,
           moonDiameterPixels: stackingOutcome.moonDiameterPixels,
           zoomFactor: roundTo(stackingOutcome.zoomFactor, 2),
-          ...(stackingOutcome.exposureBias !== undefined ? { exposureBias: stackingOutcome.exposureBias } : {}),
+          ...(stackingOutcome.exposureBias === undefined
+            ? {}
+            : exposureScale.isStepIndex
+              ? { exposureCompensationSteps: stackingOutcome.exposureBias }
+              : { exposureBias: stackingOutcome.exposureBias }),
+          sharpeningAmount: sharpeningLevels[sharpeningLevelIndex]?.amount ?? 0,
         },
         attachments: [
           {
@@ -196,8 +267,8 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
             fileName: 'luna.png',
             mimeType: 'image/png',
             metadata: {
-              widthPixels: stackingOutcome.stackedSkiaImage.width(),
-              heightPixels: stackingOutcome.stackedSkiaImage.height(),
+              widthPixels: stackedSkiaImage.width(),
+              heightPixels: stackedSkiaImage.height(),
               stackedFrameCount: stackingOutcome.stackedFrameCount,
             },
           },
@@ -213,10 +284,11 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
   }
 
   const moonDiameterPixels = liveDetection ? Math.round(liveDetection.radiusPixels * 2) : 0;
+  const isExposureAtMinimum = exposureBias === undefined || exposureBias <= minimumExposureBias;
   const exposureHint = !liveDetection
     ? null
     : liveDetection.saturatedFraction > overexposedSaturatedFraction
-      ? t('overexposedHint')
+      ? t(isExposureAtMinimum ? 'overexposedAtMinimumHint' : 'overexposedHint')
       : liveDetection.peakBrightness < underexposedPeakBrightness
         ? t('underexposedHint')
         : null;
@@ -241,6 +313,7 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
           zoom={zoomFactor}
           exposure={exposureBias}
           onError={handleCameraError}
+          onStarted={() => setCameraStartCount((previousCount) => previousCount + 1)}
           resizeMode="contain"
         />
         <Pressable
@@ -274,6 +347,11 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
         {liveDetection ? t('moonDetected', { diameter: moonDiameterPixels }) : t('moonNotDetected')}
       </BodyText>
       {exposureHint ? <BodyText tone="danger">{exposureHint}</BodyText> : null}
+      {liveDetection && hasGyroscope && !isCapturing ? (
+        <BodyText tone={isSteadyForDisplay ? 'secondary' : 'danger'}>
+          {t(isSteadyForDisplay ? 'deviceSteady' : 'deviceMoving')}
+        </BodyText>
+      ) : null}
       {liveDetection && moonDiameterPixels < recommendedMoonDiameterPixels ? (
         <BodyText tone="secondary">{t('moonTooSmallHint')}</BodyText>
       ) : null}
@@ -289,9 +367,16 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
       />
       {exposureBias !== undefined ? (
         <StepperRow
-          label={t('exposureLabel', { exposure: `${exposureBias > 0 ? '+' : ''}${exposureBias.toFixed(1)}` })}
-          onDecrease={() => setRequestedExposureBias(Math.max(minimumExposureBias, exposureBias - exposureBiasStep))}
-          onIncrease={() => setRequestedExposureBias(Math.min(maximumExposureBias, exposureBias + exposureBiasStep))}
+          label={
+            exposureScale.isStepIndex
+              ? t('exposureStepsLabel', {
+                  exposure: formatExposureValue(exposureScale, exposureBias),
+                  minimum: formatExposureValue(exposureScale, minimumExposureBias),
+                })
+              : t('exposureLabel', { exposure: formatExposureValue(exposureScale, exposureBias) })
+          }
+          onDecrease={() => setRequestedExposureBias(stepExposure(exposureScale, exposureBias, -1))}
+          onIncrease={() => setRequestedExposureBias(stepExposure(exposureScale, exposureBias, 1))}
           isDecreaseDisabled={exposureBias <= minimumExposureBias}
           isIncreaseDisabled={exposureBias >= maximumExposureBias}
           decreaseLabel={t('exposureDown')}
@@ -320,6 +405,7 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
               {t('capturingProgress', {
                 captured: captureProgress?.capturedCropCount ?? 0,
                 target: captureProgress?.targetCropCount ?? capturedFrameTarget,
+                rejected: captureProgress?.rejectedCropCount ?? 0,
               })}
             </BodyText>
           </View>
@@ -329,22 +415,42 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
         </View>
       ) : (
         <AppButton
-          label={t('captureAndStack', { count: capturedFrameTarget })}
+          label={
+            countdownSecondsLeft !== null
+              ? t('captureCountdown', { seconds: countdownSecondsLeft })
+              : t('captureAndStack', { count: capturedFrameTarget })
+          }
           onPress={() => void handleCapture()}
           isBusy={isProcessing}
-          isDisabled={!liveDetection || isProcessing}
+          isDisabled={!liveDetection || isProcessing || countdownSecondsLeft !== null}
         />
       )}
 
-      {stackingOutcome ? (
+      {stackingOutcome && stackedSkiaImage ? (
         <Card>
           <SectionTitle>{t('resultTitle')}</SectionTitle>
           <View style={styles.resultRow}>
             <ResultImage label={t('bestSingleFrame')} skiaImage={stackingOutcome.bestSingleSkiaImage} />
             <ResultImage
               label={t('stackedFrames', { count: stackingOutcome.stackedFrameCount })}
-              skiaImage={stackingOutcome.stackedSkiaImage}
+              skiaImage={stackedSkiaImage}
             />
+          </View>
+          <BodyText tone="secondary">{t('sharpeningTitle')}</BodyText>
+          <View style={styles.chipRow}>
+            {sharpeningLevels.map((sharpeningLevel, levelIndex) => {
+              const isSelectedLevel = levelIndex === sharpeningLevelIndex;
+              return (
+                <Pressable
+                  key={sharpeningLevel.labelKey}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: isSelectedLevel }}
+                  onPress={() => setSharpeningLevelIndex(levelIndex)}
+                  style={[styles.chip, { borderColor: isSelectedLevel ? themePalette.accent : themePalette.border }]}>
+                  <BodyText tone={isSelectedLevel ? 'accent' : 'secondary'}>{t(sharpeningLevel.labelKey)}</BodyText>
+                </Pressable>
+              );
+            })}
           </View>
           <BodyText tone="secondary">
             {t('stackingExplanation', {
@@ -352,6 +458,11 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
               stacked: stackingOutcome.stackedFrameCount,
             })}
           </BodyText>
+          {stackingOutcome.rejectedFrameCount > 0 ? (
+            <BodyText tone="secondary">
+              {t('rejectedFramesExplanation', { count: stackingOutcome.rejectedFrameCount })}
+            </BodyText>
+          ) : null}
           <AppButton label={t('core:common.save')} onPress={() => void handleSave()} isBusy={isSaving} />
         </Card>
       ) : null}
@@ -492,6 +603,8 @@ const styles = StyleSheet.create({
   stepperLabel: { flex: 1, textAlign: 'center', fontWeight: '600', fontVariant: ['tabular-nums'] },
   buttonRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   buttonCell: { flex: 1 },
+  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  chip: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 16, borderWidth: 1.5 },
   resultRow: { flexDirection: 'row', gap: 8 },
   resultColumn: { flex: 1, alignItems: 'center', gap: 4 },
   resultImageFrame: { width: '100%', aspectRatio: 1, backgroundColor: '#000000', borderRadius: 8, overflow: 'hidden' },

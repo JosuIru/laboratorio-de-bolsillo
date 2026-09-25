@@ -13,6 +13,9 @@ export interface MoonMeasurementValues {
   moonDiameterPixels: number;
   zoomFactor: number;
   exposureBias?: number;
+  /** Android: compensación en pasos del móvil (su tamaño en EV depende del modelo). */
+  exposureCompensationSteps?: number;
+  sharpeningAmount?: number;
 }
 
 export const moonSchema = defineMeasurementSchema<MoonMeasurementValues>(1, [
@@ -28,4 +31,11 @@ export const moonSchema = defineMeasurementSchema<MoonMeasurementValues>(1, [
   { key: 'moonDiameterPixels', labelKey: 'fields.moonDiameterPixels', type: 'number', unit: 'px' },
   { key: 'zoomFactor', labelKey: 'fields.zoomFactor', type: 'number', unit: '×' },
   { key: 'exposureBias', labelKey: 'fields.exposureBias', type: 'number', unit: 'EV', optional: true },
+  {
+    key: 'exposureCompensationSteps',
+    labelKey: 'fields.exposureCompensationSteps',
+    type: 'number',
+    optional: true,
+  },
+  { key: 'sharpeningAmount', labelKey: 'fields.sharpeningAmount', type: 'number', optional: true },
 ]);
