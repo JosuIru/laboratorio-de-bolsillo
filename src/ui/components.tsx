@@ -9,13 +9,18 @@ import {
   View,
   type ViewStyle,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useThemePalette } from './theme';
 
 export function ScreenContainer({ children, isScrollable = true }: { children: ReactNode; isScrollable?: boolean }) {
-  if (!isScrollable) return <View style={styles.screenContent}>{children}</View>;
+  // Android dibuja la app de borde a borde: sin este margen, lo último de la pantalla queda
+  // debajo de la barra de navegación y no se puede tocar.
+  const { bottom: bottomInset } = useSafeAreaInsets();
+  const contentStyle = [styles.screenContent, { paddingBottom: screenPadding + bottomInset }];
+  if (!isScrollable) return <View style={contentStyle}>{children}</View>;
   return (
-    <ScrollView contentContainerStyle={styles.screenContent} keyboardShouldPersistTaps="handled">
+    <ScrollView contentContainerStyle={contentStyle} keyboardShouldPersistTaps="handled">
       {children}
     </ScrollView>
   );
@@ -113,8 +118,10 @@ export function LoadingState({ label }: { label: string }) {
   );
 }
 
+const screenPadding = 16;
+
 const styles = StyleSheet.create({
-  screenContent: { padding: 16, gap: 12, flexGrow: 1 },
+  screenContent: { padding: screenPadding, gap: 12, flexGrow: 1 },
   card: { padding: 16, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, gap: 8 },
   bodyText: { fontSize: 15, lineHeight: 21 },
   sectionTitle: { fontSize: 17, fontWeight: '600', marginTop: 8 },
