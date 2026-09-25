@@ -1,0 +1,66 @@
+{
+  "name": "Makinen diagnostikoa",
+  "description": "Alderatu makina baten soinua eta bibrazioa haren «aztarna» osasuntsuarekin, higadura, desorekak edo pieza solteak antzemateko.",
+  "instructions": "Grabatu aztarna bat makina ondo dabilenean. Geroago, alderatu baldintza berberetan (mugikorra leku berean, erregimen berean) zer aldatu den ikusteko.",
+  "privacy": "Mikrofonoa eta azelerometroa grabazioan bakarrik erabiltzen dira. Ez da audiorik gordetzen: maiztasun-bandetako mailak bakarrik.",
+  "machines": {
+    "title": "Makinak",
+    "empty": "Sortu makina bat hasteko (adib. «Putzuko ponpa»).",
+    "newPlaceholder": "Makinaren izena",
+    "create": "Gehitu",
+    "delete": "Ezabatu makina hau"
+  },
+  "baseline": {
+    "missing": "Oraindik ez du aztarnarik: grabatu makina osasuntsu dagoenean.",
+    "recordedAt": "Aztarna grabatze-data: {{date}}"
+  },
+  "capture": {
+    "recordBaseline": "Grabatu aztarna (makina osasuntsua)",
+    "rerecordBaseline": "Grabatu berriro aztarna",
+    "compare": "Alderatu aztarnarekin",
+    "recordingBaseline": "Aztarna grabatzen…",
+    "recordingComparison": "Alderatzeko neurtzen…",
+    "hint": "Utzi mugikorra makinaren gainean (edo zintarekin lotuta) eta ez ukitu {{seconds}} segundoz.",
+    "microphoneError": "Mikrofonoa: {{message}}",
+    "noData": "Ez da sentsoreen daturik jaso. Saiatu berriro."
+  },
+  "verdict": {
+    "normal": "Normala",
+    "watch": "Zaindu",
+    "alert": "Berrikusi"
+  },
+  "verdictHint": {
+    "normal": "Ez dago aldaketa garrantzitsurik aztarnarekiko.",
+    "watch": "Banda batzuk 3 eta 6 dB artean igo dira: errepikatu neurketa geroago, igotzen jarraitzen duen ikusteko.",
+    "alert": "Bandaren bat 6 dB edo gehiago igo da (energiaren laukoitza): komeni da makina berrikustea."
+  },
+  "overall": {
+    "audio": "Soinu orokorra: {{delta}} dB",
+    "vibration": "Bibrazio orokorra: {{delta}} dB"
+  },
+  "deviations": {
+    "title": "Gehien aldatu diren bandak"
+  },
+  "domain": {
+    "audio": "Soinua {{band}} Hz",
+    "vibration": "Bibrazioa {{band}} Hz"
+  },
+  "charts": {
+    "audio": "Soinuaren aldaketa bandaka",
+    "vibration": "Bibrazioaren aldaketa bandaka"
+  },
+  "fields": {
+    "machineName": "Makina",
+    "verdict": "Diagnostikoa",
+    "largestIncrease": "Banda baten igoera handiena",
+    "mostChangedBand": "Gehien aldatu den banda",
+    "audioOverallDelta": "Soinu orokorraren aldaketa",
+    "vibrationOverallDelta": "Bibrazio orokorraren aldaketa",
+    "baselineCapturedAt": "Aztarnaren data (ms)",
+    "captureDuration": "Neurketaren iraupena",
+    "audioBandCenters": "Soinu-bandak",
+    "audioBandLevels": "Soinu-mailak",
+    "vibrationBandCenters": "Bibrazio-bandak",
+    "vibrationBandLevels": "Bibrazio-mailak"
+  }
+}

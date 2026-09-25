@@ -1,0 +1,66 @@
+{
+  "name": "Diagnóstico de máquinas",
+  "description": "Compara el sonido y la vibración de una máquina con su «huella» sana para detectar desgaste, desequilibrios o piezas flojas.",
+  "instructions": "Graba una huella con la máquina funcionando bien. Más adelante, compara en las mismas condiciones (mismo sitio del móvil, mismo régimen) para ver qué ha cambiado.",
+  "privacy": "El micrófono y el acelerómetro solo se usan durante la grabación. No se guarda audio: solo los niveles por bandas de frecuencia.",
+  "machines": {
+    "title": "Máquinas",
+    "empty": "Crea una máquina para empezar (p. ej. «Bomba del pozo»).",
+    "newPlaceholder": "Nombre de la máquina",
+    "create": "Añadir",
+    "delete": "Borrar esta máquina"
+  },
+  "baseline": {
+    "missing": "Todavía no tiene huella: grábala con la máquina sana.",
+    "recordedAt": "Huella grabada el {{date}}"
+  },
+  "capture": {
+    "recordBaseline": "Grabar huella (máquina sana)",
+    "rerecordBaseline": "Volver a grabar la huella",
+    "compare": "Comparar con la huella",
+    "recordingBaseline": "Grabando la huella…",
+    "recordingComparison": "Midiendo para comparar…",
+    "hint": "Deja el móvil apoyado sobre la máquina (o sujeto con cinta) y sin tocarlo durante {{seconds}} s.",
+    "microphoneError": "Micrófono: {{message}}",
+    "noData": "No se han recibido datos de los sensores. Inténtalo de nuevo."
+  },
+  "verdict": {
+    "normal": "Normal",
+    "watch": "Vigilar",
+    "alert": "Revisar"
+  },
+  "verdictHint": {
+    "normal": "No hay cambios importantes respecto a la huella.",
+    "watch": "Algunas bandas han subido entre 3 y 6 dB: repite la medida más adelante para ver si sigue subiendo.",
+    "alert": "Alguna banda ha subido 6 dB o más (el cuádruple de energía): conviene revisar la máquina."
+  },
+  "overall": {
+    "audio": "Sonido global: {{delta}} dB",
+    "vibration": "Vibración global: {{delta}} dB"
+  },
+  "deviations": {
+    "title": "Bandas que más han cambiado"
+  },
+  "domain": {
+    "audio": "Sonido {{band}} Hz",
+    "vibration": "Vibración {{band}} Hz"
+  },
+  "charts": {
+    "audio": "Cambio del sonido por bandas",
+    "vibration": "Cambio de la vibración por bandas"
+  },
+  "fields": {
+    "machineName": "Máquina",
+    "verdict": "Diagnóstico",
+    "largestIncrease": "Mayor subida de una banda",
+    "mostChangedBand": "Banda que más ha cambiado",
+    "audioOverallDelta": "Cambio del sonido global",
+    "vibrationOverallDelta": "Cambio de la vibración global",
+    "baselineCapturedAt": "Fecha de la huella (ms)",
+    "captureDuration": "Duración de la medida",
+    "audioBandCenters": "Bandas de sonido",
+    "audioBandLevels": "Niveles de sonido",
+    "vibrationBandCenters": "Bandas de vibración",
+    "vibrationBandLevels": "Niveles de vibración"
+  }
+}
