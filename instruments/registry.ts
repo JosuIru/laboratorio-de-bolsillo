@@ -4,6 +4,7 @@ import { audioSpectrumInstrument } from './audio-spectrum';
 import { colorHuntInstrument } from './color-hunt';
 import { colorimeterInstrument } from './colorimeter';
 import { exampleLevelInstrument } from './example-level';
+import { gnssSkyInstrument } from './gnss-sky';
 import { machineDiagnosisInstrument } from './machine-diagnosis';
 import { metalDetectorInstrument } from './metal-detector';
 import { metronomeInstrument } from './metronome';
@@ -25,6 +26,7 @@ export const instrumentRegistry: readonly AnyInstrumentDefinition[] = [
   tachometerInstrument,
   machineDiagnosisInstrument,
   metalDetectorInstrument,
+  gnssSkyInstrument,
   sonarInstrument,
   rhythmInstrument,
   colorHuntInstrument,

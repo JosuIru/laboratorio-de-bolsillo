@@ -1,0 +1,4 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <!-- Ya lo declara expo-location; se repite aquí para que el módulo no dependa de ello. -->
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+</manifest>
