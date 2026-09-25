@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { type AnalyserNode, AudioContext, AudioManager, AudioRecorder } from 'react-native-audio-api';
 
-import { useIsAppActive } from '@/core/useIsAppActive';
+import { startRecorderInOrder, stopRecorderInOrder } from '@/core/audio/recorderQueue';
+import { useIsScreenActive } from '@/core/useIsScreenActive';
 import { type FundamentalEstimate, estimateFundamentalFrequency } from '@/processing/dsp/fundamentalFrequency';
 
 import { createReadingStabilizer, type StabilizedReading } from './rpmReading';
@@ -27,21 +28,30 @@ export interface TachometerFrame {
 type TachometerMicrophoneState =
   | { status: 'starting' }
   | { status: 'running'; frame: TachometerFrame | null }
+  /** En pausa (o con la pantalla tapada): conserva la última lectura para mostrarla. */
+  | { status: 'paused'; frame: TachometerFrame | null }
   | { status: 'error'; errorMessage: string };
 
 /**
  * Micrófono → AnalyserNode (FFT nativa) → ganancia 0 → salida, como el analizador de espectro.
- * Solo escucha en primer plano y mientras no esté en pausa.
+ * Solo escucha con la pantalla visible, en primer plano y mientras no esté en pausa.
  */
 export function useTachometerMicrophone({ isRunning }: { isRunning: boolean }) {
-  const isAppActive = useIsAppActive();
-  const shouldListen = isRunning && isAppActive;
-  const [microphoneState, setMicrophoneState] = useState<TachometerMicrophoneState>({ status: 'starting' });
+  const isScreenActive = useIsScreenActive();
+  const shouldListen = isRunning && isScreenActive;
+  const [microphoneState, setMicrophoneState] = useState<TachometerMicrophoneState>(
+    shouldListen ? { status: 'starting' } : { status: 'paused', frame: null },
+  );
 
   const [previousShouldListen, setPreviousShouldListen] = useState(shouldListen);
   if (previousShouldListen !== shouldListen) {
     setPreviousShouldListen(shouldListen);
-    setMicrophoneState({ status: 'starting' });
+    if (shouldListen) {
+      setMicrophoneState({ status: 'starting' });
+    } else {
+      const lastFrame = microphoneState.status === 'running' || microphoneState.status === 'paused' ? microphoneState.frame : null;
+      setMicrophoneState({ status: 'paused', frame: lastFrame });
+    }
   }
 
   useEffect(() => {
@@ -69,14 +79,12 @@ export function useTachometerMicrophone({ isRunning }: { isRunning: boolean }) {
         analyserNode.connect(silentOutput);
         silentOutput.connect(audioContext.destination);
 
-        const startResult = await audioRecorder.start();
-        if (isCancelled) {
-          // Si la limpieza paró el grabador antes de que acabara de arrancar, seguiría grabando.
-          if (startResult.status !== 'error') void audioRecorder.stop().catch(() => undefined);
-          return;
-        }
+        // La cola espera a que otros grabadores se paren y, si se cancela, deja este parado.
+        const startResult = await startRecorderInOrder(audioRecorder, () => isCancelled);
+        if (!startResult || isCancelled) return;
         if (startResult.status === 'error') throw new Error(startResult.message);
         await audioContext.resume();
+        if (isCancelled) return;
 
         const sampleRateHz = audioContext.sampleRate;
         const decibelSpectrum = new Float32Array(tachometerFftSize / 2);
@@ -116,7 +124,7 @@ export function useTachometerMicrophone({ isRunning }: { isRunning: boolean }) {
     return () => {
       isCancelled = true;
       if (readingTimer) clearInterval(readingTimer);
-      void audioRecorder.stop().catch(() => undefined);
+      void stopRecorderInOrder(audioRecorder);
       audioRecorder.disconnect();
       void audioContext.close().catch(() => undefined);
     };

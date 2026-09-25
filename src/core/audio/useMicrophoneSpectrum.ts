@@ -1,10 +1,11 @@
 import { useEffect, useEffectEvent, useState } from 'react';
 import { type AnalyserNode, AudioContext, AudioManager, AudioRecorder } from 'react-native-audio-api';
 
-import { useIsAppActive } from '@/core/useIsAppActive';
+import { startRecorderInOrder, stopRecorderInOrder } from '@/core/audio/recorderQueue';
+import { useIsScreenActive } from '@/core/useIsScreenActive';
 
 export interface MicrophoneSpectrumOptions {
-  /** Escucha solo mientras sea `true` (y la app esté en primer plano). */
+  /** Escucha solo mientras sea `true` (y la pantalla esté visible con la app en primer plano). */
   isActive: boolean;
   /** Potencia de 2 entre 32 y 32768. */
   fftSize: number;
@@ -27,7 +28,8 @@ export type MicrophoneSpectrumStatus =
 /**
  * Micrófono → AnalyserNode (FFT nativa) → ganancia 0 → salida. La rama silenciada es necesaria
  * porque el grafo solo procesa lo que llega a la salida; con ganancia 0 no se oye nada.
- * El micrófono se cierra al desactivar, al desmontar y al pasar la app a segundo plano.
+ * El micrófono se cierra al desactivar, al desmontar, al taparlo otra pantalla y al pasar la app
+ * a segundo plano.
  */
 export function useMicrophoneSpectrum({
   isActive,
@@ -36,8 +38,8 @@ export function useMicrophoneSpectrum({
   frameIntervalMilliseconds = 100,
   onFrame,
 }: MicrophoneSpectrumOptions): MicrophoneSpectrumStatus {
-  const isAppActive = useIsAppActive();
-  const shouldListen = isActive && isAppActive;
+  const isScreenActive = useIsScreenActive();
+  const shouldListen = isActive && isScreenActive;
   const handleFrame = useEffectEvent(onFrame);
   const [microphoneStatus, setMicrophoneStatus] = useState<MicrophoneSpectrumStatus>({ status: 'idle' });
 
@@ -72,12 +74,9 @@ export function useMicrophoneSpectrum({
         analyserNode.connect(silentOutput);
         silentOutput.connect(audioContext.destination);
 
-        const startResult = await audioRecorder.start();
-        if (isCancelled) {
-          // Si la limpieza paró el grabador antes de que acabara de arrancar, seguiría grabando.
-          if (startResult.status !== 'error') void audioRecorder.stop().catch(() => undefined);
-          return;
-        }
+        // La cola espera a que otros grabadores se paren y, si se cancela, deja este parado.
+        const startResult = await startRecorderInOrder(audioRecorder, () => isCancelled);
+        if (!startResult || isCancelled) return;
         if (startResult.status === 'error') throw new Error(startResult.message);
         await audioContext.resume();
         if (isCancelled) return;
@@ -100,7 +99,7 @@ export function useMicrophoneSpectrum({
     return () => {
       isCancelled = true;
       if (frameTimer) clearInterval(frameTimer);
-      void audioRecorder.stop().catch(() => undefined);
+      void stopRecorderInOrder(audioRecorder);
       audioRecorder.disconnect();
       void audioContext.close().catch(() => undefined);
     };
