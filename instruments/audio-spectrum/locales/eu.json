@@ -1,0 +1,46 @@
+{
+  "name": "Espektro-analizatzailea",
+  "description": "Soinuaren maiztasunak denbora errealean mikrofonoarekin: espektroa, ur-jauzia, maiztasun nagusia eta maila.",
+  "starting": "Mikrofonoa irekitzen…",
+  "paused": "Pausan: mikrofonoa itxita dago.",
+  "pause": "Pausatu",
+  "resume": "Jarraitu",
+  "approximate": "gutxi gorabehera",
+  "uncalibrated": "kalibratu gabe",
+  "spectrumChart": "Uneko soinuaren maiztasun-espektroa",
+  "waterfallChart": "Azken segundoetako ur-jauzi espektrograma",
+  "privacy": "Audioa mugikorrean aztertzen da eta ez da grabatzen. Gordetzean, espektroa eta balioak bakarrik gordetzen dira.",
+  "scale": {
+    "logarithmic": "Logaritmikoa",
+    "linear": "Lineala"
+  },
+  "notes": {
+    "0": "Do",
+    "1": "Do♯",
+    "2": "Re",
+    "3": "Re♯",
+    "4": "Mi",
+    "5": "Fa",
+    "6": "Fa♯",
+    "7": "Sol",
+    "8": "Sol♯",
+    "9": "La",
+    "10": "La♯",
+    "11": "Si"
+  },
+  "fields": {
+    "dominantFrequency": "Maiztasun nagusia",
+    "level": "Maila",
+    "soundPressureLevel": "Soinu-maila",
+    "toneLevel": "Tonuaren maila",
+    "sampleRate": "Laginketa-maiztasuna",
+    "fftSize": "FFTaren tamaina",
+    "spectrum": "Espektroa"
+  },
+  "calibration": {
+    "instructions": "Jarri mugikorraren ondoan sonometro bat eta soinu egonkor bat (hondo-zarata konstantea, haizagailu bat edo tonu bat). Irakurketa egonkortzen denean, idatzi sonometroak zer markatzen duen.",
+    "referencePlaceholder": "Sonometroaren maila (dB)",
+    "invalidReference": "Idatzi sonometroaren maila, adibidez 65 edo 65,5.",
+    "implausible": "Emaitza ez da zentzuzkoa. Egiaztatu balioa eta soinua mikrofonora ondo iristen dela."
+  }
+}

@@ -57,6 +57,18 @@
         {
           "debugAppName": "Laboratorio (dev)"
         }
+      ],
+      [
+        "react-native-audio-api",
+        {
+          "iosMicrophonePermission": "El analizador de espectro usa el micrófono para medir el sonido. El audio se procesa en el móvil y no se guarda salvo que lo pidas.",
+          "iosBackgroundMode": false,
+          "androidPermissions": [
+            "android.permission.RECORD_AUDIO"
+          ],
+          "androidForegroundService": false,
+          "disableFFmpeg": true
+        }
       ]
     ],
     "experiments": {

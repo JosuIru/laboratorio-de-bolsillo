@@ -37,7 +37,9 @@ pantalla deshabilitada si faltan sensores, el historial, la exportación a CSV y
 ubicación opcional y los perfiles de calibración.
 
 El instrumento de referencia es **`instruments/example-level/`**, un nivel de burbuja que
-solo aparece en builds de desarrollo. Cópialo como plantilla.
+solo aparece en builds de desarrollo. Cópialo como plantilla. Para casos más completos:
+`instruments/seismograph/` (sensor a alta frecuencia, buffers circulares, FFT y adjuntos) e
+`instruments/audio-spectrum/` (micrófono, espectrograma y calibración con un sonómetro).
 
 ### 1. Crea la carpeta
 
@@ -152,6 +154,15 @@ export function VibrationScreen({ saveMeasurement }: InstrumentScreenProps<Vibra
 Todas cumplen la interfaz `SensorSource`. En React, usa `useSensorSubscription`, que
 cancela la suscripción al desmontar. Cámara y micrófono no pasan muestras al hilo JS: se
 usan desde worklets con VisionCamera y react-native-audio-api.
+
+**Micrófono.** Mira `instruments/audio-spectrum/useMicrophoneAnalyser.ts`: el audio pasa
+por un `AnalyserNode` que calcula la FFT en código nativo, y el hilo JS solo lee el resultado
+unas 20 veces por segundo. El micrófono se cierra al pausar, al salir de la pantalla o al
+pasar la app a segundo plano: mantén ese comportamiento.
+
+**Gráficas.** En `src/ui/charts/` tienes `SignalChart` (líneas en tiempo real con Skia) y
+`SpectrogramView` (cascada). Los dos reciben arrays que se reutilizan entre tramas y una
+prop `revision` que cambia cuando hay datos nuevos.
 
 **Adjuntos.** Pasa la URI temporal del fichero (caché, cámara, grabadora); el núcleo lo
 copia a una carpeta permanente de la medición y lo borra cuando se borra la medición.

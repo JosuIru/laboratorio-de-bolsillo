@@ -24,6 +24,7 @@
     "react-dom": "19.2.3",
     "react-i18next": "^17.0.15",
     "react-native": "0.86.3",
+    "react-native-audio-api": "^0.13.6",
     "react-native-reanimated": "4.5.1",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "~4.26.0",
@@ -66,7 +67,8 @@
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/src/$1",
       "^@instruments/(.*)$": "<rootDir>/instruments/$1",
-      "^@shopify/react-native-skia$": "<rootDir>/test/mocks/reactNativeSkia.tsx"
+      "^@shopify/react-native-skia$": "<rootDir>/test/mocks/reactNativeSkia.tsx",
+      "^react-native-audio-api$": "<rootDir>/node_modules/react-native-audio-api/lib/commonjs/mock"
     }
   },
   "repository": {

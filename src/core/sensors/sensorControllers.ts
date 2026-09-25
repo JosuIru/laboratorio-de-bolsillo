@@ -1,5 +1,6 @@
 import { unavailableBecause } from './availabilityRules';
 import { locationController } from './adapters/location';
+import { microphoneController } from './adapters/microphone';
 import {
   accelerometerSource,
   barometerSource,
@@ -19,9 +20,8 @@ function staticController(sensorKind: SensorKind, availability: Omit<SensorAvail
 }
 
 /**
- * Un controlador por tipo de sensor. Cámara, micrófono y linterna se conectan en las fases
- * de sus instrumentos (VisionCamera y react-native-audio-api); hasta entonces se muestran
- * como pendientes.
+ * Un controlador por tipo de sensor. Cámara y linterna se conectan en la fase del
+ * colorímetro (VisionCamera); hasta entonces se muestran como pendientes.
  */
 export const sensorControllers: Record<SensorKind, SensorAccessController> = {
   accelerometer: accelerometerSource,
@@ -31,7 +31,7 @@ export const sensorControllers: Record<SensorKind, SensorAccessController> = {
   light: lightSource,
   location: locationController,
   camera: staticController('camera', unavailableBecause('camera', 'sensors.reason.notYetSupported')),
-  microphone: staticController('microphone', unavailableBecause('microphone', 'sensors.reason.notYetSupported')),
+  microphone: microphoneController,
   torch: staticController('torch', unavailableBecause('torch', 'sensors.reason.notYetSupported')),
   speaker: staticController('speaker', { status: 'available' }),
   vibrator: staticController('vibrator', { status: 'available' }),

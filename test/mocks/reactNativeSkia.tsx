@@ -15,7 +15,14 @@ function createFakePath() {
   return fakePath;
 }
 
-export const Skia = { Path: { Make: createFakePath } };
+export const Skia = {
+  Path: { Make: createFakePath },
+  Data: { fromBytes: (bytes: Uint8Array) => ({ bytes }) },
+  Image: { MakeImage: () => ({ width: () => 0, height: () => 0, dispose: () => undefined }) },
+};
+export const AlphaType = { Unknown: 0, Opaque: 1, Premul: 2, Unpremul: 3 };
+export const ColorType = { RGBA_8888: 4 };
+export const Image = () => null;
 export const vec = (x = 0, y = 0) => ({ x, y });
 export const Canvas = ({ children }: { children?: ReactNode }) => children ?? null;
 export const Path = () => null;

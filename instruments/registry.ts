@@ -1,5 +1,6 @@
 import type { AnyInstrumentDefinition } from '@/core/instruments/types';
 
+import { audioSpectrumInstrument } from './audio-spectrum';
 import { exampleLevelInstrument } from './example-level';
 import { seismographInstrument } from './seismograph';
 
@@ -8,6 +9,7 @@ import { seismographInstrument } from './seismograph';
  * aquí una línea. El orden de esta lista es el orden en la pantalla de inicio.
  */
 export const instrumentRegistry: readonly AnyInstrumentDefinition[] = [
+  audioSpectrumInstrument,
   seismographInstrument,
   exampleLevelInstrument,
 ];

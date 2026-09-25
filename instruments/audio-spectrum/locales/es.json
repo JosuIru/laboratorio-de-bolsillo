@@ -1,0 +1,46 @@
+{
+  "name": "Analizador de espectro",
+  "description": "Frecuencias del sonido en tiempo real con el micrófono: espectro, cascada, frecuencia dominante y nivel.",
+  "starting": "Abriendo el micrófono…",
+  "paused": "En pausa: el micrófono está cerrado.",
+  "pause": "Pausar",
+  "resume": "Reanudar",
+  "approximate": "aproximado",
+  "uncalibrated": "sin calibrar",
+  "spectrumChart": "Espectro de frecuencias del sonido actual",
+  "waterfallChart": "Espectrograma en cascada de los últimos segundos",
+  "privacy": "El audio se analiza en el móvil y no se graba. Al guardar solo se guardan el espectro y los valores.",
+  "scale": {
+    "logarithmic": "Logarítmica",
+    "linear": "Lineal"
+  },
+  "notes": {
+    "0": "Do",
+    "1": "Do♯",
+    "2": "Re",
+    "3": "Re♯",
+    "4": "Mi",
+    "5": "Fa",
+    "6": "Fa♯",
+    "7": "Sol",
+    "8": "Sol♯",
+    "9": "La",
+    "10": "La♯",
+    "11": "Si"
+  },
+  "fields": {
+    "dominantFrequency": "Frecuencia dominante",
+    "level": "Nivel",
+    "soundPressureLevel": "Nivel sonoro",
+    "toneLevel": "Nivel del tono",
+    "sampleRate": "Frecuencia de muestreo",
+    "fftSize": "Tamaño de la FFT",
+    "spectrum": "Espectro"
+  },
+  "calibration": {
+    "instructions": "Pon junto al móvil un sonómetro y un sonido estable (ruido de fondo constante, un ventilador o un tono). Cuando la lectura se estabilice, escribe lo que marca el sonómetro.",
+    "referencePlaceholder": "Nivel del sonómetro (dB)",
+    "invalidReference": "Escribe el nivel del sonómetro, por ejemplo 65 o 65,5.",
+    "implausible": "El resultado no es razonable. Comprueba el valor y que el sonido llegue bien al micrófono."
+  }
+}
