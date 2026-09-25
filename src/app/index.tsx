@@ -1,4 +1,4 @@
-import { Link, router } from 'expo-router';
+import { Link, router, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Pressable } from 'react-native';
 
@@ -17,6 +17,18 @@ export default function HomeScreen() {
 
   return (
     <ScreenContainer>
+      {/* Con muchos instrumentos, el enlace del final queda lejos: también va en la cabecera. */}
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <Link href="/settings" asChild>
+              <Pressable accessibilityRole="button" hitSlop={12}>
+                <BodyText tone="accent">{t('settings.title')}</BodyText>
+              </Pressable>
+            </Link>
+          ),
+        }}
+      />
       <BodyText tone="secondary">{t('app.tagline')}</BodyText>
       <SectionTitle>{t('home.title')}</SectionTitle>
 
