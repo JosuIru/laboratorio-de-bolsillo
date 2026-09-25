@@ -1,0 +1,51 @@
+{
+  "name": "Eutsi pultsuari",
+  "description": "Erritmo-jokoa mikrofonoarekin: jarraitu klik batzuei, jarraitu zuk bakarrik eta neurtu zenbat aurreratzen zaren, zenbat aldatzen zaren eta azkartzen zaren.",
+  "starting": "Mikrofonoa irekitzen…",
+  "tryAgain": "Saiatu berriro",
+  "start": "Hasi",
+  "again": "Berriro",
+  "stop": "Gelditu",
+  "modes": {
+    "continuation": "Eutsi pultsuari",
+    "free": "Txalo libreak"
+  },
+  "modeHelp": {
+    "continuation": "Entzun {{clicks}} klik txalorik jo gabe. Gelditzen direnean, jarraitu txaloka erritmo berean {{beats}} pultsutan.",
+    "free": "Jo txaloak nahi duzun erritmoan: zure tempoa eta pultsua zenbateraino den erregularra ikusiko duzu."
+  },
+  "phases": {
+    "countIn": "Entzun…",
+    "continuation": "Orain zu! Jarraitu pultsuari"
+  },
+  "results": {
+    "onTime": "Garaiz zoaz",
+    "early": "Batez beste {{milliseconds}} ms aurreratzen zara",
+    "late": "Batez beste {{milliseconds}} ms berandu zoaz",
+    "variability": "Zure pultsuaren aldakuntza: ±{{milliseconds}} ms",
+    "steadyTempo": "Tempoari eusten diozu",
+    "slowingDown": "% {{percent}} moteltzen zara",
+    "speedingUp": "% {{percent}} azkartzen zara",
+    "counts": "{{total}} pultsutik {{hits}} · {{extra}} txalo gehiegi"
+  },
+  "clicksNotHeard": "Mikrofonoak ez ditu klikak ondo entzun. Igo bolumena, urrundu mugikorra zaratatik eta ez jo txalorik klikek jotzen duten bitartean.",
+  "free": {
+    "regularity": "Aldakuntza: % {{percent}}",
+    "keepClapping": "Jarraitu txaloka…",
+    "clapCount": "{{count}} txalo"
+  },
+  "privacy": "Audioa mugikorrean aztertzen da eta ez da grabatzen. Gordetzean emaitzak bakarrik gordetzen dira.",
+  "fields": {
+    "score": "Puntuazioa",
+    "targetTempo": "Tempoa",
+    "meanAsynchrony": "Batez besteko desfasea",
+    "variability": "Pultsuaren aldakuntza",
+    "drift": "Tempoaren jitoa",
+    "hits": "Asmatutako pultsuak",
+    "missed": "Galdutako pultsuak",
+    "extra": "Txalo gehiegi",
+    "offsets": "Pultsu bakoitzeko desfasea",
+    "missedBeats": "Txalorik gabeko pultsuak",
+    "measuredTempo": "Zure tempoa"
+  }
+}

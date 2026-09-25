@@ -1,4 +1,10 @@
-import { computeSpectralFlux, createLiveOnsetDetector, detectOnsets, estimateTempo } from './onsets';
+import {
+  computeSpectralFlux,
+  createLiveOnsetDetector,
+  createStreamingOnsetDetector,
+  detectOnsets,
+  estimateTempo,
+} from './onsets';
 import { createSeededRandom, generateNoise, generateTone } from './signalGenerator';
 
 const sampleRateHz = 16000;
@@ -86,6 +92,24 @@ describe('createLiveOnsetDetector', () => {
       const onsetTimeSeconds = liveDetector.push(recordingSamples.subarray(frameEnd - frameSize, frameEnd), frameEnd - previousFrameEnd);
       previousFrameEnd = frameEnd;
       if (onsetTimeSeconds !== null) detectedTimesSeconds.push(onsetTimeSeconds);
+    }
+    expectTimesClose(detectedTimesSeconds, clapTimesSeconds);
+  });
+});
+
+describe('createStreamingOnsetDetector', () => {
+  it('da los mismos golpes con bloques de cualquier tamaño que trama a trama', () => {
+    const clapTimesSeconds = [0.5, 1.0, 1.25, 2.0];
+    const recordingSamples = createClapRecording(clapTimesSeconds, [0.5, 0.2, 0.5, 0.5], 2.5);
+    const streamingDetector = createStreamingOnsetDetector({ sampleRateHz, ...analysisOptions });
+    const nextRandom = createSeededRandom(31);
+    const detectedTimesSeconds: number[] = [];
+    let chunkStart = 0;
+    while (chunkStart < recordingSamples.length) {
+      // Bloques irregulares, como los del micrófono: de 50 a 1500 muestras.
+      const chunkEnd = Math.min(recordingSamples.length, chunkStart + 50 + Math.floor(nextRandom() * 1450));
+      detectedTimesSeconds.push(...streamingDetector.pushSamples(recordingSamples.subarray(chunkStart, chunkEnd)));
+      chunkStart = chunkEnd;
     }
     expectTimesClose(detectedTimesSeconds, clapTimesSeconds);
   });
