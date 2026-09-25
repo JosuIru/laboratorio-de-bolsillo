@@ -1,5 +1,5 @@
 import { Canvas, Image as SkiaImageView, type SkImage } from '@shopify/react-native-skia';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type GestureResponderEvent, type LayoutChangeEvent, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { Camera, type CameraRef, type MeteringMode, useCameraDevice } from 'react-native-vision-camera';
@@ -111,6 +111,20 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
     ? clampNumber(requestedExposureBias ?? exposureScale.initialValue, minimumExposureBias, maximumExposureBias)
     : undefined;
 
+  // Cuenta los arranques de la sesión de cámara para volver a aplicar zoom y exposición.
+  const [cameraStartCount, setCameraStartCount] = useState(0);
+
+  // vision-camera envía zoom y exposición en cuanto hay controlador, a menudo antes de que la
+  // cámara arranque: Android cancela la orden («Camera is not active») y no se reintenta mientras
+  // el valor no cambie. Se reaplican cada vez que la sesión arranca.
+  useEffect(() => {
+    if (cameraStartCount === 0) return;
+    const cameraController = cameraRef.current?.controller;
+    if (!cameraController) return;
+    cameraController.setZoom(zoomFactor).catch(() => undefined);
+    if (exposureBias !== undefined) cameraController.setExposureBias(exposureBias).catch(() => undefined);
+  }, [cameraStartCount, zoomFactor, exposureBias]);
+
   const [meteringViewPoint, setMeteringViewPoint] = useState<{ x: number; y: number } | null>(null);
   const [stackingOutcome, setStackingOutcome] = useState<StackingOutcome | null>(null);
   const [sharpeningLevelIndex, setSharpeningLevelIndex] = useState(defaultSharpeningLevelIndex);
@@ -146,6 +160,8 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
         adaptiveness: 'locked',
         autoResetAfter: null,
       });
+      // Tras medir sobre la Luna, se vuelve a aplicar la compensación sobre esa medida.
+      if (exposureBias !== undefined) await cameraRef.current?.controller?.setExposureBias(exposureBias);
     } catch {
       // Cancelado por otro toque o no admitido: la vista previa sigue funcionando.
     }
@@ -297,6 +313,7 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
           zoom={zoomFactor}
           exposure={exposureBias}
           onError={handleCameraError}
+          onStarted={() => setCameraStartCount((previousCount) => previousCount + 1)}
           resizeMode="contain"
         />
         <Pressable
