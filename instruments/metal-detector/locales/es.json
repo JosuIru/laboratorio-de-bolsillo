@@ -9,7 +9,7 @@
   "nothingNearby": "Nada cerca",
   "fieldSummary": "Campo total {{magnitude}} µT · máximo {{peak}} µT",
   "zero": "Poner a cero",
-  "zeroHelp": "Pon a cero lejos de cualquier metal y luego pasa la parte de arriba del móvil despacio sobre la superficie. El campo de la Tierra está entre 25 y 65 µT.",
+  "zeroHelp": "Pon a cero lejos de cualquier metal y luego pasa la parte de arriba del móvil despacio sobre la superficie. Mide cuánto cambia la intensidad del campo, no su dirección, así que inclinar o girar el móvil no lo dispara. La referencia se reajusta sola poco a poco; si algo se queda raro, vuelve a ponerlo a cero. El campo de la Tierra está entre 25 y 65 µT.",
   "vibrate": "Vibrar al detectar",
   "sensitivity": {
     "title": "Sensibilidad",
@@ -18,7 +18,7 @@
     "high": "Alta",
     "threshold": "Avisa a partir de {{threshold}} µT de desviación."
   },
-  "uncalibratedHint": "Sin calibrar: la desviación funciona igual, pero el campo total incluye el del propio móvil. Calibra para ver el valor real.",
+  "uncalibratedHint": "No hace falta calibrar: el sistema ya descuenta el campo del propio móvil. La calibración solo sirve para comprobar cuánto desvío queda sin compensar.",
   "honestyNote": "Detecta sobre todo metales ferromagnéticos (hierro, acero, imanes) a pocos centímetros. No detecta aluminio, cobre ni oro. Los cables con corriente continua o los altavoces también desvían el campo.",
   "fields": {
     "deviation": "Desviación del campo",
@@ -36,6 +36,6 @@
     "collecting": "Sigue girando el móvil… {{seconds}} s",
     "axisRanges": "Recorrido por eje: X {{rangeX}}, Y {{rangeY}}, Z {{rangeZ}} µT (hacen falta {{minimum}} en cada uno).",
     "notEnoughRotation": "No has girado lo suficiente en todas las direcciones. Repite dibujando ochos más amplios.",
-    "result": "Campo propio del móvil: X {{offsetX}}, Y {{offsetY}}, Z {{offsetZ}} µT."
+    "result": "Desvío que el sistema no ha compensado: X {{offsetX}}, Y {{offsetY}}, Z {{offsetZ}} µT."
   }
 }

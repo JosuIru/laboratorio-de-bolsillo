@@ -17,7 +17,8 @@ export const metalDetectorInstrument = defineInstrument<MetalDetectorMeasurement
   requiredSensors: ['magnetometer'],
   Screen: MetalDetectorScreen,
   dataSchema: metalDetectorSchema,
-  // Sin valores por defecto: sin calibrar se usa el campo bruto (la desviación funciona igual).
+  // Sin valores por defecto. El detector no aplica la calibración (el sistema ya compensa el
+  // campo propio del móvil): sirve para comprobar cuánto desvío queda sin compensar.
   calibration: {
     parametersSchemaVersion: 1,
     CalibrationScreen: MetalDetectorCalibrationScreen,

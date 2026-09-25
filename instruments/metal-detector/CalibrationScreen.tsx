@@ -22,7 +22,8 @@ const progressIntervalMilliseconds = 200;
 
 /**
  * Calibración hard-iron: se gira el móvil en ocho durante unos segundos y se guarda el centro
- * de las lecturas por eje, que es el campo magnético del propio móvil.
+ * de las lecturas por eje. Como el sistema ya entrega el campo compensado, ese centro es el
+ * desvío que queda sin compensar (debería ser pequeño); el detector no lo resta.
  */
 export function MetalDetectorCalibrationScreen({ saveProfile, cancel }: CalibrationScreenProps<MetalDetectorCalibrationParameters>) {
   const { t } = useTranslation(metalDetectorInstrumentId);

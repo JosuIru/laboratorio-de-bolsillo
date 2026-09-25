@@ -16,20 +16,30 @@ export function vectorMagnitude(fieldVector: MagneticVector): number {
   return Math.hypot(fieldVector.x, fieldVector.y, fieldVector.z);
 }
 
-export function subtractVectors(minuendVector: MagneticVector, subtrahendVector: MagneticVector): MagneticVector {
-  return {
-    x: minuendVector.x - subtrahendVector.x,
-    y: minuendVector.y - subtrahendVector.y,
-    z: minuendVector.z - subtrahendVector.z,
-  };
+/**
+ * Desviación respecto a la línea base: ||B| − |B0||. Se restan módulos y no vectores porque el
+ * módulo no depende de la orientación: con el campo terrestre de ~50 µT, girar el móvil un
+ * ángulo θ cambia |B − B0| en 2·50·sin(θ/2) (unos 5 µT con solo 6°), y eso disparaba el aviso.
+ * A cambio, un objeto que solo gire el campo sin cambiar su intensidad no se ve.
+ */
+export function deviationFromBaseline(fieldVector: MagneticVector, baselineMagnitude: number): number {
+  return Math.abs(vectorMagnitude(fieldVector) - baselineMagnitude);
 }
 
 /**
- * Desviación respecto a la línea base: |B − B0|. La resta vectorial es más sensible que restar
- * módulos: un objeto que gira el campo sin cambiar su intensidad no se vería con |B| − |B0|.
+ * Acerca la línea base al módulo actual con una media móvil exponencial de constante de tiempo
+ * `timeConstantSeconds`. Así la referencia sigue las derivas lentas (temperatura, o el escalón
+ * cuando Android recalibra el magnetómetro) sin tragarse el paso rápido sobre un objeto.
  */
-export function deviationFromBaseline(fieldVector: MagneticVector, baselineVector: MagneticVector): number {
-  return vectorMagnitude(subtractVectors(fieldVector, baselineVector));
+export function trackBaselineMagnitude(
+  baselineMagnitude: number,
+  currentMagnitude: number,
+  elapsedSeconds: number,
+  timeConstantSeconds: number,
+): number {
+  if (!(elapsedSeconds > 0)) return baselineMagnitude;
+  const smoothingFactor = 1 - Math.exp(-elapsedSeconds / timeConstantSeconds);
+  return baselineMagnitude + (currentMagnitude - baselineMagnitude) * smoothingFactor;
 }
 
 export function averageVectors(fieldVectors: readonly MagneticVector[]): MagneticVector | null {
