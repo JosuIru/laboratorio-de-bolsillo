@@ -1,0 +1,26 @@
+{
+  "name": "Tacómetro",
+  "description": "Revoluciones por minuto de motores, ventiladores y hélices a partir de su sonido, sin tocarlos.",
+  "starting": "Abriendo el micrófono…",
+  "paused": "En pausa: el micrófono está cerrado.",
+  "pause": "Pausar",
+  "resume": "Reanudar",
+  "noTone": "Acerca el móvil a la máquina: aún no se oye un tono claro.",
+  "stable": "Lectura estable",
+  "unstable": "Estabilizando…",
+  "pulseFrequencyValue": "Pulsos a {{frequency}} Hz",
+  "pulsesHint": "Cuántos pulsos se oyen en cada vuelta: aspas de un ventilador o una hélice, o 1 si lo que suena es el propio giro del motor.",
+  "pulsesAccessibility": "{{count}} pulsos por vuelta",
+  "howTo": "Acerca el micrófono a la máquina con el régimen estable y espera a que la lectura se estabilice. Si el resultado es la mitad o el doble del esperado, revisa los pulsos por vuelta.",
+  "privacy": "El audio se analiza en el móvil y no se graba. Al guardar solo se guardan los valores.",
+  "fields": {
+    "revolutionsPerMinute": "Revoluciones por minuto",
+    "pulseFrequency": "Frecuencia de los pulsos",
+    "pulsesPerRevolution": "Pulsos por vuelta",
+    "relativeSpread": "Dispersión relativa",
+    "isStable": "Lectura estable",
+    "detectedHarmonicCount": "Armónicos detectados",
+    "sampleRate": "Frecuencia de muestreo",
+    "fftSize": "Tamaño de la FFT"
+  }
+}
