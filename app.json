@@ -23,6 +23,9 @@
       "versionCode": 1,
       "blockedPermissions": [
         "android.permission.ACTIVITY_RECOGNITION"
+      ],
+      "permissions": [
+        "android.permission.HIGH_SAMPLING_RATE_SENSORS"
       ]
     },
     "web": {
@@ -47,6 +50,12 @@
         "expo-sensors",
         {
           "motionPermission": "Los instrumentos usan los sensores de movimiento para medir."
+        }
+      ],
+      [
+        "./plugins/withAndroidBuildVariants",
+        {
+          "debugAppName": "Laboratorio (dev)"
         }
       ]
     ],

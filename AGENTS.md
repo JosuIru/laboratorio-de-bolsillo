@@ -48,3 +48,5 @@ Docs: https://docs.expo.dev/eas/index.md
 - Todos los textos visibles pasan por i18n (`es` y `eu`), y las dos lenguas deben tener las mismas claves (hay un test que lo comprueba).
 - Usa nombres de variable descriptivos.
 - Antes de añadir dependencias grandes que no estén ya en `package.json`, consúltalo.
+- Firma y publicación: ver `RELEASING.md`. La clave de release vive en `~/.android-keys/` (nunca en el repo). El dev build usa el id `org.laboratoriodebolsillo.app.dev` (`npm run android` ya pasa `--app-id`).
+- `app.json` declara `HIGH_SAMPLING_RATE_SENSORS`: sin él, en Android 12+ `expo-sensors` entrega unas 5 muestras/s.

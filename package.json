@@ -40,13 +40,14 @@
   },
   "scripts": {
     "start": "expo start --dev-client",
-    "android": "expo run:android",
+    "android": "expo run:android --app-id org.laboratoriodebolsillo.app.dev",
     "ios": "expo run:ios",
     "prebuild": "expo prebuild --clean",
     "test": "jest",
     "typecheck": "tsc --noEmit",
     "lint": "expo lint",
-    "doctor": "expo-doctor"
+    "doctor": "expo-doctor",
+    "build:release": "bash scripts/build-release.sh"
   },
   "private": true,
   "license": "GPL-3.0-or-later",
