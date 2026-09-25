@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { AppState } from 'react-native';
 import { type AnalyserNode, AudioContext, AudioManager, AudioRecorder } from 'react-native-audio-api';
 
+import { useIsAppActive } from '@/core/useIsAppActive';
 import { type FundamentalEstimate, estimateFundamentalFrequency } from '@/processing/dsp/fundamentalFrequency';
 
 import { createReadingStabilizer, type StabilizedReading } from './rpmReading';
@@ -28,17 +28,6 @@ type TachometerMicrophoneState =
   | { status: 'starting' }
   | { status: 'running'; frame: TachometerFrame | null }
   | { status: 'error'; errorMessage: string };
-
-function useIsAppActive(): boolean {
-  const [isAppActive, setIsAppActive] = useState(AppState.currentState === 'active');
-  useEffect(() => {
-    const appStateSubscription = AppState.addEventListener('change', (nextAppState) =>
-      setIsAppActive(nextAppState === 'active'),
-    );
-    return () => appStateSubscription.remove();
-  }, []);
-  return isAppActive;
-}
 
 /**
  * Micrófono → AnalyserNode (FFT nativa) → ganancia 0 → salida, como el analizador de espectro.
