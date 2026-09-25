@@ -1,0 +1,19 @@
+{
+  "app": {
+    "name": "Poltsikoko Laborategia",
+    "tagline": "Tresna zientifikoak zure mugikorraren sentsoreekin"
+  },
+  "home": {
+    "title": "Tresnak",
+    "empty": "Oraindik ez dago tresnarik instalatuta."
+  },
+  "settings": {
+    "title": "Ezarpenak",
+    "language": "Hizkuntza",
+    "privacy": "Dena gailu honetan prozesatzen eta gordetzen da. Analitikarik eta jarraipenik gabe."
+  },
+  "language": {
+    "es": "Castellano",
+    "eu": "Euskara"
+  }
+}

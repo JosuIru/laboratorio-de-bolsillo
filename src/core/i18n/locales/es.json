@@ -1,0 +1,19 @@
+{
+  "app": {
+    "name": "Laboratorio de Bolsillo",
+    "tagline": "Instrumentos científicos con los sensores de tu móvil"
+  },
+  "home": {
+    "title": "Instrumentos",
+    "empty": "Todavía no hay instrumentos instalados."
+  },
+  "settings": {
+    "title": "Ajustes",
+    "language": "Idioma",
+    "privacy": "Todo se procesa y guarda en este dispositivo. Sin analítica ni rastreo."
+  },
+  "language": {
+    "es": "Castellano",
+    "eu": "Euskara"
+  }
+}

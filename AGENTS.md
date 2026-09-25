@@ -39,3 +39,12 @@ Docs: https://docs.expo.dev/eas/index.md
 - If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
+
+## Laboratorio de Bolsillo: notas del proyecto
+
+- Usa Node 24 (`.nvmrc`). El nvm del sistema puede estar en Node 18 por defecto: ejecuta `nvm use` o antepón `~/.nvm/versions/node/v24.*/bin` al PATH.
+- Motor de worklets único: `react-native-worklets` (Software Mansion), fijado por el SDK de Expo. **No** instales `react-native-worklets-core`. Instala siempre `react-native-worklets`, `react-native-reanimated` y `@shopify/react-native-skia` con `npx expo install` para que queden alineados con el SDK.
+- Las rutas van en `src/app/`, el núcleo en `src/core/`, el procesamiento puro (sin React ni RN) en `src/processing/` y los instrumentos en `instruments/<id>/`, registrados en `instruments/registry.ts`.
+- Todos los textos visibles pasan por i18n (`es` y `eu`), y las dos lenguas deben tener las mismas claves (hay un test que lo comprueba).
+- Usa nombres de variable descriptivos.
+- Antes de añadir dependencias grandes que no estén ya en `package.json`, consúltalo.

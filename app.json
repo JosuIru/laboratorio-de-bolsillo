@@ -1,15 +1,18 @@
 {
   "expo": {
-    "name": "app-kamara",
-    "slug": "app-kamara",
-    "version": "1.0.0",
+    "name": "Laboratorio de Bolsillo",
+    "slug": "laboratorio-de-bolsillo",
+    "scheme": "laboratorio-bolsillo",
+    "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "org.laboratoriodebolsillo.app"
     },
     "android": {
+      "package": "org.laboratoriodebolsillo.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -19,7 +22,16 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
+      "bundler": "metro",
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "expo-localization"
+    ],
+    "experiments": {
+      "typedRoutes": true
     }
   }
 }
