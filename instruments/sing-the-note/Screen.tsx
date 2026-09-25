@@ -187,6 +187,9 @@ export function SingTheNoteScreen({ saveMeasurement }: InstrumentScreenProps<Sin
         </Card>
       ) : (
         <Card>
+          {gameState.microphoneErrorMessage ? (
+            <BodyText tone="danger">{t('microphoneError', { message: gameState.microphoneErrorMessage })}</BodyText>
+          ) : null}
           <SectionTitle>{t('howTo.title')}</SectionTitle>
           <BodyText tone="secondary">
             {t('howTo.rules', { rounds: roundsPerGame, seconds: requiredHoldSeconds })}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { useMicrophoneSpectrum } from '@/core/audio/useMicrophoneSpectrum';
 import { estimatePitchMcLeod } from '@/processing/dsp/mcleodPitch';
@@ -55,5 +55,11 @@ export function useTunerPitch({ isActive }: { isActive: boolean }) {
     setPitchReading(emptyPitchReading);
   }
 
-  return { microphoneStatus, pitchReading: isRunning ? pitchReading : emptyPitchReading };
+  /** Olvida las lecturas anteriores (p. ej. una nota de referencia que ha sonado por el altavoz). */
+  const resetPitch = useCallback(() => {
+    pitchStabilizer.reset();
+    setPitchReading(emptyPitchReading);
+  }, [pitchStabilizer]);
+
+  return { microphoneStatus, pitchReading: isRunning ? pitchReading : emptyPitchReading, resetPitch };
 }

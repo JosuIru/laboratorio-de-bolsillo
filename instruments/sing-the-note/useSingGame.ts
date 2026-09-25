@@ -19,15 +19,18 @@ import {
 } from './singGame';
 import { referenceToneSeconds, useReferenceTone } from './useReferenceTone';
 
-/** Tras la nota de referencia se espera un poco: que se apague su eco y no cuente como canto. */
-const referenceGuardSeconds = 0.5;
+/**
+ * Tras la nota de referencia se espera un poco a que se apague su eco; además, al empezar a
+ * escuchar se olvidan las lecturas anteriores para que la referencia no cuente como canto.
+ */
+const referenceGuardSeconds = 0.6;
 const roundResultSeconds = 1.5;
 const tickMilliseconds = 80;
 
 export type RoundScoreWithHit = RoundScore & { isHit: boolean; targetNoteIndex: NoteIndex };
 
 export type SingGameState =
-  | { phase: 'idle' }
+  | { phase: 'idle'; microphoneErrorMessage?: string }
   | {
       phase: 'playing';
       difficulty: SingDifficulty;
@@ -92,8 +95,14 @@ export function advanceSingGame(
 export function useSingGame() {
   const [gameState, setGameState] = useState<SingGameState>({ phase: 'idle' });
   const isPlaying = gameState.phase === 'playing';
-  const { microphoneStatus, pitchReading } = useTunerPitch({ isActive: isPlaying });
+  const { microphoneStatus, pitchReading, resetPitch } = useTunerPitch({ isActive: isPlaying });
   const { playReferenceTone } = useReferenceTone();
+  const isMicrophoneRunning = microphoneStatus.status === 'running';
+
+  // Sin micrófono no hay partida: se para y se enseña el error (y no cuenta para el récord).
+  if (isPlaying && microphoneStatus.status === 'error') {
+    setGameState({ phase: 'idle', microphoneErrorMessage: microphoneStatus.errorMessage });
+  }
 
   // El temporizador lee la última frecuencia sin reiniciarse con cada lectura.
   const sungFrequencyRef = useRef<number | null>(null);
@@ -101,8 +110,9 @@ export function useSingGame() {
     sungFrequencyRef.current = pitchReading.stableFrequencyHz;
   }, [pitchReading.stableFrequencyHz]);
 
+  // El reloj solo corre con el micrófono escuchando: si tarda en arrancar, no se come la ronda.
   useEffect(() => {
-    if (!isPlaying) return;
+    if (!isPlaying || !isMicrophoneRunning) return;
     let previousTickTime = Date.now();
     const gameTimer = setInterval(() => {
       const currentTickTime = Date.now();
@@ -111,21 +121,27 @@ export function useSingGame() {
       setGameState((previousState) => advanceSingGame(previousState, deltaSeconds, sungFrequencyRef.current));
     }, tickMilliseconds);
     return () => clearInterval(gameTimer);
-  }, [isPlaying]);
+  }, [isPlaying, isMicrophoneRunning]);
 
-  // Una nota de referencia al empezar cada ronda.
-  const referenceRoundKey =
-    gameState.phase === 'playing' && gameState.stage === 'reference'
-      ? `${gameState.roundIndex}-${gameState.targetNotes[gameState.roundIndex]}`
-      : null;
+  const currentRoundKey = gameState.phase === 'playing' ? `${gameState.roundIndex}-${gameState.stage}` : null;
+  const currentStage = gameState.phase === 'playing' ? gameState.stage : null;
   const targetNoteForReference =
     gameState.phase === 'playing' && gameState.stage === 'reference'
       ? gameState.targetNotes[gameState.roundIndex]!
       : null;
+
+  // Una nota de referencia al empezar cada ronda, cuando el micrófono ya escucha.
   useEffect(() => {
-    if (referenceRoundKey === null || targetNoteForReference === null) return;
+    if (!isMicrophoneRunning || currentStage !== 'reference' || targetNoteForReference === null) return;
     playReferenceTone(referenceFrequencyHz(targetNoteForReference));
-  }, [referenceRoundKey, targetNoteForReference, playReferenceTone]);
+  }, [currentRoundKey, currentStage, targetNoteForReference, isMicrophoneRunning, playReferenceTone]);
+
+  // Al pasar a escuchar se olvida lo que sonó antes (la propia nota de referencia).
+  useEffect(() => {
+    if (currentStage !== 'listening') return;
+    sungFrequencyRef.current = null;
+    resetPitch();
+  }, [currentRoundKey, currentStage, resetPitch]);
 
   const startGame = useCallback((difficulty: SingDifficulty) => {
     const targetNotes = chooseTargetNotes(difficulty, Math.random);
@@ -142,9 +158,14 @@ export function useSingGame() {
   }, []);
 
   const stopGame = useCallback(() => setGameState({ phase: 'idle' }), []);
-  // En segundo plano el micrófono se cierra: la partida no puede seguir contando rondas.
+  // En segundo plano el micrófono se cierra: una partida en curso se corta, pero una terminada
+  // se conserva para poder guardarla al volver.
+  const stopGameInProgress = useCallback(
+    () => setGameState((previousState) => (previousState.phase === 'playing' ? { phase: 'idle' } : previousState)),
+    [],
+  );
   const releaseNothing = useCallback(() => undefined, []);
-  useStopWhenAppInactive(stopGame, releaseNothing);
+  useStopWhenAppInactive(stopGameInProgress, releaseNothing);
 
   return { gameState, startGame, stopGame, microphoneStatus };
 }
