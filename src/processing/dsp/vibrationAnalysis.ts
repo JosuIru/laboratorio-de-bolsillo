@@ -1,8 +1,8 @@
-import { createFftPlan, type FftPlan } from '@/processing/dsp/fft';
-import { rootMeanSquare } from '@/processing/dsp/levels';
-import { computeAmplitudeSpectrum, createSpectrumWorkspace, findDominantFrequency, type SpectrumWorkspace } from '@/processing/dsp/spectrum';
-import { createWindow, type WindowFunction } from '@/processing/dsp/windows';
-import { estimateSampleRateHz, resampleUniformly } from '@/processing/signal/resampling';
+import { createFftPlan, type FftPlan } from './fft';
+import { rootMeanSquare } from './levels';
+import { computeAmplitudeSpectrum, createSpectrumWorkspace, findDominantFrequency, type SpectrumWorkspace } from './spectrum';
+import { createWindow, type WindowFunction } from './windows';
+import { estimateSampleRateHz, resampleUniformly } from '../signal/resampling';
 
 export interface AxisSeries {
   timestampsSeconds: ArrayLike<number>;

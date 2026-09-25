@@ -13,7 +13,7 @@ import {
   type RingBuffer,
 } from '@/processing/signal/ringBuffer';
 
-import { createVibrationAnalyzer, type VibrationAnalysis } from './vibrationAnalysis';
+import { createVibrationAnalyzer, type VibrationAnalysis } from '@/processing/dsp/vibrationAnalysis';
 
 /** Capacidad del historial: ~20 s a 200 Hz. */
 const historyCapacity = 4096;
