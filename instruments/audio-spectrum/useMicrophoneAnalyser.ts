@@ -62,6 +62,15 @@ export function useMicrophoneAnalyser({ isRunning, frequencyScale }: { isRunning
   const [microphoneState, setMicrophoneState] = useState<MicrophoneState>({ status: 'starting' });
   const [history] = useState(() => createSpectrogramHistory(spectrogramRowCount, spectrogramColumnCount));
 
+  // Al pausar, reanudar o cambiar de escala se vuelve a «arrancando» (ajuste durante el render,
+  // el patrón que recomienda React en lugar de un setState dentro del efecto).
+  const listeningKey = `${shouldListen}-${frequencyScale}`;
+  const [currentListeningKey, setCurrentListeningKey] = useState(listeningKey);
+  if (currentListeningKey !== listeningKey) {
+    setCurrentListeningKey(listeningKey);
+    setMicrophoneState({ status: 'starting' });
+  }
+
   useEffect(() => {
     if (!shouldListen) return;
     let isCancelled = false;
@@ -130,7 +139,6 @@ export function useMicrophoneAnalyser({ isRunning, frequencyScale }: { isRunning
       }
     }
 
-    setMicrophoneState({ status: 'starting' });
     void startListening();
 
     return () => {

@@ -52,7 +52,7 @@
     "prebuild": "expo prebuild --clean",
     "test": "jest",
     "typecheck": "tsc --noEmit",
-    "lint": "expo lint",
+    "lint": "expo lint src instruments test plugins",
     "doctor": "expo-doctor",
     "build:release": "bash scripts/build-release.sh"
   },
