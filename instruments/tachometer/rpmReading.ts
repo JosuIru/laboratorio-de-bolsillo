@@ -20,7 +20,11 @@ export function revolutionsPerMinuteToFrequency(revolutionsPerMinute: number, pu
 }
 
 export interface StabilizedReading {
-  /** Mediana de las lecturas recientes: ignora las que salen de un golpe o una voz. */
+  /**
+   * Mediana de las lecturas recientes: ignora las que salen de un golpe o una voz. Es siempre
+   * una lectura real (la mediana inferior), nunca el promedio de dos: si suenan dos fuentes, el
+   * promedio daría una frecuencia intermedia que no existe.
+   */
   medianFrequencyHz: number;
   /** Dispersión relativa (rango intercuartílico / mediana). Bajo = régimen estable. */
   relativeSpread: number;
@@ -61,7 +65,7 @@ export function createReadingStabilizer(options: ReadingStabilizerOptions = {}) 
       if (validReadings.length === 0) return null;
 
       const sortedReadings = [...validReadings].sort((leftReading, rightReading) => leftReading - rightReading);
-      const medianFrequencyHz = quantile(sortedReadings, 0.5);
+      const medianFrequencyHz = sortedReadings[Math.floor((sortedReadings.length - 1) / 2)]!;
       const interquartileRange = quantile(sortedReadings, 0.75) - quantile(sortedReadings, 0.25);
       const relativeSpread = medianFrequencyHz > 0 ? interquartileRange / medianFrequencyHz : Infinity;
       return {

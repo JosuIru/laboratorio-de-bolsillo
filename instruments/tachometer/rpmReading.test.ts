@@ -19,7 +19,7 @@ describe('createReadingStabilizer', () => {
     const readingStabilizer = createReadingStabilizer();
     let stabilizedReading = null;
     for (const frequencyHz of [100, 100.2, 99.9, 400, 100.1, 100]) stabilizedReading = readingStabilizer.push(frequencyHz);
-    expect(stabilizedReading!.medianFrequencyHz).toBeCloseTo(100.05, 6);
+    expect(stabilizedReading!.medianFrequencyHz).toBe(100);
     expect(stabilizedReading!.isStable).toBe(true);
   });
 
@@ -32,6 +32,15 @@ describe('createReadingStabilizer', () => {
     const shortStabilizer = createReadingStabilizer();
     shortStabilizer.push(100);
     expect(shortStabilizer.push(100)!.isStable).toBe(false);
+  });
+
+  it('con dos fuentes sonando nunca inventa una frecuencia intermedia', () => {
+    // Visto en el móvil: un ventilador a ~151 Hz y la máquina medida daban 172,9 Hz.
+    const readingStabilizer = createReadingStabilizer();
+    let stabilizedReading = null;
+    for (const frequencyHz of [151, 300, 151, 300, 151, 300]) stabilizedReading = readingStabilizer.push(frequencyHz);
+    expect([151, 300]).toContain(stabilizedReading!.medianFrequencyHz);
+    expect(stabilizedReading!.isStable).toBe(false);
   });
 
   it('una tos no borra la lectura, pero un silencio largo sí', () => {
