@@ -109,6 +109,13 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
     }
   }
 
+  function handleCameraError(cameraError: Error) {
+    // Al bloquear el móvil o salir de la pantalla, Android cancela los cambios de zoom o exposición
+    // pendientes («Camera is not active»): es normal y no hay que avisar.
+    if (/not active|OperationCanceled/i.test(cameraError.message)) return;
+    setStatusMessage(t('core:common.error', { message: cameraError.message }));
+  }
+
   async function handleUnlockMetering() {
     setMeteringViewPoint(null);
     try {
@@ -234,6 +241,7 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
           outputs={[frameOutput]}
           zoom={zoomFactor}
           exposure={exposureBias}
+          onError={handleCameraError}
           resizeMode="contain"
         />
         <Pressable
