@@ -3,7 +3,7 @@
     "name": "Laboratorio de Bolsillo",
     "slug": "laboratorio-de-bolsillo",
     "scheme": "laboratorio-bolsillo",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -23,7 +23,7 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "versionCode": 1,
+      "versionCode": 2,
       "blockedPermissions": [
         "android.permission.ACTIVITY_RECOGNITION"
       ],
