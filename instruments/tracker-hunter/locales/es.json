@@ -1,0 +1,113 @@
+{
+  "name": "Cazador de rastreadores",
+  "description": "Busca rastreadores Bluetooth ocultos (AirTag, SmartTag, Tile, Chipolo…), avisa si uno te acompaña de sitio en sitio y te guía hasta él con un medidor «frío / caliente».",
+  "intro": "Escucha los anuncios Bluetooth de baja energía que emiten los rastreadores, sin conectarse a nada. Déjalo escaneando con la pantalla encendida durante el trayecto: si un mismo rastreador aparece en varios sitios o momentos, te avisa.",
+  "unsupported": {
+    "title": "Solo en Android",
+    "body": "iOS no deja a las apps leer los anuncios de la red Encontrar de Apple. En un iPhone, el propio sistema avisa de los AirTag y de los rastreadores compatibles que viajan contigo (Ajustes › Privacidad › Servicios de localización)."
+  },
+  "noHardware": "Este móvil no tiene Bluetooth de baja energía.",
+  "checking": "Comprobando el Bluetooth…",
+  "permission": {
+    "explanation": "Para oír los rastreadores hace falta el permiso de «Dispositivos cercanos». La app no lo usa para saber dónde estás ni se conecta a ningún aparato.",
+    "explanationLegacy": "En esta versión de Android, buscar dispositivos Bluetooth exige el permiso de ubicación (y tener la ubicación del sistema activada). La app no guarda tu posición salvo que actives «Usar la ubicación».",
+    "grant": "Dar permiso",
+    "blocked": "El permiso está denegado. Actívalo en los ajustes del sistema, en Aplicaciones › Laboratorio de Bolsillo › Permisos.",
+    "openSettings": "Abrir ajustes"
+  },
+  "bluetoothOff": "El Bluetooth está apagado. Enciéndelo y vuelve a intentarlo.",
+  "retry": "Reintentar",
+  "start": "Empezar a escanear",
+  "stop": "Parar",
+  "clear": "Borrar lo visto",
+  "scanning": "Escaneando… {{minutes}} min en total",
+  "paused": "En pausa · {{minutes}} min escaneados",
+  "summary": "{{trackers}} rastreadores · {{others}} otros dispositivos Bluetooth cerca",
+  "scanError": "Android ha parado el escaneo (código {{code}}).",
+  "scanTooFrequently": "Android no deja arrancar el escaneo más de 5 veces en 30 segundos. Espera medio minuto y vuelve a empezar.",
+  "error": "Error: {{message}}",
+  "settings": {
+    "title": "Criterio «te sigue»",
+    "threshold": "Avisa si un rastreador te acompaña más de {{minutes}} minutos en varios sitios o momentos.",
+    "minutesOption": "{{minutes}} min",
+    "useLocation": "Usar la ubicación para distinguir sitios",
+    "useLocationHelp": "Consulta la posición cada 30 s mientras escaneas; no se guarda ni sale del móvil. Sin ella, solo cuentan los «momentos»: que el rastreador desaparezca 3 minutos o más y vuelva.",
+    "locationDenied": "Sin permiso de ubicación: solo se usarán los momentos."
+  },
+  "list": {
+    "empty": "Todavía no se ha oído ningún rastreador.",
+    "emptyWhileScanning": "Ningún rastreador a la vista. Es buena señal, pero deja el escaneo un rato: algunos anuncian cada pocos segundos.",
+    "seenAgo": "visto hace {{seconds}} s",
+    "details": "{{minutes}} min · {{addresses}} direcciones · {{episodes}} momentos · {{places}} sitios",
+    "rssi": "{{rssi}} dBm",
+    "search": "Buscar",
+    "nearOwnerNote": "Anuncia que está cerca de su dueño: seguramente es de alguien que va contigo.",
+    "battery": "Batería: {{level}}"
+  },
+  "kind": {
+    "airtag": "AirTag",
+    "findMyAccessory": "Accesorio de la red Encontrar de Apple",
+    "airpods": "AirPods (red Encontrar)",
+    "appleDevice": "Dispositivo Apple (iPhone, iPad, Mac…)",
+    "appleFindMy": "Dispositivo de la red Encontrar de Apple",
+    "samsungFind": "Galaxy SmartTag u otro aparato Galaxy",
+    "tile": "Tile",
+    "chipolo": "Chipolo",
+    "googleFindHub": "Rastreador de la red Encontrar de Google",
+    "dult": "Rastreador compatible con DULT",
+    "samsungDevice": "Aparato Samsung (móvil, reloj, auriculares…)"
+  },
+  "mode": {
+    "separated": "Separado de su dueño",
+    "near-owner": "Cerca de su dueño",
+    "unknown": "Modo desconocido"
+  },
+  "level": {
+    "following": "Te sigue",
+    "watch": "Vigílalo",
+    "passing": "De paso"
+  },
+  "batteryLevel": {
+    "full": "llena",
+    "medium": "media",
+    "low": "baja",
+    "critical": "casi agotada"
+  },
+  "search": {
+    "title": "Buscando: {{name}}",
+    "back": "Volver a la lista",
+    "cold": "Frío",
+    "cool": "Templado",
+    "warm": "Caliente",
+    "hot": "¡Muy caliente!",
+    "warmer": "Te acercas",
+    "colder": "Te alejas",
+    "steady": "Igual",
+    "waiting": "Esperando su señal…",
+    "lost": "Señal perdida: puede haber cambiado de dirección o estar fuera de alcance. Muévete despacio.",
+    "rssi": "Señal suavizada: {{rssi}} dBm",
+    "sound": "Pitidos (más rápidos cuanto más cerca)",
+    "notScanning": "Empieza a escanear para buscarlo.",
+    "tips": "Camina despacio y gira sobre ti mismo: tu cuerpo tapa la señal. Mira en bolsos, bolsillos, forros, bajo el asiento y en los bajos del coche o la bici. Cerca de un metro, la señal cambia muy poco: busca con las manos."
+  },
+  "save": "Guardar resumen",
+  "saved": "Resumen guardado.",
+  "limits": {
+    "title": "Límites honestos",
+    "rotation": "Los rastreadores cambian de dirección Bluetooth por privacidad (los de Apple cerca de su dueño, cada 15 minutos; separados, una vez al día). La app une direcciones por firma y continuidad, pero puede partir un rastreador en dos o, rara vez, unir dos iguales.",
+    "modes": "Algunos rastreadores cambian de modo al separarse de su dueño y otros (como Tile con su modo antirrobo) pueden no anunciarse de forma reconocible. Que no aparezca nada no garantiza que no haya nada.",
+    "rssi": "El RSSI no es una distancia: depende de la orientación, las paredes, los bolsillos y tu cuerpo. El medidor solo dice «más cerca» o «más lejos».",
+    "foreground": "Solo escucha con la app abierta y la pantalla encendida: Android corta estos escaneos en segundo plano.",
+    "notProof": "«Te sigue» es una sospecha, no una prueba: un rastreador en la mochila de alguien que viaja contigo da el mismo patrón. Si te sientes en peligro, no lo manipules y pide ayuda (112)."
+  },
+  "fields": {
+    "trackerCount": "Rastreadores",
+    "followingCount": "Te siguen",
+    "watchCount": "A vigilar",
+    "otherDeviceCount": "Otros dispositivos Bluetooth",
+    "scanningMinutes": "Tiempo escaneando",
+    "followingThresholdMinutes": "Umbral «te sigue»",
+    "isLocationUsed": "Con ubicación",
+    "trackersSummary": "Rastreadores vistos"
+  }
+}

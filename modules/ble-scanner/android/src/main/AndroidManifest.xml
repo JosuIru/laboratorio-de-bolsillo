@@ -1,0 +1,15 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools">
+  <!--
+    Escaneo BLE pasivo. Hasta Android 11 (API 30) bastan los permisos clásicos más la
+    ubicación precisa (ya la declara expo-location). Desde Android 12 se usa BLUETOOTH_SCAN
+    con neverForLocation: el escaneo no se usa para calcular la ubicación.
+  -->
+  <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+  <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+  <uses-permission
+    android:name="android.permission.BLUETOOTH_SCAN"
+    android:usesPermissionFlags="neverForLocation"
+    tools:targetApi="s" />
+  <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
+</manifest>
