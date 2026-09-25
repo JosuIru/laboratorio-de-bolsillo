@@ -12,6 +12,7 @@
   "cancel": "Utzi",
   "phase": {
     "starting": "Mikrofonoa prestatzen…",
+    "warming-up": "Mikrofonoa prestatzen…",
     "measuring-noise": "Hondoko zarata entzuten: isilik…",
     "waiting-for-impulse": "Orain! Eman kolpea",
     "recording-decay": "Erreberberazioaren isatsa grabatzen…",

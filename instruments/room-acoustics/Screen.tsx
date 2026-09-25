@@ -34,11 +34,18 @@ export function RoomAcousticsScreen({ saveMeasurement }: InstrumentScreenProps<R
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
-  const isMeasuring = ['starting', 'measuring-noise', 'waiting-for-impulse', 'recording-decay', 'analyzing'].includes(
-    measurementState.phase,
-  );
+  const isMeasuring = [
+    'starting',
+    'warming-up',
+    'measuring-noise',
+    'waiting-for-impulse',
+    'recording-decay',
+    'analyzing',
+  ].includes(measurementState.phase);
   const measurementResult = measurementState.phase === 'done' ? measurementState.result : null;
-  const midReverberationSeconds = measurementResult ? midFrequencyReverberationTime(measurementResult.bandResults) : null;
+  const midReverberationSeconds = measurementResult
+    ? midFrequencyReverberationTime(measurementResult.bandResults)
+    : null;
 
   async function handleSave() {
     if (!measurementResult) return;
@@ -63,7 +70,9 @@ export function RoomAcousticsScreen({ saveMeasurement }: InstrumentScreenProps<R
             return preferredTime ? roundTo(preferredTime.decayFit.reverberationTimeSeconds, 2) : -1;
           }),
           bandEarlyDecaySeconds: octaveResults.map((bandResult) =>
-            bandResult.edt ? roundTo(bandResult.edt.reverberationTimeSeconds, 2) : -1,
+            bandResult.edt && bandResult.edt.correlation >= minimumFitCorrelation
+              ? roundTo(bandResult.edt.reverberationTimeSeconds, 2)
+              : -1,
           ),
           bandDynamicRangeDecibels: octaveResults.map((bandResult) => roundTo(bandResult.dynamicRangeDecibels, 1)),
           noiseLevelDecibels: roundTo(measurementResult.noiseLevelDecibels, 1),
@@ -90,7 +99,11 @@ export function RoomAcousticsScreen({ saveMeasurement }: InstrumentScreenProps<R
       <AppButton
         label={isMeasuring ? t('cancel') : measurementResult ? t('measureAgain') : t('start')}
         variant={isMeasuring ? 'secondary' : 'primary'}
-        onPress={() => (isMeasuring ? cancel() : void start())}
+        onPress={() => {
+          setStatusMessage(null);
+          if (isMeasuring) cancel();
+          else void start();
+        }}
       />
 
       {isMeasuring ? (
@@ -144,7 +157,9 @@ export function RoomAcousticsScreen({ saveMeasurement }: InstrumentScreenProps<R
               if (!bandResult) return null;
               return (
                 <View key={centerHz} style={[styles.tableRow, { borderBottomColor: themePalette.border }]}>
-                  <BodyText style={styles.tableCell}>{centerHz >= 1000 ? `${centerHz / 1000}k` : String(centerHz)}</BodyText>
+                  <BodyText style={styles.tableCell}>
+                    {centerHz >= 1000 ? `${centerHz / 1000}k` : String(centerHz)}
+                  </BodyText>
                   <BodyText style={styles.tableCell}>{formatSeconds(bandResult.edt)}</BodyText>
                   <BodyText style={styles.tableCell}>{formatSeconds(bandResult.t20)}</BodyText>
                   <BodyText style={styles.tableCell}>{formatSeconds(bandResult.t30)}</BodyText>

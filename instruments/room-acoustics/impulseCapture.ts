@@ -1,5 +1,6 @@
 /**
  * Captura de la respuesta de la sala a un golpe, bloque a bloque según llega el audio:
+ * 0. descarta `warmUpSeconds` (muchos micrófonos dan bloques casi mudos al arrancar);
  * 1. mide el ruido de fondo durante `noiseSeconds`;
  * 2. espera a un bloque mucho más fuerte que ese ruido (el golpe);
  * 3. graba `decaySeconds` de cola, con un poco de audio de antes del golpe.
@@ -7,6 +8,7 @@
 
 export interface ImpulseCaptureOptions {
   sampleRateHz: number;
+  warmUpSeconds?: number;
   noiseSeconds?: number;
   /** Cuántos dB por encima del ruido tiene que subir un bloque para contar como golpe. */
   impulseThresholdDecibels?: number;
@@ -17,7 +19,8 @@ export interface ImpulseCaptureOptions {
   maximumWaitSeconds?: number;
 }
 
-export type ImpulseCapturePhase = 'measuring-noise' | 'waiting-for-impulse' | 'recording-decay' | 'finished' | 'timed-out';
+export type ImpulseCapturePhase =
+  'warming-up' | 'measuring-noise' | 'waiting-for-impulse' | 'recording-decay' | 'finished' | 'timed-out';
 
 export interface CapturedRoomResponse {
   noiseSamples: Float32Array;
@@ -25,6 +28,22 @@ export interface CapturedRoomResponse {
   noiseLevelDecibels: number;
   /** Algún pico del golpe llegó al tope del micrófono: el principio de la caída sale recortado. */
   isClipped: boolean;
+}
+
+/**
+ * Suelo del ruido de fondo (dBFS): si el micrófono entrega silencio digital, el umbral del golpe
+ * no puede quedar tan bajo que cualquier ruido de la sala cuente como golpe.
+ */
+export const minimumNoiseLevelDecibels = -90;
+/** Bloques del tramo de ruido que superan su mediana en más de esto (una palmada, un portazo) no cuentan como ruido. */
+const noiseOutlierMarginDecibels = 6;
+
+function medianOf(values: readonly number[]): number {
+  const sortedValues = [...values].sort((leftValue, rightValue) => leftValue - rightValue);
+  const middleIndex = sortedValues.length >> 1;
+  return sortedValues.length % 2 === 1
+    ? sortedValues[middleIndex]!
+    : (sortedValues[middleIndex - 1]! + sortedValues[middleIndex]!) / 2;
 }
 
 /** Nivel a partir del cual se considera que la muestra ha saturado. */
@@ -50,18 +69,21 @@ function concatenateBlocks(blocks: readonly Float32Array[]): Float32Array {
 export function createImpulseCapture(options: ImpulseCaptureOptions) {
   const {
     sampleRateHz,
+    warmUpSeconds = 0.3,
     noiseSeconds = 0.6,
     impulseThresholdDecibels = 20,
     preImpulseSeconds = 0.05,
     decaySeconds = 3,
     maximumWaitSeconds = 15,
   } = options;
+  const warmUpSampleTarget = Math.round(warmUpSeconds * sampleRateHz);
   const noiseSampleTarget = Math.round(noiseSeconds * sampleRateHz);
   const preImpulseSampleTarget = Math.round(preImpulseSeconds * sampleRateHz);
   const decaySampleTarget = Math.round(decaySeconds * sampleRateHz);
   const maximumWaitSamples = Math.round(maximumWaitSeconds * sampleRateHz);
 
-  let phase: ImpulseCapturePhase = 'measuring-noise';
+  let phase: ImpulseCapturePhase = warmUpSampleTarget > 0 ? 'warming-up' : 'measuring-noise';
+  let warmUpSampleCount = 0;
   const noiseBlocks: Float32Array[] = [];
   let noiseSampleCount = 0;
   let noiseLevelDecibels = Number.NEGATIVE_INFINITY;
@@ -100,12 +122,24 @@ export function createImpulseCapture(options: ImpulseCaptureOptions) {
     pushBlock(incomingBlock: ArrayLike<number>): ImpulseCapturePhase {
       const block = Float32Array.from(incomingBlock);
       switch (phase) {
+        case 'warming-up': {
+          warmUpSampleCount += block.length;
+          if (warmUpSampleCount >= warmUpSampleTarget) phase = 'measuring-noise';
+          break;
+        }
         case 'measuring-noise': {
           noiseBlocks.push(block);
           noiseSampleCount += block.length;
           if (noiseSampleCount >= noiseSampleTarget) {
-            noiseSamples = concatenateBlocks(noiseBlocks);
-            noiseLevelDecibels = blockLevelDecibels(noiseSamples);
+            // La mediana de los bloques no se deja arrastrar por un golpe durante la medida.
+            const blockLevels = noiseBlocks.map(blockLevelDecibels);
+            const medianBlockLevel = medianOf(blockLevels);
+            noiseSamples = concatenateBlocks(
+              noiseBlocks.filter(
+                (_, blockIndex) => blockLevels[blockIndex]! <= medianBlockLevel + noiseOutlierMarginDecibels,
+              ),
+            );
+            noiseLevelDecibels = Math.max(minimumNoiseLevelDecibels, blockLevelDecibels(noiseSamples));
             phase = 'waiting-for-impulse';
           }
           break;

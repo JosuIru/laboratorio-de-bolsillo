@@ -5,7 +5,9 @@ const blockLength = 256;
 
 function constantBlock(amplitude: number): Float32Array {
   // Alterna el signo para que sea audio (media cero) con RMS = amplitud.
-  return Float32Array.from({ length: blockLength }, (_, sampleIndex) => (sampleIndex % 2 === 0 ? amplitude : -amplitude));
+  return Float32Array.from({ length: blockLength }, (_, sampleIndex) =>
+    sampleIndex % 2 === 0 ? amplitude : -amplitude,
+  );
 }
 
 function pushSeconds(capture: ReturnType<typeof createImpulseCapture>, seconds: number, amplitude: number) {
@@ -21,7 +23,13 @@ describe('blockLevelDecibels', () => {
 
 describe('createImpulseCapture', () => {
   it('mide el ruido, espera al golpe y graba la cola', () => {
-    const capture = createImpulseCapture({ sampleRateHz, noiseSeconds: 0.5, decaySeconds: 1, preImpulseSeconds: 0.05 });
+    const capture = createImpulseCapture({
+      sampleRateHz,
+      warmUpSeconds: 0,
+      noiseSeconds: 0.5,
+      decaySeconds: 1,
+      preImpulseSeconds: 0.05,
+    });
     pushSeconds(capture, 0.5, 0.001);
     expect(capture.phase).toBe('waiting-for-impulse');
     expect(capture.noiseLevelDecibels).toBeCloseTo(-60, 3);
@@ -43,15 +51,41 @@ describe('createImpulseCapture', () => {
   });
 
   it('detecta la saturación del golpe', () => {
-    const capture = createImpulseCapture({ sampleRateHz, noiseSeconds: 0.1, decaySeconds: 0.2 });
+    const capture = createImpulseCapture({ sampleRateHz, warmUpSeconds: 0, noiseSeconds: 0.1, decaySeconds: 0.2 });
     pushSeconds(capture, 0.1, 0.001);
     capture.pushBlock(constantBlock(1));
     pushSeconds(capture, 0.2, 0.01);
     expect(capture.capturedResponse!.isClipped).toBe(true);
   });
 
+  it('descarta el arranque mudo del micrófono y no confunde el ruido de la sala con un golpe', () => {
+    const capture = createImpulseCapture({ sampleRateHz, warmUpSeconds: 0.3, noiseSeconds: 0.5 });
+    pushSeconds(capture, 0.3, 0);
+    expect(capture.phase).toBe('measuring-noise');
+    pushSeconds(capture, 0.5, 0.001);
+    expect(capture.noiseLevelDecibels).toBeCloseTo(-60, 3);
+    pushSeconds(capture, 0.5, 0.0015);
+    expect(capture.phase).toBe('waiting-for-impulse');
+  });
+
+  it('pone un suelo al ruido si el micrófono da silencio digital', () => {
+    const capture = createImpulseCapture({ sampleRateHz, warmUpSeconds: 0, noiseSeconds: 0.2 });
+    pushSeconds(capture, 0.2, 0);
+    expect(capture.noiseLevelDecibels).toBe(-90);
+    pushSeconds(capture, 0.2, 0.0001);
+    expect(capture.phase).toBe('waiting-for-impulse');
+  });
+
+  it('una palmada durante la medida del ruido no lo infla', () => {
+    const capture = createImpulseCapture({ sampleRateHz, warmUpSeconds: 0, noiseSeconds: 0.5 });
+    pushSeconds(capture, 0.2, 0.001);
+    capture.pushBlock(constantBlock(0.5));
+    pushSeconds(capture, 0.3, 0.001);
+    expect(capture.noiseLevelDecibels).toBeCloseTo(-60, 3);
+  });
+
   it('se rinde si no llega ningún golpe', () => {
-    const capture = createImpulseCapture({ sampleRateHz, noiseSeconds: 0.1, maximumWaitSeconds: 1 });
+    const capture = createImpulseCapture({ sampleRateHz, warmUpSeconds: 0, noiseSeconds: 0.1, maximumWaitSeconds: 1 });
     pushSeconds(capture, 0.1, 0.001);
     pushSeconds(capture, 1.1, 0.001);
     expect(capture.phase).toBe('timed-out');

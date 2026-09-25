@@ -12,6 +12,7 @@
   "cancel": "Cancelar",
   "phase": {
     "starting": "Preparando el micrófono…",
+    "warming-up": "Preparando el micrófono…",
     "measuring-noise": "Escuchando el ruido de fondo: silencio…",
     "waiting-for-impulse": "¡Ahora! Da el golpe",
     "recording-decay": "Grabando la cola de reverberación…",

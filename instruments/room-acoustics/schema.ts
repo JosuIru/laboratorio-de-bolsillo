@@ -15,7 +15,13 @@ export interface RoomAcousticsMeasurementValues {
 }
 
 export const roomAcousticsSchema = defineMeasurementSchema<RoomAcousticsMeasurementValues>(1, [
-  { key: 'midReverberationSeconds', labelKey: 'fields.midReverberationSeconds', type: 'number', unit: 's', optional: true },
+  {
+    key: 'midReverberationSeconds',
+    labelKey: 'fields.midReverberationSeconds',
+    type: 'number',
+    unit: 's',
+    optional: true,
+  },
   { key: 'roomCharacter', labelKey: 'fields.roomCharacter', type: 'string', optional: true },
   { key: 'bandCentersHz', labelKey: 'fields.bandCentersHz', type: 'numberArray', unit: 'Hz' },
   { key: 'bandReverberationSeconds', labelKey: 'fields.bandReverberationSeconds', type: 'numberArray', unit: 's' },

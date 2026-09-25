@@ -16,7 +16,7 @@ export interface RoomMeasurementResult {
 export type RoomMeasurementState =
   | { phase: 'idle' }
   | { phase: 'starting' }
-  | { phase: 'measuring-noise' | 'waiting-for-impulse' | 'recording-decay' }
+  | { phase: 'warming-up' | 'measuring-noise' | 'waiting-for-impulse' | 'recording-decay' }
   | { phase: 'analyzing' }
   | { phase: 'done'; result: RoomMeasurementResult }
   | { phase: 'error'; reason: 'no-impulse' | 'microphone'; message?: string };
@@ -116,6 +116,14 @@ export function useRoomMeasurement() {
       );
 
       const startResult = await audioRecorder.start();
+      // Si se canceló (o la app pasó a segundo plano, p. ej. por el aviso de permiso) mientras
+      // arrancaba, este grabador ya no es de nadie: hay que pararlo aquí o se queda encendido.
+      if (!isCurrentSession()) {
+        audioRecorder.clearOnAudioReady();
+        void audioRecorder.stop().catch(() => undefined);
+        void audioContext.close().catch(() => undefined);
+        return;
+      }
       if (startResult.status === 'error') throw new Error(startResult.message);
       await audioContext.resume();
     } catch (startError) {
