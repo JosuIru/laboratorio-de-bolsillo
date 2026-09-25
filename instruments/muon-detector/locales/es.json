@@ -1,0 +1,99 @@
+{
+  "name": "Detector de partículas",
+  "description": "Cuenta muones de los rayos cósmicos y radiactividad natural con la cámara tapada: cada partícula deja un punto o una traza brillante.",
+  "intro": "Con la cámara tapada, el sensor ve negro. Cuando una partícula cargada (un muón de los rayos cósmicos, un electrón arrancado por un rayo gamma) atraviesa el silicio, deja en un fotograma un punto o una traza brillante. Es el principio de las apps DECO y CRAYFIS.",
+  "steps": {
+    "cover": "1. Tapa bien la cámara trasera con cinta aislante negra u otra cinta opaca (varias capas). Nada de luz.",
+    "still": "2. Deja el móvil quieto, boca abajo o en un cajón, a temperatura ambiente y lejos del cargador.",
+    "wait": "3. Pulsa «Calibrar y empezar» y espera: cuanto más rato, mejor (una hora o más)."
+  },
+  "status": {
+    "waitingCamera": "Esperando a la cámara…",
+    "covered": "Cámara tapada: bien.",
+    "notCovered": "Entra luz: tapa mejor la cámara.",
+    "darkLevel": "Nivel de negro: {{level}} / 255",
+    "frameSize": "Fotogramas de {{width}} × {{height}} px"
+  },
+  "actions": {
+    "start": "Calibrar y empezar",
+    "cancel": "Cancelar",
+    "stop": "Parar la medición",
+    "newMeasurement": "Nueva medición"
+  },
+  "calibration": {
+    "noise": "Calibrando (1/2): midiendo el ruido del sensor…",
+    "hotPixels": "Calibrando (2/2): buscando los píxeles calientes de este móvil…",
+    "keepStill": "Unos segundos. No destapes la cámara."
+  },
+  "results": {
+    "measuringTitle": "Midiendo",
+    "finishedTitle": "Resultado",
+    "eventsIn": "sucesos en {{duration}}",
+    "byShape": "Puntos: {{spots}} · Gusanos: {{worms}} · Trazas rectas: {{tracks}}",
+    "allRate": "Todos: {{rate}}",
+    "trackRate": "Trazas rectas: {{rate}}",
+    "interval": "Intervalo al 68 % (Poisson exacto): de {{lower}} a {{upper}} por minuto",
+    "precision": "Incertidumbre del recuento: ±{{percent}} % (1/√N). Para bajar al ±10 % hacen falta unos {{needed}} sucesos.",
+    "noEventsYet": "Aún ningún suceso. Es normal: pueden pasar muchos minutos entre uno y otro."
+  },
+  "rateValue": "{{rate}} ± {{uncertainty}} por minuto ({{perHour}} por hora)",
+  "details": {
+    "calibration": "Calibración: {{hotPixels}} píxeles calientes enmascarados; umbral de {{threshold}} niveles sobre el negro.",
+    "heatedPixels": "Durante la medición se han calentado {{addedPixels}} píxeles más; se han retirado {{discardedEvents}} sucesos que venían de ellos.",
+    "thresholdRaised": "Había demasiado ruido y el umbral se ha subido a {{threshold}} niveles.",
+    "frames": "Fotogramas analizados: {{analyzed}} · con luz: {{lightLeak}} · con ruido: {{noisy}}",
+    "analyzedFraction": "Se analiza aproximadamente el {{percent}} % de los fotogramas (la cámara da {{framesPerSecond}} por segundo); en el resto, el detector está ciego."
+  },
+  "messages": {
+    "coverFirst": "Tapa la cámara antes de empezar: el nivel de negro tiene que bajar.",
+    "lightDuringCalibration": "Ha entrado luz durante la calibración. Tapa mejor la cámara y vuelve a empezar.",
+    "lightDuringMeasurement": "Está entrando luz: esos fotogramas no cuentan.",
+    "sensorWarming": "El sensor se ha calentado desde la calibración: aumenta el ruido y los falsos sucesos. Si puedes, déjalo enfriar y vuelve a calibrar.",
+    "keepScreenOn": "Deja la app abierta y la pantalla encendida (sube el tiempo de apagado de la pantalla en Ajustes): si el móvil se bloquea, la medición se para."
+  },
+  "gallery": {
+    "title": "Sucesos",
+    "empty": "Aquí aparecerán las miniaturas de los sucesos.",
+    "eventLabel": "{{shape}} a las {{time}}",
+    "eventSize": "{{pixels}} px · {{length}} px de largo"
+  },
+  "shapes": {
+    "spot": "Punto",
+    "worm": "Gusano",
+    "track": "Traza recta"
+  },
+  "limits": {
+    "title": "Qué esperar (y qué no)",
+    "expectedRate": "Tasa esperada: a nivel del mar cae más o menos un muón por centímetro cuadrado y minuto, y el sensor de un móvil mide unos 0,2-0,3 cm². Pero la cámara reduce la imagen, filtra el ruido y no ve todos los fotogramas, así que lo normal es contar unos pocos sucesos por hora, y algunos móviles casi ninguno. Con tan pocos sucesos, una tasa fiable exige horas de medida.",
+    "heat": "Falsos positivos por calor: al calentarse el sensor (por el propio cálculo, el sol o el cargador) aparecen píxeles calientes nuevos y más ruido. La app enmascara los píxeles que se repiten y sube el umbral si hay demasiados sucesos, pero parte de los puntos sueltos pueden ser ruido. Las trazas rectas y los gusanos son más fiables que los puntos.",
+    "shapes": "Formas: una traza recta larga es la firma típica de un muón que cruza el sensor inclinado; un muón que lo cruza de frente deja solo un punto. Los gusanos suelen ser electrones de baja energía (por ejemplo, de rayos gamma de la radiactividad natural). No es un contador calibrado: no mide dosis.",
+    "cameraAndroid": "En Android no se pueden fijar a mano el ISO ni el tiempo de exposición desde la app: se pide la máxima compensación de exposición y pocos fotogramas por segundo, y con la lente tapada la exposición automática sube la ganancia al máximo. El móvil aplica su propia reducción de ruido, que puede borrar algunos impactos.",
+    "cameraIos": "En iPhone se fija el ISO máximo y el tiempo de exposición más largo que permite la cadencia de fotogramas.",
+    "howItWorks": "Cómo funciona: la calibración mide el ruido del sensor tapado (de ahí sale el umbral) y apunta los píxeles que se encienden una y otra vez (los píxeles calientes, que se enmascaran). Después, en cada fotograma se buscan grupos de píxeles por encima del nivel de negro más el umbral, se mide su forma (longitud, anchura, rectitud) y se clasifican. La incertidumbre es la de Poisson: con N sucesos, ±√N."
+  },
+  "fields": {
+    "duration": "Duración",
+    "analyzedFrames": "Fotogramas analizados",
+    "analyzedFramePercent": "Fotogramas analizados (fracción)",
+    "frameWidth": "Ancho del fotograma",
+    "frameHeight": "Alto del fotograma",
+    "eventCount": "Sucesos",
+    "spotCount": "Puntos",
+    "wormCount": "Gusanos",
+    "trackCount": "Trazas rectas",
+    "eventsPerMinute": "Sucesos por minuto",
+    "eventsPerMinuteUncertainty": "Incertidumbre (√N/T)",
+    "eventsPerMinuteLower": "Límite inferior (68 %)",
+    "eventsPerMinuteUpper": "Límite superior (68 %)",
+    "tracksPerMinute": "Trazas rectas por minuto",
+    "tracksPerMinuteUncertainty": "Incertidumbre de las trazas",
+    "calibrationHotPixels": "Píxeles calientes (calibración)",
+    "addedHotPixels": "Píxeles calientes nuevos",
+    "discardedHotEvents": "Sucesos descartados por calor",
+    "initialThreshold": "Umbral inicial",
+    "finalThreshold": "Umbral final",
+    "meanDarkLevel": "Nivel de negro medio",
+    "lightLeakFrames": "Fotogramas con luz",
+    "noisyFrames": "Fotogramas con ruido"
+  }
+}

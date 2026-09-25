@@ -10,6 +10,7 @@ import { metalDetectorInstrument } from './metal-detector';
 import { metronomeInstrument } from './metronome';
 import { moonInstrument } from './moon';
 import { motionMagnifierInstrument } from './motion-magnifier';
+import { muonDetectorInstrument } from './muon-detector';
 import { poolStripsInstrument } from './pool-strips';
 import { resonanceScaleInstrument } from './resonance-scale';
 import { rhythmInstrument } from './rhythm';
@@ -45,5 +46,6 @@ export const instrumentRegistry: readonly AnyInstrumentDefinition[] = [
   motionMagnifierInstrument,
   trackerHunterInstrument,
   wifiMapInstrument,
+  muonDetectorInstrument,
   exampleLevelInstrument,
 ];

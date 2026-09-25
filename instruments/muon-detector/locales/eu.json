@@ -1,0 +1,99 @@
+{
+  "name": "Partikula-detektagailua",
+  "description": "Izpi kosmikoetako muoiak eta erradioaktibitate naturala zenbatzen ditu kamera estalita: partikula bakoitzak puntu edo arrasto distiratsu bat uzten du.",
+  "intro": "Kamera estalita dagoenean, sentsoreak beltza ikusten du. Partikula kargatu batek (izpi kosmikoetako muoi batek, gamma izpi batek askatutako elektroi batek) silizioa zeharkatzen duenean, puntu edo arrasto distiratsu bat uzten du fotograma batean. DECO eta CRAYFIS aplikazioen printzipioa da.",
+  "steps": {
+    "cover": "1. Estali ondo atzeko kamera zinta isolatzaile beltzarekin edo beste zinta opako batekin (hainbat geruza). Argirik ez.",
+    "still": "2. Utzi mugikorra geldi, ahoz behera edo tiradera batean, giro-tenperaturan eta kargagailutik urrun.",
+    "wait": "3. Sakatu «Kalibratu eta hasi» eta itxaron: zenbat eta denbora gehiago, hobeto (ordubete edo gehiago)."
+  },
+  "status": {
+    "waitingCamera": "Kameraren zain…",
+    "covered": "Kamera estalita: ondo.",
+    "notCovered": "Argia sartzen da: estali hobeto kamera.",
+    "darkLevel": "Beltz-maila: {{level}} / 255",
+    "frameSize": "{{width}} × {{height}} px-ko fotogramak"
+  },
+  "actions": {
+    "start": "Kalibratu eta hasi",
+    "cancel": "Utzi",
+    "stop": "Gelditu neurketa",
+    "newMeasurement": "Neurketa berria"
+  },
+  "calibration": {
+    "noise": "Kalibratzen (1/2): sentsorearen zarata neurtzen…",
+    "hotPixels": "Kalibratzen (2/2): mugikor honen pixel beroak bilatzen…",
+    "keepStill": "Segundo batzuk. Ez kendu estalkia kamerari."
+  },
+  "results": {
+    "measuringTitle": "Neurtzen",
+    "finishedTitle": "Emaitza",
+    "eventsIn": "gertaera {{duration}} denboran",
+    "byShape": "Puntuak: {{spots}} · Harrak: {{worms}} · Arrasto zuzenak: {{tracks}}",
+    "allRate": "Denak: {{rate}}",
+    "trackRate": "Arrasto zuzenak: {{rate}}",
+    "interval": "% 68ko tartea (Poisson zehatza): minutuko {{lower}} eta {{upper}} artean",
+    "precision": "Zenbaketaren ziurgabetasuna: ±% {{percent}} (1/√N). ±% 10era jaisteko {{needed}} gertaera inguru behar dira.",
+    "noEventsYet": "Oraindik gertaerarik ez. Normala da: minutu asko igaro daitezke batetik bestera."
+  },
+  "rateValue": "{{rate}} ± {{uncertainty}} minutuko (orduko {{perHour}})",
+  "details": {
+    "calibration": "Kalibrazioa: {{hotPixels}} pixel bero maskaratuta; atalasea beltzaren gainetik {{threshold}} mailatan.",
+    "heatedPixels": "Neurketan beste {{addedPixels}} pixel berotu dira; haietatik zetozen {{discardedEvents}} gertaera kendu dira.",
+    "thresholdRaised": "Zarata gehiegi zegoen eta atalasea {{threshold}} mailara igo da.",
+    "frames": "Aztertutako fotogramak: {{analyzed}} · argiarekin: {{lightLeak}} · zaratarekin: {{noisy}}",
+    "analyzedFraction": "Fotogramen % {{percent}} inguru aztertzen da (kamerak {{framesPerSecond}} ematen ditu segundoko); gainerakoetan detektagailua itsu dago."
+  },
+  "messages": {
+    "coverFirst": "Estali kamera hasi aurretik: beltz-mailak jaitsi egin behar du.",
+    "lightDuringCalibration": "Argia sartu da kalibrazioan. Estali hobeto kamera eta hasi berriro.",
+    "lightDuringMeasurement": "Argia sartzen ari da: fotograma horiek ez dira kontuan hartzen.",
+    "sensorWarming": "Sentsorea berotu egin da kalibraziotik: zarata eta gertaera faltsuak handitzen dira. Ahal baduzu, utzi hozten eta kalibratu berriro.",
+    "keepScreenOn": "Utzi aplikazioa irekita eta pantaila piztuta (igo pantaila itzaltzeko denbora Ezarpenetan): mugikorra blokeatzen bada, neurketa gelditu egiten da."
+  },
+  "gallery": {
+    "title": "Gertaerak",
+    "empty": "Hemen agertuko dira gertaeren miniaturak.",
+    "eventLabel": "{{shape}}, {{time}}(e)an",
+    "eventSize": "{{pixels}} px · {{length}} px-ko luzera"
+  },
+  "shapes": {
+    "spot": "Puntua",
+    "worm": "Harra",
+    "track": "Arrasto zuzena"
+  },
+  "limits": {
+    "title": "Zer espero (eta zer ez)",
+    "expectedRate": "Espero den tasa: itsas mailan, gutxi gorabehera muoi bat erortzen da zentimetro koadro eta minutu bakoitzeko, eta mugikor baten sentsoreak 0,2-0,3 cm² inguru ditu. Baina kamerak irudia txikitzen du, zarata iragazten du eta ez ditu fotograma guztiak ikusten; beraz, normalean orduko gertaera gutxi batzuk zenbatuko dira, eta mugikor batzuetan ia bat ere ez. Hain gertaera gutxirekin, tasa fidagarri batek orduetako neurketa eskatzen du.",
+    "heat": "Beroak eragindako positibo faltsuak: sentsorea berotzean (kalkuluagatik beragatik, eguzkiagatik edo kargagailuagatik) pixel bero berriak eta zarata gehiago agertzen dira. Aplikazioak errepikatzen diren pixelak maskaratzen ditu eta atalasea igotzen du gertaera gehiegi badaude, baina puntu solte batzuk zarata izan daitezke. Arrasto zuzenak eta harrak puntuak baino fidagarriagoak dira.",
+    "shapes": "Formak: arrasto zuzen luze bat sentsorea zeharka gurutzatzen duen muoi baten ezaugarri tipikoa da; aurrez aurre gurutzatzen duen muoi batek puntu bat baino ez du uzten. Harrak energia txikiko elektroiak izan ohi dira (adibidez, erradioaktibitate naturaleko gamma izpietatik). Ez da kontagailu kalibratu bat: ez du dosia neurtzen.",
+    "cameraAndroid": "Androiden ezin dira eskuz finkatu ISOa eta esposizio-denbora aplikaziotik: esposizio-konpentsazio handiena eta segundoko fotograma gutxi eskatzen dira, eta lentea estalita dagoenean esposizio automatikoak irabazia gehienera igotzen du. Mugikorrak bere zarata-murrizketa aplikatzen du, eta horrek talka batzuk ezaba ditzake.",
+    "cameraIos": "iPhonean ISO handiena eta fotograma-erritmoak ahalbidetzen duen esposizio-denbora luzeena finkatzen dira.",
+    "howItWorks": "Nola dabilen: kalibrazioak sentsore estaliaren zarata neurtzen du (hortik ateratzen da atalasea) eta behin eta berriz pizten diren pixelak apuntatzen ditu (pixel beroak, maskaratu egiten direnak). Ondoren, fotograma bakoitzean beltz-maila gehi atalasearen gainetik dauden pixel-taldeak bilatzen dira, haien forma neurtzen da (luzera, zabalera, zuzentasuna) eta sailkatu egiten dira. Ziurgabetasuna Poissonena da: N gertaerarekin, ±√N."
+  },
+  "fields": {
+    "duration": "Iraupena",
+    "analyzedFrames": "Aztertutako fotogramak",
+    "analyzedFramePercent": "Aztertutako fotogramak (zatikia)",
+    "frameWidth": "Fotogramaren zabalera",
+    "frameHeight": "Fotogramaren altuera",
+    "eventCount": "Gertaerak",
+    "spotCount": "Puntuak",
+    "wormCount": "Harrak",
+    "trackCount": "Arrasto zuzenak",
+    "eventsPerMinute": "Gertaerak minutuko",
+    "eventsPerMinuteUncertainty": "Ziurgabetasuna (√N/T)",
+    "eventsPerMinuteLower": "Beheko muga (% 68)",
+    "eventsPerMinuteUpper": "Goiko muga (% 68)",
+    "tracksPerMinute": "Arrasto zuzenak minutuko",
+    "tracksPerMinuteUncertainty": "Arrastoen ziurgabetasuna",
+    "calibrationHotPixels": "Pixel beroak (kalibrazioa)",
+    "addedHotPixels": "Pixel bero berriak",
+    "discardedHotEvents": "Beroagatik baztertutako gertaerak",
+    "initialThreshold": "Hasierako atalasea",
+    "finalThreshold": "Azken atalasea",
+    "meanDarkLevel": "Batez besteko beltz-maila",
+    "lightLeakFrames": "Argia duten fotogramak",
+    "noisyFrames": "Zarata duten fotogramak"
+  }
+}
