@@ -1,0 +1,13 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <!-- Leer la conexión actual (RSSI, velocidad, frecuencia). Permiso normal: no se pide al usuario. -->
+  <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+  <!-- Necesario para WifiManager.startScan(). Permiso normal. -->
+  <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+  <!--
+    Android 13+: escanear redes vecinas. No se usa para ubicar al usuario (neverForLocation).
+    Aun así, el SSID de la conexión actual sigue exigiendo ACCESS_FINE_LOCATION (lo declara expo-location).
+  -->
+  <uses-permission
+    android:name="android.permission.NEARBY_WIFI_DEVICES"
+    android:usesPermissionFlags="neverForLocation" />
+</manifest>

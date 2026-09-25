@@ -1,0 +1,109 @@
+{
+  "name": "Wi‑Fi mapa",
+  "description": "Etxeko Wi‑Fi estaldura neurtzen du, bero-mapa bat marrazten du gune hilekin, errepikagailua non jarri iradokitzen du eta kanal libreena bilatzen du.",
+  "modes": {
+    "signal": "Seinalea",
+    "map": "Mapa",
+    "channels": "Kanalak"
+  },
+  "status": {
+    "notConnected": "Ez zaude Wi‑Fi sare batera konektatuta. Konektatu etxekora neurtzeko.",
+    "wifiOff": "Wi‑Fia itzalita dago. Piztu eta konektatu etxeko sarera.",
+    "androidOnly": "Tresna honek Androiden bakarrik funtzionatzen du: iOSek ez die aplikazioei uzten Wi‑Fi seinalearen indarra irakurtzen edo sareak eskaneatzen.",
+    "moduleMissing": "Aplikazioaren bertsio honek ez dauka Wi‑Fi irakurgailurik. Instalatu bertsio berriagoa.",
+    "locationForName": "Androidek sarearen izena eta inguruko sareak kokapen-baimena emanez gero bakarrik erakusten ditu. Seinalearen indarra hura gabe ere neurtzen da."
+  },
+  "quality": {
+    "excellent": "Bikaina",
+    "good": "Ona",
+    "fair": "Erdipurdikoa",
+    "poor": "Ahula",
+    "dead": "Ia seinalerik gabe"
+  },
+  "bands": {
+    "band24": "2,4 GHz",
+    "band5": "5 GHz",
+    "band6": "6 GHz"
+  },
+  "signal": {
+    "frequencyOnly": "{{frequency}} MHz",
+    "bandAndChannel": "{{band}} · {{channel}}. kanala",
+    "linkSpeed": "Lotura {{speed}} Mb/s",
+    "maxLinkSpeed": "gehienez {{speed}} Mb/s",
+    "txRxSpeed": "Igoera {{tx}} Mb/s · jaitsiera {{rx}} Mb/s",
+    "unknownStandard": "Wi‑Fi estandar ezezaguna",
+    "hiddenNetworkName": "Izen ikusgaririk gabeko sarea",
+    "now": "orain",
+    "chart": "Wi‑Fi seinalearen indarra azken minutuan",
+    "explanation": "RSSIa routerretik iristen den potentzia da, dBm-tan: 0tik zenbat eta hurbilago, hobe. −67 dBm-tik gora bideodeietarako ere ondo dabil; −80 dBm-tik behera konexioa eten egiten da. Lotura-abiadura irratiak negoziatzen duena da, ez zure interneteko konexioarena."
+  },
+  "map": {
+    "modes": {
+      "rooms": "Planoa marraztu",
+      "measure": "Neurtu"
+    },
+    "roomsHelp": "Ukitu kontrako bi izkina gela bakoitza gehitzeko (saretara egokitzen dira). Planoa aukerakoa da: gelarik gabe laukizuzen osoa erabiltzen da.",
+    "measureHelp": "Joan etxeko toki batera, ukitu planoan non zauden eta egon geldirik {{seconds}} s mugikorra ohi bezala helduta. Neurtu gutxienez puntu bat gela bakoitzean, eta gehiago seinale txarreko guneetan.",
+    "planLabel": "Etxearen planoa bero-mapekin. Ukitu izkinak edo puntuak gehitzeko.",
+    "legend": "{{worst}} · {{middle}} · {{best}} dBm; marradun, gune hila (< {{dead}} dBm); R, errepikagailua",
+    "measuring": "Neurtzen… ez mugitu ({{seconds}} s)",
+    "needsConnection": "Konektatu etxeko Wi‑Fi sarera neurtzeko.",
+    "tapInsideRoom": "Ukitu planoko gela baten barruan.",
+    "noSamples": "Ez da seinalearen irakurketarik iritsi. Saiatu berriro.",
+    "pointAdded": "Puntua gordeta: {{rssi}} dBm (±{{spread}} dB aldatzen da).",
+    "secondCorner": "Orain ukitu kontrako izkina.",
+    "roomTooSmall": "Gela txikiegia: ukitu elkarrengandik urrun dauden bi izkina.",
+    "undoRoom": "Kendu azkena",
+    "clearRooms": "Ezabatu planoa",
+    "undoPoint": "Kendu azkena",
+    "clearPoints": "Ezabatu puntuak",
+    "pointCount_one": "Puntu {{count}} neurtuta",
+    "pointCount_other": "{{count}} puntu neurtuta",
+    "deadZones": "Gune hila: neurtutako eremuaren % {{percent}} ({{threshold}} dBm baino gutxiago).",
+    "recommendation": {
+      "needPoints": "Neurtu gutxienez {{count}} puntu etxean zehar banatuta gomendioak ikusteko.",
+      "noDeadZone": "Neurtutakoan ez dago gune hilik: ez da errepikagailurik behar.",
+      "noGoodSpot": "Gune hilak daude, baina neurtutako tokiren batek ere ez dauka errepikagailu baterako seinale nahikorik. Saiatu routerra toki zentralago batera eramaten edo erabili sare-sistema (mesh) edo PLC bat.",
+      "recommended": "Errepikagailua: jarri R markan, routerraren eta gune hilaren artean, oraindik {{rssi}} dBm iristen diren tokian."
+    },
+    "mixedFrequencies": "Kontuz: mugikorrak banda edo sarbide-puntua aldatu du mapan zehar (2,4 eta 5 GHz ez dira urrutira berdin iristen). Konparatu banda bereko puntuak bakarrik.",
+    "save": "Gorde mapa",
+    "honestyNote": "Mapak zure puntuen artean interpolatzen du hormak non dauden jakin gabe: bi neurketaren arteko horma lodi batek gune okerrago bat ezkuta dezake. Androidek RSSIa segundo gutxitik behin eguneratzen du eta zure gorputzak dB batzuk estaltzen ditu; beraz, neurtu beti modu berean. Errepikagailuaren marka orientabide bat da, ez hedapen-kalkulu bat."
+  },
+  "channels": {
+    "permissionNeeded": "Inguruko sareak ikusteko, Androidek kokapen-baimena behar du (eta, Android 13tik aurrera, inguruko Wi‑Fi gailuena).",
+    "locationServicesOff": "Sistemaren kokapena desaktibatuta dago: Android 12an edo lehenagokoetan aktibatu egin behar da eskaneatzeko.",
+    "grantPermission": "Eman baimena",
+    "scan": "Eskaneatu sareak",
+    "scanning": "Eskaneatzen…",
+    "scanWait": "Eskaneatu berriro {{seconds}} s barru",
+    "throttled": "Androidek 4 aldiz bakarrik uzten du eskaneatzen 2 minututik behin: dituen azken emaitzak erakusten dira.",
+    "noNetworks": "Oraindik ez dago emaitzarik. Sakatu «Eskaneatu sareak».",
+    "bandTitle_one": "{{band}}: inguruko sare {{count}}",
+    "bandTitle_other": "{{band}}: inguruko {{count}} sare",
+    "bestChannel": "Kanal libreena: {{channel}}",
+    "bestChannelDfs": "Kanal libreena: {{channel}} (DFS: routerrak minutu bat behar dezake hura erabiltzeko, eta aldatu egingo da radar bat hautematen badu)",
+    "changeSuggested": "Zure routerra {{current}}. kanalean dago, askoz beteago. Routerraren konfigurazioan alda dezakezu.",
+    "currentIsFine": "Zure routerra {{current}}. kanalean dago: ez du merezi aldatzea.",
+    "barLabel": "{{channel}}. kanala: gainjarritako {{networks}} sare, kongestioa {{score}}",
+    "neighborsTitle": "Sareak kanalka",
+    "hiddenNetwork": "(sare ezkutua)",
+    "yours": "zurea",
+    "honestyNote": "Kongestioa kanal bakoitzarekin zenbat sare gainjartzen diren eta zein indarrez iristen diren kontuan hartuta kalkulatzen da; eskaneatzeak ez du esaten zenbat trafiko mugitzen duten. 2,4 GHz-en 1, 6 eta 11 bakarrik gomendatzen dira, elkar zapaltzen ez dutenak. Oso urrun dauden 5 GHz-eko sareek ia ez dute eragozten."
+  },
+  "fields": {
+    "pointCount": "Neurtutako puntuak",
+    "medianRssi": "RSSI mediana",
+    "weakestRssi": "RSSI ahulena",
+    "strongestRssi": "RSSI indartsuena",
+    "deadZonePercent": "Gune hila",
+    "networkName": "Sarea",
+    "frequency": "Maiztasuna",
+    "repeaterX": "Errepikagailua X",
+    "repeaterY": "Errepikagailua Y",
+    "pointXs": "Puntuak X",
+    "pointYs": "Puntuak Y",
+    "pointRssis": "Puntuen RSSIa",
+    "roomCoordinates": "Gelak"
+  }
+}
