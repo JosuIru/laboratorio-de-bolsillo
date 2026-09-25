@@ -52,8 +52,14 @@ export function ColorimeterCalibrationScreen({
       return;
     }
     setIsSaving(true);
+    setErrorMessage(null);
     try {
       await saveProfile(profileName || t(`card.preset.${editedCard.presetId}`), parameters);
+    } catch (saveError) {
+      // Se llama con `void`: sin este catch el fallo (p. ej. de la base de datos) se perdería en silencio.
+      setErrorMessage(
+        t('card.saveFailed', { message: saveError instanceof Error ? saveError.message : String(saveError) }),
+      );
     } finally {
       setIsSaving(false);
     }

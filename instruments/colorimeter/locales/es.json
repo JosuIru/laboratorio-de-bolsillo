@@ -45,6 +45,7 @@
       "custom": "Tarjeta propia"
     },
     "patchName": "Nombre",
+    "saveFailed": "No se ha podido guardar la calibración: {{message}}",
     "addPatch": "Añadir parche",
     "invalid": "Revisa los colores: deben tener el formato #RRGGBB."
   },

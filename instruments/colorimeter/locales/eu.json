@@ -45,6 +45,7 @@
       "custom": "Txartel propioa"
     },
     "patchName": "Izena",
+    "saveFailed": "Ezin izan da kalibrazioa gorde: {{message}}",
     "addPatch": "Gehitu adabakia",
     "invalid": "Berrikusi koloreak: #RRGGBB formatua izan behar dute."
   },
