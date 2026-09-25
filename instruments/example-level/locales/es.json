@@ -1,0 +1,14 @@
+{
+  "name": "Nivel (ejemplo)",
+  "description": "Instrumento de ejemplo para desarrolladores: nivel de burbuja con el acelerómetro.",
+  "instructions": "Apoya el móvil boca arriba sobre la superficie que quieras comprobar.",
+  "waiting": "Esperando al acelerómetro…",
+  "fields": {
+    "tiltX": "Inclinación X",
+    "tiltY": "Inclinación Y"
+  },
+  "calibration": {
+    "instructions": "Pon el móvil boca arriba sobre una superficie que sepas que está a nivel y pulsa Guardar.",
+    "currentReading": "Lectura actual: X {{tiltX}}°, Y {{tiltY}}°"
+  }
+}

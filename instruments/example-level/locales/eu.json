@@ -1,0 +1,14 @@
+{
+  "name": "Nibela (adibidea)",
+  "description": "Garatzaileentzako adibide-tresna: burbuila-nibela azelerometroarekin.",
+  "instructions": "Jarri mugikorra ahoz gora egiaztatu nahi duzun gainazalaren gainean.",
+  "waiting": "Azelerometroaren zain…",
+  "fields": {
+    "tiltX": "X inklinazioa",
+    "tiltY": "Y inklinazioa"
+  },
+  "calibration": {
+    "instructions": "Jarri mugikorra ahoz gora zuzen dagoela dakizun gainazal batean eta sakatu Gorde.",
+    "currentReading": "Uneko irakurketa: X {{tiltX}}°, Y {{tiltY}}°"
+  }
+}

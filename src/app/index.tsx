@@ -1,33 +1,54 @@
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable } from 'react-native';
 
-import { useThemePalette } from '@/ui/theme';
+import { evaluateInstrumentReadiness } from '@/core/instruments/availability';
+import { enabledInstruments } from '@/core/instruments/registryAccess';
+import { useSensorAvailabilityStore } from '@/core/sensors/availabilityStore';
+import { BodyText, Card, LoadingState, ScreenContainer, SectionTitle } from '@/ui/components';
+import { InstrumentCard } from '@/ui/InstrumentCard';
 
 export default function HomeScreen() {
   const { t } = useTranslation();
-  const themePalette = useThemePalette();
+  const availabilityBySensor = useSensorAvailabilityStore((state) => state.availabilityBySensor);
+  const requestSensorPermission = useSensorAvailabilityStore((state) => state.requestSensorPermission);
+
+  if (!availabilityBySensor) return <LoadingState label={t('common.loading')} />;
 
   return (
-    <View style={styles.container}>
-      <Text style={[styles.tagline, { color: themePalette.textSecondary }]}>{t('app.tagline')}</Text>
-      <Text style={[styles.sectionTitle, { color: themePalette.textPrimary }]}>{t('home.title')}</Text>
-      <View style={[styles.emptyCard, { backgroundColor: themePalette.surface, borderColor: themePalette.border }]}>
-        <Text style={{ color: themePalette.textSecondary }}>{t('home.empty')}</Text>
-      </View>
+    <ScreenContainer>
+      <BodyText tone="secondary">{t('app.tagline')}</BodyText>
+      <SectionTitle>{t('home.title')}</SectionTitle>
+
+      {enabledInstruments.length === 0 ? (
+        <Card>
+          <BodyText tone="secondary">{t('home.empty')}</BodyText>
+        </Card>
+      ) : null}
+
+      {enabledInstruments.map((instrument) => {
+        const readiness = evaluateInstrumentReadiness(instrument, availabilityBySensor);
+        return (
+          <InstrumentCard
+            key={instrument.id}
+            instrument={instrument}
+            readiness={readiness}
+            onOpen={() => router.push({ pathname: '/instrument/[id]', params: { id: instrument.id } })}
+            onRequestPermissions={async () => {
+              if (readiness.status !== 'needs-permission') return;
+              for (const sensorKind of readiness.sensorsNeedingPermission) {
+                await requestSensorPermission(sensorKind);
+              }
+            }}
+          />
+        );
+      })}
+
       <Link href="/settings" asChild>
-        <Pressable accessibilityRole="button" style={styles.settingsButton}>
-          <Text style={{ color: themePalette.accent }}>{t('settings.title')}</Text>
+        <Pressable accessibilityRole="button" style={{ paddingVertical: 12, alignSelf: 'flex-start' }}>
+          <BodyText tone="accent">{t('settings.title')}</BodyText>
         </Pressable>
       </Link>
-    </View>
+    </ScreenContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, gap: 12 },
-  tagline: { fontSize: 15 },
-  sectionTitle: { fontSize: 20, fontWeight: '600', marginTop: 8 },
-  emptyCard: { padding: 16, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth },
-  settingsButton: { paddingVertical: 12, alignSelf: 'flex-start' },
-});

@@ -3,17 +3,99 @@
     "name": "Laboratorio de Bolsillo",
     "tagline": "Instrumentos científicos con los sensores de tu móvil"
   },
+  "common": {
+    "cancel": "Cancelar",
+    "delete": "Borrar",
+    "save": "Guardar",
+    "loading": "Cargando…",
+    "retry": "Reintentar",
+    "error": "Algo ha fallado: {{message}}"
+  },
   "home": {
     "title": "Instrumentos",
-    "empty": "Todavía no hay instrumentos instalados."
+    "empty": "Todavía no hay instrumentos instalados.",
+    "developmentBadge": "desarrollo"
+  },
+  "instrument": {
+    "notFound": "Este instrumento no existe.",
+    "history": "Historial",
+    "calibrate": "Calibrar",
+    "unavailableTitle": "No disponible en este móvil",
+    "grantPermission": "Conceder permiso",
+    "openSystemSettings": "Abrir ajustes del sistema",
+    "needsPermission": "Necesita permiso para: {{sensors}}",
+    "blockedPermission": "Has denegado el permiso para: {{sensors}}. Actívalo en los ajustes del sistema.",
+    "savedMeasurement": "Medición guardada"
+  },
+  "history": {
+    "title": "Historial: {{instrument}}",
+    "empty": "Todavía no hay mediciones guardadas.",
+    "count_one": "{{count}} medición",
+    "count_other": "{{count}} mediciones",
+    "exportCsv": "Exportar CSV",
+    "exportJson": "Exportar JSON",
+    "exportDialogTitle": "Exportar mediciones",
+    "loadMore": "Cargar más",
+    "deleteTitle": "¿Borrar la medición?",
+    "deleteMessage": "Se borrarán también sus adjuntos. No se puede deshacer.",
+    "withLocation": "Con ubicación",
+    "attachments_one": "{{count}} adjunto",
+    "attachments_other": "{{count}} adjuntos",
+    "arrayValues": "{{count}} valores"
+  },
+  "calibration": {
+    "title": "Calibración: {{instrument}}",
+    "notSupported": "Este instrumento no necesita calibración.",
+    "deviceNote": "Las calibraciones se guardan para este modelo de móvil ({{device}}).",
+    "noProfiles": "No hay calibraciones: se usan los valores por defecto.",
+    "newProfile": "Nueva calibración",
+    "profileName": "Nombre de la calibración",
+    "active": "Activa",
+    "activate": "Usar",
+    "deleteTitle": "¿Borrar esta calibración?"
   },
   "settings": {
     "title": "Ajustes",
     "language": "Idioma",
+    "followSystem": "Sistema",
+    "location": "Ubicación",
+    "attachLocation": "Guardar la ubicación con cada medición",
+    "attachLocationHint": "Se usa el GPS solo al guardar. La ubicación nunca sale del móvil salvo que exportes.",
+    "locationDenied": "Sin permiso de ubicación no se puede activar.",
+    "sensors": "Sensores de este móvil",
     "privacy": "Todo se procesa y guarda en este dispositivo. Sin analítica ni rastreo."
   },
   "language": {
     "es": "Castellano",
     "eu": "Euskara"
+  },
+  "sensors": {
+    "name": {
+      "camera": "Cámara",
+      "microphone": "Micrófono",
+      "accelerometer": "Acelerómetro",
+      "gyroscope": "Giroscopio",
+      "magnetometer": "Magnetómetro",
+      "barometer": "Barómetro",
+      "light": "Sensor de luz",
+      "location": "Ubicación",
+      "speaker": "Altavoz",
+      "vibrator": "Vibrador",
+      "torch": "Linterna"
+    },
+    "status": {
+      "available": "Disponible",
+      "unavailable": "No disponible",
+      "permission-denied": "Permiso denegado",
+      "permission-undetermined": "Falta permiso"
+    },
+    "reason": {
+      "missingHardware": "Este móvil no tiene {{sensor}}.",
+      "notYetSupported": "{{sensor}}: soporte en desarrollo.",
+      "locationServicesOff": "La ubicación del sistema está desactivada.",
+      "permissionDenied": "Permiso denegado para {{sensor}}.",
+      "permissionBlocked": "Permiso bloqueado para {{sensor}}: actívalo en los ajustes del sistema.",
+      "permissionUndetermined": "Hace falta permiso para usar {{sensor}}."
+    }
   }
 }

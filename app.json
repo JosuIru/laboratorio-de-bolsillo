@@ -28,7 +28,23 @@
     "plugins": [
       "expo-router",
       "expo-status-bar",
-      "expo-localization"
+      "expo-localization",
+      "expo-sqlite",
+      "expo-sharing",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "La ubicación se guarda con tus mediciones solo si lo activas en Ajustes.",
+          "isAndroidBackgroundLocationEnabled": false,
+          "isIosBackgroundLocationEnabled": false
+        }
+      ],
+      [
+        "expo-sensors",
+        {
+          "motionPermission": "Los instrumentos usan los sensores de movimiento para medir."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

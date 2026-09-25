@@ -3,17 +3,99 @@
     "name": "Poltsikoko Laborategia",
     "tagline": "Tresna zientifikoak zure mugikorraren sentsoreekin"
   },
+  "common": {
+    "cancel": "Utzi",
+    "delete": "Ezabatu",
+    "save": "Gorde",
+    "loading": "Kargatzen…",
+    "retry": "Saiatu berriro",
+    "error": "Zerbaitek huts egin du: {{message}}"
+  },
   "home": {
     "title": "Tresnak",
-    "empty": "Oraindik ez dago tresnarik instalatuta."
+    "empty": "Oraindik ez dago tresnarik instalatuta.",
+    "developmentBadge": "garapena"
+  },
+  "instrument": {
+    "notFound": "Tresna hau ez dago.",
+    "history": "Historia",
+    "calibrate": "Kalibratu",
+    "unavailableTitle": "Ez dago erabilgarri mugikor honetan",
+    "grantPermission": "Eman baimena",
+    "openSystemSettings": "Ireki sistemaren ezarpenak",
+    "needsPermission": "Baimena behar du: {{sensors}}",
+    "blockedPermission": "Baimena ukatu duzu: {{sensors}}. Aktibatu sistemaren ezarpenetan.",
+    "savedMeasurement": "Neurketa gordeta"
+  },
+  "history": {
+    "title": "Historia: {{instrument}}",
+    "empty": "Oraindik ez dago neurketarik gordeta.",
+    "count_one": "Neurketa {{count}}",
+    "count_other": "{{count}} neurketa",
+    "exportCsv": "Esportatu CSV",
+    "exportJson": "Esportatu JSON",
+    "exportDialogTitle": "Esportatu neurketak",
+    "loadMore": "Kargatu gehiago",
+    "deleteTitle": "Neurketa ezabatu?",
+    "deleteMessage": "Eranskinak ere ezabatuko dira. Ezin da desegin.",
+    "withLocation": "Kokapenarekin",
+    "attachments_one": "Eranskin {{count}}",
+    "attachments_other": "{{count}} eranskin",
+    "arrayValues": "{{count}} balio"
+  },
+  "calibration": {
+    "title": "Kalibrazioa: {{instrument}}",
+    "notSupported": "Tresna honek ez du kalibraziorik behar.",
+    "deviceNote": "Kalibrazioak mugikor-eredu honetarako gordetzen dira ({{device}}).",
+    "noProfiles": "Ez dago kalibraziorik: balio lehenetsiak erabiltzen dira.",
+    "newProfile": "Kalibrazio berria",
+    "profileName": "Kalibrazioaren izena",
+    "active": "Aktibo",
+    "activate": "Erabili",
+    "deleteTitle": "Kalibrazio hau ezabatu?"
   },
   "settings": {
     "title": "Ezarpenak",
     "language": "Hizkuntza",
+    "followSystem": "Sistema",
+    "location": "Kokapena",
+    "attachLocation": "Gorde kokapena neurketa bakoitzarekin",
+    "attachLocationHint": "GPSa gordetzean bakarrik erabiltzen da. Kokapena ez da inoiz mugikorretik ateratzen, esportatzen ez baduzu.",
+    "locationDenied": "Kokapen-baimenik gabe ezin da aktibatu.",
+    "sensors": "Mugikor honen sentsoreak",
     "privacy": "Dena gailu honetan prozesatzen eta gordetzen da. Analitikarik eta jarraipenik gabe."
   },
   "language": {
     "es": "Castellano",
     "eu": "Euskara"
+  },
+  "sensors": {
+    "name": {
+      "camera": "Kamera",
+      "microphone": "Mikrofonoa",
+      "accelerometer": "Azelerometroa",
+      "gyroscope": "Giroskopioa",
+      "magnetometer": "Magnetometroa",
+      "barometer": "Barometroa",
+      "light": "Argi-sentsorea",
+      "location": "Kokapena",
+      "speaker": "Bozgorailua",
+      "vibrator": "Bibragailua",
+      "torch": "Linterna"
+    },
+    "status": {
+      "available": "Erabilgarri",
+      "unavailable": "Ez dago erabilgarri",
+      "permission-denied": "Baimena ukatuta",
+      "permission-undetermined": "Baimena falta da"
+    },
+    "reason": {
+      "missingHardware": "Mugikor honek ez du hau: {{sensor}}.",
+      "notYetSupported": "{{sensor}}: euskarria garatzen ari da.",
+      "locationServicesOff": "Sistemaren kokapena desaktibatuta dago.",
+      "permissionDenied": "Baimena ukatuta: {{sensor}}.",
+      "permissionBlocked": "Baimena blokeatuta: {{sensor}}. Aktibatu sistemaren ezarpenetan.",
+      "permissionUndetermined": "Baimena behar da hau erabiltzeko: {{sensor}}."
+    }
   }
 }
