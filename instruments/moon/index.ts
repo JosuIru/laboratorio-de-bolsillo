@@ -13,7 +13,7 @@ export const moonInstrument = defineInstrument<MoonMeasurementValues>({
   icon: { glyph: '☾', accentColor: '#4338CA' },
   category: 'optics',
   requiredSensors: ['camera'],
-  optionalSensors: ['location'],
+  optionalSensors: ['location', 'accelerometer', 'magnetometer'],
   Screen: MoonScreen,
   dataSchema: moonSchema,
   translations: { es, eu },

@@ -5,6 +5,8 @@ import { type GestureResponderEvent, type LayoutChangeEvent, Pressable, StyleShe
 import { Camera, type CameraRef, type MeteringMode, useCameraDevice } from 'react-native-vision-camera';
 
 import type { InstrumentScreenProps } from '@/core/instruments/types';
+import type { PointingGuidance } from '@/processing/astronomy/pointingGuide';
+import { isExpectedCameraInterruption } from '@/core/sensors/cameraErrors';
 import { useIsCameraAllowed } from '@/core/sensors/useIsCameraAllowed';
 import { chooseCropSize, stackSharpestCrops } from '@/processing/image/lunarStacking';
 import { AppButton, BodyText, Card, ScreenContainer, SectionTitle } from '@/ui/components';
@@ -15,6 +17,7 @@ import { MoonInfoCard, useMoonReport, useObserverLocation } from './MoonInfoCard
 import type { MoonMeasurementValues } from './schema';
 import { createSkiaImage, writeImageToCachePng } from './stackedImage';
 import { useMoonFrames } from './useMoonFrames';
+import { useMoonPointingGuide } from './useMoonPointingGuide';
 
 const previewHeight = 340;
 /** Fotogramas que se capturan en cada toma (~1-3 s según el móvil). */
@@ -30,6 +33,10 @@ const zoomStepFactor = Math.SQRT2;
 const overexposedSaturatedFraction = 0.02;
 /** Brillo máximo (R+G+B) por debajo del cual la Luna sale demasiado oscura. */
 const underexposedPeakBrightness = 300;
+/** Por debajo de esta distancia angular la Luna ya está en el centro de la imagen. */
+const centeredGuideDegrees = 4;
+/** Correcciones más pequeñas no se indican (la brújula no es tan precisa). */
+const negligibleCorrectionDegrees = 2;
 /** Diámetro mínimo en píxeles para que merezca la pena apilar. */
 const recommendedMoonDiameterPixels = 80;
 
@@ -58,6 +65,9 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
   );
   const moonReport = useMoonReport(observerLocation);
   const { frameOutput, liveDetection, isCapturing, captureProgress, captureCrops, stopCapture } = useMoonFrames();
+  const hasOrientationSensors =
+    sensorAvailability.accelerometer.status === 'available' && sensorAvailability.magnetometer.status === 'available';
+  const pointingGuidance = useMoonPointingGuide(moonReport.horizontalPosition, isCameraAllowed && hasOrientationSensors);
 
   const minimumZoom = cameraDevice?.minZoom ?? 1;
   const maximumZoom = cameraDevice?.maxZoom ?? 1;
@@ -98,6 +108,11 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
     } catch {
       // Cancelado por otro toque o no admitido: la vista previa sigue funcionando.
     }
+  }
+
+  function handleCameraError(cameraError: Error) {
+    if (isExpectedCameraInterruption(cameraError)) return;
+    setStatusMessage(t('core:common.error', { message: cameraError.message }));
   }
 
   async function handleUnlockMetering() {
@@ -225,6 +240,7 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
           outputs={[frameOutput]}
           zoom={zoomFactor}
           exposure={exposureBias}
+          onError={handleCameraError}
           resizeMode="contain"
         />
         <Pressable
@@ -242,7 +258,17 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
             />
           ) : null}
         </Pressable>
+        {pointingGuidance && !liveDetection ? (
+          <PointingOverlay
+            pointingGuidance={pointingGuidance}
+            isBelowHorizon={(moonReport.horizontalPosition?.altitudeDegrees ?? 0) < 0}
+          />
+        ) : null}
       </View>
+      {pointingGuidance ? <BodyText tone="secondary">{t('compassCalibrationHint')}</BodyText> : null}
+      {!moonReport.horizontalPosition && hasOrientationSensors ? (
+        <BodyText tone="secondary">{t('guideNeedsLocation')}</BodyText>
+      ) : null}
 
       <BodyText tone={liveDetection ? 'primary' : 'secondary'}>
         {liveDetection ? t('moonDetected', { diameter: moonDiameterPixels }) : t('moonNotDetected')}
@@ -339,6 +365,45 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
   );
 }
 
+function PointingOverlay({
+  pointingGuidance,
+  isBelowHorizon,
+}: {
+  pointingGuidance: PointingGuidance;
+  isBelowHorizon: boolean;
+}) {
+  const { t } = useTranslation(moonInstrumentId);
+  const { angularDistanceDegrees, screenArrowAngleDegrees, turnRightDegrees, raiseDegrees } = pointingGuidance;
+  const isCentered = angularDistanceDegrees < centeredGuideDegrees;
+  const corrections: string[] = [];
+  if (Math.abs(turnRightDegrees) >= negligibleCorrectionDegrees) {
+    corrections.push(t(turnRightDegrees > 0 ? 'guideTurnRight' : 'guideTurnLeft', { degrees: Math.abs(turnRightDegrees).toFixed(0) }));
+  }
+  if (Math.abs(raiseDegrees) >= negligibleCorrectionDegrees) {
+    corrections.push(t(raiseDegrees > 0 ? 'guideRaise' : 'guideLower', { degrees: Math.abs(raiseDegrees).toFixed(0) }));
+  }
+  const guideMessage = isBelowHorizon
+    ? t('guideBelowHorizon')
+    : isCentered
+      ? t('guideCentered')
+      : corrections.join(' · ');
+  return (
+    <View pointerEvents="none" style={styles.guideOverlay}>
+      {isCentered ? (
+        <View style={styles.guideCenterRing} />
+      ) : (
+        // La flecha «➜» apunta a la derecha; RN gira en sentido horario y el ángulo es antihorario.
+        <BodyText style={{ ...styles.guideArrow, transform: [{ rotate: `${-screenArrowAngleDegrees}deg` }] }}>➜</BodyText>
+      )}
+      {guideMessage ? (
+        <View style={styles.guideLabel}>
+          <BodyText style={styles.guideLabelText}>{guideMessage}</BodyText>
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
 interface StepperRowProps {
   label: string;
   onDecrease(): void;
@@ -410,6 +475,18 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#FACC15',
   },
+  guideOverlay: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center' },
+  guideArrow: { fontSize: 72, lineHeight: 84, color: '#FACC15' },
+  guideCenterRing: { width: 72, height: 72, borderRadius: 36, borderWidth: 3, borderColor: '#4ADE80' },
+  guideLabel: {
+    position: 'absolute',
+    bottom: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+  },
+  guideLabelText: { color: '#FFFFFF', fontWeight: '600' },
   stepperRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   stepperButton: { width: 110 },
   stepperLabel: { flex: 1, textAlign: 'center', fontWeight: '600', fontVariant: ['tabular-nums'] },
