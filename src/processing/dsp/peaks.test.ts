@@ -41,6 +41,32 @@ describe('createEventDetector', () => {
     expect(triggerFlags).toEqual([false, true, false, false, false, false, true]);
   });
 
+  it('con tiempos, una vibración amortiguada cuenta como un solo evento', () => {
+    const sampleRateHz = 400;
+    const vibrationFrequencyHz = 30;
+    const decaySeconds = 0.3;
+    // Dos golpes separados 2 s: senoides de 30 Hz que se amortiguan.
+    const buildDampedVibration = (startSeconds: number) =>
+      Array.from({ length: sampleRateHz * 2 }, (_, sampleIndex) => {
+        const elapsedSeconds = sampleIndex / sampleRateHz;
+        return {
+          timestampSeconds: startSeconds + elapsedSeconds,
+          value: 2 * Math.exp(-elapsedSeconds / decaySeconds) * Math.sin(2 * Math.PI * vibrationFrequencyHz * elapsedSeconds),
+        };
+      });
+    const twoKnocks = [...buildDampedVibration(0), ...buildDampedVibration(2)];
+    const countEvents = (eventDetector: ReturnType<typeof createEventDetector>, withTimestamps: boolean) =>
+      twoKnocks.filter(({ timestampSeconds, value }) =>
+        eventDetector.push(value, withTimestamps ? timestampSeconds : undefined),
+      ).length;
+
+    // Solo con histéresis, cada cruce por cero rearma: muchos «eventos» por golpe.
+    expect(countEvents(createEventDetector(0.1, 0.05), false)).toBeGreaterThan(10);
+    expect(
+      countEvents(createEventDetector(0.1, 0.05, { refractorySeconds: 0.5, quietSecondsBeforeRearm: 0.2 }), true),
+    ).toBe(2);
+  });
+
   it('rechaza umbrales incoherentes', () => {
     expect(() => createEventDetector(1, 2)).toThrow(RangeError);
   });

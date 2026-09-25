@@ -24,6 +24,16 @@ const gravityRemovalCutoffHz = 0.5;
 const fftSize = 512;
 const displayRefreshIntervalMilliseconds = 40;
 const analysisIntervalMilliseconds = 500;
+/**
+ * Un golpe hace vibrar la mesa (decenas de Hz) durante un rato y la señal cruza por cero en
+ * cada ciclo: tras un evento no se cuenta otro en medio segundo, y solo se rearma cuando la
+ * señal lleva un rato seguido por debajo del umbral de rearme.
+ */
+const eventTimingOptions = { refractorySeconds: 0.5, quietSecondsBeforeRearm: 0.2 } as const;
+
+function createSeismographEventDetector(eventThreshold: number) {
+  return createEventDetector(eventThreshold, eventThreshold / 2, eventTimingOptions);
+}
 
 export interface AccelerationHistory {
   timestamps: RingBuffer;
@@ -70,7 +80,7 @@ export function useAccelerationRecorder({ isRunning, eventThreshold }: { isRunni
   const [history] = useState(createHistory);
   const [vibrationAnalyzer] = useState(() => createVibrationAnalyzer(fftSize));
   const gravityFilters = useRef<GravityFilters>(createGravityFilters(100));
-  const eventDetector = useRef(createEventDetector(eventThreshold, eventThreshold / 2));
+  const eventDetector = useRef(createSeismographEventDetector(eventThreshold));
   const eventCount = useRef(0);
   const recordingStartTimestamp = useRef<number | null>(null);
   const latestTimestamp = useRef<number | null>(null);
@@ -79,7 +89,7 @@ export function useAccelerationRecorder({ isRunning, eventThreshold }: { isRunni
   const [vibrationAnalysis, setVibrationAnalysis] = useState<VibrationAnalysis | null>(null);
 
   useEffect(() => {
-    eventDetector.current = createEventDetector(eventThreshold, eventThreshold / 2);
+    eventDetector.current = createSeismographEventDetector(eventThreshold);
   }, [eventThreshold]);
 
   useSensorSubscription(
@@ -102,7 +112,7 @@ export function useAccelerationRecorder({ isRunning, eventThreshold }: { isRunni
 
       // El filtro tarda unos segundos en asentarse: no se cuentan eventos hasta entonces.
       const hasFilterSettled = timestampSeconds - recordingStartTimestamp.current > 3;
-      if (hasFilterSettled && eventDetector.current.push(Math.hypot(dynamicX, dynamicY, dynamicZ))) {
+      if (hasFilterSettled && eventDetector.current.push(Math.hypot(dynamicX, dynamicY, dynamicZ), timestampSeconds)) {
         eventCount.current++;
       }
     },
