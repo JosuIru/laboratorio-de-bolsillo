@@ -1,0 +1,41 @@
+{
+  "name": "Metal-detektagailua",
+  "description": "Aurkitu burdina, altzairua eta imanak magnetometroarekin: neurtu zenbat desbideratzen den eremu magnetikoa mugikorra hurbiltzean.",
+  "starting": "Magnetometroa irakurtzen…",
+  "now": "orain",
+  "chart": "Eremu magnetikoaren desbideratzea azken segundoetan",
+  "zeroing": "Zerora jartzen: urrundu mugikorra edozein metaletatik…",
+  "metalNearby": "Metala gertu!",
+  "nothingNearby": "Ezer ez gertu",
+  "fieldSummary": "Eremu osoa {{magnitude}} µT · gehienez {{peak}} µT",
+  "zero": "Zerora jarri",
+  "zeroHelp": "Jarri zerora edozein metaletatik urrun, eta gero pasatu mugikorraren goiko aldea poliki gainazalaren gainetik. Lurraren eremua 25 eta 65 µT artekoa da.",
+  "vibrate": "Dardaratu detektatzean",
+  "sensitivity": {
+    "title": "Sentikortasuna",
+    "low": "Txikia",
+    "medium": "Ertaina",
+    "high": "Handia",
+    "threshold": "{{threshold}} µT-ko desbideratzetik aurrera abisatzen du."
+  },
+  "uncalibratedHint": "Kalibratu gabe: desbideratzeak berdin funtzionatzen du, baina eremu osoak mugikorrarena ere badu. Kalibratu benetako balioa ikusteko.",
+  "honestyNote": "Batez ere metal ferromagnetikoak (burdina, altzairua, imanak) detektatzen ditu, zentimetro gutxira. Ez ditu aluminioa, kobrea ezta urrea detektatzen. Korronte zuzeneko kableek eta bozgorailuek ere eremua desbideratzen dute.",
+  "fields": {
+    "deviation": "Eremuaren desbideratzea",
+    "peakDeviation": "Desbideratze handiena",
+    "currentMagnitude": "Eremu osoa",
+    "baselineMagnitude": "Erreferentziako eremua",
+    "alertThreshold": "Abisu-atalasea",
+    "sensitivity": "Sentikortasuna",
+    "isCalibrated": "Kalibratua"
+  },
+  "calibration": {
+    "instructions": "Urrundu metaletatik eta gailu elektrikoetatik. Sakatu Hasi eta {{seconds}} segundoz biratu mugikorra airean zortziak marraztuz, norabide guztietara begira jar dadin.",
+    "start": "Hasi",
+    "repeat": "Errepikatu",
+    "collecting": "Jarraitu mugikorra biratzen… {{seconds}} s",
+    "axisRanges": "Ardatz bakoitzeko ibilbidea: X {{rangeX}}, Y {{rangeY}}, Z {{rangeZ}} µT (bakoitzean {{minimum}} behar dira).",
+    "notEnoughRotation": "Ez duzu nahikoa biratu norabide guztietan. Errepikatu zortzi zabalagoak marraztuz.",
+    "result": "Mugikorraren eremu propioa: X {{offsetX}}, Y {{offsetY}}, Z {{offsetZ}} µT."
+  }
+}

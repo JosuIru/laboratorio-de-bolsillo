@@ -1,0 +1,41 @@
+{
+  "name": "Detector de metales",
+  "description": "Encuentra hierro, acero e imanes con el magnetómetro: mide cuánto se desvía el campo magnético al acercar el móvil.",
+  "starting": "Leyendo el magnetómetro…",
+  "now": "ahora",
+  "chart": "Desviación del campo magnético en los últimos segundos",
+  "zeroing": "Poniendo a cero: aleja el móvil de cualquier metal…",
+  "metalNearby": "¡Metal cerca!",
+  "nothingNearby": "Nada cerca",
+  "fieldSummary": "Campo total {{magnitude}} µT · máximo {{peak}} µT",
+  "zero": "Poner a cero",
+  "zeroHelp": "Pon a cero lejos de cualquier metal y luego pasa la parte de arriba del móvil despacio sobre la superficie. El campo de la Tierra está entre 25 y 65 µT.",
+  "vibrate": "Vibrar al detectar",
+  "sensitivity": {
+    "title": "Sensibilidad",
+    "low": "Baja",
+    "medium": "Media",
+    "high": "Alta",
+    "threshold": "Avisa a partir de {{threshold}} µT de desviación."
+  },
+  "uncalibratedHint": "Sin calibrar: la desviación funciona igual, pero el campo total incluye el del propio móvil. Calibra para ver el valor real.",
+  "honestyNote": "Detecta sobre todo metales ferromagnéticos (hierro, acero, imanes) a pocos centímetros. No detecta aluminio, cobre ni oro. Los cables con corriente continua o los altavoces también desvían el campo.",
+  "fields": {
+    "deviation": "Desviación del campo",
+    "peakDeviation": "Desviación máxima",
+    "currentMagnitude": "Campo total",
+    "baselineMagnitude": "Campo de referencia",
+    "alertThreshold": "Umbral de aviso",
+    "sensitivity": "Sensibilidad",
+    "isCalibrated": "Calibrado"
+  },
+  "calibration": {
+    "instructions": "Aléjate de metales y aparatos eléctricos. Pulsa Empezar y durante {{seconds}} s gira el móvil dibujando ochos en el aire, de forma que apunte en todas las direcciones.",
+    "start": "Empezar",
+    "repeat": "Repetir",
+    "collecting": "Sigue girando el móvil… {{seconds}} s",
+    "axisRanges": "Recorrido por eje: X {{rangeX}}, Y {{rangeY}}, Z {{rangeZ}} µT (hacen falta {{minimum}} en cada uno).",
+    "notEnoughRotation": "No has girado lo suficiente en todas las direcciones. Repite dibujando ochos más amplios.",
+    "result": "Campo propio del móvil: X {{offsetX}}, Y {{offsetY}}, Z {{offsetZ}} µT."
+  }
+}
