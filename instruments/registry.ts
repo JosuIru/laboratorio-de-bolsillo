@@ -5,6 +5,7 @@ import { beerWineColorInstrument } from './beer-wine-color';
 import { colorHuntInstrument } from './color-hunt';
 import { colorimeterInstrument } from './colorimeter';
 import { exampleLevelInstrument } from './example-level';
+import { gnssSkyInstrument } from './gnss-sky';
 import { machineDiagnosisInstrument } from './machine-diagnosis';
 import { metalDetectorInstrument } from './metal-detector';
 import { metronomeInstrument } from './metronome';
@@ -34,6 +35,7 @@ export const instrumentRegistry: readonly AnyInstrumentDefinition[] = [
   machineDiagnosisInstrument,
   metalDetectorInstrument,
   resonanceScaleInstrument,
+  gnssSkyInstrument,
   sonarInstrument,
   rhythmInstrument,
   colorHuntInstrument,

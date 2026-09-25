@@ -1,0 +1,95 @@
+{
+  "name": "GNSS zerua",
+  "description": "Ikusi zure mugikorrak jasotzen dituen nabigazio-sateliteak (GPS, Galileo, GLONASS, BeiDou…), haien seinalea eta bandak, eta zaindu norbait seinalea oztopatzen ari den. Android-en bakarrik.",
+  "retry": "Egiaztatu berriro",
+  "now": "orain",
+  "startError": "Ezin izan da hargailua abiarazi: {{message}}",
+  "waitingForSatellites": "Sateliteen zain… Irten kanpora edo hurbildu leiho batera. Lehen aldian minutu bat behar izan dezake.",
+  "locationOff": "Mugikorraren kokapena desaktibatuta dago. Aktibatu ezarpen azkarretan eta egiaztatu berriro.",
+  "unsupported": {
+    "platform": "Tresna hau Android-en bakarrik dabil: iOS-ek ez du sateliteak banan-banan ikusten uzten.",
+    "module": "Aplikazioaren bertsio honek ez dauka GNSS modulu natiboa. Aplikazioaren konpilazio berri bat behar da (ez dabil Expo Go-n).",
+    "hardware": "Gailu honek ez dauka GNSS hargailurik."
+  },
+  "permission": {
+    "explanation": "Sateliteak ikusteko, Android-ek kokapen zehatzaren baimena eskatzen du. Baimena ematean «gutxi gorabeherakoa» aukeratzen baduzu, ez da daturik jasotzen. Kokapena ez da gordetzen, Ezarpenetan aktibatzen ez baduzu behintzat.",
+    "request": "Eman kokapen zehatzaren baimena",
+    "openSettings": "Ireki aplikazioaren ezarpenak"
+  },
+  "interference": {
+    "title": "Interferentzia-detektagailua",
+    "waiting": "Datuen zain…",
+    "learning": "Hemen seinale normala nolakoa den ikasten… % {{percent}}",
+    "level": {
+      "none": "Ez dago interferentzia-zantzurik",
+      "possible": "Interferentzia posiblea",
+      "likely": "Interferentzia litekeena"
+    },
+    "carrierToNoiseDrop": "C/N0 {{drop}} dB jaitsi da (mediana); {{count}} seinaleen % {{percent}}ean jaitsi da.",
+    "skyStable": "Zeruaren ikuspegia aldatu gabe: sateliteen % {{percent}} jasotzen jarraitzen da.",
+    "skyChanged": "Zeruaren ikuspegia aldatu da: lehengo sateliteen % {{percent}} bakarrik jasotzen da (sabaia, eraikina, eskua?).",
+    "agcBand": "AGC {{band}}: {{level}} dB ({{drop}} dB jaitsi da).",
+    "noAgc": "Mugikor honek ez du AGC maila ematen: C/N0 bakarrik zain daiteke.",
+    "frozen": "Erreferentzia izoztuta dago abisuak irauten duen bitartean.",
+    "help": "Abisua ematen du irabazi-kontrola (AGC) bat-batean jaisten bada edo ia satelite guztien seinalea batera jaisten bada haiek galdu gabe: hori zarata gehigarria da, ez oztopo bat. Utzi geldi aire zabalean erreferentzia ikas dezan."
+  },
+  "sky": {
+    "title": "Zerua",
+    "accessibility": "Zeruaren grafiko polarra, {{count}} satelite jasota",
+    "north": "I",
+    "east": "E",
+    "south": "H",
+    "west": "M",
+    "legend": "Erdia: goian-goian; ertza: zerumuga; iparra goian. Puntu betea: kokapenean erabiltzen da; hutsa: jasotzen da baina ez da erabiltzen; grisa: aurreikusita baina seinalerik gabe. Handiagoa = seinale gehiago. Kanpoko eraztuna: bi bandatan jasotzen da."
+  },
+  "counts": {
+    "title": "Sateliteak eta bandak",
+    "summary": "{{tracked}} satelite jasota ({{signals}} seinale), {{used}} seinale erabiltzen; {{listed}} seinale zerrendan.",
+    "row": "{{tracked}} jasota · {{used}} erabiltzen",
+    "bands": "Bandaka: {{bands}}",
+    "dualFrequencyYes": "Maiztasun bikoitza (L1 + L5): bai, {{count}} satelite bi bandatan.",
+    "dualFrequencyNo": "Maiztasun bikoitza: ez da L5 seinalerik ikusten orain (edo mugikorrak L1 bakarrik du).",
+    "topFour": "4 seinale indartsuenen batez bestekoa: {{value}} dB-Hz (40tik gora zeru bikaina da).",
+    "accuracy": "Estimatutako zehaztasun horizontala: ±{{meters}} m",
+    "timeToFirstFix": "Lehen kokapena {{seconds}} s-tan"
+  },
+  "bars": {
+    "title": "Seinalea satelite bakoitzeko (C/N0, dB-Hz)",
+    "help": "Seinale bakoitzaren eramaile/zarata erlazioa. 20 dB-Hz-tik behera ia ezin da erabili; 40tik gora oso ona da. Barra gardenak: ez dira kokapenean erabiltzen."
+  },
+  "history": {
+    "carrierToNoise": "4 seinale indartsuenen batez bestekoa azken 2 minutuetan",
+    "automaticGainControl": "AGC maila azken 2 minutuetan (interferentziekin jaisten da)"
+  },
+  "raw": {
+    "title": "Neurketa gordinak",
+    "status": {
+      "waiting": "Neurketa gordinen zain…",
+      "ready": "Txipak neurketa gordinak ematen ditu.",
+      "notSupported": "Txip honek ez du neurketa gordinik ematen: ez dago AGC-rik ez bide anitzik.",
+      "locationDisabled": "Neurketa gordinak ez daude erabilgarri: kokapena desaktibatuta dago.",
+      "notAllowed": "Neurketa gordinak ez daude baimenduta: kokapen zehatzaren baimena falta da.",
+      "unknown": "Neurketa gordinen egoera ezezaguna."
+    },
+    "summary": "{{count}} neurketa azken epokan, {{pseudoranges}} sasi-distantzia oso.",
+    "pseudorangeRange": "Sasi-distantziak {{minimum}} eta {{maximum}} km artean (espero dena 19 000 eta 40 000 km artean dago).",
+    "multipath": "Txipak bide anitza detektatu du {{count}} seinaletan.",
+    "hardware": "Hargailua: {{model}}",
+    "help": "Sasi-distantziak seinaleak iristeko behar duen denboratik ateratzen dira. GPS, Galileo, BeiDou eta QZSSrako bakarrik kalkulatzen dira, txipak satelitearen ordua deskodetu duenean. Txip askok ez dute bide anitzaren berri ematen (beti «ezezaguna»)."
+  },
+  "howTo": "Nola erabili: irten kanpora zeru garbiarekin, utzi mugikorra geldi (hobe etzanda, pantaila gora begira) eta itxaron detektagailuak ikasi arte. Gero zaindu abisua eta grafikoak.",
+  "honestyNote": "Mugak: detektagailuak ezin du inhibitzaile bat bereizi inguruko beste zarata-iturri batetik (ordenagailu eramangarri batek, kargagailu batek edo mugikorraren ondoko USB 3 batek ere C/N0 jaisten dute). Antena eskuarekin estaltzeak edo mugikorra poltsikoan sartzeak ere satelite guztien seinalea jaisten du; horregatik, AGC gabe abisua «posiblea» besterik ez da. AGC txip batzuek bakarrik ematen dute eta haren eskala fabrikatzailearen araberakoa da: aldaketak bakarrik dira garrantzitsuak, ez balioa. GNSSak bateria kontsumitzen du: pantaila honetatik irtetean itzaltzen da.",
+  "fields": {
+    "trackedSatelliteCount": "Jasotako sateliteak",
+    "usedInFixSignalCount": "Erabilitako seinaleak",
+    "constellationCount": "Konstelazioak",
+    "isDualFrequency": "Maiztasun bikoitza",
+    "topFourMeanCarrierToNoise": "4 onenen batez besteko C/N0",
+    "interferenceLevel": "Interferentzia",
+    "medianCarrierToNoiseDrop": "C/N0 jaitsiera",
+    "largestAutomaticGainControlDrop": "AGC jaitsiera",
+    "hasAutomaticGainControl": "AGC-rekin",
+    "multipathDetectedCount": "Bide anitzeko seinaleak",
+    "horizontalAccuracy": "Zehaztasun horizontala"
+  }
+}

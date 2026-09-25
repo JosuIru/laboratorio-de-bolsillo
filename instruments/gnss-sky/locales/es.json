@@ -1,0 +1,95 @@
+{
+  "name": "Cielo GNSS",
+  "description": "Mira los satélites de navegación que recibe tu móvil (GPS, Galileo, GLONASS, BeiDou…), su señal y sus bandas, y vigila si alguien está interfiriendo la señal. Solo Android.",
+  "retry": "Comprobar de nuevo",
+  "now": "ahora",
+  "startError": "No se ha podido arrancar el receptor: {{message}}",
+  "waitingForSatellites": "Esperando satélites… Sal al exterior o acércate a una ventana. La primera vez puede tardar un minuto.",
+  "locationOff": "La ubicación del móvil está desactivada. Actívala en los ajustes rápidos y vuelve a comprobar.",
+  "unsupported": {
+    "platform": "Este instrumento solo funciona en Android: iOS no da acceso a los satélites uno a uno.",
+    "module": "Esta versión de la app no incluye el módulo nativo GNSS. Hace falta una compilación nueva de la app (no funciona en Expo Go).",
+    "hardware": "Este dispositivo no tiene receptor GNSS."
+  },
+  "permission": {
+    "explanation": "Para ver los satélites, Android exige el permiso de ubicación precisa. Si al dar permiso eliges «aproximada», no se reciben datos. La posición no se guarda salvo que lo actives en Ajustes.",
+    "request": "Dar permiso de ubicación precisa",
+    "openSettings": "Abrir los ajustes de la app"
+  },
+  "interference": {
+    "title": "Detector de interferencias",
+    "waiting": "Esperando datos…",
+    "learning": "Aprendiendo cómo es la señal normal aquí… {{percent}} %",
+    "level": {
+      "none": "Sin indicios de interferencia",
+      "possible": "Posible interferencia",
+      "likely": "Interferencia probable"
+    },
+    "carrierToNoiseDrop": "El C/N0 ha bajado {{drop}} dB (mediana); ha bajado en el {{percent}} % de {{count}} señales.",
+    "skyStable": "Vista del cielo sin cambios: se siguen recibiendo el {{percent}} % de los satélites.",
+    "skyChanged": "Vista del cielo cambiada: solo se reciben el {{percent}} % de los satélites de antes (¿techo, edificio, mano?).",
+    "agcBand": "AGC {{band}}: {{level}} dB (ha bajado {{drop}} dB).",
+    "noAgc": "Este móvil no da el nivel de AGC: solo se puede vigilar el C/N0.",
+    "frozen": "La referencia está congelada mientras dura el aviso.",
+    "help": "Avisa si el control de ganancia (AGC) cae de golpe o si la señal de casi todos los satélites baja a la vez sin perderlos: eso es ruido añadido, no un obstáculo. Déjalo quieto al aire libre para que aprenda la referencia."
+  },
+  "sky": {
+    "title": "Cielo",
+    "accessibility": "Gráfico polar del cielo con {{count}} satélites recibidos",
+    "north": "N",
+    "east": "E",
+    "south": "S",
+    "west": "O",
+    "legend": "Centro: justo encima; borde: horizonte; norte arriba. Punto relleno: se usa en la posición; hueco: se recibe pero no se usa; gris: previsto pero sin señal. Más grande = más señal. Anillo exterior: se recibe en dos bandas."
+  },
+  "counts": {
+    "title": "Satélites y bandas",
+    "summary": "{{tracked}} satélites recibidos ({{signals}} señales), {{used}} señales en uso; {{listed}} señales listadas.",
+    "row": "{{tracked}} recibidas · {{used}} en uso",
+    "bands": "Por banda: {{bands}}",
+    "dualFrequencyYes": "Doble frecuencia (L1 + L5): sí, {{count}} satélites en dos bandas.",
+    "dualFrequencyNo": "Doble frecuencia: no se ve ninguna señal L5 ahora mismo (o el móvil solo tiene L1).",
+    "topFour": "Media de las 4 señales más fuertes: {{value}} dB-Hz (más de 40 es un cielo excelente).",
+    "accuracy": "Precisión horizontal estimada: ±{{meters}} m",
+    "timeToFirstFix": "Primera posición en {{seconds}} s"
+  },
+  "bars": {
+    "title": "Señal por satélite (C/N0, dB-Hz)",
+    "help": "Relación portadora/ruido de cada señal. Por debajo de 20 dB-Hz apenas se puede usar; por encima de 40 es muy buena. Barras transparentes: no se usan en la posición."
+  },
+  "history": {
+    "carrierToNoise": "Media de las 4 señales más fuertes en los últimos 2 minutos",
+    "automaticGainControl": "Nivel de AGC en los últimos 2 minutos (cae con interferencias)"
+  },
+  "raw": {
+    "title": "Medidas crudas",
+    "status": {
+      "waiting": "Esperando medidas crudas…",
+      "ready": "El chip entrega medidas crudas.",
+      "notSupported": "Este chip no entrega medidas crudas: no hay AGC ni multitrayecto.",
+      "locationDisabled": "Medidas crudas no disponibles: la ubicación está desactivada.",
+      "notAllowed": "Medidas crudas no permitidas: falta el permiso de ubicación precisa.",
+      "unknown": "Estado de las medidas crudas desconocido."
+    },
+    "summary": "{{count}} medidas en la última época, {{pseudoranges}} pseudodistancias completas.",
+    "pseudorangeRange": "Pseudodistancias entre {{minimum}} y {{maximum}} km (lo esperable está entre 19 000 y 40 000 km).",
+    "multipath": "Multitrayecto detectado por el chip en {{count}} señales.",
+    "hardware": "Receptor: {{model}}",
+    "help": "Las pseudodistancias salen del tiempo que tarda la señal en llegar. Solo se calculan para GPS, Galileo, BeiDou y QZSS cuando el chip ha decodificado la hora del satélite. Muchos chips no informan del multitrayecto (siempre «desconocido»)."
+  },
+  "howTo": "Cómo usarlo: sal al exterior con el cielo despejado, deja el móvil quieto (mejor en horizontal, con la pantalla hacia arriba) y espera a que el detector aprenda. Luego vigila el aviso y las gráficas.",
+  "honestyNote": "Límites: el detector no puede distinguir un inhibidor de cualquier otra fuente de ruido cercana (un portátil, un cargador, un USB 3 pegado al móvil también bajan el C/N0). Tapar la antena con la mano o meter el móvil en un bolsillo también baja la señal de todos los satélites; por eso sin AGC el aviso solo es «posible». El AGC solo lo dan algunos chips y su escala depende del fabricante: solo importan los cambios, no el valor. El GNSS gasta batería: se apaga al salir de esta pantalla.",
+  "fields": {
+    "trackedSatelliteCount": "Satélites recibidos",
+    "usedInFixSignalCount": "Señales en uso",
+    "constellationCount": "Constelaciones",
+    "isDualFrequency": "Doble frecuencia",
+    "topFourMeanCarrierToNoise": "C/N0 medio de las 4 mejores",
+    "interferenceLevel": "Interferencia",
+    "medianCarrierToNoiseDrop": "Caída del C/N0",
+    "largestAutomaticGainControlDrop": "Caída del AGC",
+    "hasAutomaticGainControl": "Con AGC",
+    "multipathDetectedCount": "Señales con multitrayecto",
+    "horizontalAccuracy": "Precisión horizontal"
+  }
+}
