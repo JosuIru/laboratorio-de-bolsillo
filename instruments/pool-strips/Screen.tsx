@@ -143,10 +143,11 @@ export function PoolStripsScreen({ saveMeasurement }: InstrumentScreenProps<Pool
     return correctChartCellColors(latestRegions.slice(0, cellCount), latestRegions.slice(cellCount), referenceCard);
   }, [screenMode, latestRegions, cellCount, referenceCard]);
 
-  const countdown = useReadingCountdown(() => {
+  const countdown = useReadingCountdown((countdownDurationSeconds) => {
     Vibration.vibrate(countdownFinishedVibrationMilliseconds);
     // Los colores siguen cambiando después del tiempo indicado: se fija la lectura de ese momento.
-    if (liveStripReading) setFrozenReading({ stripReading: liveStripReading, secondsAfterDip: readingDelaySeconds });
+    // Se guarda la duración con la que arrancó la cuenta atrás, no la que esté elegida ahora.
+    if (liveStripReading) setFrozenReading({ stripReading: liveStripReading, secondsAfterDip: countdownDurationSeconds });
   });
   const secondsSinceDip = () => (countdown.dipTime !== null ? (Date.now() - countdown.dipTime) / 1000 : null);
   const displayedReading = frozenReading?.stripReading ?? liveStripReading;
@@ -283,14 +284,17 @@ export function PoolStripsScreen({ saveMeasurement }: InstrumentScreenProps<Pool
                   },
                 ]}
               />
-              <BodyText
-                style={{
-                  ...styles.guideEndLabel,
-                  left: guideLayout.guideRect.left,
-                  top: guideLayout.guideRect.top + guideLayout.guideRect.height + 4,
-                }}>
-                {screenMode === 'read' ? t('guide.handle') : t('guide.lowestValue')}
-              </BodyText>
+              {/* Sin toques en las etiquetas: si no, locationX/Y serían relativas a la etiqueta y el parche caería mal. */}
+              <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+                <BodyText
+                  style={{
+                    ...styles.guideEndLabel,
+                    left: guideLayout.guideRect.left,
+                    top: guideLayout.guideRect.top + guideLayout.guideRect.height + 4,
+                  }}>
+                  {screenMode === 'read' ? t('guide.handle') : t('guide.lowestValue')}
+                </BodyText>
+              </View>
               {guideLayout.cellRects.map((cellRect, cellIndex) => {
                 const sampleRect = guideLayout.sampleRects[cellIndex]!;
                 const isIgnoredCell = screenMode === 'read' && padSlots[cellIndex] === ignoredPadSlot;
@@ -314,11 +318,13 @@ export function PoolStripsScreen({ saveMeasurement }: InstrumentScreenProps<Pool
                         },
                       ]}
                     />
-                    <BodyText
-                      numberOfLines={1}
-                      style={{ ...styles.cellLabel, left: cellRect.left, top: cellRect.top - 22, width: cellRect.width }}>
-                      {isIgnoredCell ? '–' : cellLabels[cellIndex]}
-                    </BodyText>
+                    <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+                      <BodyText
+                        numberOfLines={1}
+                        style={{ ...styles.cellLabel, left: cellRect.left, top: cellRect.top - 22, width: cellRect.width }}>
+                        {isIgnoredCell ? '–' : cellLabels[cellIndex]}
+                      </BodyText>
+                    </View>
                   </Fragment>
                 );
               })}
