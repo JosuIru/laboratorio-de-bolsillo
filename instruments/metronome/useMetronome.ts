@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { type AudioBuffer, AudioContext, AudioManager } from 'react-native-audio-api';
+import { AudioContext, AudioManager } from 'react-native-audio-api';
 
-import { useIsAppActive } from '@/core/useIsAppActive';
-import { applyFadesInPlace, generateTone } from '@/processing/dsp/signalGenerator';
+import { createClickBuffer } from '@/core/audio/clickBuffer';
+import { useStopWhenAppInactive } from '@/core/useStopWhenAppInactive';
 
 import { type BeatSchedulerPosition, type ScheduledBeat, scheduleBeatsUntil } from './metronomeTiming';
 
@@ -15,28 +15,14 @@ const schedulerIntervalMilliseconds = 25;
 const schedulingHorizonSeconds = 0.15;
 /** Margen entre pulsar «Empezar» y el primer clic. */
 const startDelaySeconds = 0.1;
+const accentClickAmplitude = 0.95;
+const regularClickAmplitude = 0.75;
 
 export type MetronomeState =
   | { phase: 'idle' }
   /** `soundedBeatCount` sube con cada clic, para que la pantalla lo marque aunque el pulso no cambie. */
   | { phase: 'playing'; currentBeatInBar: number | null; soundedBeatCount: number }
   | { phase: 'error'; errorMessage: string };
-
-/** Clic corto con rampas para que no suene a chasquido digital; el acento, más agudo. */
-function createClickBuffer(audioContext: AudioContext, isAccent: boolean): AudioBuffer {
-  const sampleRateHz = audioContext.sampleRate;
-  const clickSamples = generateTone({
-    frequencyHz: isAccent ? 1500 : 1000,
-    sampleRateHz,
-    durationSeconds: 0.03,
-    amplitude: isAccent ? 0.95 : 0.75,
-  });
-  applyFadesInPlace(clickSamples, Math.round(0.002 * sampleRateHz));
-  const clickBuffer = audioContext.createBuffer(1, clickSamples.length, sampleRateHz);
-  // copyToChannel exige un Float32Array respaldado por un ArrayBuffer normal.
-  clickBuffer.copyToChannel(new Float32Array(clickSamples), 0);
-  return clickBuffer;
-}
 
 interface ActiveMetronome {
   audioContext: AudioContext;
@@ -49,7 +35,6 @@ interface ActiveMetronome {
  * de la interfaz vaya cargado. Se para al salir de la pantalla o al pasar la app a segundo plano.
  */
 export function useMetronome(beatsPerMinute: number, beatsPerBar: number) {
-  const isAppActive = useIsAppActive();
   const [metronomeState, setMetronomeState] = useState<MetronomeState>({ phase: 'idle' });
   const activeMetronomeRef = useRef<ActiveMetronome | null>(null);
   // El programador lee el tempo y el compás actuales en cada vuelta, sin reiniciar el audio.
@@ -73,17 +58,7 @@ export function useMetronome(beatsPerMinute: number, beatsPerBar: number) {
     setMetronomeState({ phase: 'idle' });
   }, [stopAudio]);
 
-  // Al pasar a segundo plano se para: el estado se ajusta durante el render (el patrón que
-  // recomienda React) y el efecto solo cierra el audio.
-  const [wasAppActive, setWasAppActive] = useState(isAppActive);
-  if (wasAppActive !== isAppActive) {
-    setWasAppActive(isAppActive);
-    if (!isAppActive) setMetronomeState({ phase: 'idle' });
-  }
-  useEffect(() => {
-    if (!isAppActive) stopAudio();
-  }, [isAppActive, stopAudio]);
-  useEffect(() => stopAudio, [stopAudio]);
+  useStopWhenAppInactive(() => setMetronomeState({ phase: 'idle' }), stopAudio);
 
   const start = useCallback(async () => {
     stopAudio();
@@ -91,8 +66,8 @@ export function useMetronome(beatsPerMinute: number, beatsPerBar: number) {
       AudioManager.setAudioSessionOptions({ iosCategory: 'playback', iosMode: 'default', iosOptions: [] });
       const audioContext = new AudioContext();
       await audioContext.resume();
-      const accentClick = createClickBuffer(audioContext, true);
-      const regularClick = createClickBuffer(audioContext, false);
+      const accentClick = createClickBuffer(audioContext, true, accentClickAmplitude);
+      const regularClick = createClickBuffer(audioContext, false, regularClickAmplitude);
       let schedulerPosition: BeatSchedulerPosition = {
         nextBeatTimeSeconds: audioContext.currentTime + startDelaySeconds,
         nextBeatInBar: 0,

@@ -11,26 +11,42 @@ export interface ExposureScale {
   maximum: number;
   /** Cuánto cambia cada pulsación de los botones. */
   increment: number;
-  /** Valor inicial: la Luna es muy brillante y casi siempre sale quemada. */
+  /** Valor con el que arranca la cámara (ver `startsDark`). */
   initialValue: number;
 }
 
 /** Pulsaciones aproximadas para recorrer todo el rango en Android. */
 const pressesAcrossStepRange = 16;
 const evIncrement = 0.5;
-const initialEvBias = -2;
+const darkStartEvBias = -2;
 
-export function createExposureScale(minimum: number, maximum: number, isStepIndex: boolean): ExposureScale {
+/**
+ * `startsDark`: para objetos muy brillantes sobre fondo oscuro (la Luna), que con la exposición
+ * automática salen quemados. Si no, se arranca sin compensación.
+ */
+export function createExposureScale(
+  minimum: number,
+  maximum: number,
+  isStepIndex: boolean,
+  startsDark = false,
+): ExposureScale {
+  const clampToRange = (value: number) => Math.min(maximum, Math.max(minimum, value));
   if (isStepIndex) {
     return {
       isStepIndex,
       minimum,
       maximum,
       increment: Math.max(1, Math.round((maximum - minimum) / pressesAcrossStepRange)),
-      initialValue: minimum,
+      initialValue: startsDark ? minimum : clampToRange(0),
     };
   }
-  return { isStepIndex, minimum, maximum, increment: evIncrement, initialValue: Math.max(minimum, initialEvBias) };
+  return {
+    isStepIndex,
+    minimum,
+    maximum,
+    increment: evIncrement,
+    initialValue: clampToRange(startsDark ? darkStartEvBias : 0),
+  };
 }
 
 /** Siguiente valor al pulsar «+» (`direction` = 1) o «−» (`direction` = -1), dentro del rango. */

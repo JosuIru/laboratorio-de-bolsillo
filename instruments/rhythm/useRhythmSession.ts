@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { type AudioBuffer, AudioContext, AudioManager, AudioRecorder } from 'react-native-audio-api';
+import { useCallback, useRef, useState } from 'react';
+import { AudioContext, AudioManager, AudioRecorder } from 'react-native-audio-api';
 
-import { useIsAppActive } from '@/core/useIsAppActive';
+import { createClickBuffer } from '@/core/audio/clickBuffer';
+import { useStopWhenAppInactive } from '@/core/useStopWhenAppInactive';
 import { createStreamingOnsetDetector } from '@/processing/dsp/onsets';
-import { applyFadesInPlace, generateTone } from '@/processing/dsp/signalGenerator';
 
 import {
   analyzeFreeClapping,
@@ -25,6 +25,7 @@ const freeClappingHistoryLength = 16;
 /** ~5 ms de resolución a 48 kHz; la trama de 1024 muestras (~21 ms) cabe en una palmada. */
 const detectorFrameSize = 1024;
 const detectorHopSize = 256;
+const clickAmplitude = 0.9;
 
 export type RhythmMode = 'continuation' | 'free';
 
@@ -37,22 +38,6 @@ export type RhythmSessionState =
   | { phase: 'clicksNotHeard' }
   | { phase: 'freeListening'; analysis: FreeClappingAnalysis | null; clapCount: number }
   | { phase: 'error'; errorMessage: string };
-
-/** Clic corto con rampas para que no suene a chasquido digital; el primero, más agudo. */
-function createClickBuffer(audioContext: AudioContext, isAccent: boolean): AudioBuffer {
-  const sampleRateHz = audioContext.sampleRate;
-  const clickSamples = generateTone({
-    frequencyHz: isAccent ? 1500 : 1000,
-    sampleRateHz,
-    durationSeconds: 0.03,
-    amplitude: 0.9,
-  });
-  applyFadesInPlace(clickSamples, Math.round(0.002 * sampleRateHz));
-  const clickBuffer = audioContext.createBuffer(1, clickSamples.length, sampleRateHz);
-  // copyToChannel exige un Float32Array respaldado por un ArrayBuffer normal.
-  clickBuffer.copyToChannel(new Float32Array(clickSamples), 0);
-  return clickBuffer;
-}
 
 interface ActiveSession {
   audioContext: AudioContext;
@@ -67,7 +52,6 @@ interface ActiveSession {
  * terminar, al salir de la pantalla o al pasar la app a segundo plano.
  */
 export function useRhythmSession() {
-  const isAppActive = useIsAppActive();
   const [sessionState, setSessionState] = useState<RhythmSessionState>({ phase: 'idle' });
   const activeSessionRef = useRef<ActiveSession | null>(null);
 
@@ -87,17 +71,8 @@ export function useRhythmSession() {
     setSessionState({ phase: 'idle' });
   }, [stopSession]);
 
-  // Al pasar a segundo plano se vuelve al inicio: el estado se ajusta durante el render (el
-  // patrón que recomienda React) y el efecto solo cierra el audio.
-  const [wasAppActive, setWasAppActive] = useState(isAppActive);
-  if (wasAppActive !== isAppActive) {
-    setWasAppActive(isAppActive);
-    if (!isAppActive) setSessionState({ phase: 'idle' });
-  }
-  useEffect(() => {
-    if (!isAppActive) stopSession();
-  }, [isAppActive, stopSession]);
-  useEffect(() => stopSession, [stopSession]);
+  // Al pasar a segundo plano se vuelve al inicio y se cierra el audio.
+  useStopWhenAppInactive(() => setSessionState({ phase: 'idle' }), stopSession);
 
   const start = useCallback(
     async (mode: RhythmMode, targetBeatsPerMinute: number) => {
@@ -162,8 +137,8 @@ export function useRhythmSession() {
         // Posición aproximada del primer clic en la línea del micrófono. La latencia real se
         // descubre al encontrar los clics en la grabación.
         const expectedFirstClickSeconds = receivedSampleCount / inputSampleRateHz + schedulingLeadSeconds;
-        const accentClick = createClickBuffer(audioContext, true);
-        const regularClick = createClickBuffer(audioContext, false);
+        const accentClick = createClickBuffer(audioContext, true, clickAmplitude);
+        const regularClick = createClickBuffer(audioContext, false, clickAmplitude);
         for (let clickIndex = 0; clickIndex < countInClickCount; clickIndex++) {
           const clickSource = audioContext.createBufferSource();
           clickSource.buffer = clickIndex % 4 === 0 ? accentClick : regularClick;
