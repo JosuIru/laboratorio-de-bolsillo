@@ -30,7 +30,10 @@
     "storedDegree": "Gordeta: {{note}} {{cents}} ct",
     "delete": "Ezabatu taula hau",
     "namePlaceholder": "Izena (adib. nire alboka)",
-    "create": "Sortu taula"
+    "create": "Sortu taula",
+    "chooseDegreeHint": "Ukitu taulako maila bat nota non gorde aukeratzeko (bestela, hurbilena erabiltzen da). Horrela, tonuerdi erdia baino gehiago aldentzen diren notak ere gorde daitezke.",
+    "storeInDegree": "Gorde jotzen ari den nota hemen: {{note}}",
+    "tooFarFromDegree": "Jotzen ari den nota tonuerdi bat baino gehiago aldentzen da maila horretatik."
   },
   "notes": {
     "0": "Do",

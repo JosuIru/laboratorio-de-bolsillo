@@ -33,7 +33,7 @@ describe('normalizedSquareDifference', () => {
 });
 
 describe('estimatePitchMcLeod', () => {
-  it.each([55, 110, 196, 440, 523.25, 1318.5])('encuentra %s Hz con error menor de 1 centésima', (trueHz) => {
+  it.each([41.2, 49, 55, 110, 196, 440, 523.25, 1318.5])('encuentra %s Hz con error menor de 1 centésima', (trueHz) => {
     const pitchEstimate = estimatePitchMcLeod(harmonicTone(trueHz, [0.4, 0.2, 0.1]), detectionOptions);
     expect(pitchEstimate).not.toBeNull();
     expect(Math.abs(centsBetween(pitchEstimate!.frequencyHz, trueHz))).toBeLessThan(1);

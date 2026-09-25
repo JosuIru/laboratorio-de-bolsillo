@@ -4,6 +4,7 @@ import {
   createPitchStabilizer,
   findTuningTarget,
   measureDegreeDeviation,
+  measureDeviationFromDegree,
 } from './tuningSystems';
 
 const equalContext = { referenceA4Hz: 440, tonicNoteIndex: 0, centsByDegree: builtInTuningSystems.equal } as const;
@@ -83,6 +84,23 @@ describe('measureDegreeDeviation', () => {
   });
 });
 
+describe('measureDeviationFromDegree', () => {
+  it('guarda en el grado elegido desviaciones de más de medio semitono (tercera neutra)', () => {
+    // Tónica Do4; tercera neutra = 350 ct sobre Do4.
+    const c4Hz = 440 * 2 ** (-9 / 12);
+    const neutralThirdHz = c4Hz * 2 ** (350 / 1200);
+    expect(measureDeviationFromDegree(neutralThirdHz, 440, 0, 4)).toBeCloseTo(-50, 4);
+    expect(measureDeviationFromDegree(neutralThirdHz, 440, 0, 3)).toBeCloseTo(50, 4);
+    expect(measureDeviationFromDegree(c4Hz * 2 ** (330 / 1200), 440, 0, 4)).toBeCloseTo(-70, 4);
+  });
+
+  it('busca el grado en la octava más cercana y rechaza más de un semitono', () => {
+    const e2Hz = 440 * 2 ** (-29 / 12);
+    expect(measureDeviationFromDegree(e2Hz, 440, 0, 4)).toBeCloseTo(0, 4);
+    expect(measureDeviationFromDegree(e2Hz, 440, 0, 7)).toBeNull();
+  });
+});
+
 describe('createPitchStabilizer', () => {
   it('quita un salto suelto con la mediana', () => {
     const pitchStabilizer = createPitchStabilizer(5);
@@ -92,11 +110,21 @@ describe('createPitchStabilizer', () => {
     expect(pitchStabilizer.push(452)).toBeCloseTo(440.5, 0);
   });
 
-  it('empieza de cero al cambiar de nota y se vacía en silencio', () => {
+  it('ignora un error de octava suelto sin perder la lectura', () => {
     const pitchStabilizer = createPitchStabilizer(5);
     pitchStabilizer.push(440);
     pitchStabilizer.push(440);
+    expect(pitchStabilizer.push(880)).toBe(440);
+    expect(pitchStabilizer.push(440)).toBe(440);
+  });
+
+  it('cambia de nota cuando dos lecturas seguidas lo confirman, y se vacía en silencio', () => {
+    const pitchStabilizer = createPitchStabilizer(5);
+    pitchStabilizer.push(440);
+    pitchStabilizer.push(440);
+    expect(pitchStabilizer.push(330)).toBe(440);
     expect(pitchStabilizer.push(330)).toBe(330);
+    pitchStabilizer.push(null);
     expect(pitchStabilizer.push(null)).toBeNull();
   });
 });

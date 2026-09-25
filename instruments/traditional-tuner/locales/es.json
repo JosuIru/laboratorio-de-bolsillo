@@ -30,7 +30,10 @@
     "storedDegree": "Guardado: {{note}} {{cents}} ct",
     "delete": "Borrar esta tabla",
     "namePlaceholder": "Nombre (p. ej. mi alboka)",
-    "create": "Crear tabla"
+    "create": "Crear tabla",
+    "chooseDegreeHint": "Toca un grado de la tabla para elegir dónde guardar la nota (si no, se usa el más cercano). Así se pueden guardar notas que se apartan más de medio semitono.",
+    "storeInDegree": "Guardar la nota que suena en {{note}}",
+    "tooFarFromDegree": "La nota que suena se aparta más de un semitono de ese grado."
   },
   "notes": {
     "0": "Do",

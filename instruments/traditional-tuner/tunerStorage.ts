@@ -8,6 +8,7 @@ import {
   clampReferenceA4Hz,
   defaultReferenceA4Hz,
   degreeCount,
+  maximumCustomDeviationCents,
 } from './tuningSystems';
 
 /** Tabla de afinación de un instrumento concreto (una alboka, un txistu…), hecha por el usuario. */
@@ -27,8 +28,6 @@ export interface TunerSettings {
 }
 
 const settingsStorageKey = 'traditional-tuner.settings';
-/** Una tabla propia no debería desviar un grado más de un semitono. */
-const maximumCustomDeviationCents = 100;
 
 export const defaultTunerSettings: TunerSettings = {
   referenceA4Hz: defaultReferenceA4Hz,

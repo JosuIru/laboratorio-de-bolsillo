@@ -22,6 +22,7 @@ import {
   degreeCount,
   findTuningTarget,
   measureDegreeDeviation,
+  measureDeviationFromDegree,
 } from './tuningSystems';
 import { useTunerPitch } from './useTunerPitch';
 
@@ -39,6 +40,8 @@ export function TraditionalTunerScreen({ saveMeasurement }: InstrumentScreenProp
   const [tunerSettings, setTunerSettings] = useState<TunerSettings>(loadTunerSettings);
   const [isListening, setIsListening] = useState(true);
   const [newTuningName, setNewTuningName] = useState('');
+  /** Grado de la tabla propia donde guardar la nota; null = el más cercano en temperamento igual. */
+  const [chosenDegree, setChosenDegree] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
@@ -103,21 +106,30 @@ export function TraditionalTunerScreen({ saveMeasurement }: InstrumentScreenProp
     });
   }
 
+  const autoDetectedDegree =
+    pitchReading.stableFrequencyHz === null
+      ? null
+      : (measureDegreeDeviation(pitchReading.stableFrequencyHz, tunerSettings.referenceA4Hz, tunerSettings.tonicNoteIndex)
+          ?.degree ?? null);
+  const degreeToStore = chosenDegree ?? autoDetectedDegree;
+  const deviationToStore =
+    pitchReading.stableFrequencyHz === null || degreeToStore === null
+      ? null
+      : measureDeviationFromDegree(
+          pitchReading.stableFrequencyHz,
+          tunerSettings.referenceA4Hz,
+          tunerSettings.tonicNoteIndex,
+          degreeToStore,
+        );
+  const noteNameOfDegree = (degree: number) => t(`notes.${(tunerSettings.tonicNoteIndex + degree) % degreeCount}`);
+
   function handleStoreCurrentNote() {
-    if (!selectedCustomTuning || pitchReading.stableFrequencyHz === null) return;
-    const degreeDeviation = measureDegreeDeviation(
-      pitchReading.stableFrequencyHz,
-      tunerSettings.referenceA4Hz,
-      tunerSettings.tonicNoteIndex,
-    );
-    if (!degreeDeviation) return;
-    replaceCustomTuning(setCustomTuningDegree(selectedCustomTuning, degreeDeviation.degree, degreeDeviation.centsFromEqual));
+    if (!selectedCustomTuning || degreeToStore === null || deviationToStore === null) return;
+    replaceCustomTuning(setCustomTuningDegree(selectedCustomTuning, degreeToStore, deviationToStore));
     setStatusMessage(
-      t('custom.storedDegree', {
-        note: t(`notes.${(tunerSettings.tonicNoteIndex + degreeDeviation.degree) % degreeCount}`),
-        cents: formatSignedCents(degreeDeviation.centsFromEqual),
-      }),
+      t('custom.storedDegree', { note: noteNameOfDegree(degreeToStore), cents: formatSignedCents(deviationToStore) }),
     );
+    setChosenDegree(null);
   }
 
   async function handleSave() {
@@ -269,18 +281,34 @@ export function TraditionalTunerScreen({ saveMeasurement }: InstrumentScreenProp
         {selectedCustomTuning ? (
           <>
             <View style={styles.degreeGrid}>
-              {selectedCustomTuning.centsByDegree.map((degreeCents, degree) => (
-                <View key={degree} style={[styles.degreeCell, { borderColor: themePalette.border }]}>
-                  <BodyText tone="secondary">{t(`notes.${(tunerSettings.tonicNoteIndex + degree) % degreeCount}`)}</BodyText>
-                  <BodyText>{formatSignedCents(degreeCents)}</BodyText>
-                </View>
-              ))}
+              {selectedCustomTuning.centsByDegree.map((degreeCents, degree) => {
+                const isChosen = degree === degreeToStore;
+                return (
+                  <Pressable
+                    key={degree}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: isChosen }}
+                    onPress={() => setChosenDegree((previousDegree) => (previousDegree === degree ? null : degree))}
+                    style={[styles.degreeCell, { borderColor: isChosen ? themePalette.accent : themePalette.border }]}>
+                    <BodyText tone={isChosen ? 'accent' : 'secondary'}>{noteNameOfDegree(degree)}</BodyText>
+                    <BodyText>{formatSignedCents(degreeCents)}</BodyText>
+                  </Pressable>
+                );
+              })}
             </View>
+            <BodyText tone="secondary">{t('custom.chooseDegreeHint')}</BodyText>
             <AppButton
-              label={t('custom.storeCurrentNote')}
+              label={
+                degreeToStore === null
+                  ? t('custom.storeCurrentNote')
+                  : t('custom.storeInDegree', { note: noteNameOfDegree(degreeToStore) })
+              }
               onPress={handleStoreCurrentNote}
-              isDisabled={pitchReading.stableFrequencyHz === null}
+              isDisabled={deviationToStore === null}
             />
+            {degreeToStore !== null && pitchReading.stableFrequencyHz !== null && deviationToStore === null ? (
+              <BodyText tone="danger">{t('custom.tooFarFromDegree')}</BodyText>
+            ) : null}
             <AppButton label={t('custom.delete')} variant="secondary" onPress={handleDeleteSelectedTuning} />
           </>
         ) : null}

@@ -106,7 +106,9 @@ export function estimatePitchMcLeod(samples: ArrayLike<number>, options: McLeodP
   // Hacen falta al menos dos periodos en la ventana para que la NSDF sea fiable.
   const maximumLag = Math.min(Math.ceil(sampleRateHz / minimumFrequencyHz), Math.floor(samples.length / 2));
   if (maximumLag <= minimumLag) return null;
-  const nsdfValues = normalizedSquareDifference(samples, maximumLag + 1);
+  // Se calcula más allá del último retardo buscado para que el lóbulo de la nota más grave (que
+  // se extiende tras su máximo) llegue a cerrarse y no se descarte.
+  const nsdfValues = normalizedSquareDifference(samples, Math.min(samples.length - 1, Math.ceil(maximumLag * 1.5)));
 
   // Máximos «clave»: el más alto entre cada cruce por cero ascendente y el siguiente descendente.
   const keyMaxima: { position: number; height: number }[] = [];

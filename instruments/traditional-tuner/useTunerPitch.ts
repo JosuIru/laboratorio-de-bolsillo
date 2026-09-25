@@ -21,9 +21,11 @@ export interface TunerPitchReading {
   latestClarity: number | null;
 }
 
+const emptyPitchReading: TunerPitchReading = { stableFrequencyHz: null, latestClarity: null };
+
 export function useTunerPitch({ isActive }: { isActive: boolean }) {
   const [pitchStabilizer] = useState(() => createPitchStabilizer());
-  const [pitchReading, setPitchReading] = useState<TunerPitchReading>({ stableFrequencyHz: null, latestClarity: null });
+  const [pitchReading, setPitchReading] = useState<TunerPitchReading>(emptyPitchReading);
 
   const microphoneStatus = useMicrophoneSpectrum({
     isActive,
@@ -43,5 +45,15 @@ export function useTunerPitch({ isActive }: { isActive: boolean }) {
     },
   });
 
-  return { microphoneStatus, pitchReading };
+  // Al pausar o pasar a segundo plano no queda una lectura congelada que se pueda guardar como si
+  // sonara ahora; al volver se empieza de cero.
+  const isRunning = microphoneStatus.status === 'running';
+  const [wasRunning, setWasRunning] = useState(isRunning);
+  if (wasRunning !== isRunning) {
+    setWasRunning(isRunning);
+    pitchStabilizer.reset();
+    setPitchReading(emptyPitchReading);
+  }
+
+  return { microphoneStatus, pitchReading: isRunning ? pitchReading : emptyPitchReading };
 }

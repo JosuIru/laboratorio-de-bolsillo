@@ -127,6 +127,31 @@ export function measureDegreeDeviation(
   return equalTarget ? { degree: equalTarget.degree, centsFromEqual: equalTarget.centsOffset } : null;
 }
 
+/** Una tabla propia no puede desviar un grado más de un semitono. */
+export const maximumCustomDeviationCents = 100;
+
+/**
+ * Desviación de lo que suena respecto al temperamento igual de un grado elegido por el usuario
+ * (en la octava más cercana). Permite guardar notas que se apartan más de medio semitono, como
+ * la tercera neutra de algunos instrumentos. Null si se aparta más de un semitono.
+ */
+export function measureDeviationFromDegree(
+  frequencyHz: number,
+  referenceA4Hz: number,
+  tonicNoteIndex: NoteIndex,
+  degree: number,
+): number | null {
+  if (!(frequencyHz > 0) || !Number.isFinite(frequencyHz)) return null;
+  const measuredCentsFromA4 = centsOfRatio(frequencyHz / referenceA4Hz);
+  // Semitono (desde La4) de ese grado en la octava más cercana a lo medido.
+  const degreeNoteIndex = (tonicNoteIndex + degree) % degreeCount;
+  const semitoneOffsetFromA = (((degreeNoteIndex - 9) % degreeCount) + degreeCount) % degreeCount;
+  const octavesFromA4 = Math.round((measuredCentsFromA4 / 100 - semitoneOffsetFromA) / degreeCount);
+  const degreeSemitoneFromA4 = semitoneOffsetFromA + degreeCount * octavesFromA4;
+  const centsFromEqual = measuredCentsFromA4 - 100 * degreeSemitoneFromA4;
+  return Math.abs(centsFromEqual) <= maximumCustomDeviationCents ? centsFromEqual : null;
+}
+
 // ── Lectura estable ─────────────────────────────────────────────────────────────────────────
 
 /** Claridad mínima de la NSDF para fiarse de una estimación. */
@@ -135,11 +160,13 @@ export const minimumPitchClarity = 0.85;
 const noteChangeCents = 50;
 
 /**
- * Mediana de las últimas estimaciones válidas: quita los saltos sueltos sin arrastrar la nota
- * anterior cuando el músico cambia de nota.
+ * Mediana de las últimas estimaciones válidas. Una lectura que se aparta más de medio semitono
+ * se aparca: si la siguiente la confirma, es una nota nueva y se empieza de cero; si no, era un
+ * salto suelto (p. ej. un error de octava) y se descarta sin tocar la lectura.
  */
 export function createPitchStabilizer(windowSize = 5) {
   const recentFrequenciesHz: number[] = [];
+  let pendingFrequencyHz: number | null = null;
 
   function medianFrequencyHz(): number | null {
     if (recentFrequenciesHz.length === 0) return null;
@@ -150,24 +177,36 @@ export function createPitchStabilizer(windowSize = 5) {
       : Math.sqrt(sortedFrequenciesHz[middleIndex - 1]! * sortedFrequenciesHz[middleIndex]!);
   }
 
+  const isFarFrom = (frequencyHz: number, referenceHz: number) =>
+    Math.abs(centsOfRatio(frequencyHz / referenceHz)) > noteChangeCents;
+
   return {
     /** `null` = en esta trama no había un tono claro. Devuelve la frecuencia estable o null. */
     push(frequencyHz: number | null): number | null {
       if (frequencyHz === null) {
         // En silencio se va vaciando para que la lectura desaparezca al dejar de tocar.
         recentFrequenciesHz.shift();
+        pendingFrequencyHz = null;
         return medianFrequencyHz();
       }
       const currentMedianHz = medianFrequencyHz();
-      if (currentMedianHz !== null && Math.abs(centsOfRatio(frequencyHz / currentMedianHz)) > noteChangeCents) {
+      if (currentMedianHz !== null && isFarFrom(frequencyHz, currentMedianHz)) {
+        const isConfirmedNewNote = pendingFrequencyHz !== null && !isFarFrom(frequencyHz, pendingFrequencyHz);
+        if (!isConfirmedNewNote) {
+          pendingFrequencyHz = frequencyHz;
+          return currentMedianHz;
+        }
         recentFrequenciesHz.length = 0;
+        recentFrequenciesHz.push(pendingFrequencyHz!);
       }
+      pendingFrequencyHz = null;
       recentFrequenciesHz.push(frequencyHz);
       if (recentFrequenciesHz.length > windowSize) recentFrequenciesHz.shift();
       return medianFrequencyHz();
     },
     reset(): void {
       recentFrequenciesHz.length = 0;
+      pendingFrequencyHz = null;
     },
   };
 }
