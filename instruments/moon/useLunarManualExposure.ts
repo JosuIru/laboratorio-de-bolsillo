@@ -12,8 +12,19 @@ import {
 
 type CameraDevice = NonNullable<ReturnType<typeof useCameraDevice>>;
 
-/** Tras cambiar la exposición, los fotogramas tardan un poco en reflejarla: no se reajusta antes. */
-const minimumMillisecondsBetweenAdjustments = 700;
+/**
+ * Desde que la cámara confirma la nueva exposición hasta que las detecciones la reflejan pasan
+ * unos cuantos fotogramas (las detecciones llegan a 4/s): no se reajusta antes.
+ */
+const settleMillisecondsAfterExposureApplied = 700;
+
+/**
+ * CameraX rechaza la petición anterior cuando llega otra («updated with new options») o cuando la
+ * cámara se para («inactive»). No son fallos de la exposición manual: la última petición manda.
+ */
+function isSupersededCameraRequest(requestError: unknown): boolean {
+  return /cancel|updated with new options|inactive/i.test(String(requestError));
+}
 
 interface ManualExposureLimits {
   durationRange: ExposureDurationRange;
@@ -41,7 +52,8 @@ export function useLunarManualExposure(
   const [isAutomatic, setIsAutomatic] = useState(true);
   // Cuenta los arranques de la cámara y las peticiones de reaplicar, para volver a fijar la exposición.
   const [applyRequestCount, setApplyRequestCount] = useState(0);
-  const lastAdjustmentTime = useRef(0);
+  /** Momento en que la cámara confirmó la última exposición; null mientras hay una pendiente. */
+  const exposureAppliedTime = useRef<number | null>(null);
 
   const isManualExposureActive = manualExposureLimits !== null && !hasManualExposureFailed;
 
@@ -63,24 +75,32 @@ export function useLunarManualExposure(
     if (!isManualExposureActive || !manualExposureLimits) return;
     const cameraController = cameraRef.current?.controller;
     if (!cameraController) return;
-    cameraController.setExposureLocked(exposureSeconds, manualExposureLimits.iso).catch(() => {
-      // Si el móvil no la acepta, se vuelve a la compensación de exposición.
-      setHasManualExposureFailed(true);
-    });
+    exposureAppliedTime.current = null;
+    cameraController
+      .setExposureLocked(exposureSeconds, manualExposureLimits.iso)
+      .then(() => {
+        exposureAppliedTime.current = Date.now();
+      })
+      .catch((requestError: unknown) => {
+        if (isSupersededCameraRequest(requestError)) return;
+        // El móvil no la acepta: se vuelve de verdad a la exposición automática y a la compensación.
+        setHasManualExposureFailed(true);
+        cameraRef.current?.resetFocus().catch(() => undefined);
+      });
   }, [cameraRef, applyRequestCount, isManualExposureActive, manualExposureLimits, exposureSeconds]);
 
   const handleBrightnessReading = useCallback(
     (brightnessReading: LunarBrightnessReading) => {
       if (!isAutomatic || isFrozen || !isManualExposureActive || !manualExposureLimits) return;
-      const currentTime = Date.now();
-      if (currentTime - lastAdjustmentTime.current < minimumMillisecondsBetweenAdjustments) return;
+      const appliedTime = exposureAppliedTime.current;
+      if (appliedTime === null || Date.now() - appliedTime < settleMillisecondsAfterExposureApplied) return;
       const nextExposureSeconds = nextLunarExposureSeconds(
         exposureSeconds,
         brightnessReading,
         manualExposureLimits.durationRange,
       );
       if (nextExposureSeconds === exposureSeconds) return;
-      lastAdjustmentTime.current = currentTime;
+      exposureAppliedTime.current = null;
       setExposureSeconds(nextExposureSeconds);
     },
     [isAutomatic, isFrozen, isManualExposureActive, manualExposureLimits, exposureSeconds],
