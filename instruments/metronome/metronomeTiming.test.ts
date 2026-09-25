@@ -59,6 +59,25 @@ describe('scheduleBeatsUntil', () => {
     expect(scheduledBeats[0]).toEqual({ timeSeconds: 0, beatInBar: 0, isAccent: true });
   });
 
+  it('tras un bloqueo del hilo JS salta los pulsos pasados y mantiene el compás', () => {
+    // Tocaba el pulso 1 en t = 1 s, pero el programador no se despertó hasta t = 2,2 s.
+    const { scheduledBeats, nextPosition } = scheduleBeatsUntil(
+      { nextBeatTimeSeconds: 1, nextBeatInBar: 1 },
+      2.6,
+      120,
+      4,
+      2.2,
+    );
+    // Se saltan 1, 1,5 y 2 s (pulsos 1, 2 y 3): el siguiente es el 0 en 2,5 s, con acento.
+    expect(scheduledBeats).toEqual([{ timeSeconds: 2.5, beatInBar: 0, isAccent: true }]);
+    expect(nextPosition).toEqual({ nextBeatTimeSeconds: 3, nextBeatInBar: 1 });
+  });
+
+  it('un pulso que cae justo ahora no se salta', () => {
+    const { scheduledBeats } = scheduleBeatsUntil({ nextBeatTimeSeconds: 2, nextBeatInBar: 0 }, 2.1, 120, 4, 2);
+    expect(scheduledBeats.map((beat) => beat.timeSeconds)).toEqual([2]);
+  });
+
   it('no programa nada si el siguiente pulso cae después del horizonte', () => {
     const { scheduledBeats, nextPosition } = scheduleBeatsUntil({ nextBeatTimeSeconds: 5, nextBeatInBar: 2 }, 4, 120, 4);
     expect(scheduledBeats).toEqual([]);

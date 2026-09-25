@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AudioContext, AudioManager, AudioRecorder } from 'react-native-audio-api';
 
-import { useIsAppActive } from '@/core/useIsAppActive';
+import { startRecorderInOrder, stopRecorderInOrder } from '@/core/audio/recorderQueue';
+import { useIsScreenActive } from '@/core/useIsScreenActive';
 import { type ClapTimingState, createClapTimingSession } from '@/processing/localization/clapTimingSession';
 import { generateReferenceSequence } from '@/processing/localization/referenceSignal';
 
@@ -23,8 +24,8 @@ const initialTimingState: ClapTimingState = { phase: 'waitingForChirp' };
  * Todo se para al desactivar la escucha, al salir de la pantalla o al pasar a segundo plano.
  */
 export function useClapTiming(isListening: boolean) {
-  const isAppActive = useIsAppActive();
-  const shouldListen = isListening && isAppActive;
+  const isScreenActive = useIsScreenActive();
+  const shouldListen = isListening && isScreenActive;
   const [audioStatus, setAudioStatus] = useState<ClapTimingAudioStatus>({ status: 'idle' });
   const [timingState, setTimingState] = useState<ClapTimingState>(initialTimingState);
   const [isEmitting, setIsEmitting] = useState(false);
@@ -54,7 +55,7 @@ export function useClapTiming(isListening: boolean) {
       audioContextRef.current = null;
       sessionRef.current = null;
       audioRecorder.clearOnAudioReady();
-      void audioRecorder.stop().catch(() => undefined);
+      void stopRecorderInOrder(audioRecorder);
       void audioContext.close().catch(() => undefined);
     }
 
@@ -96,12 +97,9 @@ export function useClapTiming(isListening: boolean) {
           },
         );
 
-        const startResult = await audioRecorder.start();
-        if (isCancelled) {
-          // Si la limpieza paró el grabador antes de que acabara de arrancar, seguiría grabando.
-          if (startResult.status !== 'error') void audioRecorder.stop().catch(() => undefined);
-          return;
-        }
+        // La cola espera a que otros grabadores se paren y, si se cancela, deja este parado.
+        const startResult = await startRecorderInOrder(audioRecorder, () => isCancelled);
+        if (!startResult || isCancelled) return;
         if (startResult.status === 'error') throw new Error(startResult.message);
         await audioContext.resume();
         if (isCancelled) return;

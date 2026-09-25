@@ -10,7 +10,8 @@ import {
   type SpectrogramHistory,
 } from '@/processing/dsp/spectrogram';
 
-import { useIsAppActive } from '@/core/useIsAppActive';
+import { startRecorderInOrder, stopRecorderInOrder } from '@/core/audio/recorderQueue';
+import { useIsScreenActive } from '@/core/useIsScreenActive';
 import { createExponentialSmoother } from '@/processing/signal/smoothing';
 
 import { type AudioFrameAnalysis, createAudioFrameAnalyzer } from './frameAnalysis';
@@ -37,6 +38,8 @@ export interface MicrophoneFrame {
 type MicrophoneState =
   | { status: 'starting' }
   | { status: 'running'; frame: MicrophoneFrame | null }
+  /** Pausado por el usuario (o con la pantalla tapada): conserva la última trama para mostrarla. */
+  | { status: 'paused'; frame: MicrophoneFrame | null }
   | { status: 'error'; errorMessage: string };
 
 /**
@@ -45,18 +48,26 @@ type MicrophoneState =
  * se oye nada ni hay realimentación. El hilo JS solo lee el resultado ~20 veces por segundo.
  */
 export function useMicrophoneAnalyser({ isRunning, frequencyScale }: { isRunning: boolean; frequencyScale: FrequencyScale }) {
-  const isAppActive = useIsAppActive();
-  const shouldListen = isRunning && isAppActive;
-  const [microphoneState, setMicrophoneState] = useState<MicrophoneState>({ status: 'starting' });
+  const isScreenActive = useIsScreenActive();
+  const shouldListen = isRunning && isScreenActive;
+  const [microphoneState, setMicrophoneState] = useState<MicrophoneState>(
+    shouldListen ? { status: 'starting' } : { status: 'paused', frame: null },
+  );
   const [history] = useState(() => createSpectrogramHistory(spectrogramRowCount, spectrogramColumnCount));
 
-  // Al pausar, reanudar o cambiar de escala se vuelve a «arrancando» (ajuste durante el render,
-  // el patrón que recomienda React en lugar de un setState dentro del efecto).
-  const listeningKey = `${shouldListen}-${frequencyScale}`;
-  const [currentListeningKey, setCurrentListeningKey] = useState(listeningKey);
-  if (currentListeningKey !== listeningKey) {
-    setCurrentListeningKey(listeningKey);
-    setMicrophoneState({ status: 'starting' });
+  // Al reanudar o cambiar de escala se vuelve a «arrancando»; al pausar se conserva la última
+  // trama, salvo si cambió la escala (ya no casaría con las etiquetas). Es un ajuste durante el
+  // render, el patrón que recomienda React en lugar de un setState dentro del efecto.
+  const [listeningSettings, setListeningSettings] = useState({ shouldListen, frequencyScale });
+  if (listeningSettings.shouldListen !== shouldListen || listeningSettings.frequencyScale !== frequencyScale) {
+    const hasSameScale = listeningSettings.frequencyScale === frequencyScale;
+    setListeningSettings({ shouldListen, frequencyScale });
+    if (shouldListen) {
+      setMicrophoneState({ status: 'starting' });
+    } else {
+      const lastFrame = microphoneState.status === 'running' || microphoneState.status === 'paused' ? microphoneState.frame : null;
+      setMicrophoneState({ status: 'paused', frame: hasSameScale ? lastFrame : null });
+    }
   }
 
   useEffect(() => {
@@ -83,14 +94,12 @@ export function useMicrophoneAnalyser({ isRunning, frequencyScale }: { isRunning
         analyserNode.connect(silentOutput);
         silentOutput.connect(audioContext.destination);
 
-        const startResult = await audioRecorder.start();
-        if (isCancelled) {
-          // Si la limpieza paró el grabador antes de que acabara de arrancar, seguiría grabando.
-          if (startResult.status !== 'error') void audioRecorder.stop().catch(() => undefined);
-          return;
-        }
+        // La cola espera a que otros grabadores se paren y, si se cancela, deja este parado.
+        const startResult = await startRecorderInOrder(audioRecorder, () => isCancelled);
+        if (!startResult || isCancelled) return;
         if (startResult.status === 'error') throw new Error(startResult.message);
         await audioContext.resume();
+        if (isCancelled) return;
 
         const sampleRateHz = audioContext.sampleRate;
         const columnMapping = createColumnBinMapping(
@@ -136,7 +145,7 @@ export function useMicrophoneAnalyser({ isRunning, frequencyScale }: { isRunning
     return () => {
       isCancelled = true;
       if (frameTimer) clearInterval(frameTimer);
-      void audioRecorder.stop().catch(() => undefined);
+      void stopRecorderInOrder(audioRecorder);
       audioRecorder.disconnect();
       void audioContext.close().catch(() => undefined);
     };

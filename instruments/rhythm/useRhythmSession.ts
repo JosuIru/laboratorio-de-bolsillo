@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 import { AudioContext, AudioManager, AudioRecorder } from 'react-native-audio-api';
 
 import { createClickBuffer } from '@/core/audio/clickBuffer';
+import { startRecorderInOrder, stopRecorderInOrder } from '@/core/audio/recorderQueue';
 import { useStopWhenAppInactive } from '@/core/useStopWhenAppInactive';
 import { createStreamingOnsetDetector } from '@/processing/dsp/onsets';
 
@@ -62,7 +63,7 @@ export function useRhythmSession() {
     activeSession.timeouts.forEach((timeout) => clearTimeout(timeout));
     activeSession.intervals.forEach((interval) => clearInterval(interval));
     activeSession.audioRecorder.clearOnAudioReady();
-    void activeSession.audioRecorder.stop().catch(() => undefined);
+    void stopRecorderInOrder(activeSession.audioRecorder);
     void activeSession.audioContext.close().catch(() => undefined);
   }, []);
 
@@ -121,12 +122,9 @@ export function useRhythmSession() {
           },
         );
 
-        const startResult = await audioRecorder.start();
-        if (!isCurrentSession()) {
-          // Si la limpieza paró el grabador antes de que acabara de arrancar, seguiría grabando.
-          if (startResult.status !== 'error') void audioRecorder.stop().catch(() => undefined);
-          return;
-        }
+        // La cola espera a que otros grabadores se paren y, si se cancela, deja este parado.
+        const startResult = await startRecorderInOrder(audioRecorder, () => !isCurrentSession());
+        if (!startResult || !isCurrentSession()) return;
         if (startResult.status === 'error') throw new Error(startResult.message);
         await audioContext.resume();
         await firstBufferArrived;

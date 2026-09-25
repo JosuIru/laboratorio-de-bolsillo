@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { AudioContext, AudioManager, AudioRecorder } from 'react-native-audio-api';
 
-import { useIsAppActive } from '@/core/useIsAppActive';
+import { startRecorderInOrder, stopRecorderInOrder } from '@/core/audio/recorderQueue';
+import { useIsScreenActive } from '@/core/useIsScreenActive';
 import {
   type AcousticBandPreset,
   acousticConfigurationFor,
@@ -14,7 +15,6 @@ import {
 } from '@/processing/modem/acousticModem';
 import type { ErrorCorrection } from '@/processing/modem/frameCodec';
 
-import { startRecorderExclusively, stopRecorderExclusively } from './microphoneAccess';
 
 export type AcousticListenerState =
   | { status: 'idle' }
@@ -45,8 +45,8 @@ export function useAcousticReceiver({
   errorCorrection,
   onReceiverEvent,
 }: AcousticReceiverOptions) {
-  const isAppActive = useIsAppActive();
-  const shouldListen = isListening && isAppActive;
+  const isScreenActive = useIsScreenActive();
+  const shouldListen = isListening && isScreenActive;
   const [listenerState, setListenerState] = useState<AcousticListenerState>({ status: 'idle' });
   const [receiverStatus, setReceiverStatus] = useState<AcousticReceiverStatus | null>(null);
   const onReceiverEventRef = useRef(onReceiverEvent);
@@ -76,7 +76,7 @@ export function useAcousticReceiver({
       isCancelled = true;
       if (statusTimer) clearInterval(statusTimer);
       audioRecorder.clearOnAudioReady();
-      void stopRecorderExclusively(audioRecorder);
+      void stopRecorderInOrder(audioRecorder);
       void audioContext.close().catch(() => undefined);
     }
 
@@ -105,7 +105,7 @@ export function useAcousticReceiver({
             for (const receiverEvent of receiverEvents) onReceiverEventRef.current(receiverEvent);
           },
         );
-        const startResult = await startRecorderExclusively(audioRecorder, () => isCancelled);
+        const startResult = await startRecorderInOrder(audioRecorder, () => isCancelled);
         if (!startResult || isCancelled) return;
         if (startResult.status === 'error') throw new Error(startResult.message);
         await audioContext.resume();

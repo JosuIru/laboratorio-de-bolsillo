@@ -49,8 +49,17 @@ export function AudioSpectrumScreen({
       </ScreenContainer>
     );
   }
-  if (microphoneState.status === 'starting' || !microphoneState.frame) {
+  if (microphoneState.status === 'starting' || (microphoneState.status === 'running' && !microphoneState.frame)) {
     return <LoadingState label={t('starting')} />;
+  }
+  if (!microphoneState.frame) {
+    // En pausa antes de la primera trama: no hay nada que dibujar, pero sí se puede reanudar.
+    return (
+      <ScreenContainer>
+        <BodyText tone="secondary">{t('paused')}</BodyText>
+        <AppButton label={t('resume')} onPress={() => setIsRunning(true)} variant="secondary" />
+      </ScreenContainer>
+    );
   }
 
   const { frame } = microphoneState;

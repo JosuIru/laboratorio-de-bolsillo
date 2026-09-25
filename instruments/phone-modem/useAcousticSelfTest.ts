@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AudioContext, AudioManager, AudioRecorder } from 'react-native-audio-api';
 
-import { useIsAppActive } from '@/core/useIsAppActive';
+import { startRecorderInOrder, stopRecorderInOrder } from '@/core/audio/recorderQueue';
+import { useIsScreenActive } from '@/core/useIsScreenActive';
 import {
   type AcousticBandPreset,
   acousticConfigurationFor,
@@ -13,7 +14,6 @@ import {
 } from '@/processing/modem/acousticModem';
 import { decodeMessage, prepareMessage } from '@/processing/modem/frameCodec';
 
-import { startRecorderExclusively, stopRecorderExclusively } from './microphoneAccess';
 import { acousticBandOptions, acousticVolume, errorCorrectionByChannel } from './modemConfiguration';
 
 const selfTestText = 'PRUEBA 123';
@@ -66,7 +66,7 @@ function summarizeBandEvents(bandPreset: AcousticBandPreset, receiverEvents: Aco
  * a extremo: comprueba también el módem.
  */
 export function useAcousticSelfTest() {
-  const isAppActive = useIsAppActive();
+  const isScreenActive = useIsScreenActive();
   const [selfTestState, setSelfTestState] = useState<SelfTestState>({ phase: 'idle' });
   const releaseRef = useRef<(() => void) | null>(null);
 
@@ -80,16 +80,16 @@ export function useAcousticSelfTest() {
     setSelfTestState({ phase: 'idle' });
   }, [stopAudio]);
 
-  // Al pasar a segundo plano se corta la prueba: el estado se ajusta durante el render y el
-  // efecto solo libera el audio.
-  const [wasAppActive, setWasAppActive] = useState(isAppActive);
-  if (wasAppActive !== isAppActive) {
-    setWasAppActive(isAppActive);
-    if (!isAppActive && selfTestState.phase === 'running') setSelfTestState({ phase: 'idle' });
+  // Al pasar a segundo plano o al taparla otra pantalla se corta la prueba: el estado se ajusta
+  // durante el render y el efecto solo libera el audio.
+  const [wasScreenActive, setWasScreenActive] = useState(isScreenActive);
+  if (wasScreenActive !== isScreenActive) {
+    setWasScreenActive(isScreenActive);
+    if (!isScreenActive && selfTestState.phase === 'running') setSelfTestState({ phase: 'idle' });
   }
   useEffect(() => {
-    if (!isAppActive) stopAudio();
-  }, [isAppActive, stopAudio]);
+    if (!isScreenActive) stopAudio();
+  }, [isScreenActive, stopAudio]);
   useEffect(() => stopAudio, [stopAudio]);
 
   const runSelfTest = useCallback(async () => {
@@ -101,7 +101,7 @@ export function useAcousticSelfTest() {
       if (isReleased) return;
       isReleased = true;
       audioRecorder.clearOnAudioReady();
-      void stopRecorderExclusively(audioRecorder);
+      void stopRecorderInOrder(audioRecorder);
       void audioContext.close().catch(() => undefined);
     };
     releaseRef.current = release;
@@ -123,7 +123,7 @@ export function useAcousticSelfTest() {
         inputSampleRateHz ??= audioEvent.buffer.sampleRate;
         if (activeReceiver) collectedEvents.push(...activeReceiver.pushSamples(audioEvent.buffer.getChannelData(0)));
       });
-      const startResult = await startRecorderExclusively(audioRecorder, () => isReleased);
+      const startResult = await startRecorderInOrder(audioRecorder, () => isReleased);
       if (!startResult) return;
       if (startResult.status === 'error') throw new Error(startResult.message);
       await audioContext.resume();
