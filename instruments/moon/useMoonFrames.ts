@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 import { CommonResolutions, type Frame, useFrameOutput } from 'react-native-vision-camera';
 import { scheduleOnRN } from 'react-native-worklets';
 
+import { readFramePixels } from '@/core/camera/framePixels';
 import {
   type AlignedCrop,
   type BrightObjectDetection,
@@ -89,17 +90,15 @@ export function useMoonFrames(isDeviceSteady: () => boolean) {
   const handleFrame = useCallback(
     (frame: Frame) => {
       'worklet';
-      if (!frame.hasPixelBuffer) {
+      const framePixels = readFramePixels(frame);
+      if (!framePixels) {
         frame.dispose();
         return;
       }
-      const pixelFormat = frame.pixelFormat;
-      const isBgrOrder = pixelFormat === 'rgb-bgra-8-bit';
-      const bytesPerPixel = isBgrOrder || frame.bytesPerRow >= frame.width * 4 ? 4 : 3;
-      const pixels = new Uint8Array(frame.getPixelBuffer());
-      const frameWidth = frame.width;
-      const frameHeight = frame.height;
-      const bytesPerRow = frame.bytesPerRow;
+      const { pixels, bytesPerRow, bytesPerPixel } = framePixels;
+      const isBgrOrder = framePixels.pixelLayout === 'bgra';
+      const frameWidth = framePixels.width;
+      const frameHeight = framePixels.height;
       const detection = locateBrightObject(pixels, frameWidth, frameHeight, bytesPerRow, bytesPerPixel, detectionSampleStride);
 
       let crop: AlignedCrop | null = null;

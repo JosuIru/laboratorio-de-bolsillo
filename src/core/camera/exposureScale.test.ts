@@ -1,8 +1,8 @@
 import { createExposureScale, formatExposureValue, stepExposure } from './exposureScale';
 
 describe('escala de exposición', () => {
-  it('en Android usa pasos enteros y empieza en el mínimo', () => {
-    const stepScale = createExposureScale(-24, 24, true);
+  it('en Android usa pasos enteros y, para objetos brillantes, empieza en el mínimo', () => {
+    const stepScale = createExposureScale(-24, 24, true, true);
     expect(stepScale.initialValue).toBe(-24);
     expect(stepScale.increment).toBe(3);
     expect(stepExposure(stepScale, -24, 1)).toBe(-21);
@@ -14,10 +14,16 @@ describe('escala de exposición', () => {
     expect(createExposureScale(-6, 6, true).increment).toBe(1);
   });
 
-  it('en EV empieza en -2 sin pasar del mínimo del móvil', () => {
-    expect(createExposureScale(-8, 8, false).initialValue).toBe(-2);
-    expect(createExposureScale(-1, 1, false).initialValue).toBe(-1);
-    expect(stepExposure(createExposureScale(-8, 8, false), -2, 1)).toBe(-1.5);
+  it('en EV, para objetos brillantes, empieza en -2 sin pasar del mínimo del móvil', () => {
+    expect(createExposureScale(-8, 8, false, true).initialValue).toBe(-2);
+    expect(createExposureScale(-1, 1, false, true).initialValue).toBe(-1);
+    expect(stepExposure(createExposureScale(-8, 8, false, true), -2, 1)).toBe(-1.5);
+  });
+
+  it('por defecto arranca sin compensación', () => {
+    expect(createExposureScale(-24, 24, true).initialValue).toBe(0);
+    expect(createExposureScale(-8, 8, false).initialValue).toBe(0);
+    expect(createExposureScale(1, 4, true).initialValue).toBe(1);
   });
 
   it('formatea con signo', () => {

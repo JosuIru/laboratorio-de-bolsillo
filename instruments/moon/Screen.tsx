@@ -1,9 +1,13 @@
 import { Canvas, Image as SkiaImageView, type SkImage } from '@shopify/react-native-skia';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { type GestureResponderEvent, type LayoutChangeEvent, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { type GestureResponderEvent, type LayoutChangeEvent, Pressable, StyleSheet, View } from 'react-native';
 import { Camera, type CameraRef, type MeteringMode, useCameraDevice } from 'react-native-vision-camera';
 
+import { formatExposureValue, stepExposure } from '@/core/camera/exposureScale';
+import { writeImageToCachePng } from '@/core/camera/imageFiles';
+import { useCameraZoomAndExposure } from '@/core/camera/useCameraZoomAndExposure';
+import { useDeviceSteadiness } from '@/core/camera/useDeviceSteadiness';
 import type { InstrumentScreenProps } from '@/core/instruments/types';
 import type { PointingGuidance } from '@/processing/astronomy/pointingGuide';
 import { isExpectedCameraInterruption } from '@/core/sensors/cameraErrors';
@@ -21,9 +25,7 @@ import { useThemePalette } from '@/ui/theme';
 import { moonInstrumentId } from './instrumentId';
 import { MoonInfoCard, useMoonReport, useObserverLocation } from './MoonInfoCard';
 import type { MoonMeasurementValues } from './schema';
-import { createSkiaImage, writeImageToCachePng } from './stackedImage';
-import { createExposureScale, formatExposureValue, stepExposure } from './exposureScale';
-import { useDeviceSteadiness } from './useDeviceSteadiness';
+import { createSkiaImage } from './stackedImage';
 import { useMoonFrames } from './useMoonFrames';
 import { useMoonPointingGuide } from './useMoonPointingGuide';
 
@@ -71,10 +73,6 @@ function waitMilliseconds(durationMilliseconds: number) {
   return new Promise((resolve) => setTimeout(resolve, durationMilliseconds));
 }
 
-function clampNumber(value: number, minimumValue: number, maximumValue: number): number {
-  return Math.min(maximumValue, Math.max(minimumValue, value));
-}
-
 export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentScreenProps<MoonMeasurementValues>) {
   const { t } = useTranslation(moonInstrumentId);
   const themePalette = useThemePalette();
@@ -93,37 +91,19 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
     sensorAvailability.accelerometer.status === 'available' && sensorAvailability.magnetometer.status === 'available';
   const pointingGuidance = useMoonPointingGuide(moonReport.horizontalPosition, isCameraAllowed && hasOrientationSensors);
 
-  const minimumZoom = cameraDevice?.minZoom ?? 1;
-  const maximumZoom = cameraDevice?.maxZoom ?? 1;
-  const [requestedZoom, setRequestedZoom] = useState(1);
-  const zoomFactor = clampNumber(requestedZoom, minimumZoom, maximumZoom);
-
-  const supportsExposureBias = cameraDevice?.supportsExposureBias ?? false;
-  const minimumExposureBias = cameraDevice?.minExposureBias ?? 0;
-  const maximumExposureBias = cameraDevice?.maxExposureBias ?? 0;
-  // En Android la compensación va en pasos enteros de tamaño desconocido; en iOS, en EV.
-  const exposureScale = useMemo(
-    () => createExposureScale(minimumExposureBias, maximumExposureBias, Platform.OS === 'android'),
-    [minimumExposureBias, maximumExposureBias],
-  );
-  const [requestedExposureBias, setRequestedExposureBias] = useState<number | null>(null);
-  const exposureBias = supportsExposureBias
-    ? clampNumber(requestedExposureBias ?? exposureScale.initialValue, minimumExposureBias, maximumExposureBias)
-    : undefined;
-
-  // Cuenta los arranques de la sesión de cámara para volver a aplicar zoom y exposición.
-  const [cameraStartCount, setCameraStartCount] = useState(0);
-
-  // vision-camera envía zoom y exposición en cuanto hay controlador, a menudo antes de que la
-  // cámara arranque: Android cancela la orden («Camera is not active») y no se reintenta mientras
-  // el valor no cambie. Se reaplican cada vez que la sesión arranca.
-  useEffect(() => {
-    if (cameraStartCount === 0) return;
-    const cameraController = cameraRef.current?.controller;
-    if (!cameraController) return;
-    cameraController.setZoom(zoomFactor).catch(() => undefined);
-    if (exposureBias !== undefined) cameraController.setExposureBias(exposureBias).catch(() => undefined);
-  }, [cameraStartCount, zoomFactor, exposureBias]);
+  // La Luna es muy brillante sobre fondo negro: con la exposición automática sale quemada.
+  const {
+    zoomFactor,
+    minimumZoom,
+    maximumZoom,
+    setRequestedZoom,
+    exposureScale,
+    exposureBias,
+    minimumExposureBias,
+    maximumExposureBias,
+    setRequestedExposureBias,
+    handleCameraStarted,
+  } = useCameraZoomAndExposure(cameraRef, cameraDevice, true);
 
   const [meteringViewPoint, setMeteringViewPoint] = useState<{ x: number; y: number } | null>(null);
   const [stackingOutcome, setStackingOutcome] = useState<StackingOutcome | null>(null);
@@ -235,7 +215,7 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
       Math.round(numericValue * 10 ** fractionDigits) / 10 ** fractionDigits;
     const horizontalPosition = moonReport.horizontalPosition;
     try {
-      const pngFile = writeImageToCachePng(stackedSkiaImage);
+      const pngFile = writeImageToCachePng(stackedSkiaImage, 'luna');
       await saveMeasurement({
         values: {
           phaseName: moonReport.phaseName,
@@ -313,7 +293,7 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
           zoom={zoomFactor}
           exposure={exposureBias}
           onError={handleCameraError}
-          onStarted={() => setCameraStartCount((previousCount) => previousCount + 1)}
+          onStarted={handleCameraStarted}
           resizeMode="contain"
         />
         <Pressable

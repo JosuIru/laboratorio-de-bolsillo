@@ -2,10 +2,10 @@ import { useCallback, useRef, useState } from 'react';
 import { CommonResolutions, type Frame, useFrameOutput } from 'react-native-vision-camera';
 import { scheduleOnRN } from 'react-native-worklets';
 
+import { readFramePixels } from '@/core/camera/framePixels';
 import {
   createSrgbToLinearTable,
   measureRegionColor,
-  type PixelLayout,
   type RegionColorStatistics,
 } from '@/processing/color/regionSampling';
 
@@ -52,14 +52,12 @@ export function useColorimeterFrames(regionCenters: readonly (CameraPoint | null
   const handleFrame = useCallback(
     (frame: Frame) => {
       'worklet';
-      if (!frame.hasPixelBuffer) {
+      const framePixels = readFramePixels(frame);
+      if (!framePixels) {
         frame.dispose();
         return;
       }
-      const pixelFormat = frame.pixelFormat;
-      const pixelLayout: PixelLayout =
-        pixelFormat === 'rgb-bgra-8-bit' ? 'bgra' : frame.bytesPerRow >= frame.width * 4 ? 'rgba' : 'rgb';
-      const pixels = new Uint8Array(frame.getPixelBuffer());
+      const { pixels, pixelLayout } = framePixels;
       const halfRegionPixels = (Math.min(frame.width, frame.height) * regionSizeFraction) / 2;
 
       const measuredRegions: (RegionColorStatistics | null)[] = [];
