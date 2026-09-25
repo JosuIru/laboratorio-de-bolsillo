@@ -1,0 +1,58 @@
+{
+  "name": "Gelen akustika",
+  "description": "Gela baten erreberberazio-denbora (RT60) neurtzen du oktaba-bandaka, kolpe lehor batekin: txaloa, puxika edo bi liburu.",
+  "howTo": {
+    "title": "Nola neurtu",
+    "quiet": "Bilatu isiltasuna: itzali haizagailuak, musika eta etxetresnak. Jarri mugikorra gelaren erdian, hormetatik urrun, eta ez estali.",
+    "impulse": "Sakatu «Neurtu», itxaron hondoko zarata entzuten amaitu arte eta eman kolpe gogor eta lehor bat bi bat metrora: puxika bat lehertzea da onena; txalo gogor bat edo bi liburu elkarren kontra ere balio dute.",
+    "repeat": "Egin hiru edo lau neurketa leku desberdinetan eta hartu batez bestekoa: bakar batek dezente aldatzen du."
+  },
+  "start": "Neurtu",
+  "measureAgain": "Neurtu berriro",
+  "cancel": "Utzi",
+  "phase": {
+    "starting": "Mikrofonoa prestatzen…",
+    "warming-up": "Mikrofonoa prestatzen…",
+    "measuring-noise": "Hondoko zarata entzuten: isilik…",
+    "waiting-for-impulse": "Orain! Eman kolpea",
+    "recording-decay": "Erreberberazioaren isatsa grabatzen…",
+    "analyzing": "Aztertzen…"
+  },
+  "error": {
+    "noImpulse": "Ez da kolpe argirik entzun. Saiatu gogorrago edo gertuago.",
+    "microphone": "Ezin da mikrofonoa erabili: {{message}}"
+  },
+  "midReverberationLabel": "Erreberberazio-denbora (500 Hz – 1 kHz)",
+  "noMidValue": "Ez dago balio fidagarririk maiztasun ertainetan: errepikatu kolpe gogorrago batekin edo zarata gutxiagorekin.",
+  "character": {
+    "very-dry": "Oso lehorra: itzalita entzuten da, oso tratatutako estudio batean bezala",
+    "dry": "Lehorra: ona ahotsarentzat, grabaziorako eta etxeko estudiorako",
+    "balanced": "Orekatua: egongela, ikasgela edo entsegu-gela",
+    "reverberant": "Erreberberatzailea: ahotsa ulertzea kosta egiten da; ona abesbatzarako edo musika akustikorako",
+    "very-reverberant": "Oso erreberberatzailea: eliza, kiroldegia edo pabilioia"
+  },
+  "warning": {
+    "clipped": "Kolpeak mikrofonoa saturatu du: urrundu pixka bat edo jo leunago.",
+    "noisy": "Hondoko zarata dezente dago: marjina txikiko bandek ez dute baliorik emango."
+  },
+  "bands": {
+    "title": "Oktaba-bandaka",
+    "band": "Hz",
+    "edt": "EDT",
+    "t20": "T20",
+    "t30": "T30",
+    "range": "Marjina dB",
+    "hint": "Denborak segundotan. T30 eta T20 30 eta 20 dB-ko jaitsieretan neurtutako erreberberazio-denbora dira; EDTa, hasierako jaitsiera, entzuten denaren antzekoagoa da. «—» = ez zegoen marjina nahikorik zarataren gainetik (45 dB behar dira T30erako eta 35 dB T20rako) edo jaitsiera ez zen zuzena izan."
+  },
+  "privacy": "Soinua mugikorrean aztertzen da eta ez da gordetzen: emaitzak bakarrik.",
+  "fields": {
+    "midReverberationSeconds": "Batez besteko erreberberazio-denbora",
+    "roomCharacter": "Gelaren izaera",
+    "bandCentersHz": "Bandak",
+    "bandReverberationSeconds": "Erreberberazio-denbora bandaka",
+    "bandEarlyDecaySeconds": "EDT bandaka",
+    "bandDynamicRangeDecibels": "Zarataren gaineko marjina bandaka",
+    "noiseLevelDecibels": "Hondoko zarata",
+    "isClipped": "Kolpe saturatua"
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "name": "Acústica de salas",
+  "description": "Mide el tiempo de reverberación (RT60) de una habitación por bandas de octava con un golpe seco: palmada, globo o dos libros.",
+  "howTo": {
+    "title": "Cómo medir",
+    "quiet": "Busca silencio: apaga ventiladores, música y electrodomésticos. Pon el móvil en el centro de la sala, lejos de las paredes, y no lo tapes.",
+    "impulse": "Pulsa «Medir», espera a que termine de escuchar el ruido de fondo y da un golpe fuerte y seco a un par de metros: reventar un globo es lo mejor; una palmada fuerte o dos libros golpeados también valen.",
+    "repeat": "Haz tres o cuatro medidas en sitios distintos y quédate con la media: una sola varía bastante."
+  },
+  "start": "Medir",
+  "measureAgain": "Medir otra vez",
+  "cancel": "Cancelar",
+  "phase": {
+    "starting": "Preparando el micrófono…",
+    "warming-up": "Preparando el micrófono…",
+    "measuring-noise": "Escuchando el ruido de fondo: silencio…",
+    "waiting-for-impulse": "¡Ahora! Da el golpe",
+    "recording-decay": "Grabando la cola de reverberación…",
+    "analyzing": "Analizando…"
+  },
+  "error": {
+    "noImpulse": "No se ha oído ningún golpe claro. Prueba con uno más fuerte o más cerca.",
+    "microphone": "No se puede usar el micrófono: {{message}}"
+  },
+  "midReverberationLabel": "Tiempo de reverberación (500 Hz – 1 kHz)",
+  "noMidValue": "No hay valor fiable en frecuencias medias: repite con un golpe más fuerte o menos ruido.",
+  "character": {
+    "very-dry": "Muy seca: suena apagada, típica de un estudio muy tratado",
+    "dry": "Seca: buena para voz, grabación y estudio en casa",
+    "balanced": "Equilibrada: salón, aula o sala de ensayo",
+    "reverberant": "Reverberante: cuesta entender la voz; bien para coro o música acústica",
+    "very-reverberant": "Muy reverberante: iglesia, polideportivo o nave"
+  },
+  "warning": {
+    "clipped": "El golpe ha saturado el micrófono: aléjate un poco o golpea más suave.",
+    "noisy": "Hay bastante ruido de fondo: las bandas con poco margen no darán valor."
+  },
+  "bands": {
+    "title": "Por bandas de octava",
+    "band": "Hz",
+    "edt": "EDT",
+    "t20": "T20",
+    "t30": "T30",
+    "range": "Margen dB",
+    "hint": "Tiempos en segundos. T30 y T20 son el tiempo de reverberación medido en caídas de 30 y 20 dB; el EDT, la caída inicial, se parece más a lo que se oye. «—» = no hubo margen suficiente sobre el ruido (hacen falta 45 dB para T30 y 35 dB para T20) o la caída no fue una recta."
+  },
+  "privacy": "El sonido se analiza en el móvil y no se guarda: solo los resultados.",
+  "fields": {
+    "midReverberationSeconds": "Tiempo de reverberación medio",
+    "roomCharacter": "Carácter de la sala",
+    "bandCentersHz": "Bandas",
+    "bandReverberationSeconds": "Tiempo de reverberación por banda",
+    "bandEarlyDecaySeconds": "EDT por banda",
+    "bandDynamicRangeDecibels": "Margen sobre el ruido por banda",
+    "noiseLevelDecibels": "Ruido de fondo",
+    "isClipped": "Golpe saturado"
+  }
+}
