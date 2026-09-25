@@ -19,6 +19,7 @@ import {
   sharpeningSigmaForCropSize,
   stackSharpestCrops,
 } from '@/processing/image/lunarStacking';
+import { formatExposureDuration } from '@/processing/image/lunarExposure';
 import { AppButton, BodyText, Card, ScreenContainer, SectionTitle } from '@/ui/components';
 import { useThemePalette } from '@/ui/theme';
 
@@ -26,6 +27,7 @@ import { moonInstrumentId } from './instrumentId';
 import { MoonInfoCard, useMoonReport, useObserverLocation } from './MoonInfoCard';
 import type { MoonMeasurementValues } from './schema';
 import { createSkiaImage } from './stackedImage';
+import { useLunarManualExposure } from './useLunarManualExposure';
 import { useMoonFrames } from './useMoonFrames';
 import { useMoonPointingGuide } from './useMoonPointingGuide';
 
@@ -67,6 +69,9 @@ interface StackingOutcome {
   moonDiameterPixels: number;
   zoomFactor: number;
   exposureBias?: number;
+  /** Con exposición manual: tiempo de exposición en segundos e ISO. */
+  exposureSeconds?: number;
+  iso?: number;
 }
 
 function waitMilliseconds(durationMilliseconds: number) {
@@ -85,8 +90,15 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
   const moonReport = useMoonReport(observerLocation);
   const hasGyroscope = sensorAvailability.gyroscope.status === 'available';
   const { isDeviceSteady, isSteadyForDisplay } = useDeviceSteadiness(isCameraAllowed, hasGyroscope);
-  const { frameOutput, liveDetection, isCapturing, captureProgress, captureCrops, stopCapture } =
-    useMoonFrames(isDeviceSteady);
+  // Desde la cuenta atrás hasta el final de la captura, la exposición no cambia.
+  const [isCaptureInProgress, setIsCaptureInProgress] = useState(false);
+  // La exposición automática mide sobre todo el cielo negro y quema la Luna, incluso con la
+  // compensación al mínimo. Si el móvil lo admite, se fija el tiempo de exposición midiendo solo la Luna.
+  const lunarManualExposure = useLunarManualExposure(cameraRef, cameraDevice, isCaptureInProgress);
+  const { frameOutput, liveDetection, isCapturing, captureProgress, captureCrops, stopCapture } = useMoonFrames(
+    isDeviceSteady,
+    lunarManualExposure.handleBrightnessReading,
+  );
   const hasOrientationSensors =
     sensorAvailability.accelerometer.status === 'available' && sensorAvailability.magnetometer.status === 'available';
   const pointingGuidance = useMoonPointingGuide(moonReport.horizontalPosition, isCameraAllowed && hasOrientationSensors);
@@ -102,8 +114,13 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
     minimumExposureBias,
     maximumExposureBias,
     setRequestedExposureBias,
-    handleCameraStarted,
+    handleCameraStarted: handleZoomAndExposureCameraStarted,
   } = useCameraZoomAndExposure(cameraRef, cameraDevice, true);
+
+  function handleCameraStarted() {
+    handleZoomAndExposureCameraStarted();
+    lunarManualExposure.handleCameraStarted();
+  }
 
   const [meteringViewPoint, setMeteringViewPoint] = useState<{ x: number; y: number } | null>(null);
   const [stackingOutcome, setStackingOutcome] = useState<StackingOutcome | null>(null);
@@ -129,7 +146,8 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
     if (!canMeter || !cameraDevice) return;
     const viewPoint = { x: pressEvent.nativeEvent.locationX, y: pressEvent.nativeEvent.locationY };
     const meteringModes: MeteringMode[] = [];
-    if (cameraDevice.supportsExposureMetering) meteringModes.push('AE');
+    // Con la exposición manual, tocar solo enfoca: la luz ya se mide sobre la Luna.
+    if (cameraDevice.supportsExposureMetering && !lunarManualExposure.isManualExposureActive) meteringModes.push('AE');
     if (cameraDevice.supportsFocusMetering) meteringModes.push('AF');
     setMeteringViewPoint(viewPoint);
     try {
@@ -141,7 +159,9 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
         autoResetAfter: null,
       });
       // Tras medir sobre la Luna, se vuelve a aplicar la compensación sobre esa medida.
-      if (exposureBias !== undefined) await cameraRef.current?.controller?.setExposureBias(exposureBias);
+      if (!lunarManualExposure.isManualExposureActive && exposureBias !== undefined) {
+        await cameraRef.current?.controller?.setExposureBias(exposureBias);
+      }
     } catch {
       // Cancelado por otro toque o no admitido: la vista previa sigue funcionando.
     }
@@ -156,6 +176,8 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
     setMeteringViewPoint(null);
     try {
       await cameraRef.current?.resetFocus();
+      // `resetFocus` también quita la exposición manual.
+      lunarManualExposure.reapplyExposure();
     } catch {
       // La cámara puede no estar lista; no hay nada que deshacer.
     }
@@ -169,6 +191,11 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
     const captureExposureBias = exposureBias;
     setStackingOutcome(null);
     setStatusMessage(null);
+    setIsCaptureInProgress(true);
+    const captureExposureSeconds = lunarManualExposure.isManualExposureActive
+      ? lunarManualExposure.exposureSeconds
+      : undefined;
+    const captureIso = lunarManualExposure.isManualExposureActive ? lunarManualExposure.iso : undefined;
     for (let secondsLeft = captureCountdownSeconds; secondsLeft > 0; secondsLeft--) {
       setCountdownSecondsLeft(secondsLeft);
       await waitMilliseconds(1000);
@@ -178,6 +205,7 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
       capturedFrameTarget,
       cropSize,
     );
+    setIsCaptureInProgress(false);
     if (capturedCrops.length === 0) {
       setStatusMessage(t(rejectedFrameCount > 0 ? 'tooMuchMovement' : 'moonLostDuringCapture'));
       return;
@@ -198,7 +226,11 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
         stackedFrameCount: stackingResult.usedCropCount,
         moonDiameterPixels,
         zoomFactor: captureZoomFactor,
-        ...(captureExposureBias !== undefined ? { exposureBias: captureExposureBias } : {}),
+        ...(captureExposureSeconds !== undefined && captureIso !== undefined
+          ? { exposureSeconds: captureExposureSeconds, iso: captureIso }
+          : captureExposureBias !== undefined
+            ? { exposureBias: captureExposureBias }
+            : {}),
       });
     } catch (processingError) {
       setStatusMessage(t('core:common.error', { message: String(processingError) }));
@@ -233,6 +265,9 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
           stackedFrameCount: stackingOutcome.stackedFrameCount,
           moonDiameterPixels: stackingOutcome.moonDiameterPixels,
           zoomFactor: roundTo(stackingOutcome.zoomFactor, 2),
+          ...(stackingOutcome.exposureSeconds !== undefined && stackingOutcome.iso !== undefined
+            ? { exposureMilliseconds: roundTo(stackingOutcome.exposureSeconds * 1000, 3), iso: stackingOutcome.iso }
+            : {}),
           ...(stackingOutcome.exposureBias === undefined
             ? {}
             : exposureScale.isStepIndex
@@ -267,7 +302,11 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
   const isExposureAtMinimum = exposureBias === undefined || exposureBias <= minimumExposureBias;
   const exposureHint = !liveDetection
     ? null
-    : liveDetection.saturatedFraction > overexposedSaturatedFraction
+    : lunarManualExposure.isManualExposureActive
+      ? liveDetection.saturatedFraction > overexposedSaturatedFraction && !lunarManualExposure.isAutomatic
+        ? t('overexposedHint')
+        : null
+      : liveDetection.saturatedFraction > overexposedSaturatedFraction
       ? t(isExposureAtMinimum ? 'overexposedAtMinimumHint' : 'overexposedHint')
       : liveDetection.peakBrightness < underexposedPeakBrightness
         ? t('underexposedHint')
@@ -345,7 +384,38 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
         decreaseLabel={t('zoomOut')}
         increaseLabel={t('zoomIn')}
       />
-      {exposureBias !== undefined ? (
+      {lunarManualExposure.isManualExposureActive ? (
+        <>
+          <StepperRow
+            label={t('exposureTimeLabel', {
+              duration: formatExposureDuration(lunarManualExposure.exposureSeconds),
+              iso: Math.round(lunarManualExposure.iso),
+            })}
+            onDecrease={lunarManualExposure.darken}
+            onIncrease={lunarManualExposure.brighten}
+            isDecreaseDisabled={lunarManualExposure.isAtShortestExposure}
+            isIncreaseDisabled={lunarManualExposure.isAtLongestExposure}
+            decreaseLabel={t('exposureDown')}
+            increaseLabel={t('exposureUp')}
+          />
+          {lunarManualExposure.isAutomatic ? (
+            <BodyText tone="secondary">{t('automaticLunarExposure')}</BodyText>
+          ) : (
+            <View style={styles.buttonRow}>
+              <View style={styles.buttonCell}>
+                <BodyText tone="secondary">{t('manualLunarExposure')}</BodyText>
+              </View>
+              <View style={styles.buttonCell}>
+                <AppButton
+                  label={t('useAutomaticLunarExposure')}
+                  onPress={lunarManualExposure.enableAutomatic}
+                  variant="secondary"
+                />
+              </View>
+            </View>
+          )}
+        </>
+      ) : exposureBias !== undefined ? (
         <StepperRow
           label={
             exposureScale.isStepIndex

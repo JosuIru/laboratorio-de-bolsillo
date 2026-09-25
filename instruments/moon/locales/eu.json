@@ -46,7 +46,7 @@
   "stackedFrames": "{{count}} pilatuta",
   "stackingExplanation": "{{captured}} fotogramatatik {{stacked}} garbienak aukeratu, lerrokatu eta batez bestekoa egin da (airearen turbulentziak batzuk besteak baino gehiago lausotzen ditu). N fotogramaren batez bestekoa eginez, zarata √N aldiz jaisten da eta xehetasuna nabarmendu daiteke.",
   "tipsTitle": "Aholkuak",
-  "tips": "• Bermatu mugikorra zerbait sendotan (edo erabili tripodea): edozein dardarak lausotzen du.\n• Ukitu Ilargia bertan fokatzeko eta argia neurtzeko; zeru beltzak kamera engainatzen du.\n• Jaitsi esposizioa gehiegizko esposizioaren abisua desagertu arte.\n• Hurbildu zooma, baina neurriz: zoom optikotik haratago zarata baino ez da handitzen.\n• Xehetasunik onenak itzal-lerrotik (terminatzailetik) gertu ikusten dira, ez ilbetean.",
+  "tips": "• Bermatu mugikorra zerbait sendotan (edo erabili tripodea): edozein dardarak lausotzen du.\n• Ukitu Ilargia bertan fokatzeko eta argia neurtzeko; zeru beltzak kamera engainatzen du.\n• Jaitsi esposizioa gehiegizko esposizioaren abisua desagertu arte.\n• Hurbildu zooma, baina neurriz: zoom optikotik haratago zarata baino ez da handitzen.\n• Xehetasunik onenak itzal-lerrotik (terminatzailetik) gertu ikusten dira, ez ilbetean.\n• Zure mugikorrak esposizio-denbora finkatzen uzten ez badu eta Ilargia erreta ateratzen bada, jarri eguzkitako betaurreko batzuk objektiboaren aurrean (edo bi polarizatu, gurutzatuta).",
   "guideTurnRight": "Biratu {{degrees}}° eskuinera",
   "guideTurnLeft": "Biratu {{degrees}}° ezkerrera",
   "guideRaise": "igo {{degrees}}°",
@@ -83,6 +83,12 @@
     "zoomFactor": "Zooma",
     "exposureBias": "Esposizio-konpentsazioa",
     "exposureCompensationSteps": "Esposizio-konpentsazioa (urratsak)",
-    "sharpeningAmount": "Nabarmentzea"
-  }
+    "sharpeningAmount": "Nabarmentzea",
+    "exposureMilliseconds": "Esposizio-denbora",
+    "iso": "ISO"
+  },
+  "exposureTimeLabel": "Esposizioa {{duration}} · ISO {{iso}}",
+  "automaticLunarExposure": "Esposizioa Ilargiaren gainean berez doitua: ahalik eta argiena, erre gabe.",
+  "manualLunarExposure": "Eskuzko esposizioa.",
+  "useAutomaticLunarExposure": "Automatikoa"
 }

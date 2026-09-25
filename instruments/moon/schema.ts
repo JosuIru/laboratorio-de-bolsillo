@@ -15,6 +15,9 @@ export interface MoonMeasurementValues {
   exposureBias?: number;
   /** Android: compensación en pasos del móvil (su tamaño en EV depende del modelo). */
   exposureCompensationSteps?: number;
+  /** Con exposición manual: tiempo de exposición e ISO fijos. */
+  exposureMilliseconds?: number;
+  iso?: number;
   sharpeningAmount?: number;
 }
 
@@ -37,5 +40,7 @@ export const moonSchema = defineMeasurementSchema<MoonMeasurementValues>(1, [
     type: 'number',
     optional: true,
   },
+  { key: 'exposureMilliseconds', labelKey: 'fields.exposureMilliseconds', type: 'number', unit: 'ms', optional: true },
+  { key: 'iso', labelKey: 'fields.iso', type: 'number', optional: true },
   { key: 'sharpeningAmount', labelKey: 'fields.sharpeningAmount', type: 'number', optional: true },
 ]);
