@@ -17,6 +17,7 @@ import { phoneModemInstrument } from './phone-modem';
 import { poolStripsInstrument } from './pool-strips';
 import { resonanceScaleInstrument } from './resonance-scale';
 import { rhythmInstrument } from './rhythm';
+import { roomAcousticsInstrument } from './room-acoustics';
 import { seismicNetworkInstrument } from './seismic-network';
 import { seismographInstrument } from './seismograph';
 import { sonarInstrument } from './sonar';
@@ -43,6 +44,7 @@ export const instrumentRegistry: readonly AnyInstrumentDefinition[] = [
   mainsFrequencyInstrument,
   sonarInstrument,
   soundLocatorInstrument,
+  roomAcousticsInstrument,
   phoneModemInstrument,
   rhythmInstrument,
   colorHuntInstrument,
