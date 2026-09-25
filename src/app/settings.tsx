@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Switch, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, Switch, View } from 'react-native';
 
 import { type SupportedLocale, supportedLocales } from '@/core/i18n';
 import { useSensorAvailabilityStore } from '@/core/sensors/availabilityStore';
 import { allSensorKinds } from '@/core/sensors/types';
 import { useAppSettingsStore } from '@/core/settings/settingsStore';
-import { BodyText, Card, ScreenContainer, SectionTitle } from '@/ui/components';
+import { getInstalledVersion, repositoryUrl } from '@/core/updates/updateChecker';
+import { AppButton, BodyText, Card, ScreenContainer, SectionTitle } from '@/ui/components';
 import { describeSensorAvailability, sensorDisplayName } from '@/ui/sensorText';
 import { useThemePalette } from '@/ui/theme';
 import { UpdateSection } from '@/ui/UpdateSection';
@@ -100,6 +101,17 @@ export default function SettingsScreen() {
 
       <SectionTitle>{t('updates.title')}</SectionTitle>
       <UpdateSection />
+
+      <SectionTitle>{t('about.title')}</SectionTitle>
+      <Card>
+        <BodyText>{t('about.version', { version: getInstalledVersion() })}</BodyText>
+        <BodyText tone="secondary">{t('about.license')}</BodyText>
+        <AppButton
+          label={t('about.sourceCode')}
+          variant="secondary"
+          onPress={() => void Linking.openURL(repositoryUrl)}
+        />
+      </Card>
 
       <BodyText tone="secondary" style={styles.privacyNote}>
         {t('settings.privacy')}

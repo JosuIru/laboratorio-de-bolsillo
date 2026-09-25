@@ -116,5 +116,11 @@
       "rate-limited": "GitHub-ek kontsultak mugatu ditu. Saiatu pixka bat barru.",
       "unexpected-response": "GitHub-en ustekabeko erantzuna."
     }
+  },
+  "about": {
+    "title": "Honi buruz",
+    "version": "Poltsikoko Laborategia {{version}}",
+    "license": "Software librea, GPL-3.0 edo ondorengo lizentziapean: erabil, azter, alda eta parteka dezakezu. Iturburu-kodea publikoa da.",
+    "sourceCode": "Ikusi iturburu-kodea"
   }
 }

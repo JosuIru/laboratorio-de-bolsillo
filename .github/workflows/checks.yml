@@ -1,0 +1,41 @@
+# Comprobaciones en cada PR y en cada push a main: tests, tipos, lint y que Metro genere
+# el bundle de Android. No compila código nativo (eso lo hace release.yml con los tags).
+name: Comprobaciones
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Tests
+        run: npm test -- --ci
+
+      - name: Tipos
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Bundle de Android
+        run: npx expo export --platform android --output-dir "$RUNNER_TEMP/bundle"

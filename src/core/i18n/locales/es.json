@@ -116,5 +116,11 @@
       "rate-limited": "GitHub ha limitado las consultas. Prueba dentro de un rato.",
       "unexpected-response": "Respuesta inesperada de GitHub."
     }
+  },
+  "about": {
+    "title": "Acerca de",
+    "version": "Laboratorio de Bolsillo {{version}}",
+    "license": "Software libre bajo licencia GPL-3.0 o posterior: puedes usarlo, estudiarlo, modificarlo y compartirlo. El código fuente es público.",
+    "sourceCode": "Ver el código fuente"
   }
 }

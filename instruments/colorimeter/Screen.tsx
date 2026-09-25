@@ -4,6 +4,7 @@ import { type GestureResponderEvent, Pressable, StyleSheet, View } from 'react-n
 import { Camera, type CameraRef } from 'react-native-vision-camera';
 
 import type { InstrumentScreenProps } from '@/core/instruments/types';
+import { isExpectedCameraInterruption } from '@/core/sensors/cameraErrors';
 import { useIsCameraAllowed } from '@/core/sensors/useIsCameraAllowed';
 import { AppButton, BodyText, Card, ScreenContainer } from '@/ui/components';
 import { useThemePalette } from '@/ui/theme';
@@ -140,6 +141,11 @@ export function ColorimeterScreen({
           outputs={[frameOutput]}
           torchMode={isTorchOn ? 'on' : 'off'}
           resizeMode="cover"
+          onError={(cameraError) => {
+            if (!isExpectedCameraInterruption(cameraError)) {
+              setStatusMessage(t('core:common.error', { message: cameraError.message }));
+            }
+          }}
         />
         <Pressable
           accessibilityRole="button"
