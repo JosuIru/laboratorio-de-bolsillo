@@ -1,0 +1,113 @@
+{
+  "name": "Aztarnari-ehiztaria",
+  "description": "Ezkutuko Bluetooth aztarnariak bilatzen ditu (AirTag, SmartTag, Tile, Chipolo…), batek lekuz leku jarraitzen bazaitu ohartarazten du eta «hotz / bero» neurgailu batekin haraino gidatzen zaitu.",
+  "intro": "Aztarnariek igortzen dituzten energia baxuko Bluetooth iragarkiak entzuten ditu, ezertara konektatu gabe. Utzi eskaneatzen pantaila piztuta bidaian zehar: aztarnari bera hainbat lekutan edo unetan agertzen bada, abisua emango dizu.",
+  "unsupported": {
+    "title": "Androiden bakarrik",
+    "body": "iOSek ez die aplikazioei uzten Appleren Bilatu sareko iragarkiak irakurtzen. iPhone batean, sistemak berak ohartarazten du zurekin bidaiatzen duten AirTag eta aztarnari bateragarriez (Ezarpenak › Pribatutasuna › Kokapen-zerbitzuak)."
+  },
+  "noHardware": "Mugikor honek ez du energia baxuko Bluetooth-ik.",
+  "checking": "Bluetootha egiaztatzen…",
+  "permission": {
+    "explanation": "Aztarnariak entzuteko «Inguruko gailuak» baimena behar da. Aplikazioak ez du erabiltzen non zauden jakiteko, eta ez da inolako gailutara konektatzen.",
+    "explanationLegacy": "Androiden bertsio honetan, Bluetooth gailuak bilatzeko kokapen-baimena behar da (eta sistemaren kokapena aktibatuta izatea). Aplikazioak ez du zure posizioa gordetzen «Erabili kokapena» aktibatzen ez baduzu.",
+    "grant": "Eman baimena",
+    "blocked": "Baimena ukatuta dago. Aktibatu sistemaren ezarpenetan: Aplikazioak › Laboratorio de Bolsillo › Baimenak.",
+    "openSettings": "Ireki ezarpenak"
+  },
+  "bluetoothOff": "Bluetootha itzalita dago. Piztu eta saiatu berriro.",
+  "retry": "Saiatu berriro",
+  "start": "Hasi eskaneatzen",
+  "stop": "Gelditu",
+  "clear": "Ezabatu ikusitakoa",
+  "scanning": "Eskaneatzen… {{minutes}} min guztira",
+  "paused": "Etenda · {{minutes}} min eskaneatuta",
+  "summary": "{{trackers}} aztarnari · beste {{others}} Bluetooth gailu inguruan",
+  "scanError": "Androidek eskaneatzea gelditu du ({{code}} kodea).",
+  "scanTooFrequently": "Androidek ez du uzten eskaneatzea 30 segundotan 5 aldiz baino gehiagotan abiarazten. Itxaron minutu erdi bat eta hasi berriro.",
+  "error": "Errorea: {{message}}",
+  "settings": {
+    "title": "«Jarraitzen zaitu» irizpidea",
+    "threshold": "Abisatu aztarnari batek {{minutes}} minutu baino gehiagoz laguntzen bazaitu hainbat lekutan edo unetan.",
+    "minutesOption": "{{minutes}} min",
+    "useLocation": "Erabili kokapena lekuak bereizteko",
+    "useLocationHelp": "Eskaneatzen duzun bitartean 30 s-ro kontsultatzen du posizioa; ez da gordetzen eta ez da mugikorretik ateratzen. Hura gabe, «uneak» bakarrik hartzen dira kontuan: aztarnaria 3 minutuz edo gehiagoz desagertu eta itzultzea.",
+    "locationDenied": "Kokapen-baimenik gabe: uneak bakarrik erabiliko dira."
+  },
+  "list": {
+    "empty": "Oraindik ez da aztarnaririk entzun.",
+    "emptyWhileScanning": "Ez dago aztarnaririk begi-bistan. Seinale ona da, baina utzi eskaneatzen pixka batean: batzuek segundo gutxiro iragartzen dute.",
+    "seenAgo": "duela {{seconds}} s ikusia",
+    "details": "{{minutes}} min · {{addresses}} helbide · {{episodes}} une · {{places}} leku",
+    "rssi": "{{rssi}} dBm",
+    "search": "Bilatu",
+    "nearOwnerNote": "Bere jabetik gertu dagoela iragartzen du: ziurrenik zurekin doan norbaitena da.",
+    "battery": "Bateria: {{level}}"
+  },
+  "kind": {
+    "airtag": "AirTag",
+    "findMyAccessory": "Appleren Bilatu sareko osagarria",
+    "airpods": "AirPods (Bilatu sarea)",
+    "appleDevice": "Apple gailua (iPhone, iPad, Mac…)",
+    "appleFindMy": "Appleren Bilatu sareko gailua",
+    "samsungFind": "Galaxy SmartTag edo beste Galaxy gailu bat",
+    "tile": "Tile",
+    "chipolo": "Chipolo",
+    "googleFindHub": "Googleren Bilatu sareko aztarnaria",
+    "dult": "DULT-ekin bateragarria den aztarnaria",
+    "samsungDevice": "Samsung gailua (mugikorra, erlojua, entzungailuak…)"
+  },
+  "mode": {
+    "separated": "Bere jabetik bereizita",
+    "near-owner": "Bere jabetik gertu",
+    "unknown": "Modu ezezaguna"
+  },
+  "level": {
+    "following": "Jarraitzen zaitu",
+    "watch": "Zaindu",
+    "passing": "Igarotzen"
+  },
+  "batteryLevel": {
+    "full": "beteta",
+    "medium": "erdia",
+    "low": "baxua",
+    "critical": "ia agortuta"
+  },
+  "search": {
+    "title": "Bilatzen: {{name}}",
+    "back": "Itzuli zerrendara",
+    "cold": "Hotz",
+    "cool": "Epel",
+    "warm": "Bero",
+    "hot": "Oso bero!",
+    "warmer": "Hurbiltzen ari zara",
+    "colder": "Urruntzen ari zara",
+    "steady": "Berdin",
+    "waiting": "Bere seinalearen zain…",
+    "lost": "Seinalea galdu da: baliteke helbidez aldatu izana edo irismenetik kanpo egotea. Mugitu poliki.",
+    "rssi": "Seinale leundua: {{rssi}} dBm",
+    "sound": "Txistuak (azkarragoak zenbat eta gertuago)",
+    "notScanning": "Hasi eskaneatzen hura bilatzeko.",
+    "tips": "Ibili poliki eta egin bira zure buruaren gainean: zure gorputzak seinalea estaltzen du. Begiratu poltsetan, poltsikoetan, forruetan, eserlekuaren azpian eta autoaren edo bizikletaren azpialdean. Metro batetik gertu seinaleak oso gutxi aldatzen du: bilatu eskuekin."
+  },
+  "save": "Gorde laburpena",
+  "saved": "Laburpena gordeta.",
+  "limits": {
+    "title": "Muga zintzoak",
+    "rotation": "Aztarnariek Bluetooth helbidea aldatzen dute pribatutasunagatik (Applerenak jabetik gertu daudenean, 15 minuturo; bereizita, egunean behin). Aplikazioak helbideak sinaduraren eta jarraitutasunaren arabera lotzen ditu, baina aztarnari bat bitan bana dezake edo, gutxitan, berdinak diren bi batu.",
+    "modes": "Aztarnari batzuek modua aldatzen dute jabetik bereiztean, eta beste batzuk (Tile bere lapurreta-aurkako moduarekin, adibidez) agian ez dira modu ezagungarrian iragartzen. Ezer ez agertzeak ez du bermatzen ezer ez dagoenik.",
+    "rssi": "RSSIa ez da distantzia bat: orientazioaren, hormen, poltsikoen eta zure gorputzaren araberakoa da. Neurgailuak «gertuago» edo «urrunago» baino ez du esaten.",
+    "foreground": "Aplikazioa irekita eta pantaila piztuta dagoenean bakarrik entzuten du: Androidek bigarren planoko eskaneatze hauek mozten ditu.",
+    "notProof": "«Jarraitzen zaitu» susmo bat da, ez froga: zurekin bidaiatzen duen norbaiten motxilako aztarnari batek eredu bera ematen du. Arriskuan sentitzen bazara, ez ukitu eta eskatu laguntza (112)."
+  },
+  "fields": {
+    "trackerCount": "Aztarnariak",
+    "followingCount": "Jarraitzen zaituzte",
+    "watchCount": "Zaintzekoak",
+    "otherDeviceCount": "Beste Bluetooth gailu batzuk",
+    "scanningMinutes": "Eskaneatze-denbora",
+    "followingThresholdMinutes": "«Jarraitzen zaitu» atalasea",
+    "isLocationUsed": "Kokapenarekin",
+    "trackersSummary": "Ikusitako aztarnariak"
+  }
+}

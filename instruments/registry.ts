@@ -14,6 +14,7 @@ import { seismographInstrument } from './seismograph';
 import { sonarInstrument } from './sonar';
 import { superzoomInstrument } from './superzoom';
 import { tachometerInstrument } from './tachometer';
+import { trackerHunterInstrument } from './tracker-hunter';
 
 /**
  * Registro de instrumentos. Para añadir uno: crea su carpeta en /instruments y añade
@@ -33,5 +34,6 @@ export const instrumentRegistry: readonly AnyInstrumentDefinition[] = [
   poolStripsInstrument,
   moonInstrument,
   superzoomInstrument,
+  trackerHunterInstrument,
   exampleLevelInstrument,
 ];
