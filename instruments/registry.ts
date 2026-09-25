@@ -1,6 +1,7 @@
 import type { AnyInstrumentDefinition } from '@/core/instruments/types';
 
 import { audioSpectrumInstrument } from './audio-spectrum';
+import { beerWineColorInstrument } from './beer-wine-color';
 import { colorHuntInstrument } from './color-hunt';
 import { colorimeterInstrument } from './colorimeter';
 import { exampleLevelInstrument } from './example-level';
@@ -31,6 +32,7 @@ export const instrumentRegistry: readonly AnyInstrumentDefinition[] = [
   metronomeInstrument,
   colorimeterInstrument,
   poolStripsInstrument,
+  beerWineColorInstrument,
   moonInstrument,
   superzoomInstrument,
   exampleLevelInstrument,

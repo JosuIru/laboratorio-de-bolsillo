@@ -1,0 +1,81 @@
+{
+  "name": "Garagardoaren eta ardoaren kolorea",
+  "description": "Garagardoaren kolorea (SRM eta EBC) eta ardoarena (intentsitatea eta ñabardura) neurtzen ditu, igarotzen uzten duen argiaren bidez.",
+  "howTo": {
+    "title": "Nola neurtu",
+    "container": "Isuri likidoa hondo lauko ontzi garden batera (edalontzi zabal bat, Petri plaka bat) folio zuri baten gainean, eta neurtu erregela batekin likidoaren altuera. Aparrik eta burbuilarik gabe.",
+    "light": "Bilatu argi uniformea, itzalik eta islarik gabe gainazalean: hobe eguneko argi ez-zuzena linterna baino.",
+    "markers": "Enfokatu goitik eta ukitu irudia bi markatzaile jartzeko: L likidoaren bidez ikusten den paperaren gainean, eta P likidorik gabeko paperaren gainean, ontzitik gertu."
+  },
+  "liquidType": {
+    "beer": "Garagardoa",
+    "white": "Ardo zuria",
+    "rose": "Ardo arrosa",
+    "red": "Ardo beltza"
+  },
+  "pathLength": "Likidoaren altuera",
+  "pathLengthHint": "Gomendatua: {{recommended}} mm inguru. Altuera zenbat eta zehatzagoa izan, orduan eta zehatzagoa emaitza.",
+  "pathLengthInvalid": "Idatzi 1 eta 100 mm arteko altuera.",
+  "marker": {
+    "sample": "Likidoaren bidez",
+    "paper": "Likidorik gabeko papera"
+  },
+  "placeMarkerHint": "Ukitu irudia hau jartzeko: {{marker}}",
+  "placeBothMarkers": "Jarri bi markatzaileak: papera likidoaren bidez (L) eta likidorik gabeko papera (P).",
+  "clearMarkers": "Kendu markatzaileak",
+  "beerResult": "{{srm}} SRM · {{ebc}} EBC",
+  "wineResult": "Intentsitatea ≈ {{intensity}} · Ñabardura ≈ {{hue}}",
+  "transmittance": "Igarotzen den argia: gorria % {{red}}, berdea % {{green}}, urdina % {{blue}}",
+  "poorBeerFit": "Kolorea ez dator bat garagardo batenarekin: berrikusi argia, markatzaileak eta altuera.",
+  "approximateNote": "Balio gutxi gorabeherakoak: kamera ez da espektrofotometro bat, eta metodoa oraindik ez dago kolore ezaguneko laginekin balioztatuta.",
+  "problem": {
+    "paper-overexposed": "Papera erreta ateratzen da: bilatu argi gutxiago edo okertu apur bat mugikorra.",
+    "paper-underexposed": "Argi gutxi dago paperaren gainean: irakurketak zarata handia izango du.",
+    "sample-brighter-than-paper": "L puntua papera baino argiagoa da: isla bat dago edo markatzaileak trukatuta daude.",
+    "too-dark": "Ia ez da argirik igarotzen: erabili likido-altuera txikiagoa."
+  },
+  "beerDescriptor": {
+    "pale-straw": "Lasto zurbila",
+    "straw": "Lastoa",
+    "pale-gold": "Urre zurbila",
+    "deep-gold": "Urre bizia",
+    "pale-amber": "Anbar zurbila",
+    "medium-amber": "Anbarra",
+    "deep-amber": "Anbar iluna",
+    "amber-brown": "Anbar txigortua",
+    "brown": "Marroia",
+    "ruby-brown": "Marroi errubia",
+    "deep-brown": "Marroi iluna",
+    "black": "Beltza"
+  },
+  "wineDescriptor": {
+    "pale": "Zurbila",
+    "straw": "Lasto-kolorekoa",
+    "golden": "Urrekara",
+    "amber": "Anbarkara",
+    "raspberry": "Mugurdia",
+    "salmon": "Izokina",
+    "onion-skin": "Tipula-azala",
+    "purple": "Morea",
+    "ruby": "Errubia",
+    "garnet": "Granatea",
+    "tawny": "Teila"
+  },
+  "privacy": "Irudiak mugikorrean aztertzen dira eta ez dira gordetzen: kolorearen balioak bakarrik.",
+  "fields": {
+    "liquidType": "Likidoa",
+    "srm": "SRM kolorea",
+    "ebc": "EBC kolorea",
+    "colorIntensity": "Kolore-intentsitatea",
+    "hue": "Ñabardura",
+    "descriptor": "Kolorearen izena",
+    "pathLengthMm": "Likidoaren altuera",
+    "sampleColor": "Kolorea likidoaren bidez",
+    "paperColor": "Paperaren kolorea",
+    "transmittanceRed": "Transmitantzia gorria",
+    "transmittanceGreen": "Transmitantzia berdea",
+    "transmittanceBlue": "Transmitantzia urdina",
+    "fitResidual": "Doikuntzaren errorea",
+    "exposureProblems": "Oharrak"
+  }
+}
