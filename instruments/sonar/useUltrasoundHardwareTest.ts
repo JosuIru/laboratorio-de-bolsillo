@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { AudioContext, AudioManager, AudioRecorder } from 'react-native-audio-api';
 
 import { analyserDecibelsToToneAmplitudes } from '@/core/audio/useMicrophoneSpectrum';
-import { useIsAppActive } from '@/core/useIsAppActive';
+import { startRecorderInOrder, stopRecorderInOrder } from '@/core/audio/recorderQueue';
+import { useIsScreenActive } from '@/core/useIsScreenActive';
 import {
   type HardwareBandResult,
   type HardwareTestSummary,
@@ -41,7 +42,7 @@ function waitMilliseconds(durationMilliseconds: number): Promise<void> {
  * emite y capta ultrasonidos. Se cancela al salir de la pantalla o de la app.
  */
 export function useUltrasoundHardwareTest(volume: number) {
-  const isAppActive = useIsAppActive();
+  const isScreenActive = useIsScreenActive();
   const [testState, setTestState] = useState<HardwareTestState>({ phase: 'idle' });
   const activeTestRef = useRef<ActiveTest | null>(null);
 
@@ -49,7 +50,7 @@ export function useUltrasoundHardwareTest(volume: number) {
     const activeTest = activeTestRef.current;
     if (!activeTest) return;
     activeTestRef.current = null;
-    void activeTest.audioRecorder.stop().catch(() => undefined);
+    void stopRecorderInOrder(activeTest.audioRecorder);
     activeTest.audioRecorder.disconnect();
     void activeTest.audioContext.close().catch(() => undefined);
   }, []);
@@ -59,14 +60,14 @@ export function useUltrasoundHardwareTest(volume: number) {
     setTestState({ phase: 'idle' });
   }, [stopAudio]);
 
-  const [wasAppActive, setWasAppActive] = useState(isAppActive);
-  if (wasAppActive !== isAppActive) {
-    setWasAppActive(isAppActive);
-    if (!isAppActive && testState.phase === 'running') setTestState({ phase: 'idle' });
+  const [wasScreenActive, setWasScreenActive] = useState(isScreenActive);
+  if (wasScreenActive !== isScreenActive) {
+    setWasScreenActive(isScreenActive);
+    if (!isScreenActive && testState.phase === 'running') setTestState({ phase: 'idle' });
   }
   useEffect(() => {
-    if (!isAppActive) stopAudio();
-  }, [isAppActive, stopAudio]);
+    if (!isScreenActive) stopAudio();
+  }, [isScreenActive, stopAudio]);
   useEffect(() => stopAudio, [stopAudio]);
 
   const runTest = useCallback(async () => {
@@ -111,12 +112,9 @@ export function useUltrasoundHardwareTest(volume: number) {
       toneOscillator.connect(toneGain);
       toneGain.connect(audioContext.destination);
 
-      const startResult = await audioRecorder.start();
-      if (!isCurrentTest()) {
-        // Si la limpieza paró el grabador antes de que acabara de arrancar, seguiría grabando.
-        if (startResult.status !== 'error') void audioRecorder.stop().catch(() => undefined);
-        return;
-      }
+      // La cola espera a que otros grabadores se paren y, si se cancela, deja este parado.
+      const startResult = await startRecorderInOrder(audioRecorder, () => !isCurrentTest());
+      if (!startResult || !isCurrentTest()) return;
       if (startResult.status === 'error') throw new Error(startResult.message);
       await audioContext.resume();
       toneOscillator.frequency.value = testFrequenciesHz[0] ?? 15000;

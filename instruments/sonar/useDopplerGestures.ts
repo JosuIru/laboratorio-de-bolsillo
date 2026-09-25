@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { type AnalyserNode, AudioContext, AudioManager, AudioRecorder, type GainNode } from 'react-native-audio-api';
 
 import { analyserDecibelsToToneAmplitudes } from '@/core/audio/useMicrophoneSpectrum';
-import { useIsAppActive } from '@/core/useIsAppActive';
+import { startRecorderInOrder, stopRecorderInOrder } from '@/core/audio/recorderQueue';
+import { useIsScreenActive } from '@/core/useIsScreenActive';
 import {
   createGestureClassifier,
   dopplerShiftToVelocityMetersPerSecond,
@@ -44,8 +45,8 @@ interface DopplerGestureOptions {
  * micrófono. El tono entra y sale con rampas para que no haga clic.
  */
 export function useDopplerGestures({ isRunning, bandPreset, volume, temperatureCelsius }: DopplerGestureOptions) {
-  const isAppActive = useIsAppActive();
-  const shouldRun = isRunning && isAppActive;
+  const isScreenActive = useIsScreenActive();
+  const shouldRun = isRunning && isScreenActive;
   const [dopplerStatus, setDopplerStatus] = useState<DopplerStatus>({ status: 'idle' });
   const [reading, setReading] = useState<DopplerReading | null>(null);
   const temperatureCelsiusRef = useRef(temperatureCelsius);
@@ -106,12 +107,9 @@ export function useDopplerGestures({ isRunning, bandPreset, volume, temperatureC
         toneOscillator.connect(toneGain);
         toneGain.connect(audioContext.destination);
 
-        const startResult = await audioRecorder.start();
-        if (isCancelled) {
-          // Si la limpieza paró el grabador antes de que acabara de arrancar, seguiría grabando.
-          if (startResult.status !== 'error') void audioRecorder.stop().catch(() => undefined);
-          return;
-        }
+        // La cola espera a que otros grabadores se paren y, si se cancela, deja este parado.
+        const startResult = await startRecorderInOrder(audioRecorder, () => isCancelled);
+        if (!startResult || isCancelled) return;
         if (startResult.status === 'error') throw new Error(startResult.message);
         await audioContext.resume();
         if (isCancelled) return;
@@ -167,7 +165,7 @@ export function useDopplerGestures({ isRunning, bandPreset, volume, temperatureC
       isCancelled = true;
       toneGainRef.current = null;
       if (readingTimer) clearInterval(readingTimer);
-      void audioRecorder.stop().catch(() => undefined);
+      void stopRecorderInOrder(audioRecorder);
       audioRecorder.disconnect();
       // Rampa de salida y cierre cuando ya ha terminado, para que el altavoz no haga clic.
       try {

@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { AudioContext, AudioManager, AudioRecorder } from 'react-native-audio-api';
 
+import { startRecorderInOrder, stopRecorderInOrder } from '@/core/audio/recorderQueue';
 import { useStopWhenAppInactive } from '@/core/useStopWhenAppInactive';
 
 import { createImpulseCapture, type ImpulseCapturePhase } from './impulseCapture';
@@ -38,7 +39,7 @@ export function useRoomMeasurement() {
     if (!activeSession) return;
     activeSessionRef.current = null;
     activeSession.audioRecorder.clearOnAudioReady();
-    void activeSession.audioRecorder.stop().catch(() => undefined);
+    void stopRecorderInOrder(activeSession.audioRecorder);
     void activeSession.audioContext.close().catch(() => undefined);
   }, []);
 
@@ -115,12 +116,11 @@ export function useRoomMeasurement() {
         },
       );
 
-      const startResult = await audioRecorder.start();
       // Si se canceló (o la app pasó a segundo plano, p. ej. por el aviso de permiso) mientras
-      // arrancaba, este grabador ya no es de nadie: hay que pararlo aquí o se queda encendido.
-      if (!isCurrentSession()) {
+      // arrancaba, este grabador ya no es de nadie: la cola lo deja parado y aquí se cierra el resto.
+      const startResult = await startRecorderInOrder(audioRecorder, () => !isCurrentSession());
+      if (!startResult || !isCurrentSession()) {
         audioRecorder.clearOnAudioReady();
-        void audioRecorder.stop().catch(() => undefined);
         void audioContext.close().catch(() => undefined);
         return;
       }

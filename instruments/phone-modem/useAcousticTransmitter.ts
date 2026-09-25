@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AudioContext, AudioManager } from 'react-native-audio-api';
 
-import { useIsAppActive } from '@/core/useIsAppActive';
+import { useIsScreenActive } from '@/core/useIsScreenActive';
 import {
   type AcousticModemConfiguration,
   isAcousticConfigurationSupported,
@@ -23,7 +23,7 @@ const progressUpdateMilliseconds = 100;
  * reproduce una vez. Se corta al salir de la pantalla o al pasar la app a segundo plano.
  */
 export function useAcousticTransmitter() {
-  const isAppActive = useIsAppActive();
+  const isScreenActive = useIsScreenActive();
   const [transmissionState, setTransmissionState] = useState<AcousticTransmissionState>({ status: 'idle' });
   const releaseRef = useRef<(() => void) | null>(null);
 
@@ -37,16 +37,16 @@ export function useAcousticTransmitter() {
     setTransmissionState({ status: 'idle' });
   }, [stopTransmission]);
 
-  // Al pasar a segundo plano se corta la emisión: el estado se ajusta durante el render y el
-  // efecto solo libera el audio.
-  const [wasAppActive, setWasAppActive] = useState(isAppActive);
-  if (wasAppActive !== isAppActive) {
-    setWasAppActive(isAppActive);
-    if (!isAppActive && transmissionState.status === 'sending') setTransmissionState({ status: 'idle' });
+  // Al pasar a segundo plano o al taparla otra pantalla se corta la emisión: el estado se ajusta
+  // durante el render y el efecto solo libera el audio.
+  const [wasScreenActive, setWasScreenActive] = useState(isScreenActive);
+  if (wasScreenActive !== isScreenActive) {
+    setWasScreenActive(isScreenActive);
+    if (!isScreenActive && transmissionState.status === 'sending') setTransmissionState({ status: 'idle' });
   }
   useEffect(() => {
-    if (!isAppActive) stopTransmission();
-  }, [isAppActive, stopTransmission]);
+    if (!isScreenActive) stopTransmission();
+  }, [isScreenActive, stopTransmission]);
   useEffect(() => stopTransmission, [stopTransmission]);
 
   const transmitFrame = useCallback(

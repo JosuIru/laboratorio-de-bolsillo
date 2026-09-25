@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AudioContext, AudioManager, AudioRecorder, type GainNode } from 'react-native-audio-api';
 
-import { useIsAppActive } from '@/core/useIsAppActive';
+import { startRecorderInOrder, stopRecorderInOrder } from '@/core/audio/recorderQueue';
+import { useIsScreenActive } from '@/core/useIsScreenActive';
 import { createSpectrogramHistory, pushSpectrumRow, type SpectrogramHistory } from '@/processing/dsp/spectrogram';
 import { createPulsePeriod, generateSonarChirp, type SonarBand } from '@/processing/sonar/chirp';
 import {
@@ -81,8 +82,8 @@ interface SonarPulsesOptions {
  * Todo se para al pausar, al salir de la pantalla o al pasar la app a segundo plano.
  */
 export function useSonarPulses({ isRunning, bandPreset, volume, temperatureCelsius }: SonarPulsesOptions) {
-  const isAppActive = useIsAppActive();
-  const shouldRun = isRunning && isAppActive;
+  const isScreenActive = useIsScreenActive();
+  const shouldRun = isRunning && isScreenActive;
   const [pulsesStatus, setPulsesStatus] = useState<SonarPulsesStatus>({ status: 'idle' });
   const [snapshot, setSnapshot] = useState<SonarSnapshot>(emptySnapshot);
   const [echogramHistory] = useState<SpectrogramHistory>(() =>
@@ -126,7 +127,7 @@ export function useSonarPulses({ isRunning, bandPreset, volume, temperatureCelsi
       isAudioReleased = true;
       gainNodeRef.current = null;
       audioRecorder.clearOnAudioReady();
-      void audioRecorder.stop().catch(() => undefined);
+      void stopRecorderInOrder(audioRecorder);
       try {
         pulseSource.stop();
       } catch {
@@ -293,12 +294,9 @@ export function useSonarPulses({ isRunning, bandPreset, volume, temperatureCelsi
           },
         );
 
-        const startResult = await audioRecorder.start();
-        if (isCancelled) {
-          // Si la limpieza paró el grabador antes de que acabara de arrancar, seguiría grabando.
-          if (startResult.status !== 'error') void audioRecorder.stop().catch(() => undefined);
-          return;
-        }
+        // La cola espera a que otros grabadores se paren y, si se cancela, deja este parado.
+        const startResult = await startRecorderInOrder(audioRecorder, () => isCancelled);
+        if (!startResult || isCancelled) return;
         if (startResult.status === 'error') throw new Error(startResult.message);
         await audioContext.resume();
         if (isCancelled) return;
