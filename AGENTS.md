@@ -50,3 +50,14 @@ Docs: https://docs.expo.dev/eas/index.md
 - Antes de añadir dependencias grandes que no estén ya en `package.json`, consúltalo.
 - Firma y publicación: ver `RELEASING.md`. La clave de release vive en `~/.android-keys/` (nunca en el repo). El dev build usa el id `org.laboratoriodebolsillo.app.dev` (`npm run android` ya pasa `--app-id`).
 - `app.json` declara `HIGH_SAMPLING_RATE_SENSORS`: sin él, en Android 12+ `expo-sensors` entrega unas 5 muestras/s.
+
+## Trabajo en paralelo (varias sesiones)
+
+Varias sesiones de Claude pueden trabajar a la vez en este repositorio, pero **nunca en la misma carpeta**:
+
+1. **Un worktree y una rama por sesión.** La carpeta principal (`~/Projects/app-kamara`, rama `main`) es de la sesión que integra. Las demás trabajan en su propio worktree: `EnterWorktree`, `claude --worktree`, o `git worktree add ../app-kamara-<tema> -b feat/<tema>`. Dentro, ejecuta `npm ci` antes de nada.
+2. **Nunca `git add -A` a ciegas:** revisa `git status` y añade solo tus ficheros.
+3. **Metro en un puerto propio:** la sesión de `main` usa el 8081; las demás, 8082, 8083… (`npx expo start --dev-client --port 8082`, y `adb reverse tcp:8082 tcp:8082`).
+4. **Zonas compartidas:** `package.json`, `package-lock.json`, `app.json`, `plugins/` y `src/core/` solo los toca la sesión de `main`. Si otra sesión los necesita, lo pide antes por `SendMessage`. Cada instrumento nuevo vive en su carpeta `instruments/<id>/` y solo añade una línea a `instruments/registry.ts`.
+5. **Recursos físicos únicos:** un solo build de Gradle a la vez (tarda 10-15 min y satura la CPU) y una sola sesión instalando en el móvil. Avisa por `SendMessage` antes de compilar o instalar.
+6. **Integración por PR** desde la rama de cada sesión hacia `main`, de uno en uno.
