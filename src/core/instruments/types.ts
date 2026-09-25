@@ -58,6 +58,14 @@ export interface InstrumentDefinition<
 /** Tipo borrado para listas heterogéneas de instrumentos (el registro). */
 export type AnyInstrumentDefinition = InstrumentDefinition<any, any>;
 
+/** Secciones de la pantalla de inicio, por para qué sirve cada instrumento. */
+export type InstrumentSectionId = 'everyday' | 'color' | 'sound' | 'science' | 'games';
+
+export interface InstrumentSection {
+  id: InstrumentSectionId;
+  instruments: readonly AnyInstrumentDefinition[];
+}
+
 /** Ayuda de tipos: `defineInstrument({...})` infiere valores y parámetros de calibración. */
 export function defineInstrument<TValues extends MeasurementValues, TCalibrationParameters = unknown>(
   definition: InstrumentDefinition<TValues, TCalibrationParameters>,

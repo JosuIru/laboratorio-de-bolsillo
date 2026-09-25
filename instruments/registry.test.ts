@@ -1,6 +1,9 @@
 import { findInstrumentRegistryProblems } from '@/core/instruments/registryValidation';
 
-import { instrumentRegistry } from './registry';
+import basqueCoreTexts from '@/core/i18n/locales/eu.json';
+import spanishCoreTexts from '@/core/i18n/locales/es.json';
+
+import { instrumentRegistry, instrumentSections } from './registry';
 
 describe('registro de instrumentos', () => {
   it('es coherente: ids únicos, traducciones completas en todos los idiomas', () => {
@@ -26,5 +29,19 @@ describe('findInstrumentRegistryProblems', () => {
         '[Nivel_Roto] falta la clave "description" en "eu"',
       ]),
     );
+  });
+});
+
+describe('secciones de la pantalla de inicio', () => {
+  it('cada sección tiene título y descripción en todos los idiomas', () => {
+    for (const locale of ['es', 'eu'] as const) {
+      const homeTexts = locale === 'es' ? spanishCoreTexts.home : basqueCoreTexts.home;
+      for (const section of instrumentSections) {
+        expect(homeTexts.sections[section.id]).toEqual({
+          title: expect.any(String),
+          description: expect.any(String),
+        });
+      }
+    }
   });
 });

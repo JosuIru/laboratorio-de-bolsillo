@@ -1,4 +1,4 @@
-import type { AnyInstrumentDefinition } from '@/core/instruments/types';
+import type { AnyInstrumentDefinition, InstrumentSection } from '@/core/instruments/types';
 
 import { audioSpectrumInstrument } from './audio-spectrum';
 import { beerWineColorInstrument } from './beer-wine-color';
@@ -29,35 +29,61 @@ import { trackerHunterInstrument } from './tracker-hunter';
 import { wifiMapInstrument } from './wifi-map';
 
 /**
- * Registro de instrumentos. Para añadir uno: crea su carpeta en /instruments y añade
- * aquí una línea. El orden de esta lista es el orden en la pantalla de inicio.
+ * Registro de instrumentos, agrupados por para qué sirven. Para añadir uno: crea su carpeta en
+ * /instruments y añade aquí una línea en su sección. El orden de las secciones y de cada lista
+ * es el de la pantalla de inicio.
  */
-export const instrumentRegistry: readonly AnyInstrumentDefinition[] = [
-  audioSpectrumInstrument,
-  seismographInstrument,
-  seismicNetworkInstrument,
-  tachometerInstrument,
-  machineDiagnosisInstrument,
-  metalDetectorInstrument,
-  resonanceScaleInstrument,
-  gnssSkyInstrument,
-  mainsFrequencyInstrument,
-  sonarInstrument,
-  soundLocatorInstrument,
-  roomAcousticsInstrument,
-  phoneModemInstrument,
-  rhythmInstrument,
-  colorHuntInstrument,
-  metronomeInstrument,
-  traditionalTunerInstrument,
-  colorimeterInstrument,
-  poolStripsInstrument,
-  beerWineColorInstrument,
-  moonInstrument,
-  superzoomInstrument,
-  motionMagnifierInstrument,
-  trackerHunterInstrument,
-  wifiMapInstrument,
-  muonDetectorInstrument,
-  exampleLevelInstrument,
+export const instrumentSections: readonly InstrumentSection[] = [
+  {
+    id: 'everyday',
+    instruments: [
+      resonanceScaleInstrument,
+      wifiMapInstrument,
+      trackerHunterInstrument,
+      metalDetectorInstrument,
+      mainsFrequencyInstrument,
+      machineDiagnosisInstrument,
+      tachometerInstrument,
+      superzoomInstrument,
+    ],
+  },
+  {
+    id: 'color',
+    instruments: [colorimeterInstrument, poolStripsInstrument, beerWineColorInstrument],
+  },
+  {
+    id: 'sound',
+    instruments: [
+      traditionalTunerInstrument,
+      metronomeInstrument,
+      audioSpectrumInstrument,
+      roomAcousticsInstrument,
+      sonarInstrument,
+    ],
+  },
+  {
+    id: 'science',
+    instruments: [
+      muonDetectorInstrument,
+      gnssSkyInstrument,
+      seismographInstrument,
+      motionMagnifierInstrument,
+      moonInstrument,
+      exampleLevelInstrument,
+    ],
+  },
+  {
+    id: 'games',
+    instruments: [
+      colorHuntInstrument,
+      rhythmInstrument,
+      phoneModemInstrument,
+      soundLocatorInstrument,
+      seismicNetworkInstrument,
+    ],
+  },
 ];
+
+export const instrumentRegistry: readonly AnyInstrumentDefinition[] = instrumentSections.flatMap(
+  (section) => section.instruments,
+);

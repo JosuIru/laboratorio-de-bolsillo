@@ -12,9 +12,30 @@
     "error": "Zerbaitek huts egin du: {{message}}"
   },
   "home": {
-    "title": "Tresnak",
     "empty": "Oraindik ez dago tresnarik instalatuta.",
-    "developmentBadge": "garapena"
+    "developmentBadge": "garapena",
+    "sections": {
+      "everyday": {
+        "title": "Etxean eta tailerrean",
+        "description": "Pisatu, estaldura edo jarraitzaileak bilatu, makinak eta sare elektrikoa aztertu."
+      },
+      "color": {
+        "title": "Koloreak neurtu",
+        "description": "Koloreak kamerarekin: igerileku eta akuarioko tirak, garagardoa eta ardoa."
+      },
+      "sound": {
+        "title": "Soinua eta musika",
+        "description": "Afinatu, tempoa markatu, soinua ikusi eta gela bat neurtu."
+      },
+      "science": {
+        "title": "Zientzia eta esperimentuak",
+        "description": "Partikulak, sateliteak, lurrikarak, Ilargia eta mugimendu ikusezinak."
+      },
+      "games": {
+        "title": "Jolasak eta ikasgela",
+        "description": "Erronkak eta jarduerak jolasteko edo taldean egiteko, mugikor batekin edo gehiagorekin."
+      }
+    }
   },
   "instrument": {
     "notFound": "Tresna hau ez dago.",

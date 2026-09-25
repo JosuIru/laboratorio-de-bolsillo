@@ -1,9 +1,9 @@
 import { Link, router, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Pressable } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { evaluateInstrumentReadiness } from '@/core/instruments/availability';
-import { enabledInstruments } from '@/core/instruments/registryAccess';
+import { enabledInstrumentSections } from '@/core/instruments/registryAccess';
 import { useSensorAvailabilityStore } from '@/core/sensors/availabilityStore';
 import { BodyText, Card, LoadingState, ScreenContainer, SectionTitle } from '@/ui/components';
 import { InstrumentCard } from '@/ui/InstrumentCard';
@@ -30,31 +30,35 @@ export default function HomeScreen() {
         }}
       />
       <BodyText tone="secondary">{t('app.tagline')}</BodyText>
-      <SectionTitle>{t('home.title')}</SectionTitle>
-
-      {enabledInstruments.length === 0 ? (
+      {enabledInstrumentSections.length === 0 ? (
         <Card>
           <BodyText tone="secondary">{t('home.empty')}</BodyText>
         </Card>
       ) : null}
 
-      {enabledInstruments.map((instrument) => {
-        const readiness = evaluateInstrumentReadiness(instrument, availabilityBySensor);
-        return (
-          <InstrumentCard
-            key={instrument.id}
-            instrument={instrument}
-            readiness={readiness}
-            onOpen={() => router.push({ pathname: '/instrument/[id]', params: { id: instrument.id } })}
-            onRequestPermissions={async () => {
-              if (readiness.status !== 'needs-permission') return;
-              for (const sensorKind of readiness.sensorsNeedingPermission) {
-                await requestSensorPermission(sensorKind);
-              }
-            }}
-          />
-        );
-      })}
+      {enabledInstrumentSections.map((section) => (
+        <View key={section.id} style={{ gap: 12, marginTop: 12 }}>
+          <SectionTitle>{t(`home.sections.${section.id}.title`)}</SectionTitle>
+          <BodyText tone="secondary">{t(`home.sections.${section.id}.description`)}</BodyText>
+          {section.instruments.map((instrument) => {
+            const readiness = evaluateInstrumentReadiness(instrument, availabilityBySensor);
+            return (
+              <InstrumentCard
+                key={instrument.id}
+                instrument={instrument}
+                readiness={readiness}
+                onOpen={() => router.push({ pathname: '/instrument/[id]', params: { id: instrument.id } })}
+                onRequestPermissions={async () => {
+                  if (readiness.status !== 'needs-permission') return;
+                  for (const sensorKind of readiness.sensorsNeedingPermission) {
+                    await requestSensorPermission(sensorKind);
+                  }
+                }}
+              />
+            );
+          })}
+        </View>
+      ))}
 
       <Link href="/settings" asChild>
         <Pressable accessibilityRole="button" style={{ paddingVertical: 12, alignSelf: 'flex-start' }}>

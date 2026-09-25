@@ -12,9 +12,30 @@
     "error": "Algo ha fallado: {{message}}"
   },
   "home": {
-    "title": "Instrumentos",
     "empty": "Todavía no hay instrumentos instalados.",
-    "developmentBadge": "desarrollo"
+    "developmentBadge": "desarrollo",
+    "sections": {
+      "everyday": {
+        "title": "En casa y en el taller",
+        "description": "Pesar, buscar cobertura o rastreadores, revisar máquinas y la red eléctrica."
+      },
+      "color": {
+        "title": "Medir colores",
+        "description": "Colores con la cámara: tiras de piscina y acuario, cerveza y vino."
+      },
+      "sound": {
+        "title": "Sonido y música",
+        "description": "Afinar, marcar el tempo, ver el sonido y medir una sala."
+      },
+      "science": {
+        "title": "Ciencia y experimentos",
+        "description": "Partículas, satélites, terremotos, la Luna y movimientos invisibles."
+      },
+      "games": {
+        "title": "Juegos y clase",
+        "description": "Retos y actividades para jugar o hacer en grupo, con uno o varios móviles."
+      }
+    }
   },
   "instrument": {
     "notFound": "Este instrumento no existe.",
