@@ -3,7 +3,7 @@ import { hexToRgb8, type LinearRgb, srgbToLab, srgbToLinear } from '@/processing
 import type { RegionColorStatistics } from '@/processing/color/regionSampling';
 
 import { evaluateColorimeterFrame } from '@instruments/colorimeter/colorimeterEngine';
-import { createCardFromPreset } from '@instruments/colorimeter/referenceCards';
+import { createCardFromPreset, type ReferenceCard } from '@instruments/colorimeter/referenceCards';
 
 import {
   bestCapturePerRound,
@@ -215,6 +215,14 @@ describe('balance de blancos', () => {
     expect(pickWhiteReferencePatch(createCardFromPreset('colorchecker-six')).id).toBe('white');
     expect(pickWhiteReferencePatch(null).hexColor).toBe('#F2F2F2');
     expect(pickWhiteReferencePatch({ presetId: 'custom', patches: [] }).hexColor).toBe('#F2F2F2');
+    const saturatedOnlyCard: ReferenceCard = {
+      presetId: 'custom',
+      patches: [
+        { id: 'yellow', name: 'Amarillo', hexColor: '#F5E000' },
+        { id: 'cyan', name: 'Cian', hexColor: '#00B5E0' },
+      ],
+    };
+    expect(pickWhiteReferencePatch(saturatedOnlyCard).hexColor).toBe('#F2F2F2');
   });
 
   it('corrige un tinte de la cámara con la referencia blanca', () => {
