@@ -122,6 +122,11 @@ export function useRhythmSession() {
         );
 
         const startResult = await audioRecorder.start();
+        if (!isCurrentSession()) {
+          // Si la limpieza paró el grabador antes de que acabara de arrancar, seguiría grabando.
+          if (startResult.status !== 'error') void audioRecorder.stop().catch(() => undefined);
+          return;
+        }
         if (startResult.status === 'error') throw new Error(startResult.message);
         await audioContext.resume();
         await firstBufferArrived;

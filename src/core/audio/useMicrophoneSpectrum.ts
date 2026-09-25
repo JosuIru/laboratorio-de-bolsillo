@@ -73,7 +73,11 @@ export function useMicrophoneSpectrum({
         silentOutput.connect(audioContext.destination);
 
         const startResult = await audioRecorder.start();
-        if (isCancelled) return;
+        if (isCancelled) {
+          // Si la limpieza paró el grabador antes de que acabara de arrancar, seguiría grabando.
+          if (startResult.status !== 'error') void audioRecorder.stop().catch(() => undefined);
+          return;
+        }
         if (startResult.status === 'error') throw new Error(startResult.message);
         await audioContext.resume();
         if (isCancelled) return;

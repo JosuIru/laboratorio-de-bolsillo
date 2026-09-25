@@ -112,6 +112,11 @@ export function useUltrasoundHardwareTest(volume: number) {
       toneGain.connect(audioContext.destination);
 
       const startResult = await audioRecorder.start();
+      if (!isCurrentTest()) {
+        // Si la limpieza paró el grabador antes de que acabara de arrancar, seguiría grabando.
+        if (startResult.status !== 'error') void audioRecorder.stop().catch(() => undefined);
+        return;
+      }
       if (startResult.status === 'error') throw new Error(startResult.message);
       await audioContext.resume();
       toneOscillator.frequency.value = testFrequenciesHz[0] ?? 15000;
