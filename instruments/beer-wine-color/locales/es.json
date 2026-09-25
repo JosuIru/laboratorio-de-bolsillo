@@ -1,0 +1,82 @@
+{
+  "name": "Color de cerveza y vino",
+  "description": "Mide el color de la cerveza (SRM y EBC) y del vino (intensidad y tonalidad) por la luz que deja pasar.",
+  "howTo": {
+    "title": "Cómo medir",
+    "container": "Echa el líquido en un recipiente transparente de fondo plano (un vaso ancho, una placa de Petri) sobre un folio blanco, y mide con una regla la altura del líquido. Sin espuma ni burbujas.",
+    "light": "Busca una luz uniforme, sin sombras ni reflejos en la superficie: mejor luz de día indirecta que la linterna.",
+    "markers": "Apunta desde arriba y toca la imagen para colocar dos marcadores: L sobre el papel visto a través del líquido y P sobre el papel sin líquido, cerca del recipiente."
+  },
+  "liquidType": {
+    "beer": "Cerveza",
+    "white": "Vino blanco",
+    "rose": "Rosado",
+    "red": "Tinto"
+  },
+  "pathLength": "Altura del líquido",
+  "pathLengthHint": "Recomendado: unos {{recommended}} mm. Cuanto más exacta sea la altura, más exacto será el resultado.",
+  "pathLengthInvalid": "Escribe una altura entre 0,5 y 100 mm.",
+  "marker": {
+    "sample": "A través del líquido",
+    "paper": "Papel sin líquido"
+  },
+  "placeMarkerHint": "Toca la imagen para colocar: {{marker}}",
+  "placeBothMarkers": "Coloca los dos marcadores: el papel a través del líquido (L) y el papel sin líquido (P).",
+  "clearMarkers": "Quitar marcadores",
+  "beerResult": "{{srm}} SRM · {{ebc}} EBC",
+  "wineResult": "Intensidad ≈ {{intensity}} · Tonalidad ≈ {{hue}}",
+  "wineIntensityOnly": "Intensidad ≈ {{intensity}}",
+  "transmittance": "Luz que pasa: rojo {{red}} %, verde {{green}} %, azul {{blue}} %",
+  "poorBeerFit": "El color no encaja con el de una cerveza: revisa la luz, los marcadores y la altura.",
+  "approximateNote": "Valores orientativos: la cámara no es un espectrofotómetro y el método aún no está validado con muestras de color conocido.",
+  "problem": {
+    "paper-overexposed": "El papel sale quemado: busca menos luz o inclina un poco el móvil.",
+    "paper-underexposed": "Hay poca luz sobre el papel: la lectura tendrá mucho ruido.",
+    "sample-brighter-than-paper": "El punto L sale más claro que el papel: hay un reflejo o los marcadores están cambiados.",
+    "too-dark": "Casi no pasa luz: usa menos altura de líquido."
+  },
+  "beerDescriptor": {
+    "pale-straw": "Paja pálido",
+    "straw": "Paja",
+    "pale-gold": "Dorado pálido",
+    "deep-gold": "Dorado intenso",
+    "pale-amber": "Ámbar pálido",
+    "medium-amber": "Ámbar",
+    "deep-amber": "Ámbar oscuro",
+    "amber-brown": "Ámbar tostado",
+    "brown": "Marrón",
+    "ruby-brown": "Marrón rubí",
+    "deep-brown": "Marrón oscuro",
+    "black": "Negro"
+  },
+  "wineDescriptor": {
+    "pale": "Pálido",
+    "straw": "Pajizo",
+    "golden": "Dorado",
+    "amber": "Ambarino",
+    "raspberry": "Frambuesa",
+    "salmon": "Salmón",
+    "onion-skin": "Piel de cebolla",
+    "purple": "Violáceo",
+    "ruby": "Rubí",
+    "garnet": "Granate",
+    "tawny": "Teja"
+  },
+  "privacy": "Las imágenes se analizan en el móvil y no se guardan: solo los valores del color.",
+  "fields": {
+    "liquidType": "Líquido",
+    "srm": "Color SRM",
+    "ebc": "Color EBC",
+    "colorIntensity": "Intensidad colorante",
+    "hue": "Tonalidad",
+    "descriptor": "Nombre del color",
+    "pathLengthMm": "Altura del líquido",
+    "sampleColor": "Color a través del líquido",
+    "paperColor": "Color del papel",
+    "transmittanceRed": "Transmitancia roja",
+    "transmittanceGreen": "Transmitancia verde",
+    "transmittanceBlue": "Transmitancia azul",
+    "fitResidual": "Error del ajuste",
+    "exposureProblems": "Avisos"
+  }
+}
