@@ -1,0 +1,47 @@
+{
+  "name": "Superzoom",
+  "description": "Fotos con más detalle que el zoom normal: junta una ráfaga tomada a mano aprovechando el temblor del pulso.",
+  "intro": "Apunta a algo con detalle fino (un cartel lejano, una textura, un texto) y deja lo que quieres ampliar dentro del recuadro amarillo.",
+  "tapToFocusHint": "Toca la imagen para enfocar y fijar la luz: así todos los fotogramas de la ráfaga casan.",
+  "focusLocked": "Enfoque y exposición fijados.",
+  "unlockFocus": "Soltar",
+  "frameTooSmall": "La cámara entrega fotogramas demasiado pequeños para el superzoom en este móvil.",
+  "deviceSteady": "Móvil firme: bien. Un temblor leve de la mano ayuda.",
+  "deviceMoving": "Te mueves demasiado: sujeta el móvil con las dos manos.",
+  "zoomLabel": "Zoom ×{{zoom}}",
+  "zoomOut": "− Zoom",
+  "zoomIn": "+ Zoom",
+  "zoomHint": "Con zoom ×1 (o en un teleobjetivo) se gana más: el superzoom sustituye al zoom digital.",
+  "holdStill": "Sujeta el móvil sin moverlo…",
+  "capture": "Capturar {{count}} fotogramas",
+  "capturingProgress": "Capturando… {{captured}} / {{target}}",
+  "stopCapture": "Parar",
+  "noFramesCaptured": "No ha llegado ningún fotograma. Vuelve a intentarlo.",
+  "processing": "Alineando y fusionando los fotogramas… (unos segundos)",
+  "resultTitle": "Resultado",
+  "versions": {
+    "superzoom": "Superzoom",
+    "singleFrame": "Zoom normal"
+  },
+  "compareHint": "Cambia entre las dos versiones para comparar: el zoom normal es un solo fotograma ampliado.",
+  "sharpeningTitle": "Realce del detalle",
+  "sharpening": {
+    "none": "Sin realce",
+    "soft": "Suave",
+    "medium": "Medio",
+    "strong": "Fuerte"
+  },
+  "mergeExplanation": "Se han fusionado los {{merged}} fotogramas más nítidos de {{captured}} en una imagen de {{size}} × {{size}} px.",
+  "handMovement": "La mano se movió {{shift}} px de media entre fotogramas: ese temblor es el que aporta el detalle extra.",
+  "tooLittleMovement": "Casi no hubo movimiento entre fotogramas (¿móvil apoyado?): el superzoom solo quita ruido, no gana detalle. Prueba sujetándolo a mano.",
+  "howItWorks": "Cómo funciona: entre foto y foto el pulso desplaza la imagen fracciones de píxel, así que cada fotograma ve la escena en posiciones algo distintas. Se alinean con precisión subpíxel y se reparten sobre una rejilla el doble de fina; lo que se movió en la escena se descarta para que no deje fantasmas. Todo se calcula en el móvil.",
+  "fields": {
+    "capturedFrameCount": "Fotogramas capturados",
+    "mergedFrameCount": "Fotogramas fusionados",
+    "cropSize": "Recorte",
+    "outputSize": "Tamaño del resultado",
+    "zoomFactor": "Zoom de la cámara",
+    "meanShift": "Movimiento medio de la mano",
+    "sharpeningAmount": "Realce"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "name": "Superzooma",
+  "description": "Zoom arruntak baino xehetasun gehiago duten argazkiak: eskuz ateratako segida bat batzen du, pultsuaren dardara aprobetxatuz.",
+  "intro": "Zuzendu xehetasun fina duen zerbaitera (urruneko kartel bat, ehundura bat, testu bat) eta utzi handitu nahi duzuna lauki horiaren barruan.",
+  "tapToFocusHint": "Ukitu irudia fokatzeko eta argia finkatzeko: horrela segidako fotograma guztiak bat datoz.",
+  "focusLocked": "Fokua eta esposizioa finkatuta.",
+  "unlockFocus": "Askatu",
+  "frameTooSmall": "Mugikor honetan kamerak txikiegiak diren fotogramak ematen ditu superzoomerako.",
+  "deviceSteady": "Mugikorra tinko: ondo. Eskuaren dardara txiki batek laguntzen du.",
+  "deviceMoving": "Gehiegi mugitzen zara: heldu mugikorrari bi eskuekin.",
+  "zoomLabel": "Zooma ×{{zoom}}",
+  "zoomOut": "− Zooma",
+  "zoomIn": "+ Zooma",
+  "zoomHint": "×1 zoomarekin (edo teleobjektibo batekin) gehiago irabazten da: superzoomak zoom digitala ordezkatzen du.",
+  "holdStill": "Eutsi mugikorrari mugitu gabe…",
+  "capture": "Atera {{count}} fotograma",
+  "capturingProgress": "Ateratzen… {{captured}} / {{target}}",
+  "stopCapture": "Gelditu",
+  "noFramesCaptured": "Ez da fotogramarik iritsi. Saiatu berriro.",
+  "processing": "Fotogramak lerrokatzen eta batzen… (segundo batzuk)",
+  "resultTitle": "Emaitza",
+  "versions": {
+    "superzoom": "Superzooma",
+    "singleFrame": "Zoom arrunta"
+  },
+  "compareHint": "Aldatu bi bertsioen artean alderatzeko: zoom arrunta fotograma bakar bat handituta da.",
+  "sharpeningTitle": "Xehetasunaren nabarmentzea",
+  "sharpening": {
+    "none": "Nabarmendu gabe",
+    "soft": "Leuna",
+    "medium": "Ertaina",
+    "strong": "Gogorra"
+  },
+  "mergeExplanation": "{{captured}} fotogrametatik {{merged}} garbienak batu dira {{size}} × {{size}} px-eko irudi batean.",
+  "handMovement": "Eskua {{shift}} px mugitu zen batez beste fotograma batetik bestera: dardara horrek ematen du xehetasun gehigarria.",
+  "tooLittleMovement": "Ia ez zen mugimendurik egon fotogramen artean (mugikorra bermatuta?): superzoomak zarata bakarrik kentzen du, ez du xehetasunik irabazten. Saiatu eskuz helduta.",
+  "howItWorks": "Nola dabilen: argazki batetik bestera pultsuak irudia pixel zati batzuk mugitzen du, beraz fotograma bakoitzak eszena posizio apur bat desberdinetan ikusten du. Pixel azpiko zehaztasunez lerrokatzen dira eta bi aldiz finagoa den sare batean banatzen dira; eszenan mugitu zena baztertu egiten da mamurik utz ez dezan. Dena mugikorrean kalkulatzen da.",
+  "fields": {
+    "capturedFrameCount": "Ateratako fotogramak",
+    "mergedFrameCount": "Batutako fotogramak",
+    "cropSize": "Moztua",
+    "outputSize": "Emaitzaren tamaina",
+    "zoomFactor": "Kameraren zooma",
+    "meanShift": "Eskuaren batez besteko mugimendua",
+    "sharpeningAmount": "Nabarmentzea"
+  }
+}
