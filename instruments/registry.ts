@@ -14,6 +14,7 @@ import { rhythmInstrument } from './rhythm';
 import { seismographInstrument } from './seismograph';
 import { sonarInstrument } from './sonar';
 import { superzoomInstrument } from './superzoom';
+import { traditionalTunerInstrument } from './traditional-tuner';
 import { tachometerInstrument } from './tachometer';
 
 /**
@@ -30,6 +31,7 @@ export const instrumentRegistry: readonly AnyInstrumentDefinition[] = [
   rhythmInstrument,
   colorHuntInstrument,
   metronomeInstrument,
+  traditionalTunerInstrument,
   colorimeterInstrument,
   poolStripsInstrument,
   beerWineColorInstrument,
