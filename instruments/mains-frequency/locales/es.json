@@ -1,0 +1,85 @@
+{
+  "name": "Frecuencia de la red",
+  "description": "Mide la frecuencia de la red eléctrica (50 Hz) y el parpadeo de las lámparas con las bandas que deja el obturador de la cámara.",
+  "intro": "Apunta la cámara a una pared, al techo o a un papel blanco bien iluminados por la lámpara (mejor que a la bombilla directamente) y sujeta el móvil quieto. No hace falta enfocar.",
+  "region50": "Red de 50 Hz (Europa)",
+  "region60": "Red de 60 Hz (América)",
+  "tapToLockHint": "Toca la imagen para fijar la exposición: si el móvil la reajusta, la medida se reinicia.",
+  "exposureLabel": "Exposición {{exposure}} EV",
+  "exposureStepsLabel": "Exposición {{exposure}} pasos (mín. {{minimum}})",
+  "exposureDown": "− Luz",
+  "exposureUp": "+ Luz",
+  "exposureUnsupported": "Este móvil no permite ajustar la exposición: apunta a una zona muy iluminada para que la exposición sea corta.",
+  "exposureLocked": "Exposición fijada.",
+  "unlockExposure": "Soltar",
+  "saturatedWarning": "Hay zonas quemadas (blanco puro): recortan las bandas. Baja la exposición o apunta a una pared en vez de a la bombilla.",
+  "tooDarkWarning": "La imagen está muy oscura: acerca el móvil a la lámpara o sube un poco la exposición.",
+  "collecting": "Analizando los fotogramas…",
+  "noBandsTitle": "No se ven bandas de parpadeo",
+  "noBandsUpperBound": "Si la luz parpadea, lo hace menos de un {{percent}} % (lo que alcanza a ver la cámara).",
+  "noBandsExplanation": "O la luz no parpadea (LED con buen driver, fluorescente electrónico, luz de día), o la exposición es demasiado larga: con 10 ms o más (un periodo entero a 100 Hz) el parpadeo se promedia y desaparece, y muchos móviles eligen justo esas exposiciones para ocultarlo. Baja la exposición al mínimo y acércate a la lámpara; si siguen sin aparecer, la luz apenas parpadea.",
+  "mainsFrequencyTitle": "Frecuencia de la red",
+  "frequencyValue": "{{frequency}} Hz",
+  "frequencyDetails": "± {{uncertainty}} Hz · {{deviation}} mHz respecto a {{nominal}} Hz",
+  "frequencyBasis": "Con {{frames}} fotogramas en {{seconds}} s · coherencia de fase {{coherence}} %",
+  "directionAmbiguous": "A esta cadencia de fotogramas no se puede saber hacia dónde lee el sensor: el valor de la desviación es fiable, pero su signo (por encima o por debajo) no.",
+  "unstableBands": "Las bandas no avanzan de forma regular. Sujeta el móvil quieto, fija la exposición tocando la imagen y espera unos segundos.",
+  "measuringFrequency": "Midiendo la frecuencia… {{seconds}} s (hacen falta al menos 2; con 10-20 s es más precisa)",
+  "bandsTitle": "Bandas en la imagen",
+  "chartFirstRow": "primera fila leída",
+  "chartLastRow": "última fila",
+  "bandsChartDescription": "Brillo de cada fila respecto a la media (gris) y onda ajustada (color): cada ondulación es un ciclo de parpadeo durante la lectura del fotograma.",
+  "staticBandsWarning": "A {{fps}} fotogramas por segundo las bandas apenas se mueven y no se pueden separar de lo que se ve: apunta a una superficie lisa y uniforme o el resultado puede ser falso.",
+  "lightTitle": "Tipo de luz (orientativo)",
+  "lightTypes": {
+    "steady": {
+      "name": "Sin parpadeo apreciable",
+      "description": "LED con buen driver, fluorescente con balasto electrónico o luz de día."
+    },
+    "incandescent": {
+      "name": "Parpadeo suave y senoidal",
+      "description": "Típico de bombillas incandescentes y halógenas: el filamento no se enfría del todo entre ciclos."
+    },
+    "fluorescent": {
+      "name": "Parpadeo senoidal marcado",
+      "description": "Típico de fluorescentes con reactancia magnética (los tubos antiguos) o de LED sencillos."
+    },
+    "flickeringLed": {
+      "name": "LED con parpadeo",
+      "description": "Parpadeo muy profundo o de onda no senoidal: típico de LED con driver barato o regulados con dimmer."
+    }
+  },
+  "percentFlicker": "Parpadeo {{percent}} %",
+  "flickerIndex": "índice {{index}}",
+  "risk": {
+    "noObservableEffect": "IEEE 1789: sin efectos observables a esta frecuencia.",
+    "lowRisk": "IEEE 1789: riesgo bajo.",
+    "aboveLowRisk": "IEEE 1789: por encima del nivel de riesgo bajo (puede cansar la vista o notarse al mover los ojos)."
+  },
+  "depthIsMinimum": "La cámara promedia la luz durante la exposición y suaviza el parpadeo: el valor real es igual o mayor que el medido.",
+  "technicalDetails": "{{bands}} bandas por fotograma · el sensor tarda {{readout}} ms en leer el fotograma · {{fps}} fps · bandas en las {{axis}} del sensor",
+  "axes": {
+    "rows": "filas",
+    "columns": "columnas"
+  },
+  "restart": "Reiniciar",
+  "howItWorksTitle": "Cómo funciona",
+  "howItWorks": "La cámara no toma la foto de golpe: lee el sensor fila a fila en unas decenas de milisegundos (obturador rodante). Las lámparas conectadas a la red parpadean al doble de su frecuencia (100 veces por segundo en Europa), así que las filas leídas en un momento de más luz salen más claras y aparecen bandas horizontales. De un fotograma al siguiente las bandas se desplazan; con la hora exacta de cada fotograma, que da el reloj del sensor, ese desplazamiento revela la frecuencia del parpadeo sin necesidad de conocer la velocidad de lectura del sensor. La frecuencia de la red es la mitad.",
+  "precision": "Precisión realista: con buenas bandas y 10-20 s de medida, unas milésimas de hercio en la frecuencia de la red. El límite lo pone el reloj del móvil (su cristal puede desviarse unas 20-50 partes por millón, es decir ±0,001-0,003 Hz), y está incluido en el ± que se muestra. La red europea se mantiene normalmente entre 49,95 y 50,05 Hz: puedes comparar con las webs que publican la frecuencia de la red en tiempo real.",
+  "limits": "Límites: sin bandas no hay medida (luz sin parpadeo o exposición larga). Si mueves el móvil o la exposición cambia, la medida empieza de nuevo. La profundidad y el tipo de luz son orientativos. Se supone que la lámpara parpadea al doble de la frecuencia de la red, que es lo habitual; algunas lámparas baratas parpadean a la frecuencia de la red y darían un valor erróneo.",
+  "fields": {
+    "nominalMainsFrequency": "Red nominal",
+    "mainsFrequency": "Frecuencia de la red",
+    "mainsFrequencyUncertainty": "Incertidumbre",
+    "flickerFrequency": "Frecuencia del parpadeo",
+    "lightType": "Tipo de luz",
+    "percentFlicker": "Porcentaje de parpadeo",
+    "percentFlickerUpperBound": "Parpadeo máximo (sin bandas)",
+    "flickerIndex": "Índice de parpadeo",
+    "harmonicDistortion": "Distorsión armónica de la onda",
+    "readoutTime": "Tiempo de lectura del sensor",
+    "frameRate": "Fotogramas por segundo",
+    "measurementDuration": "Duración de la medida",
+    "phaseCoherence": "Coherencia de fase"
+  }
+}

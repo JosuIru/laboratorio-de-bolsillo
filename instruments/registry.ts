@@ -7,6 +7,7 @@ import { colorimeterInstrument } from './colorimeter';
 import { exampleLevelInstrument } from './example-level';
 import { gnssSkyInstrument } from './gnss-sky';
 import { machineDiagnosisInstrument } from './machine-diagnosis';
+import { mainsFrequencyInstrument } from './mains-frequency';
 import { metalDetectorInstrument } from './metal-detector';
 import { metronomeInstrument } from './metronome';
 import { moonInstrument } from './moon';
@@ -38,6 +39,7 @@ export const instrumentRegistry: readonly AnyInstrumentDefinition[] = [
   metalDetectorInstrument,
   resonanceScaleInstrument,
   gnssSkyInstrument,
+  mainsFrequencyInstrument,
   sonarInstrument,
   soundLocatorInstrument,
   rhythmInstrument,
