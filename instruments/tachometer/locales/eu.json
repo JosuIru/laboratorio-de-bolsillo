@@ -1,0 +1,26 @@
+{
+  "name": "Takometroa",
+  "description": "Motor, haizagailu eta helizeen bira minutuko, haien soinutik, ukitu gabe.",
+  "starting": "Mikrofonoa irekitzen…",
+  "paused": "Pausan: mikrofonoa itxita dago.",
+  "pause": "Pausatu",
+  "resume": "Jarraitu",
+  "noTone": "Hurbildu mugikorra makinara: oraindik ez da tonu garbirik entzuten.",
+  "stable": "Irakurketa egonkorra",
+  "unstable": "Egonkortzen…",
+  "pulseFrequencyValue": "Pultsuak {{frequency}} Hz-tan",
+  "pulsesHint": "Bira bakoitzean zenbat pultsu entzuten diren: haizagailuaren edo helizearen palak, edo 1 motorraren beraren biraketa entzuten bada.",
+  "pulsesAccessibility": "{{count}} pultsu birako",
+  "howTo": "Hurbildu mikrofonoa makinara erregimen egonkorrean dagoela, eta itxaron irakurketa egonkortu arte. Emaitza espero zenaren erdia edo bikoitza bada, egiaztatu birako pultsuak.",
+  "privacy": "Audioa mugikorrean aztertzen da eta ez da grabatzen. Gordetzean balioak bakarrik gordetzen dira.",
+  "fields": {
+    "revolutionsPerMinute": "Bira minutuko",
+    "pulseFrequency": "Pultsuen maiztasuna",
+    "pulsesPerRevolution": "Birako pultsuak",
+    "relativeSpread": "Sakabanatze erlatiboa",
+    "isStable": "Irakurketa egonkorra",
+    "detectedHarmonicCount": "Detektatutako harmonikoak",
+    "sampleRate": "Laginketa-maiztasuna",
+    "fftSize": "FFTaren tamaina"
+  }
+}
