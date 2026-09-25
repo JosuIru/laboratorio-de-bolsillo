@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { AppState } from 'react-native';
 import { type AnalyserNode, AudioContext, AudioManager, AudioRecorder } from 'react-native-audio-api';
 
 import {
@@ -11,6 +10,7 @@ import {
   type SpectrogramHistory,
 } from '@/processing/dsp/spectrogram';
 
+import { useIsAppActive } from '@/core/useIsAppActive';
 import { createExponentialSmoother } from '@/processing/signal/smoothing';
 
 import { type AudioFrameAnalysis, createAudioFrameAnalyzer } from './frameAnalysis';
@@ -38,18 +38,6 @@ type MicrophoneState =
   | { status: 'starting' }
   | { status: 'running'; frame: MicrophoneFrame | null }
   | { status: 'error'; errorMessage: string };
-
-/** Solo escucha mientras la app está en primer plano: el micrófono nunca queda abierto de fondo. */
-function useIsAppActive(): boolean {
-  const [isAppActive, setIsAppActive] = useState(AppState.currentState === 'active');
-  useEffect(() => {
-    const appStateSubscription = AppState.addEventListener('change', (nextAppState) =>
-      setIsAppActive(nextAppState === 'active'),
-    );
-    return () => appStateSubscription.remove();
-  }, []);
-  return isAppActive;
-}
 
 /**
  * Micrófono → AnalyserNode (FFT nativa en C++) → ganancia 0 → salida. La rama silenciada es
