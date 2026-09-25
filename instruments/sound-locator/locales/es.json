@@ -1,0 +1,92 @@
+{
+  "name": "Localizador de sonidos",
+  "description": "Encuentra dónde sonó una palmada o un globo con tres o más móviles, por la diferencia de tiempos de llegada, sin sincronizar relojes ni conectarlos entre sí.",
+  "howTo": {
+    "title": "Cómo se usa",
+    "step1": "1. Coloca 3 o más móviles en el suelo o en una mesa, en posiciones conocidas (por ejemplo, un triángulo de 2 m de lado). Lo que cuenta es el micrófono: el borde de abajo de cada móvil.",
+    "step2": "2. En todos, pulsa «Escuchar». En el móvil emisor, pulsa «Emitir pitidos»: suenan dos pitidos separados 3 s.",
+    "step3": "3. Entre los dos pitidos, da una palmada fuerte (o revienta un globo) donde quieras. Cada móvil enseña un número grande: su intervalo en milisegundos.",
+    "step4": "4. En un móvil, escribe las posiciones y el número de cada uno. El plano muestra las hipérbolas y el punto estimado con su elipse de error."
+  },
+  "timing": {
+    "title": "Este móvil",
+    "startListening": "Escuchar",
+    "stopListening": "Dejar de escuchar",
+    "idle": "Pulsa «Escuchar» en todos los móviles antes de emitir.",
+    "starting": "Encendiendo el micrófono…",
+    "waitingForChirp": "Esperando el primer pitido…",
+    "clapNow": "¡Pitido oído! Palmada antes del segundo pitido",
+    "intervalLabel": "Intervalo de este móvil (del primer pitido a la palmada)",
+    "intervalUnit": "milisegundos",
+    "noDriftCorrection": "No se oyó bien el segundo pitido: intervalo sin corregir la deriva del reloj (error de hasta ~0,1 ms).",
+    "driftCorrected": "Reloj corregido: este móvil va {{drift}} ppm respecto al emisor.",
+    "quality": "Nitidez del pitido {{chirp}} · palmada {{clap}} veces sobre el ruido",
+    "competingOnset": "Hubo otro golpe casi igual de fuerte: repite si no estás seguro de que se eligió la palmada.",
+    "clipped": "La palmada saturó el micrófono: suele funcionar, pero si el resultado sale raro, aléjala un poco.",
+    "failures": {
+      "noClap": "No se oyó ninguna palmada clara entre los dos pitidos. Pulsa «Otra vez» y repite.",
+      "audioGap": "El micrófono se saltó audio durante la medida. Pulsa «Otra vez» y repite."
+    },
+    "emit": "Emitir pitidos",
+    "emitting": "Emitiendo…",
+    "again": "Otra vez",
+    "help": "Solo un móvil emite. Cada móvil mide con su propio reloj de audio el tiempo entre el primer pitido y la palmada; el segundo pitido sirve para corregir cuánto adelanta o atrasa ese reloj. Pulsa «Otra vez» en todos antes de cada medida nueva."
+  },
+  "solve": {
+    "title": "Calcular la posición",
+    "layout": "Posiciones de los móviles (m)",
+    "layoutHelp": "Elige una colocación estándar o escribe las coordenadas de cada micrófono. Mide con cinta: 3 cm de error en una posición se notan en el resultado.",
+    "columnX": "x (m)",
+    "columnY": "y (m)",
+    "columnInterval": "Intervalo (ms)",
+    "xAccessibility": "Coordenada x del móvil {{receiver}}",
+    "yAccessibility": "Coordenada y del móvil {{receiver}}",
+    "intervalAccessibility": "Intervalo del móvil {{receiver}} en milisegundos",
+    "useOwnAccessibility": "Poner el intervalo de este móvil en la fila {{receiver}}",
+    "useOwn": "mío",
+    "addReceiver": "Añadir móvil",
+    "removeReceiver": "Quitar el último",
+    "emitter": "¿Qué móvil emitió los pitidos?",
+    "temperature": "Temperatura del aire",
+    "incomplete": "Escribe la posición y el intervalo de todos los móviles para calcular.",
+    "duplicatePositions": "Hay dos móviles en el mismo sitio: revisa las coordenadas.",
+    "noSolution": "No se pudo calcular una posición con estos datos."
+  },
+  "layouts": {
+    "triangle": "Triángulo 2 m",
+    "square": "Cuadrado 2 m"
+  },
+  "plane": {
+    "accessibility": "Plano con la posición de los móviles",
+    "accessibilityWithResult": "Plano: la palmada se estima en x {{x}} m, y {{y}} m",
+    "legend": "Cuadrados: móviles (con anillo, el emisor). Cada curva de color es una hipérbola: los puntos donde el sonido llega a ese móvil y a A con la diferencia medida. La cruz es la estimación y la elipse, la zona donde está con un 95 % de probabilidad. Un círculo rojo marca otra solución posible."
+  },
+  "result": {
+    "position": "x = {{x}} m · y = {{y}} m",
+    "ellipse": "Elipse del 95 %: ±{{major}} cm en su eje largo, ±{{minor}} cm en el corto.",
+    "degenerate": "La colocación de los móviles no permite estimar el error (¿están en línea?).",
+    "residual": "Residuo medio: {{residual}} cm (cuánto no encajan las medidas entre sí).",
+    "noRedundancy": "Con 3 móviles las hipérbolas siempre se cortan: no hay forma de comprobar si alguna medida está mal. Con 4 o más, sí.",
+    "ambiguous": "Las medidas también encajan con otro punto: x = {{x}} m, y = {{y}} m. Con tres móviles pasa cuando el sonido viene de lejos; añade un cuarto móvil para decidir.",
+    "impossible": "La diferencia de tiempos de {{receivers}} respecto a A es mayor de lo que permite la distancia entre ellos: revisa ese número o las posiciones.",
+    "inconsistent": "Las medidas no encajan entre sí (residuo grande): revisa los números y las posiciones, o repite la palmada.",
+    "farOutside": "El sonido está lejos del grupo de móviles: fuera de él la precisión cae deprisa, sobre todo en la distancia."
+  },
+  "honestyNote": "Límites honestos: cada milisegundo de error son 34 cm. El comienzo de una palmada se marca con una precisión de unos 0,1-0,3 ms según el móvil y la sala, así que espera errores de 5 a 20 cm dentro del grupo de móviles y bastante más fuera. Los rebotes en paredes cercanas, el viento o los móviles mal medidos empeoran el resultado. Todo va en un plano: la altura de la palmada respecto a los móviles también introduce error.",
+  "fields": {
+    "positionX": "Posición x",
+    "positionY": "Posición y",
+    "errorSemiMajor": "Semieje mayor (95 %)",
+    "errorSemiMinor": "Semieje menor (95 %)",
+    "errorOrientation": "Orientación de la elipse",
+    "residual": "Residuo medio",
+    "ambiguous": "Solución ambigua",
+    "receiverCount": "Número de móviles",
+    "emitterIndex": "Móvil emisor (0 = A)",
+    "temperature": "Temperatura",
+    "speedOfSound": "Velocidad del sonido",
+    "receiverX": "Móviles: x",
+    "receiverY": "Móviles: y",
+    "intervals": "Intervalos"
+  }
+}
