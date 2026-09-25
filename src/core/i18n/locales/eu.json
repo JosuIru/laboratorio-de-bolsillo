@@ -41,7 +41,8 @@
     "withLocation": "Kokapenarekin",
     "attachments_one": "Eranskin {{count}}",
     "attachments_other": "{{count}} eranskin",
-    "arrayValues": "{{count}} balio"
+    "arrayValues": "{{count}} balio",
+    "shareAttachment": "Partekatu {{fileName}}"
   },
   "calibration": {
     "title": "Kalibrazioa: {{instrument}}",

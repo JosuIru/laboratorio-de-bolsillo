@@ -9,7 +9,10 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "org.laboratoriodebolsillo.app"
+      "bundleIdentifier": "org.laboratoriodebolsillo.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "El colorímetro usa la cámara para medir colores. Las imágenes se analizan en el móvil y no se guardan."
+      }
     },
     "android": {
       "package": "org.laboratoriodebolsillo.app",
@@ -25,7 +28,8 @@
         "android.permission.ACTIVITY_RECOGNITION"
       ],
       "permissions": [
-        "android.permission.HIGH_SAMPLING_RATE_SENSORS"
+        "android.permission.HIGH_SAMPLING_RATE_SENSORS",
+        "android.permission.CAMERA"
       ]
     },
     "web": {

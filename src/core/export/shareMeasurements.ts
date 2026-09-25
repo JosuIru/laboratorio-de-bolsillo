@@ -2,7 +2,7 @@ import { Directory, File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 
 import type { AnyInstrumentDefinition } from '@/core/instruments/types';
-import type { Measurement } from '@/core/measurements/types';
+import type { Attachment, Measurement } from '@/core/measurements/types';
 
 import { buildExportFileName, measurementsToCsv, measurementsToJson } from './formatMeasurements';
 
@@ -47,4 +47,11 @@ export async function shareMeasurements(
     UTI: uniformTypeByFormat[exportFormat],
     dialogTitle,
   });
+}
+
+/** Comparte un adjunto de una medición (p. ej. la serie cruda en CSV) con la hoja del sistema. */
+export async function shareAttachment(attachment: Attachment, dialogTitle: string): Promise<void> {
+  if (!(await Sharing.isAvailableAsync())) throw new Error('La hoja de compartir no está disponible');
+  if (!new File(attachment.fileUri).exists) throw new Error('El fichero adjunto ya no existe');
+  await Sharing.shareAsync(attachment.fileUri, { mimeType: attachment.mimeType, dialogTitle });
 }

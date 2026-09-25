@@ -41,7 +41,8 @@
     "withLocation": "Con ubicación",
     "attachments_one": "{{count}} adjunto",
     "attachments_other": "{{count}} adjuntos",
-    "arrayValues": "{{count}} valores"
+    "arrayValues": "{{count}} valores",
+    "shareAttachment": "Compartir {{fileName}}"
   },
   "calibration": {
     "title": "Calibración: {{instrument}}",

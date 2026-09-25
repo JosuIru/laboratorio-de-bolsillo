@@ -11,6 +11,19 @@ La única conexión a Internet es la búsqueda **manual** de actualizaciones, qu
 Para publicar una versión, consulta [RELEASING.md](RELEASING.md). Para crear instrumentos,
 [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Instrumentos
+
+- **Analizador de espectro**: FFT del micrófono en tiempo real, espectrograma en cascada,
+  frecuencia dominante con nota musical y nivel (dBFS, o dB aproximados si se calibra con un
+  sonómetro).
+- **Sismógrafo**: aceleración de los tres ejes sin la gravedad, espectro de la vibración,
+  frecuencia dominante, pico, valor eficaz y contador de eventos. Guarda la serie cruda en CSV.
+- **Colorímetro**: color de una zona de la imagen en CIELAB, corregido con una tarjeta de
+  referencia en el mismo encuadre, y comparación por ΔE2000 con escalas definidas por el
+  usuario (p. ej. tiras reactivas).
+
+Todas las mediciones se guardan en el móvil y se pueden exportar a CSV o JSON.
+
 ## Requisitos
 
 - Node 24 (`nvm use`, ver `.nvmrc`); Expo SDK 57 exige Node ≥ 22.13

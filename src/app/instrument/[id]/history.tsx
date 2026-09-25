@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, StyleSheet, View } from 'react-native';
 
-import { type ExportFormat, shareMeasurements } from '@/core/export/shareMeasurements';
+import { type ExportFormat, shareAttachment, shareMeasurements } from '@/core/export/shareMeasurements';
 import { findInstrument } from '@/core/instruments/registryAccess';
 import type { AnyInstrumentDefinition } from '@/core/instruments/types';
 import { deleteMeasurement } from '@/core/measurements/measurementService';
@@ -179,14 +179,35 @@ function MeasurementRow({
         <BodyText style={styles.rowDate}>{new Date(measurement.timestamp).toLocaleString(locale)}</BodyText>
         <AppButton label={t('common.delete')} onPress={onDelete} variant="danger" />
       </View>
-      {instrument.dataSchema.fields.map((field) => (
-        <BodyText key={field.key}>
-          <BodyText tone="secondary">{`${t(field.labelKey, { ns: instrument.id })}: `}</BodyText>
-          {formatFieldValue(readMeasurementField(measurement.values, field.key), field.unit)}
-        </BodyText>
-      ))}
+      {instrument.dataSchema.fields.map((field) => {
+        const fieldValue = readMeasurementField(measurement.values, field.key);
+        if (field.optional && (fieldValue === undefined || fieldValue === null)) return null;
+        return (
+          <View key={field.key} style={styles.fieldRow}>
+            {field.type === 'color' && typeof fieldValue === 'string' ? (
+              <View style={[styles.colorSwatch, { backgroundColor: fieldValue }]} />
+            ) : null}
+            <BodyText style={styles.fieldText}>
+              <BodyText tone="secondary">{`${t(field.labelKey, { ns: instrument.id })}: `}</BodyText>
+              {formatFieldValue(fieldValue, field.unit)}
+            </BodyText>
+          </View>
+        );
+      })}
       {measurement.note ? <BodyText tone="secondary">{measurement.note}</BodyText> : null}
       {detailTags.length > 0 ? <BodyText tone="secondary">{detailTags.join(' · ')}</BodyText> : null}
+      {measurement.attachments.map((attachment) => (
+        <AppButton
+          key={attachment.id}
+          label={t('history.shareAttachment', { fileName: attachment.fileName })}
+          variant="secondary"
+          onPress={() =>
+            shareAttachment(attachment, t('history.exportDialogTitle')).catch((shareError: unknown) =>
+              Alert.alert(t('common.error', { message: String(shareError) })),
+            )
+          }
+        />
+      ))}
     </Card>
   );
 }
@@ -196,4 +217,7 @@ const styles = StyleSheet.create({
   exportButton: { flex: 1 },
   rowHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
   rowDate: { flex: 1, fontWeight: '600' },
+  fieldRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  fieldText: { flex: 1 },
+  colorSwatch: { width: 18, height: 18, borderRadius: 4 },
 });

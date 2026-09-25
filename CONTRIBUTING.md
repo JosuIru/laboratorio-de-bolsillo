@@ -39,7 +39,8 @@ ubicación opcional y los perfiles de calibración.
 El instrumento de referencia es **`instruments/example-level/`**, un nivel de burbuja que
 solo aparece en builds de desarrollo. Cópialo como plantilla. Para casos más completos:
 `instruments/seismograph/` (sensor a alta frecuencia, buffers circulares, FFT y adjuntos) e
-`instruments/audio-spectrum/` (micrófono, espectrograma y calibración con un sonómetro).
+`instruments/audio-spectrum/` (micrófono, espectrograma y calibración con un sonómetro) e
+`instruments/colorimeter/` (cámara con worklets, tarjeta de referencia y escalas del usuario).
 
 ### 1. Crea la carpeta
 
@@ -159,6 +160,14 @@ usan desde worklets con VisionCamera y react-native-audio-api.
 por un `AnalyserNode` que calcula la FFT en código nativo, y el hilo JS solo lee el resultado
 unas 20 veces por segundo. El micrófono se cierra al pausar, al salir de la pantalla o al
 pasar la app a segundo plano: mantén ese comportamiento.
+
+**Cámara.** Mira `instruments/colorimeter/useColorimeterFrames.ts`: con VisionCamera 5,
+`useFrameOutput` ejecuta tu función en el hilo de la cámara (worklet, directiva `'worklet'`).
+Procesa ahí el fotograma, llama siempre a `frame.dispose()` y envía al hilo JS solo el
+resultado (pocos números) con `scheduleOnRN` de `react-native-worklets`. Para convertir un
+toque en la vista previa en píxeles del fotograma: `cameraRef.convertViewPointToCameraPoint`
+en JS y `frame.convertCameraPointToFramePoint` en el worklet. Desactiva la cámara
+(`isActive={false}`) cuando la pantalla no esté visible o la app pase a segundo plano.
 
 **Gráficas.** En `src/ui/charts/` tienes `SignalChart` (líneas en tiempo real con Skia) y
 `SpectrogramView` (cascada). Los dos reciben arrays que se reutilizan entre tramas y una

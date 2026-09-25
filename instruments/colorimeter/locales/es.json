@@ -1,0 +1,66 @@
+{
+  "name": "Colorímetro",
+  "description": "Mide colores con la cámara, corrígelos con una tarjeta de referencia y compáralos con una escala (tiras reactivas).",
+  "sampleMarker": "Muestra",
+  "placeMarkerHint": "Toca la imagen para colocar: {{marker}}",
+  "placeSampleFirst": "Toca la imagen para colocar la muestra (M) y, si tienes tarjeta de referencia, sus parches.",
+  "torchOn": "Encender linterna",
+  "torchOff": "Apagar linterna",
+  "clearMarkers": "Quitar marcadores",
+  "rawColor": "Cámara",
+  "correctedColor": "Corregido",
+  "correctionSummary": "Corregido con {{patchCount}} parches ({{model}}), error medio ΔE {{residual}}",
+  "noCorrection": "Sin corrección: coloca los parches de la tarjeta de referencia para medir colores fiables.",
+  "nonUniformSample": "La zona de muestra no es uniforme: acércate o céntrala en un color liso.",
+  "nearestEntry": "Más parecido: {{label}} (ΔE {{deltaE}})",
+  "poorScaleMatch": "La muestra no se parece a ningún color de la escala: el valor no es fiable.",
+  "privacy": "Las imágenes se analizan en el móvil y no se guardan: solo los valores del color.",
+  "correctionModel": {
+    "diagonal": "balance de blancos",
+    "linear": "matriz lineal",
+    "affine": "matriz afín"
+  },
+  "scales": {
+    "title": "Escala de comparación",
+    "none": "Ninguna",
+    "emptyScale": "Esta escala no tiene colores todavía.",
+    "addHint": "Para añadir un color: coloca la muestra sobre el cuadro de la carta del fabricante, escribe su valor y pulsa «Añadir».",
+    "entryLabel": "Etiqueta",
+    "entryValue": "Valor",
+    "entryInvalid": "Escribe un valor numérico y coloca la muestra sobre el color.",
+    "addCurrentColor": "Añadir el color medido",
+    "deleteScale": "Borrar esta escala",
+    "newScale": "Nueva escala",
+    "scaleName": "Nombre (p. ej. pH)",
+    "scaleUnit": "Unidad",
+    "create": "Crear escala"
+  },
+  "card": {
+    "instructions": "Elige la tarjeta de referencia que vas a poner junto a la muestra. Si usas otra, escribe el color real de cada parche (#RRGGBB) según su fabricante.",
+    "preset": {
+      "white-paper": "Folio blanco",
+      "colorchecker-six": "ColorChecker (6 parches)",
+      "custom": "Tarjeta propia"
+    },
+    "patchName": "Nombre",
+    "addPatch": "Añadir parche",
+    "invalid": "Revisa los colores: deben tener el formato #RRGGBB."
+  },
+  "fields": {
+    "sampleColor": "Color",
+    "rawSampleColor": "Color sin corregir",
+    "labLightness": "L*",
+    "labGreenRed": "a*",
+    "labBlueYellow": "b*",
+    "estimatedValue": "Valor estimado",
+    "estimatedValueUnit": "Unidad",
+    "nearestScaleLabel": "Color de la escala más parecido",
+    "nearestScaleDeltaE": "Diferencia con el más parecido",
+    "interpolationDeltaE": "Diferencia con la escala",
+    "scaleName": "Escala",
+    "correctionModel": "Corrección",
+    "referencePatchCount": "Parches de referencia",
+    "correctionResidual": "Error de la corrección",
+    "sampleRelativeDeviation": "Variación dentro de la muestra"
+  }
+}

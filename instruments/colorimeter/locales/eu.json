@@ -1,0 +1,66 @@
+{
+  "name": "Kolorimetroa",
+  "description": "Neurtu koloreak kamerarekin, zuzendu erreferentzia-txartel batekin eta alderatu eskala batekin (test-zerrendak).",
+  "sampleMarker": "Lagina",
+  "placeMarkerHint": "Ukitu irudia hau jartzeko: {{marker}}",
+  "placeSampleFirst": "Ukitu irudia lagina (M) jartzeko eta, erreferentzia-txartela baduzu, haren adabakiak.",
+  "torchOn": "Piztu linterna",
+  "torchOff": "Itzali linterna",
+  "clearMarkers": "Kendu markatzaileak",
+  "rawColor": "Kamera",
+  "correctedColor": "Zuzenduta",
+  "correctionSummary": "{{patchCount}} adabakirekin zuzenduta ({{model}}), batez besteko errorea ΔE {{residual}}",
+  "noCorrection": "Zuzenketarik gabe: jarri erreferentzia-txartelaren adabakiak kolore fidagarriak neurtzeko.",
+  "nonUniformSample": "Lagin-eremua ez da uniformea: hurbildu edo zentratu kolore lau batean.",
+  "nearestEntry": "Antzekoena: {{label}} (ΔE {{deltaE}})",
+  "poorScaleMatch": "Lagina ez da eskalako inongo kolorearen antzekoa: balioa ez da fidagarria.",
+  "privacy": "Irudiak mugikorrean aztertzen dira eta ez dira gordetzen: kolorearen balioak bakarrik.",
+  "correctionModel": {
+    "diagonal": "zuri-balantzea",
+    "linear": "matrize lineala",
+    "affine": "matrize afina"
+  },
+  "scales": {
+    "title": "Konparazio-eskala",
+    "none": "Bat ere ez",
+    "emptyScale": "Eskala honek ez du kolorerik oraindik.",
+    "addHint": "Kolore bat gehitzeko: jarri lagina fabrikatzailearen txartelaren karratuaren gainean, idatzi haren balioa eta sakatu «Gehitu».",
+    "entryLabel": "Etiketa",
+    "entryValue": "Balioa",
+    "entryInvalid": "Idatzi zenbakizko balio bat eta jarri lagina kolorearen gainean.",
+    "addCurrentColor": "Gehitu neurtutako kolorea",
+    "deleteScale": "Ezabatu eskala hau",
+    "newScale": "Eskala berria",
+    "scaleName": "Izena (adib. pH)",
+    "scaleUnit": "Unitatea",
+    "create": "Sortu eskala"
+  },
+  "card": {
+    "instructions": "Aukeratu laginaren ondoan jarriko duzun erreferentzia-txartela. Beste bat erabiltzen baduzu, idatzi adabaki bakoitzaren benetako kolorea (#RRGGBB) fabrikatzailearen arabera.",
+    "preset": {
+      "white-paper": "Folio zuria",
+      "colorchecker-six": "ColorChecker (6 adabaki)",
+      "custom": "Txartel propioa"
+    },
+    "patchName": "Izena",
+    "addPatch": "Gehitu adabakia",
+    "invalid": "Berrikusi koloreak: #RRGGBB formatua izan behar dute."
+  },
+  "fields": {
+    "sampleColor": "Kolorea",
+    "rawSampleColor": "Kolorea zuzendu gabe",
+    "labLightness": "L*",
+    "labGreenRed": "a*",
+    "labBlueYellow": "b*",
+    "estimatedValue": "Kalkulatutako balioa",
+    "estimatedValueUnit": "Unitatea",
+    "nearestScaleLabel": "Eskalako kolore antzekoena",
+    "nearestScaleDeltaE": "Antzekoenarekiko aldea",
+    "interpolationDeltaE": "Eskalarekiko aldea",
+    "scaleName": "Eskala",
+    "correctionModel": "Zuzenketa",
+    "referencePatchCount": "Erreferentzia-adabakiak",
+    "correctionResidual": "Zuzenketaren errorea",
+    "sampleRelativeDeviation": "Laginaren barneko aldakuntza"
+  }
+}

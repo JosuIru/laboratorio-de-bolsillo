@@ -22,6 +22,7 @@ export const Skia = {
 };
 export const AlphaType = { Unknown: 0, Opaque: 1, Premul: 2, Unpremul: 3 };
 export const ColorType = { RGBA_8888: 4 };
+export const ImageFormat = { JPEG: 3, PNG: 4, WEBP: 6 };
 export const Image = () => null;
 export const vec = (x = 0, y = 0) => ({ x, y });
 export const Canvas = ({ children }: { children?: ReactNode }) => children ?? null;

@@ -9,7 +9,8 @@ export interface NormalizedRegion {
   height: number;
 }
 
-export type PixelLayout = 'rgba' | 'bgra';
+/** `rgba`/`bgra`: 4 bytes por píxel; `rgb`: 3 bytes por píxel. */
+export type PixelLayout = 'rgba' | 'bgra' | 'rgb';
 
 export interface RegionColorStatistics {
   /** Media en RGB lineal: promediar en lineal es físicamente correcto (mezcla de luz). */
@@ -47,8 +48,9 @@ export function measureRegionColor(
   const firstRow = Math.max(0, Math.floor(region.top * frameHeight));
   const lastColumn = Math.min(frameWidth, Math.ceil((region.left + region.width) * frameWidth));
   const lastRow = Math.min(frameHeight, Math.ceil((region.top + region.height) * frameHeight));
-  const redOffset = pixelLayout === 'rgba' ? 0 : 2;
-  const blueOffset = pixelLayout === 'rgba' ? 2 : 0;
+  const redOffset = pixelLayout === 'bgra' ? 2 : 0;
+  const blueOffset = pixelLayout === 'bgra' ? 0 : 2;
+  const bytesPerPixel = pixelLayout === 'rgb' ? 3 : 4;
   const stride = Math.max(1, Math.floor(sampleStride));
 
   let sampledPixelCount = 0;
@@ -61,7 +63,7 @@ export function measureRegionColor(
   for (let rowIndex = firstRow; rowIndex < lastRow; rowIndex += stride) {
     const rowStart = rowIndex * bytesPerRow;
     for (let columnIndex = firstColumn; columnIndex < lastColumn; columnIndex += stride) {
-      const pixelStart = rowStart + columnIndex * 4;
+      const pixelStart = rowStart + columnIndex * bytesPerPixel;
       const redValue = srgbToLinearTable[pixels[pixelStart + redOffset]!]!;
       const greenValue = srgbToLinearTable[pixels[pixelStart + 1]!]!;
       const blueValue = srgbToLinearTable[pixels[pixelStart + blueOffset]!]!;

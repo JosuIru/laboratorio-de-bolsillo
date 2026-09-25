@@ -174,6 +174,20 @@ describe('measureRegionColor', () => {
     expect(regionStatistics!.meanLinear).toEqual({ red: 0, green: 0, blue: 1 });
   });
 
+  it('lee píxeles RGB de 3 bytes', () => {
+    const rgbPixels = new Uint8Array([255, 0, 0, 0, 0, 255]);
+    const regionStatistics = measureRegionColor(
+      rgbPixels,
+      2,
+      1,
+      6,
+      'rgb',
+      { left: 0.5, top: 0, width: 0.5, height: 1 },
+      lookupTable,
+    );
+    expect(regionStatistics!.meanLinear).toEqual({ red: 0, green: 0, blue: 1 });
+  });
+
   it('devuelve null para una región vacía o fuera del fotograma', () => {
     expect(
       measureRegionColor(rgbaPixels, frameWidth, frameHeight, bytesPerRow, 'rgba', { left: 2, top: 2, width: 1, height: 1 }, lookupTable),

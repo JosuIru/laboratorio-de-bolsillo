@@ -5,14 +5,10 @@ import { StyleSheet, TextInput } from 'react-native';
 import type { CalibrationScreenProps } from '@/core/calibration/types';
 import { mean } from '@/processing/signal/smoothing';
 import { AppButton, BodyText, Card } from '@/ui/components';
+import { parseDecimalInput } from '@/ui/decimalInput';
 import { useThemePalette } from '@/ui/theme';
 
-import {
-  computeDecibelOffset,
-  parseDecimalInput,
-  type SoundLevelCalibrationParameters,
-  validateSoundLevelCalibration,
-} from './calibration';
+import { computeDecibelOffset, type SoundLevelCalibrationParameters, validateSoundLevelCalibration } from './calibration';
 import { audioSpectrumInstrumentId } from './Screen';
 import { useMicrophoneAnalyser } from './useMicrophoneAnalyser';
 

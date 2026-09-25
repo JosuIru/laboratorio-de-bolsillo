@@ -1,4 +1,5 @@
 import { unavailableBecause } from './availabilityRules';
+import { cameraController } from './adapters/camera';
 import { locationController } from './adapters/location';
 import { microphoneController } from './adapters/microphone';
 import {
@@ -20,8 +21,8 @@ function staticController(sensorKind: SensorKind, availability: Omit<SensorAvail
 }
 
 /**
- * Un controlador por tipo de sensor. Cámara y linterna se conectan en la fase del
- * colorímetro (VisionCamera); hasta entonces se muestran como pendientes.
+ * Un controlador por tipo de sensor. La linterna se controla desde la cámara de cada
+ * instrumento (depende del dispositivo de cámara elegido), así que aquí queda pendiente.
  */
 export const sensorControllers: Record<SensorKind, SensorAccessController> = {
   accelerometer: accelerometerSource,
@@ -30,7 +31,7 @@ export const sensorControllers: Record<SensorKind, SensorAccessController> = {
   barometer: barometerSource,
   light: lightSource,
   location: locationController,
-  camera: staticController('camera', unavailableBecause('camera', 'sensors.reason.notYetSupported')),
+  camera: cameraController,
   microphone: microphoneController,
   torch: staticController('torch', unavailableBecause('torch', 'sensors.reason.notYetSupported')),
   speaker: staticController('speaker', { status: 'available' }),
