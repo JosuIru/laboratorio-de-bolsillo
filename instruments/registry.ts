@@ -19,6 +19,7 @@ import { sonarInstrument } from './sonar';
 import { superzoomInstrument } from './superzoom';
 import { tachometerInstrument } from './tachometer';
 import { trackerHunterInstrument } from './tracker-hunter';
+import { wifiMapInstrument } from './wifi-map';
 
 /**
  * Registro de instrumentos. Para añadir uno: crea su carpeta en /instruments y añade
@@ -43,5 +44,6 @@ export const instrumentRegistry: readonly AnyInstrumentDefinition[] = [
   superzoomInstrument,
   motionMagnifierInstrument,
   trackerHunterInstrument,
+  wifiMapInstrument,
   exampleLevelInstrument,
 ];

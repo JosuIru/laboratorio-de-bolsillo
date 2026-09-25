@@ -1,0 +1,109 @@
+{
+  "name": "Mapa Wi‑Fi",
+  "description": "Mide la cobertura Wi‑Fi de tu casa, dibuja un mapa de calor con las zonas muertas, sugiere dónde poner un repetidor y busca el canal menos congestionado.",
+  "modes": {
+    "signal": "Señal",
+    "map": "Mapa",
+    "channels": "Canales"
+  },
+  "status": {
+    "notConnected": "No estás conectado a ninguna red Wi‑Fi. Conéctate a la de casa para medir.",
+    "wifiOff": "El Wi‑Fi está apagado. Actívalo y conéctate a la red de casa.",
+    "androidOnly": "Este instrumento solo funciona en Android: iOS no deja a las apps leer la intensidad de la señal Wi‑Fi ni escanear redes.",
+    "moduleMissing": "Esta versión de la app no incluye el lector de Wi‑Fi. Instala una versión más reciente.",
+    "locationForName": "Android solo enseña el nombre de la red y las redes vecinas si das permiso de ubicación. La intensidad de la señal se mide igual sin él."
+  },
+  "quality": {
+    "excellent": "Excelente",
+    "good": "Buena",
+    "fair": "Regular",
+    "poor": "Débil",
+    "dead": "Casi sin señal"
+  },
+  "bands": {
+    "band24": "2,4 GHz",
+    "band5": "5 GHz",
+    "band6": "6 GHz"
+  },
+  "signal": {
+    "frequencyOnly": "{{frequency}} MHz",
+    "bandAndChannel": "{{band}} · canal {{channel}}",
+    "linkSpeed": "Enlace {{speed}} Mb/s",
+    "maxLinkSpeed": "máximo {{speed}} Mb/s",
+    "txRxSpeed": "Subida {{tx}} Mb/s · bajada {{rx}} Mb/s",
+    "unknownStandard": "Estándar Wi‑Fi desconocido",
+    "hiddenNetworkName": "Red sin nombre visible",
+    "now": "ahora",
+    "chart": "Intensidad de la señal Wi‑Fi en el último minuto",
+    "explanation": "El RSSI es la potencia con la que llega el router, en dBm: cuanto más cerca de 0, mejor. Por encima de −67 dBm va bien hasta para videollamadas; por debajo de −80 dBm la conexión se corta. La velocidad de enlace es la que negocia la radio, no la de tu conexión a internet."
+  },
+  "map": {
+    "modes": {
+      "rooms": "Dibujar plano",
+      "measure": "Medir"
+    },
+    "roomsHelp": "Toca dos esquinas opuestas para añadir cada habitación (se ajustan a la rejilla). El plano es opcional: sin habitaciones se usa todo el rectángulo.",
+    "measureHelp": "Ve a un sitio de la casa, toca en el plano dónde estás y quédate quieto {{seconds}} s sujetando el móvil como siempre. Mide al menos un punto por habitación, y más en las zonas con mala señal.",
+    "planLabel": "Plano de la casa con el mapa de calor. Toca para añadir esquinas o puntos.",
+    "legend": "{{worst}} · {{middle}} · {{best}} dBm; con rayas, zona muerta (< {{dead}} dBm); R, repetidor",
+    "measuring": "Midiendo… no te muevas ({{seconds}} s)",
+    "needsConnection": "Conéctate a la red Wi‑Fi de casa para medir.",
+    "tapInsideRoom": "Toca dentro de una habitación del plano.",
+    "noSamples": "No ha llegado ninguna lectura de la señal. Prueba otra vez.",
+    "pointAdded": "Punto guardado: {{rssi}} dBm (varía ±{{spread}} dB).",
+    "secondCorner": "Ahora toca la esquina opuesta.",
+    "roomTooSmall": "Habitación demasiado pequeña: toca dos esquinas separadas.",
+    "undoRoom": "Quitar la última",
+    "clearRooms": "Borrar plano",
+    "undoPoint": "Quitar el último",
+    "clearPoints": "Borrar puntos",
+    "pointCount_one": "{{count}} punto medido",
+    "pointCount_other": "{{count}} puntos medidos",
+    "deadZones": "Zona muerta: {{percent}} % de la zona medida (menos de {{threshold}} dBm).",
+    "recommendation": {
+      "needPoints": "Mide al menos {{count}} puntos repartidos por la casa para ver recomendaciones.",
+      "noDeadZone": "No hay zonas muertas en lo medido: no hace falta repetidor.",
+      "noGoodSpot": "Hay zonas muertas, pero ningún sitio medido tiene señal suficiente para un repetidor. Prueba a mover el router a un lugar más céntrico o usa un sistema en malla o PLC.",
+      "recommended": "Repetidor: ponlo en la marca R, entre el router y la zona muerta, donde aún llegan {{rssi}} dBm."
+    },
+    "mixedFrequencies": "Ojo: el móvil ha cambiado de banda o de punto de acceso durante el mapa (2,4 y 5 GHz no llegan igual de lejos). Compara solo puntos de la misma banda.",
+    "save": "Guardar mapa",
+    "honestyNote": "El mapa interpola entre tus puntos sin saber dónde están las paredes: una pared gruesa entre dos medidas puede esconder una zona peor. Android actualiza el RSSI cada pocos segundos y tu cuerpo lo tapa unos dB, así que mide siempre de la misma manera. La marca del repetidor es una orientación, no un cálculo de propagación."
+  },
+  "channels": {
+    "permissionNeeded": "Para ver las redes vecinas Android necesita el permiso de ubicación (y, en Android 13 o posterior, el de dispositivos Wi‑Fi cercanos).",
+    "locationServicesOff": "La ubicación del sistema está desactivada: en Android 12 o anterior hay que activarla para escanear.",
+    "grantPermission": "Dar permiso",
+    "scan": "Escanear redes",
+    "scanning": "Escaneando…",
+    "scanWait": "Escanear otra vez en {{seconds}} s",
+    "throttled": "Android solo deja escanear 4 veces cada 2 minutos: se muestran los últimos resultados que tiene.",
+    "noNetworks": "Todavía no hay resultados. Pulsa «Escanear redes».",
+    "bandTitle_one": "{{band}}: {{count}} red vecina",
+    "bandTitle_other": "{{band}}: {{count}} redes vecinas",
+    "bestChannel": "Canal menos congestionado: {{channel}}",
+    "bestChannelDfs": "Canal menos congestionado: {{channel}} (DFS: el router puede tardar un minuto en usarlo y cambiarse si detecta un radar)",
+    "changeSuggested": "Tu router está en el canal {{current}}, bastante más ocupado. Puedes cambiarlo en la configuración del router.",
+    "currentIsFine": "Tu router está en el canal {{current}}: no merece la pena cambiarlo.",
+    "barLabel": "Canal {{channel}}: {{networks}} redes solapadas, congestión {{score}}",
+    "neighborsTitle": "Redes por canal",
+    "hiddenNetwork": "(red oculta)",
+    "yours": "la tuya",
+    "honestyNote": "La congestión se estima con cuántas redes se solapan con cada canal y con qué fuerza llegan; el escaneo no dice cuánto tráfico mueven. En 2,4 GHz solo se recomiendan 1, 6 y 11, los que no se pisan. Las redes de 5 GHz muy alejadas apenas molestan."
+  },
+  "fields": {
+    "pointCount": "Puntos medidos",
+    "medianRssi": "RSSI mediano",
+    "weakestRssi": "RSSI más débil",
+    "strongestRssi": "RSSI más fuerte",
+    "deadZonePercent": "Zona muerta",
+    "networkName": "Red",
+    "frequency": "Frecuencia",
+    "repeaterX": "Repetidor X",
+    "repeaterY": "Repetidor Y",
+    "pointXs": "Puntos X",
+    "pointYs": "Puntos Y",
+    "pointRssis": "RSSI de los puntos",
+    "roomCoordinates": "Habitaciones"
+  }
+}
