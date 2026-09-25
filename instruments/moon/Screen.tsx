@@ -6,6 +6,7 @@ import { Camera, type CameraRef, type MeteringMode, useCameraDevice } from 'reac
 
 import type { InstrumentScreenProps } from '@/core/instruments/types';
 import type { PointingGuidance } from '@/processing/astronomy/pointingGuide';
+import { isExpectedCameraInterruption } from '@/core/sensors/cameraErrors';
 import { useIsCameraAllowed } from '@/core/sensors/useIsCameraAllowed';
 import { chooseCropSize, stackSharpestCrops } from '@/processing/image/lunarStacking';
 import { AppButton, BodyText, Card, ScreenContainer, SectionTitle } from '@/ui/components';
@@ -110,9 +111,7 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
   }
 
   function handleCameraError(cameraError: Error) {
-    // Al bloquear el móvil o salir de la pantalla, Android cancela los cambios de zoom o exposición
-    // pendientes («Camera is not active»): es normal y no hay que avisar.
-    if (/not active|OperationCanceled/i.test(cameraError.message)) return;
+    if (isExpectedCameraInterruption(cameraError)) return;
     setStatusMessage(t('core:common.error', { message: cameraError.message }));
   }
 
