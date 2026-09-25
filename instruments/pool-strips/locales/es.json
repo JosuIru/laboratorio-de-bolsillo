@@ -1,0 +1,182 @@
+{
+  "name": "Tiras de piscina y acuario",
+  "description": "Lee con la cámara las tiras reactivas de piscina o acuario: compara cada almohadilla con su escala de colores y te dice si el valor está en rango.",
+  "modes": {
+    "read": "Leer tira",
+    "calibrate": "Calibrar escala"
+  },
+  "guide": {
+    "handle": "◀ asa",
+    "lowestValue": "◀ valor menor",
+    "readHint": "Coloca la tira dentro del rectángulo con el asa a la izquierda, sobre un fondo blanco y con luz uniforme. Acerca o aleja el móvil hasta que cada almohadilla quede en su casilla.",
+    "calibrateHint": "Encuadra la fila de colores de «{{parameter}}» de la carta del bote: un color por casilla, del valor menor al mayor."
+  },
+  "card": {
+    "title": "Tarjeta de referencia",
+    "summary": "Se usa la tarjeta del colorímetro: {{name}}.",
+    "defaultName": "folio blanco (por defecto)",
+    "placeHint": "Toca la imagen, fuera de la guía, para colocar el parche: {{patch}}",
+    "correctionSummary": "Corregido con {{patchCount}} parches ({{model}}), error medio ΔE {{residual}}",
+    "noCorrection": "Sin corrección de color: pon la tira sobre un folio blanco y toca el folio para compensar la luz.",
+    "clearPatches": "Quitar parches",
+    "change": "Cambiar la tarjeta (en el colorímetro)"
+  },
+  "correctionModel": {
+    "diagonal": "balance de blancos",
+    "linear": "matriz lineal",
+    "affine": "matriz afín"
+  },
+  "torchOn": "Encender linterna",
+  "torchOff": "Apagar linterna",
+  "timer": {
+    "title": "Tiempo de lectura",
+    "hint": "Los colores cambian con el tiempo: lee la tira cuando indique el bote. Al terminar la cuenta atrás, el móvil vibra y la lectura queda fijada.",
+    "seconds": "{{seconds}} s",
+    "start": "He mojado la tira: empezar",
+    "cancel": "Cancelar la cuenta atrás",
+    "remaining": "Lee dentro de {{seconds}} s"
+  },
+  "reading": {
+    "title": "Resultados",
+    "waiting": "Coloca la tira en la guía para ver los valores.",
+    "frozen": "Lectura fijada",
+    "frozenAt": "Lectura fijada a los {{seconds}} s de mojar la tira",
+    "freeze": "Fijar lectura",
+    "live": "Volver a la lectura en directo",
+    "idealRange": "Recomendado: {{range}}",
+    "confidence": "ΔE {{deltaE}}, {{confidence}}",
+    "defaultScale": "escala orientativa",
+    "calibratedScale": "escala calibrada",
+    "nonUniform": "La almohadilla no se ve uniforme: evita reflejos y sombras y céntrala en su casilla.",
+    "orientativeNotice": "Las escalas orientativas son aproximadas y cada marca usa colores distintos: para medir de verdad, calibra las escalas con la carta de tu bote."
+  },
+  "status": {
+    "low": "Bajo",
+    "ideal": "Bien",
+    "high": "Alto"
+  },
+  "confidence": {
+    "good": "se parece a la escala",
+    "fair": "se parece poco a la escala",
+    "poor": "no se parece a la escala: valor poco fiable"
+  },
+  "presets": {
+    "pool": "Piscina",
+    "aquarium": "Acuario"
+  },
+  "quantities": {
+    "ph": "pH",
+    "freeChlorine": "Cloro libre",
+    "totalChlorine": "Cloro total",
+    "totalAlkalinity": "Alcalinidad total",
+    "totalHardness": "Dureza total",
+    "cyanuricAcid": "Ácido cianúrico",
+    "carbonateHardness": "Dureza de carbonatos (KH)",
+    "generalHardness": "Dureza general (GH)",
+    "nitrite": "Nitritos (NO₂)",
+    "nitrate": "Nitratos (NO₃)",
+    "chlorine": "Cloro"
+  },
+  "setup": {
+    "title": "Tipo de tira",
+    "padsHint": "Almohadillas en el orden de tu tira, empezando por la más cercana al asa. Si tu tira tiene una que no está en la lista, añade un hueco para que las demás caigan en su casilla.",
+    "ignoredPad": "Hueco (no se lee)",
+    "moveTowardsHandle": "Acercar {{parameter}} al asa",
+    "moveAwayFromHandle": "Alejar {{parameter}} del asa",
+    "remove": "Quitar {{parameter}}",
+    "add": "Añadir almohadilla:",
+    "resetOrder": "Orden por defecto"
+  },
+  "calibration": {
+    "title": "Calibrar con la carta del bote",
+    "intro": "Fotografía la carta de colores de tu bote para usar sus colores reales en lugar de la escala orientativa. Hazlo con la misma luz y la misma tarjeta de referencia con las que vas a leer las tiras.",
+    "currentCalibrated": "Esta escala se calibró el {{date}}.",
+    "currentDefault": "Ahora se usa la escala orientativa.",
+    "levelsHint": "Escribe los valores de la carta en el mismo orden que las casillas. Encima de cada valor, el color que se está midiendo:",
+    "levelLabel": "Valor de la casilla {{index}}",
+    "addLevel": "Añadir casilla",
+    "removeLevel": "Quitar la última",
+    "save": "Guardar los colores medidos",
+    "saved": "Escala de «{{parameter}}» guardada.",
+    "resetToDefault": "Volver a la escala orientativa",
+    "problems": {
+      "too-few-levels": "Hacen falta al menos dos casillas.",
+      "invalid-value": "Escribe un número en cada casilla.",
+      "repeated-value": "Hay valores repetidos: cada casilla debe tener un valor distinto.",
+      "missing-color": "Aún no se ha medido el color de todas las casillas: encuadra la carta y espera un momento."
+    }
+  },
+  "advice": {
+    "pool-ph": {
+      "low": "pH bajo: el agua se vuelve agresiva con los materiales y molesta en ojos y piel. Suele subirse con incrementador de pH; sigue las instrucciones del producto y vuelve a medir unas horas después.",
+      "high": "pH alto: el cloro pierde eficacia y el agua puede enturbiarse. Suele bajarse con reductor de pH."
+    },
+    "pool-free-chlorine": {
+      "low": "Poco cloro libre: revisa la dosificación de cloro y vuelve a medir.",
+      "high": "Cloro libre alto: reduce la dosificación y espera a que baje antes de bañarte."
+    },
+    "pool-total-chlorine": {
+      "low": "Cloro total bajo: revisa la dosificación de cloro.",
+      "high": "Cloro total alto. Si supera claramente al cloro libre, hay cloro combinado (cloraminas), que se suele eliminar con una cloración de choque."
+    },
+    "pool-total-alkalinity": {
+      "low": "Alcalinidad baja: el pH se vuelve inestable. Suele subirse con incrementador de alcalinidad (bicarbonato sódico).",
+      "high": "Alcalinidad alta: el pH tiende a subir y cuesta ajustarlo. Se baja poco a poco con reductor de pH."
+    },
+    "pool-total-hardness": {
+      "low": "Dureza baja: el agua puede atacar juntas y revestimientos. Existe incrementador de dureza cálcica.",
+      "high": "Dureza alta: riesgo de incrustaciones y agua turbia. Suele corregirse renovando parte del agua."
+    },
+    "pool-cyanuric-acid": {
+      "low": "Poco estabilizante: en piscinas al aire libre el sol degrada el cloro enseguida.",
+      "high": "Demasiado estabilizante: el cloro pierde eficacia. Solo baja renovando parte del agua."
+    },
+    "aquarium-ph": {
+      "low": "pH bajo para la mayoría de los peces comunitarios. Mira también el KH: si es bajo, el pH puede caer de golpe.",
+      "high": "pH alto para la mayoría de los peces comunitarios. Revisa si hay rocas o sustratos calizos y el agua que añades."
+    },
+    "aquarium-carbonate-hardness": {
+      "low": "KH bajo: el pH queda sin amortiguar y puede cambiar bruscamente. Los cambios con agua más dura lo suben.",
+      "high": "KH alto: el pH tenderá a ser alto. Se reduce mezclando agua de ósmosis o desmineralizada."
+    },
+    "aquarium-general-hardness": {
+      "low": "GH bajo: faltan calcio y magnesio para peces y plantas. Existen sales para remineralizar.",
+      "high": "GH alto: va bien a algunas especies, pero no a todas. Se reduce mezclando agua de ósmosis."
+    },
+    "aquarium-nitrite": {
+      "high": "Hay nitritos, que son tóxicos para los peces: haz cambios parciales de agua, reduce la comida y revisa el filtro (acuario sin ciclar o filtro dañado)."
+    },
+    "aquarium-nitrate": {
+      "high": "Nitratos altos: haz cambios parciales de agua más a menudo y no des demasiada comida."
+    },
+    "aquarium-chlorine": {
+      "high": "Hay cloro, que es tóxico para los peces: usa acondicionador antes de añadir agua del grifo."
+    }
+  },
+  "disclaimer": "Valores orientativos para el mantenimiento del agua. No sirven para certificar que el agua sea apta para el baño o el consumo ni para decisiones sanitarias: para eso hace falta un análisis de laboratorio.",
+  "privacy": "Las imágenes se analizan en el móvil y no se guardan: solo los valores y los colores medidos.",
+  "fields": {
+    "stripType": "Tipo de tira",
+    "ph": "pH",
+    "freeChlorine": "Cloro libre",
+    "totalChlorine": "Cloro total",
+    "totalAlkalinity": "Alcalinidad total",
+    "totalHardness": "Dureza total",
+    "cyanuricAcid": "Ácido cianúrico",
+    "carbonateHardness": "KH",
+    "generalHardness": "GH",
+    "nitrite": "Nitritos",
+    "nitrate": "Nitratos",
+    "chlorine": "Cloro",
+    "outOfRangeParameters": "Fuera de rango",
+    "maximumDeltaE": "Mayor diferencia con la escala",
+    "padOrder": "Almohadillas",
+    "padColors": "Colores de las almohadillas",
+    "padDeltaE": "Diferencia con la escala por almohadilla",
+    "padScaleSources": "Escalas usadas",
+    "secondsAfterDip": "Tiempo tras mojar la tira",
+    "correctionModel": "Corrección",
+    "referencePatchCount": "Parches de referencia",
+    "correctionResidual": "Error de la corrección"
+  }
+}

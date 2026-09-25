@@ -1,0 +1,182 @@
+{
+  "name": "Igerileku eta akuarioko zerrendak",
+  "description": "Irakurri kamerarekin igerileku edo akuarioko test-zerrendak: laukitxo bakoitza bere kolore-eskalarekin alderatzen du eta balioa tartean dagoen esaten dizu.",
+  "modes": {
+    "read": "Irakurri zerrenda",
+    "calibrate": "Kalibratu eskala"
+  },
+  "guide": {
+    "handle": "◀ heldulekua",
+    "lowestValue": "◀ balio txikiena",
+    "readHint": "Jarri zerrenda laukizuzenaren barruan, heldulekua ezkerrean duela, hondo zuri baten gainean eta argi uniformearekin. Hurbildu edo urrundu mugikorra laukitxo bakoitza bere gelaxkan geratu arte.",
+    "calibrateHint": "Enkoadratu potoko txartelean «{{parameter}}» parametroaren kolore-errenkada: kolore bat gelaxka bakoitzeko, balio txikienetik handienera."
+  },
+  "card": {
+    "title": "Erreferentzia-txartela",
+    "summary": "Kolorimetroaren txartela erabiltzen da: {{name}}.",
+    "defaultName": "folio zuria (lehenetsia)",
+    "placeHint": "Ukitu irudia, gidatik kanpo, adabaki hau jartzeko: {{patch}}",
+    "correctionSummary": "{{patchCount}} adabakirekin zuzenduta ({{model}}), batez besteko errorea ΔE {{residual}}",
+    "noCorrection": "Kolore-zuzenketarik gabe: jarri zerrenda folio zuri baten gainean eta ukitu folioa argia konpentsatzeko.",
+    "clearPatches": "Kendu adabakiak",
+    "change": "Aldatu txartela (kolorimetroan)"
+  },
+  "correctionModel": {
+    "diagonal": "zuri-balantzea",
+    "linear": "matrize lineala",
+    "affine": "matrize afina"
+  },
+  "torchOn": "Piztu linterna",
+  "torchOff": "Itzali linterna",
+  "timer": {
+    "title": "Irakurketa-denbora",
+    "hint": "Koloreak denborarekin aldatzen dira: irakurri zerrenda potoak dioenean. Atzerako kontaketa amaitzean, mugikorrak dar-dar egingo du eta irakurketa finkatuta geratuko da.",
+    "seconds": "{{seconds}} s",
+    "start": "Busti dut zerrenda: hasi",
+    "cancel": "Utzi atzerako kontaketa",
+    "remaining": "Irakurri {{seconds}} s barru"
+  },
+  "reading": {
+    "title": "Emaitzak",
+    "waiting": "Jarri zerrenda gidan balioak ikusteko.",
+    "frozen": "Irakurketa finkatuta",
+    "frozenAt": "Irakurketa finkatuta, zerrenda busti eta {{seconds}} s-ra",
+    "freeze": "Finkatu irakurketa",
+    "live": "Itzuli zuzeneko irakurketara",
+    "idealRange": "Gomendatua: {{range}}",
+    "confidence": "ΔE {{deltaE}}, {{confidence}}",
+    "defaultScale": "eskala orientagarria",
+    "calibratedScale": "eskala kalibratua",
+    "nonUniform": "Laukitxoa ez da uniforme ikusten: saihestu islak eta itzalak, eta zentratu bere gelaxkan.",
+    "orientativeNotice": "Eskala orientagarriak gutxi gorabeherakoak dira, eta marka bakoitzak kolore desberdinak erabiltzen ditu: benetan neurtzeko, kalibratu eskalak zure potoko txartelarekin."
+  },
+  "status": {
+    "low": "Baxua",
+    "ideal": "Ondo",
+    "high": "Altua"
+  },
+  "confidence": {
+    "good": "eskalaren antzekoa da",
+    "fair": "eskalaren antz gutxi du",
+    "poor": "ez da eskalaren antzekoa: balioa ez da fidagarria"
+  },
+  "presets": {
+    "pool": "Igerilekua",
+    "aquarium": "Akuarioa"
+  },
+  "quantities": {
+    "ph": "pH",
+    "freeChlorine": "Kloro librea",
+    "totalChlorine": "Kloro osoa",
+    "totalAlkalinity": "Alkalinitate osoa",
+    "totalHardness": "Gogortasun osoa",
+    "cyanuricAcid": "Azido zianurikoa",
+    "carbonateHardness": "Karbonatoen gogortasuna (KH)",
+    "generalHardness": "Gogortasun orokorra (GH)",
+    "nitrite": "Nitritoak (NO₂)",
+    "nitrate": "Nitratoak (NO₃)",
+    "chlorine": "Kloroa"
+  },
+  "setup": {
+    "title": "Zerrenda mota",
+    "padsHint": "Laukitxoak zure zerrendako ordenan, heldulekutik hurbilenetik hasita. Zure zerrendak aukeretan ez dagoen laukitxoren bat badu, gehitu hutsune bat, besteak dagokien gelaxkan gera daitezen.",
+    "ignoredPad": "Hutsunea (ez da irakurtzen)",
+    "moveTowardsHandle": "Hurbildu {{parameter}} heldulekura",
+    "moveAwayFromHandle": "Urrundu {{parameter}} heldulekutik",
+    "remove": "Kendu {{parameter}}",
+    "add": "Gehitu laukitxoa:",
+    "resetOrder": "Ordena lehenetsia"
+  },
+  "calibration": {
+    "title": "Kalibratu potoko txartelarekin",
+    "intro": "Atera argazkia zure potoko kolore-txartelari, eskala orientagarriaren ordez haren benetako koloreak erabiltzeko. Egin ezazu zerrendak irakurtzeko erabiliko dituzun argi eta erreferentzia-txartel berekin.",
+    "currentCalibrated": "Eskala hau {{date}} datan kalibratu zen.",
+    "currentDefault": "Orain eskala orientagarria erabiltzen da.",
+    "levelsHint": "Idatzi txarteleko balioak gelaxken ordena berean. Balio bakoitzaren gainean, neurtzen ari den kolorea:",
+    "levelLabel": "{{index}}. gelaxkaren balioa",
+    "addLevel": "Gehitu gelaxka",
+    "removeLevel": "Kendu azkena",
+    "save": "Gorde neurtutako koloreak",
+    "saved": "«{{parameter}}» eskala gorde da.",
+    "resetToDefault": "Itzuli eskala orientagarrira",
+    "problems": {
+      "too-few-levels": "Gutxienez bi gelaxka behar dira.",
+      "invalid-value": "Idatzi zenbaki bat gelaxka bakoitzean.",
+      "repeated-value": "Balio errepikatuak daude: gelaxka bakoitzak balio desberdina izan behar du.",
+      "missing-color": "Oraindik ez da gelaxka guztien kolorea neurtu: enkoadratu txartela eta itxaron une batez."
+    }
+  },
+  "advice": {
+    "pool-ph": {
+      "low": "pH baxua: ura erasokorra da materialekin, eta begiak eta azala narritatzen ditu. pH igotzailearekin igo ohi da; jarraitu produktuaren argibideei eta neurtu berriro ordu batzuk geroago.",
+      "high": "pH altua: kloroak eraginkortasuna galtzen du eta ura uhertu daiteke. pH murrizlearekin jaitsi ohi da."
+    },
+    "pool-free-chlorine": {
+      "low": "Kloro libre gutxi: berrikusi kloro-dosifikazioa eta neurtu berriro.",
+      "high": "Kloro libre handia: murriztu dosifikazioa eta itxaron jaitsi arte bainatu aurretik."
+    },
+    "pool-total-chlorine": {
+      "low": "Kloro osoa baxua: berrikusi kloro-dosifikazioa.",
+      "high": "Kloro osoa altua. Kloro librea argi gainditzen badu, kloro konbinatua (kloraminak) dago, eta kloratze-talka batekin kendu ohi da."
+    },
+    "pool-total-alkalinity": {
+      "low": "Alkalinitate baxua: pH-a ezegonkor bihurtzen da. Alkalinitate-igotzailearekin (sodio bikarbonatoa) igo ohi da.",
+      "high": "Alkalinitate altua: pH-ak gora egiteko joera du eta zaila da doitzea. pH murrizlearekin jaisten da, pixkanaka."
+    },
+    "pool-total-hardness": {
+      "low": "Gogortasun baxua: urak junturak eta estaldurak kalte ditzake. Badago kaltzio-gogortasuna igotzeko produktua.",
+      "high": "Gogortasun altua: kareztatzeak eta ur uherra izateko arriskua. Uraren zati bat berrituz zuzendu ohi da."
+    },
+    "pool-cyanuric-acid": {
+      "low": "Egonkortzaile gutxi: aire zabaleko igerilekuetan eguzkiak berehala degradatzen du kloroa.",
+      "high": "Egonkortzaile gehiegi: kloroak eraginkortasuna galtzen du. Uraren zati bat berrituz bakarrik jaisten da."
+    },
+    "aquarium-ph": {
+      "low": "pH baxua komunitateko arrain gehienentzat. Begiratu KH ere: baxua bada, pH-a bat-batean jaitsi daiteke.",
+      "high": "pH altua komunitateko arrain gehienentzat. Begiratu harri edo substratu kareharrizkorik dagoen, baita gehitzen duzun ura ere."
+    },
+    "aquarium-carbonate-hardness": {
+      "low": "KH baxua: pH-a moteldu gabe geratzen da eta bat-batean alda daiteke. Ur gogorragoarekin egindako aldaketek igotzen dute.",
+      "high": "KH altua: pH-ak altua izateko joera izango du. Osmosi-ura edo ur desmineralizatua nahastuz murrizten da."
+    },
+    "aquarium-general-hardness": {
+      "low": "GH baxua: kaltzioa eta magnesioa falta zaizkie arrainei eta landareei. Birmineralizatzeko gatzak badaude.",
+      "high": "GH altua: espezie batzuentzat egokia da, baina ez guztientzat. Osmosi-ura nahastuz murrizten da."
+    },
+    "aquarium-nitrite": {
+      "high": "Nitritoak daude, eta toxikoak dira arrainentzat: egin ur-aldaketa partzialak, eman janari gutxiago eta berrikusi iragazkia (ziklatu gabeko akuarioa edo iragazki kaltetua)."
+    },
+    "aquarium-nitrate": {
+      "high": "Nitrato asko: egin ur-aldaketa partzialak maizago eta ez eman janari gehiegi."
+    },
+    "aquarium-chlorine": {
+      "high": "Kloroa dago, eta toxikoa da arrainentzat: erabili ur-egokitzailea txorrotako ura gehitu aurretik."
+    }
+  },
+  "disclaimer": "Uraren mantentzerako balio orientagarriak. Ez dute balio ura bainatzeko edo edateko egokia dela ziurtatzeko, ezta osasun-erabakiak hartzeko ere: horretarako laborategiko analisia behar da.",
+  "privacy": "Irudiak mugikorrean aztertzen dira eta ez dira gordetzen: neurtutako balioak eta koloreak bakarrik.",
+  "fields": {
+    "stripType": "Zerrenda mota",
+    "ph": "pH",
+    "freeChlorine": "Kloro librea",
+    "totalChlorine": "Kloro osoa",
+    "totalAlkalinity": "Alkalinitate osoa",
+    "totalHardness": "Gogortasun osoa",
+    "cyanuricAcid": "Azido zianurikoa",
+    "carbonateHardness": "KH",
+    "generalHardness": "GH",
+    "nitrite": "Nitritoak",
+    "nitrate": "Nitratoak",
+    "chlorine": "Kloroa",
+    "outOfRangeParameters": "Tartetik kanpo",
+    "maximumDeltaE": "Eskalarekiko alde handiena",
+    "padOrder": "Laukitxoak",
+    "padColors": "Laukitxoen koloreak",
+    "padDeltaE": "Eskalarekiko aldea laukitxoka",
+    "padScaleSources": "Erabilitako eskalak",
+    "secondsAfterDip": "Zerrenda busti ondoko denbora",
+    "correctionModel": "Zuzenketa",
+    "referencePatchCount": "Erreferentzia-adabakiak",
+    "correctionResidual": "Zuzenketaren errorea"
+  }
+}
