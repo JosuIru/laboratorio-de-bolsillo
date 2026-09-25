@@ -23,6 +23,7 @@
     "previousArrivals": "Anteriores: {{list}}",
     "share": "Enviar a la central",
     "clearArrivals": "Borrar llegadas",
+    "capturingWaveform": "Recogiendo la forma de onda del golpe (1 s antes y 2 s después) para poder guardarla…",
     "levelMeter": "Nivel STA/LTA (la barra llena dispara)",
     "sampleRate": "{{rate}} muestras/s · resolución de tiempo ≈ {{resolution}} ms",
     "measuringRate": "Midiendo la frecuencia de muestreo…",

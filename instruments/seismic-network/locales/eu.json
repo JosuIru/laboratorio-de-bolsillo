@@ -23,6 +23,7 @@
     "previousArrivals": "Aurrekoak: {{list}}",
     "share": "Bidali zentralera",
     "clearArrivals": "Ezabatu iritsierak",
+    "capturingWaveform": "Kolpearen uhin-forma biltzen (1 s lehenago eta 2 s geroago), gorde ahal izateko…",
     "levelMeter": "STA/LTA maila (barra betetzean detektatzen du)",
     "sampleRate": "{{rate}} lagin/s · denbora-bereizmena ≈ {{resolution}} ms",
     "measuringRate": "Laginketa-maiztasuna neurtzen…",

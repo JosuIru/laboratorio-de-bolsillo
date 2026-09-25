@@ -33,7 +33,7 @@ export function StationPanel({ saveMeasurement }: StationPanelProps) {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const triggerRatio = triggerRatioBySensitivity[sensitivityLevel];
 
-  const { stage, recordedArrivals, liveRatio, detectorPhase, sampleRateHz, startSync, arm, clearArrivals, stop, readRawHistory } =
+  const { stage, recordedArrivals, liveRatio, detectorPhase, sampleRateHz, startSync, arm, clearArrivals, stop } =
     useSeismicStation({ isEnabled: true, triggerRatio });
 
   const stationXMeters = parseDecimalInput(xText);
@@ -60,20 +60,22 @@ export function StationPanel({ saveMeasurement }: StationPanelProps) {
   }
 
   async function handleSave() {
-    if (!latestArrival || !hasValidPosition) return;
+    // Se guarda la ventana copiada al detectar el golpe (−1 s / +2 s), no el historial vivo, que
+    // solo cubre unos segundos y ya no contendría el golpe.
+    const arrivalWaveform = latestArrival?.waveform;
+    if (!latestArrival || !arrivalWaveform || !hasValidPosition) return;
     setIsSaving(true);
     setStatusMessage(null);
     try {
-      const rawHistory = readRawHistory();
       const waveformFile = new File(Paths.cache, `seismic-station-${Date.now()}.csv`);
       waveformFile.create({ overwrite: true });
       waveformFile.write(
         formatStationWaveformCsv(
-          rawHistory.timestamps,
-          rawHistory.accelerationX,
-          rawHistory.accelerationY,
-          rawHistory.accelerationZ,
-          rawHistory.syncTimestampSeconds ?? rawHistory.timestamps[0] ?? 0,
+          arrivalWaveform.timestamps,
+          arrivalWaveform.accelerationX,
+          arrivalWaveform.accelerationY,
+          arrivalWaveform.accelerationZ,
+          arrivalWaveform.syncTimestampSeconds,
         ),
       );
       await saveMeasurement({
@@ -92,7 +94,7 @@ export function StationPanel({ saveMeasurement }: StationPanelProps) {
             sourceUri: waveformFile.uri,
             fileName: 'estacion.csv',
             mimeType: 'text/csv',
-            metadata: { sampleCount: rawHistory.timestamps.length, ...(sampleRateHz ? { sampleRateHz } : {}) },
+            metadata: { sampleCount: arrivalWaveform.timestamps.length, ...(sampleRateHz ? { sampleRateHz } : {}) },
           },
         ],
       });
@@ -195,11 +197,14 @@ export function StationPanel({ saveMeasurement }: StationPanelProps) {
                 label={t('core:common.save')}
                 onPress={() => void handleSave()}
                 isBusy={isSaving}
-                isDisabled={!latestArrival || !hasValidPosition}
+                isDisabled={!latestArrival?.waveform || !hasValidPosition}
                 variant="secondary"
               />
             </View>
           </View>
+          {latestArrival && !latestArrival.waveform ? (
+            <BodyText tone="secondary">{t('station.capturingWaveform')}</BodyText>
+          ) : null}
           <AppButton label={t('station.clearArrivals')} onPress={clearArrivals} variant="secondary" isDisabled={!latestArrival} />
           {statusMessage ? <BodyText tone="secondary">{statusMessage}</BodyText> : null}
         </Card>

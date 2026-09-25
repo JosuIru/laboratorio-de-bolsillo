@@ -7,12 +7,17 @@ import { createOnsetDetector, type OnsetDetector, type OnsetDetectorPhase } from
 import { estimateSampleRateHz } from '@/processing/signal/resampling';
 import { copyLatestFromRingBuffer, createRingBuffer, pushToRingBuffer, type RingBuffer } from '@/processing/signal/ringBuffer';
 
+import { type ArrivalWaveform, extractArrivalWaveform } from './arrivalWaveform';
+
 /** Pedimos la máxima frecuencia; el sistema entrega lo que el sensor permite. */
 const requestedRateHz = 500;
-/** Unos 4 s de señal cruda a 500 Hz, para guardar la forma de onda del último golpe. */
-const rawHistoryCapacity = 2048;
+/** Unos 8 s de señal cruda a 500 Hz: de sobra para recortar la ventana de cada golpe. */
+const rawHistoryCapacity = 4096;
 const displayRefreshIntervalMilliseconds = 100;
 const maximumStoredArrivals = 6;
+/** Ventana de forma de onda que se guarda con cada llegada: 1 s antes y 2 s después. */
+const waveformSecondsBeforeArrival = 1;
+const waveformSecondsAfterArrival = 2;
 
 /**
  * - `waiting-sync`: todos los móviles juntos, esperando el golpe de sincronización.
@@ -22,10 +27,22 @@ const maximumStoredArrivals = 6;
 export type StationStage = 'idle' | 'waiting-sync' | 'synced' | 'armed';
 
 export interface RecordedArrival {
+  arrivalId: number;
   /** Segundos desde el golpe de sincronización (reloj del sensor de este móvil). */
   arrivalSeconds: number;
   peakRatio: number;
   peakAmplitude: number;
+  /**
+   * Forma de onda alrededor del golpe. Es `null` durante los 2 s que se esperan tras la llegada
+   * para tener la onda completa.
+   */
+  waveform: ArrivalWaveform | null;
+}
+
+interface PendingWaveformCapture {
+  arrivalId: number;
+  onsetTimestampSeconds: number;
+  syncTimestampSeconds: number;
 }
 
 interface RawHistory {
@@ -68,6 +85,9 @@ export function useSeismicStation({ isEnabled, triggerRatio }: { isEnabled: bool
   const stageRef = useRef<StationStage>('idle');
   const syncTimestampSeconds = useRef<number | null>(null);
   const [recordedArrivals, setRecordedArrivals] = useState<RecordedArrival[]>([]);
+  const nextArrivalId = useRef(1);
+  /** Llegadas que esperan los 2 s posteriores para copiar su forma de onda, en orden de llegada. */
+  const pendingWaveformCaptures = useRef<PendingWaveformCapture[]>([]);
   const [liveStatus, setLiveStatus] = useState<{ ratio: number; phase: OnsetDetectorPhase; sampleRateHz: number | null }>({
     ratio: 0,
     phase: 'warming-up',
@@ -83,6 +103,34 @@ export function useSeismicStation({ isEnabled, triggerRatio }: { isEnabled: bool
     setStage(nextStage);
   }, []);
 
+  /**
+   * Copia la ventana del golpe del historial y la guarda con su llegada. Se copia en el momento
+   * (y no al pulsar «Guardar») porque el historial solo cubre unos segundos.
+   */
+  const completeWaveformCapture = useCallback(
+    (pendingCapture: PendingWaveformCapture) => {
+      const waveform = extractArrivalWaveform(
+        {
+          timestamps: readRingBuffer(rawHistory.timestamps),
+          accelerationX: readRingBuffer(rawHistory.accelerationX),
+          accelerationY: readRingBuffer(rawHistory.accelerationY),
+          accelerationZ: readRingBuffer(rawHistory.accelerationZ),
+        },
+        pendingCapture.onsetTimestampSeconds - waveformSecondsBeforeArrival,
+        pendingCapture.onsetTimestampSeconds + waveformSecondsAfterArrival,
+        pendingCapture.syncTimestampSeconds,
+      );
+      setRecordedArrivals((previousArrivals) =>
+        previousArrivals.map((recordedArrival) =>
+          recordedArrival.arrivalId === pendingCapture.arrivalId ? { ...recordedArrival, waveform } : recordedArrival,
+        ),
+      );
+    },
+    [rawHistory],
+  );
+
+  const isSubscriptionActive = isEnabled && isAppActive && stage !== 'idle';
+
   useSensorSubscription(
     accelerometerSource,
     ({ timestampSeconds, value }) => {
@@ -90,22 +138,47 @@ export function useSeismicStation({ isEnabled, triggerRatio }: { isEnabled: bool
       pushToRingBuffer(rawHistory.accelerationX, value.x);
       pushToRingBuffer(rawHistory.accelerationY, value.y);
       pushToRingBuffer(rawHistory.accelerationZ, value.z);
+
+      // Las capturas se completan cuando ya han pasado los 2 s posteriores a la llegada.
+      while (
+        pendingWaveformCaptures.current.length > 0 &&
+        timestampSeconds >= pendingWaveformCaptures.current[0]!.onsetTimestampSeconds + waveformSecondsAfterArrival
+      ) {
+        completeWaveformCapture(pendingWaveformCaptures.current.shift()!);
+      }
+
       const pick = onsetDetector.current.push(timestampSeconds, value.x, value.y, value.z);
       if (!pick) return;
       if (stageRef.current === 'waiting-sync') {
         syncTimestampSeconds.current = pick.onsetTimestampSeconds;
         changeStage('synced');
       } else if (stageRef.current === 'armed' && syncTimestampSeconds.current !== null) {
+        const arrivalId = nextArrivalId.current++;
         const recordedArrival: RecordedArrival = {
+          arrivalId,
           arrivalSeconds: pick.onsetTimestampSeconds - syncTimestampSeconds.current,
           peakRatio: pick.peakRatio,
           peakAmplitude: pick.peakAmplitude,
+          waveform: null,
         };
+        pendingWaveformCaptures.current.push({
+          arrivalId,
+          onsetTimestampSeconds: pick.onsetTimestampSeconds,
+          syncTimestampSeconds: syncTimestampSeconds.current,
+        });
         setRecordedArrivals((previousArrivals) => [recordedArrival, ...previousArrivals].slice(0, maximumStoredArrivals));
       }
     },
-    { isActive: isEnabled && isAppActive && stage !== 'idle', targetRateHz: requestedRateHz },
+    { isActive: isSubscriptionActive, targetRateHz: requestedRateHz },
   );
+
+  // Si el sensor se para (app en segundo plano) antes de completar una captura, se guarda lo
+  // que haya: mejor una ventana corta que ninguna.
+  useEffect(() => {
+    if (isSubscriptionActive) return;
+    for (const pendingCapture of pendingWaveformCaptures.current) completeWaveformCapture(pendingCapture);
+    pendingWaveformCaptures.current = [];
+  }, [isSubscriptionActive, completeWaveformCapture]);
 
   useEffect(() => {
     if (!isEnabled || stage === 'idle') return;
@@ -125,6 +198,7 @@ export function useSeismicStation({ isEnabled, triggerRatio }: { isEnabled: bool
   const startSync = useCallback(() => {
     onsetDetector.current.reset();
     syncTimestampSeconds.current = null;
+    pendingWaveformCaptures.current = [];
     setRecordedArrivals([]);
     changeStage('waiting-sync');
   }, [changeStage]);
@@ -136,25 +210,17 @@ export function useSeismicStation({ isEnabled, triggerRatio }: { isEnabled: bool
     changeStage('armed');
   }, [changeStage]);
 
-  const clearArrivals = useCallback(() => setRecordedArrivals([]), []);
+  const clearArrivals = useCallback(() => {
+    pendingWaveformCaptures.current = [];
+    setRecordedArrivals([]);
+  }, []);
 
   const stop = useCallback(() => {
     syncTimestampSeconds.current = null;
+    pendingWaveformCaptures.current = [];
     setRecordedArrivals([]);
     changeStage('idle');
   }, [changeStage]);
-
-  /** Serie cruda reciente (para guardar la forma de onda como adjunto). */
-  const readRawHistory = useCallback(
-    () => ({
-      timestamps: readRingBuffer(rawHistory.timestamps),
-      accelerationX: readRingBuffer(rawHistory.accelerationX),
-      accelerationY: readRingBuffer(rawHistory.accelerationY),
-      accelerationZ: readRingBuffer(rawHistory.accelerationZ),
-      syncTimestampSeconds: syncTimestampSeconds.current,
-    }),
-    [rawHistory],
-  );
 
   return {
     stage,
@@ -166,6 +232,5 @@ export function useSeismicStation({ isEnabled, triggerRatio }: { isEnabled: bool
     arm,
     clearArrivals,
     stop,
-    readRawHistory,
   };
 }
