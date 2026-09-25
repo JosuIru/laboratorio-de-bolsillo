@@ -1,0 +1,15 @@
+{
+  "name": "Metronomoa",
+  "description": "Pultsua klik zehatzekin markatzen du: aukeratu tempoa eta konpasa, edo markatu zuk ukituz.",
+  "start": "Hasi",
+  "stop": "Gelditu",
+  "tempoRange": "{{minimum}} eta {{maximum}} BPM artean. Tempoa alda dezakezu jotzen ari den bitartean.",
+  "tapTempo": "Markatu tempoa",
+  "tapTempoHelp": "Ukitu hemen nahi duzun erritmoan (bi aldiz gutxienez)",
+  "beatsPerBar": "Pultsuak konpaseko (lehenak zorrotzago jotzen du)",
+  "backgroundNote": "Metronomoa gelditu egiten da aplikaziotik irteten bazara edo pantaila itzaltzen baduzu.",
+  "fields": {
+    "tempo": "Tempoa",
+    "beatsPerBar": "Pultsuak konpaseko"
+  }
+}

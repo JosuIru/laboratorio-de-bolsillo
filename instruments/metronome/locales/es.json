@@ -1,0 +1,15 @@
+{
+  "name": "Metrónomo",
+  "description": "Marca el pulso con clics precisos: elige el tempo, el compás o márcalo tú con toques.",
+  "start": "Empezar",
+  "stop": "Parar",
+  "tempoRange": "De {{minimum}} a {{maximum}} BPM. Puedes cambiar el tempo mientras suena.",
+  "tapTempo": "Marca el tempo",
+  "tapTempoHelp": "Toca aquí al ritmo que quieras (al menos dos veces)",
+  "beatsPerBar": "Pulsos por compás (el primero suena más agudo)",
+  "backgroundNote": "El metrónomo se para si sales de la app o apagas la pantalla.",
+  "fields": {
+    "tempo": "Tempo",
+    "beatsPerBar": "Pulsos por compás"
+  }
+}
