@@ -65,5 +65,10 @@
       "^@/(.*)$": "<rootDir>/src/$1",
       "^@instruments/(.*)$": "<rootDir>/instruments/$1"
     }
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JosuIru/laboratorio-de-bolsillo.git"
+  },
+  "homepage": "https://github.com/JosuIru/laboratorio-de-bolsillo"
 }

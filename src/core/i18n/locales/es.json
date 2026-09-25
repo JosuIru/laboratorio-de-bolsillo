@@ -63,7 +63,7 @@
     "attachLocationHint": "Se usa el GPS solo al guardar. La ubicación nunca sale del móvil salvo que exportes.",
     "locationDenied": "Sin permiso de ubicación no se puede activar.",
     "sensors": "Sensores de este móvil",
-    "privacy": "Todo se procesa y guarda en este dispositivo. Sin analítica ni rastreo."
+    "privacy": "Todo se procesa y guarda en este dispositivo. Sin analítica ni rastreo. La única conexión a Internet es la búsqueda manual de actualizaciones."
   },
   "language": {
     "es": "Castellano",
@@ -96,6 +96,24 @@
       "permissionDenied": "Permiso denegado para {{sensor}}.",
       "permissionBlocked": "Permiso bloqueado para {{sensor}}: actívalo en los ajustes del sistema.",
       "permissionUndetermined": "Hace falta permiso para usar {{sensor}}."
+    }
+  },
+  "updates": {
+    "title": "Actualizaciones",
+    "installedVersion": "Versión instalada: {{version}}",
+    "check": "Buscar actualizaciones",
+    "upToDate": "Tienes la última versión.",
+    "noReleases": "Todavía no hay versiones publicadas.",
+    "available": "Nueva versión disponible: {{version}}",
+    "downloadApk": "Descargar APK",
+    "downloadApkWithSize": "Descargar APK ({{sizeMegabytes}} MB)",
+    "installHint": "Se descarga con el navegador. Al abrirlo, Android te pedirá permiso para instalar apps de esta fuente. Tus mediciones se conservan.",
+    "viewRelease": "Ver novedades en GitHub",
+    "privacyNote": "Solo se conecta a Internet cuando pulsas «Buscar actualizaciones», y únicamente para consultar {{repository}}. No se envía nada de tus mediciones ni del móvil; GitHub solo ve la conexión, como al visitar una web.",
+    "error": {
+      "network": "No hay conexión o GitHub no responde.",
+      "rate-limited": "GitHub ha limitado las consultas. Prueba dentro de un rato.",
+      "unexpected-response": "Respuesta inesperada de GitHub."
     }
   }
 }

@@ -6,6 +6,11 @@ Todo funciona sin conexión y en el propio dispositivo: sin analítica ni rastre
 
 Idiomas: castellano y euskera. Licencia: [GPL-3.0-or-later](LICENSE).
 
+La única conexión a Internet es la búsqueda **manual** de actualizaciones, que consulta las
+[Releases de este repositorio](https://github.com/JosuIru/laboratorio-de-bolsillo/releases).
+Para publicar una versión, consulta [RELEASING.md](RELEASING.md). Para crear instrumentos,
+[CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Requisitos
 
 - Node 24 (`nvm use`, ver `.nvmrc`); Expo SDK 57 exige Node ≥ 22.13

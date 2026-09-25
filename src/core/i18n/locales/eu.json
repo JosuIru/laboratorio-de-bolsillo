@@ -63,7 +63,7 @@
     "attachLocationHint": "GPSa gordetzean bakarrik erabiltzen da. Kokapena ez da inoiz mugikorretik ateratzen, esportatzen ez baduzu.",
     "locationDenied": "Kokapen-baimenik gabe ezin da aktibatu.",
     "sensors": "Mugikor honen sentsoreak",
-    "privacy": "Dena gailu honetan prozesatzen eta gordetzen da. Analitikarik eta jarraipenik gabe."
+    "privacy": "Dena gailu honetan prozesatzen eta gordetzen da. Analitikarik eta jarraipenik gabe. Interneteko konexio bakarra eguneraketen eskuzko bilaketa da."
   },
   "language": {
     "es": "Castellano",
@@ -96,6 +96,24 @@
       "permissionDenied": "Baimena ukatuta: {{sensor}}.",
       "permissionBlocked": "Baimena blokeatuta: {{sensor}}. Aktibatu sistemaren ezarpenetan.",
       "permissionUndetermined": "Baimena behar da hau erabiltzeko: {{sensor}}."
+    }
+  },
+  "updates": {
+    "title": "Eguneraketak",
+    "installedVersion": "Instalatutako bertsioa: {{version}}",
+    "check": "Bilatu eguneraketak",
+    "upToDate": "Azken bertsioa duzu.",
+    "noReleases": "Oraindik ez dago bertsiorik argitaratuta.",
+    "available": "Bertsio berria eskuragarri: {{version}}",
+    "downloadApk": "Deskargatu APKa",
+    "downloadApkWithSize": "Deskargatu APKa ({{sizeMegabytes}} MB)",
+    "installHint": "Nabigatzailearekin deskargatzen da. Irekitzean, Androidek iturburu honetako aplikazioak instalatzeko baimena eskatuko dizu. Zure neurketak gorde egiten dira.",
+    "viewRelease": "Ikusi berritasunak GitHub-en",
+    "privacyNote": "«Bilatu eguneraketak» sakatzean bakarrik konektatzen da Internetera, eta {{repository}} kontsultatzeko soilik. Ez da zure neurketen ez mugikorraren daturik bidaltzen; GitHub-ek konexioa bakarrik ikusten du, web bat bisitatzean bezala.",
+    "error": {
+      "network": "Ez dago konexiorik edo GitHub-ek ez du erantzuten.",
+      "rate-limited": "GitHub-ek kontsultak mugatu ditu. Saiatu pixka bat barru.",
+      "unexpected-response": "GitHub-en ustekabeko erantzuna."
     }
   }
 }

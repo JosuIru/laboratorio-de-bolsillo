@@ -9,6 +9,7 @@ import { useAppSettingsStore } from '@/core/settings/settingsStore';
 import { BodyText, Card, ScreenContainer, SectionTitle } from '@/ui/components';
 import { describeSensorAvailability, sensorDisplayName } from '@/ui/sensorText';
 import { useThemePalette } from '@/ui/theme';
+import { UpdateSection } from '@/ui/UpdateSection';
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
@@ -96,6 +97,9 @@ export default function SettingsScreen() {
             })
           : null}
       </Card>
+
+      <SectionTitle>{t('updates.title')}</SectionTitle>
+      <UpdateSection />
 
       <BodyText tone="secondary" style={styles.privacyNote}>
         {t('settings.privacy')}
