@@ -73,6 +73,14 @@
           "androidForegroundService": false,
           "disableFFmpeg": true
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 26
+          }
+        }
       ]
     ],
     "experiments": {

@@ -28,7 +28,9 @@ Todas las mediciones se guardan en el móvil y se pueden exportar a CSV o JSON.
 
 - Node 24 (`nvm use`, ver `.nvmrc`); Expo SDK 57 exige Node ≥ 22.13
 - JDK 17 o superior y el SDK de Android (`ANDROID_HOME`)
-- Un móvil Android con la depuración USB activada
+- Un móvil con **Android 8.0 o superior** (API 26: VisionCamera/Nitro leen los fotogramas
+  de la cámara con `HardwareBuffer`, que no existe en versiones anteriores) y la depuración
+  USB activada
 
 La app usa módulos nativos, así que **no funciona con Expo Go**: hay que usar un
 *development build*.
