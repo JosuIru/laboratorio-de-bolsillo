@@ -1,0 +1,61 @@
+{
+  "name": "Canta o silba la nota",
+  "description": "Juego de oído: suena una nota y tienes que cantarla o silbarla afinada. Diez rondas, tres niveles y récords.",
+  "howTo": {
+    "title": "Cómo se juega",
+    "rules": "Suena una nota: escúchala y, cuando veas «¡Canta!», cántala o sílbala y aguántala afinada {{seconds}} s. Son {{rounds}} rondas; cuanto antes y más afinado, más puntos.",
+    "octave": "Vale en cualquier octava: canta cómodo, grave o agudo, o sílbala."
+  },
+  "difficulty": {
+    "title": "Dificultad",
+    "easy": "Fácil",
+    "medium": "Media",
+    "hard": "Difícil"
+  },
+  "toleranceDetail": "±{{cents}} ct",
+  "best": "Récord {{points}}",
+  "start": "Jugar",
+  "playAgain": "Otra partida",
+  "stop": "Parar",
+  "roundOf": "Ronda {{round}} de {{total}}",
+  "stage": {
+    "listen": "Escucha…",
+    "sing": "¡Canta!",
+    "hit": "¡Bien! +{{points}}",
+    "missed": "Esta no"
+  },
+  "flat": "Bajo",
+  "sharp": "Alto",
+  "holdProgress": "Aguanta la nota afinada",
+  "timeLeft": "Quedan {{seconds}} s",
+  "anyOctave": "Vale en cualquier octava.",
+  "points": "{{points}} puntos",
+  "newRecord": "¡Nuevo récord!",
+  "hits": "{{hits}} de {{total}} notas acertadas",
+  "meanError": "Desviación media al acertar: {{cents}} centésimas",
+  "microphoneError": "No se puede usar el micrófono: {{message}}",
+  "privacy": "El sonido se analiza en el móvil y no se graba.",
+  "notes": {
+    "0": "Do",
+    "1": "Do♯",
+    "2": "Re",
+    "3": "Re♯",
+    "4": "Mi",
+    "5": "Fa",
+    "6": "Fa♯",
+    "7": "Sol",
+    "8": "Sol♯",
+    "9": "La",
+    "10": "La♯",
+    "11": "Si"
+  },
+  "fields": {
+    "totalPoints": "Puntos",
+    "hitCount": "Aciertos",
+    "roundCount": "Rondas",
+    "difficulty": "Dificultad",
+    "meanAbsoluteCentsError": "Desviación media",
+    "targetNotes": "Notas",
+    "roundPoints": "Puntos por ronda"
+  }
+}

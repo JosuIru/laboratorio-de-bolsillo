@@ -21,6 +21,7 @@ import { roomAcousticsInstrument } from './room-acoustics';
 import { seismicNetworkInstrument } from './seismic-network';
 import { seismographInstrument } from './seismograph';
 import { sonarInstrument } from './sonar';
+import { singTheNoteInstrument } from './sing-the-note';
 import { soundLocatorInstrument } from './sound-locator';
 import { superzoomInstrument } from './superzoom';
 import { traditionalTunerInstrument } from './traditional-tuner';
@@ -76,6 +77,7 @@ export const instrumentSections: readonly InstrumentSection[] = [
     id: 'games',
     instruments: [
       colorHuntInstrument,
+      singTheNoteInstrument,
       rhythmInstrument,
       phoneModemInstrument,
       soundLocatorInstrument,

@@ -1,0 +1,61 @@
+{
+  "name": "Abestu edo txistukatu nota",
+  "description": "Belarri-jokoa: nota bat entzuten da eta afinatuta abestu edo txistukatu behar duzu. Hamar txanda, hiru maila eta errekorrak.",
+  "howTo": {
+    "title": "Nola jokatu",
+    "rules": "Nota bat entzuten da: entzun eta, «Abestu!» ikusten duzunean, abestu edo txistukatu eta eutsi afinatuta {{seconds}} s. {{rounds}} txanda dira; zenbat eta lehenago eta afinatuago, orduan eta puntu gehiago.",
+    "octave": "Edozein zortzikotan balio du: abestu eroso, baxu edo altu, edo txistukatu."
+  },
+  "difficulty": {
+    "title": "Zailtasuna",
+    "easy": "Erraza",
+    "medium": "Ertaina",
+    "hard": "Zaila"
+  },
+  "toleranceDetail": "±{{cents}} ct",
+  "best": "Errekorra {{points}}",
+  "start": "Jokatu",
+  "playAgain": "Beste partida bat",
+  "stop": "Gelditu",
+  "roundOf": "{{round}}. txanda {{total}}tik",
+  "stage": {
+    "listen": "Entzun…",
+    "sing": "Abestu!",
+    "hit": "Ondo! +{{points}}",
+    "missed": "Hau ez"
+  },
+  "flat": "Baxua",
+  "sharp": "Altua",
+  "holdProgress": "Eutsi nota afinatuta",
+  "timeLeft": "{{seconds}} s falta dira",
+  "anyOctave": "Edozein zortzikotan balio du.",
+  "points": "{{points}} puntu",
+  "newRecord": "Errekor berria!",
+  "hits": "{{total}} notatik {{hits}} asmatuta",
+  "meanError": "Batez besteko desbideratzea asmatzean: {{cents}} zentimo",
+  "microphoneError": "Ezin da mikrofonoa erabili: {{message}}",
+  "privacy": "Soinua mugikorrean aztertzen da eta ez da grabatzen.",
+  "notes": {
+    "0": "Do",
+    "1": "Do♯",
+    "2": "Re",
+    "3": "Re♯",
+    "4": "Mi",
+    "5": "Fa",
+    "6": "Fa♯",
+    "7": "Sol",
+    "8": "Sol♯",
+    "9": "La",
+    "10": "La♯",
+    "11": "Si"
+  },
+  "fields": {
+    "totalPoints": "Puntuak",
+    "hitCount": "Asmatutakoak",
+    "roundCount": "Txandak",
+    "difficulty": "Zailtasuna",
+    "meanAbsoluteCentsError": "Batez besteko desbideratzea",
+    "targetNotes": "Notak",
+    "roundPoints": "Puntuak txandaka"
+  }
+}
