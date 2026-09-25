@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { CommonResolutions, type Frame, useFrameOutput } from 'react-native-vision-camera';
 import { scheduleOnRN } from 'react-native-worklets';
 
@@ -56,6 +56,20 @@ export function useBurstFrames() {
     resolveCaptureNow(capturedFrames.current);
     capturedFrames.current = [];
   }, []);
+
+  // Al salir de la pantalla se descarta la captura en curso: se borra el temporizador y quien
+  // espera recibe una ráfaga vacía (y no se procesa nada en la pantalla siguiente).
+  useEffect(
+    () => () => {
+      if (captureTimeout.current) clearTimeout(captureTimeout.current);
+      captureTimeout.current = null;
+      const resolveCaptureNow = resolveCapture.current;
+      resolveCapture.current = null;
+      capturedFrames.current = [];
+      resolveCaptureNow?.([]);
+    },
+    [],
+  );
 
   const deliverCrop = useCallback(
     (rgbPixels: Uint8Array) => {

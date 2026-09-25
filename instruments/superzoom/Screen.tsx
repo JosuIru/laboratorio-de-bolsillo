@@ -1,5 +1,5 @@
 import { AlphaType, Canvas, ColorType, Image as SkiaImageView, type SkImage, Skia } from '@shopify/react-native-skia';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type GestureResponderEvent, type LayoutChangeEvent, Pressable, StyleSheet, View } from 'react-native';
 import { Camera, type CameraRef, type MeteringMode, useCameraDevice } from 'react-native-vision-camera';
@@ -173,6 +173,15 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
   const [sharpeningLevelIndex, setSharpeningLevelIndex] = useState(defaultSharpeningLevelIndex);
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  // La captura espera varias veces (cuenta atrás, ráfaga): si se sale de la pantalla entretanto,
+  // no se sigue (ni se ocupa el hilo JS fusionando) en la pantalla siguiente.
+  const isMountedRef = useRef(true);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const sharpeningAmount = sharpeningLevels[sharpeningLevelIndex]?.amount ?? 0;
   // Se realza al mostrar (con el mismo nivel en las dos versiones, para compararlas con justicia).
@@ -190,7 +199,8 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
   const isBusy = isCapturing || isProcessing || countdownSecondsLeft !== null;
 
   async function handlePreviewPress(pressEvent: GestureResponderEvent) {
-    if (!canMeter || !cameraDevice) return;
+    // Reenfocar a mitad de ráfaga haría que los fotogramas dejaran de casar.
+    if (!canMeter || !cameraDevice || isBusy) return;
     const viewPoint = { x: pressEvent.nativeEvent.locationX, y: pressEvent.nativeEvent.locationY };
     const meteringModes: MeteringMode[] = [];
     if (cameraDevice.supportsExposureMetering) meteringModes.push('AE');
@@ -231,9 +241,11 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
     for (let secondsLeft = captureCountdownSeconds; secondsLeft > 0; secondsLeft--) {
       setCountdownSecondsLeft(secondsLeft);
       await waitMilliseconds(1000);
+      if (!isMountedRef.current) return;
     }
     setCountdownSecondsLeft(null);
     const capturedFrames = await captureBurst(capturedFrameTarget, cropSizePixels);
+    if (!isMountedRef.current) return;
     if (capturedFrames.length === 0) {
       setStatusMessage(t('noFramesCaptured'));
       return;
@@ -241,6 +253,7 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
     setIsProcessing(true);
     // Deja que se pinte el indicador antes del cálculo, que ocupa el hilo JS unos segundos.
     await waitMilliseconds(50);
+    if (!isMountedRef.current) return;
     try {
       const result = superResolveBurst(capturedFrames, cropSizePixels, defaultSuperResolutionOptions);
       setDisplayedVersion('superzoom');
@@ -330,6 +343,8 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t('tapToFocusHint')}
+          accessibilityState={{ disabled: isBusy }}
+          disabled={isBusy}
           style={StyleSheet.absoluteFill}
           onPress={(pressEvent) => void handlePreviewPress(pressEvent)}>
           {meteringViewPoint ? (
