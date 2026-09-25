@@ -1,0 +1,85 @@
+{
+  "name": "Sare elektrikoaren maiztasuna",
+  "description": "Sare elektrikoaren maiztasuna (50 Hz) eta lanparen keinua neurtzen ditu, kameraren obturadoreak uzten dituen banden bidez.",
+  "intro": "Zuzendu kamera lanparak ondo argiztatutako horma, sabai edo paper zuri batera (hobe bonbillara zuzenean baino) eta eutsi mugikorra geldi. Ez da fokatu behar.",
+  "region50": "50 Hz-ko sarea (Europa)",
+  "region60": "60 Hz-ko sarea (Amerika)",
+  "tapToLockHint": "Ukitu irudia esposizioa finkatzeko: mugikorrak berriz doitzen badu, neurketa berriro hasten da.",
+  "exposureLabel": "Esposizioa {{exposure}} EV",
+  "exposureStepsLabel": "Esposizioa {{exposure}} urrats (gutx. {{minimum}})",
+  "exposureDown": "− Argia",
+  "exposureUp": "+ Argia",
+  "exposureUnsupported": "Mugikor honek ez du esposizioa doitzen uzten: zuzendu oso argiztatutako gune batera, esposizioa laburra izan dadin.",
+  "exposureLocked": "Esposizioa finkatuta.",
+  "unlockExposure": "Askatu",
+  "saturatedWarning": "Gune erreak daude (zuri hutsa): bandak mozten dituzte. Jaitsi esposizioa edo zuzendu hormara bonbillara ordez.",
+  "tooDarkWarning": "Irudia oso ilun dago: hurbildu mugikorra lanparara edo igo apur bat esposizioa.",
+  "collecting": "Fotogramak aztertzen…",
+  "noBandsTitle": "Ez da keinu-bandarik ikusten",
+  "noBandsUpperBound": "Argiak keinu egiten badu, % {{percent}} baino gutxiago da (kamerak ikus dezakeena).",
+  "noBandsExplanation": "Edo argiak ez du keinurik egiten (driver oneko LEDa, balasto elektronikoko fluoreszentea, eguneko argia), edo esposizioa luzeegia da: 10 ms edo gehiagorekin (periodo oso bat 100 Hz-tan) keinua batez bestekotu eta desagertu egiten da, eta mugikor askok hain zuzen esposizio horiek aukeratzen dituzte ezkutatzeko. Jaitsi esposizioa gutxienekora eta hurbildu lanparara; hala ere agertzen ez badira, argiak ia ez du keinurik egiten.",
+  "mainsFrequencyTitle": "Sarearen maiztasuna",
+  "frequencyValue": "{{frequency}} Hz",
+  "frequencyDetails": "± {{uncertainty}} Hz · {{deviation}} mHz {{nominal}} Hz-rekiko",
+  "frequencyBasis": "{{frames}} fotogramarekin {{seconds}} s-tan · fase-koherentzia % {{coherence}}",
+  "directionAmbiguous": "Fotograma-abiadura honetan ezin da jakin sentsoreak zein norabidetan irakurtzen duen: desbideratzearen balioa fidagarria da, baina haren zeinua (gorago edo beherago) ez.",
+  "unstableBands": "Bandak ez dira modu erregularrean aurreratzen. Eutsi mugikorra geldi, finkatu esposizioa irudia ukituta eta itxaron segundo batzuk.",
+  "measuringFrequency": "Maiztasuna neurtzen… {{seconds}} s (gutxienez 2 behar dira; 10-20 s-rekin zehatzagoa da)",
+  "bandsTitle": "Bandak irudian",
+  "chartFirstRow": "irakurritako lehen errenkada",
+  "chartLastRow": "azken errenkada",
+  "bandsChartDescription": "Errenkada bakoitzaren distira batez bestekoarekiko (grisa) eta doitutako uhina (kolorea): uhin bakoitza keinu-ziklo bat da fotograma irakurtzen den bitartean.",
+  "staticBandsWarning": "Segundoko {{fps}} fotogramatan bandak ia ez dira mugitzen eta ezin dira ikusten denetik bereizi: zuzendu gainazal leun eta uniforme batera, bestela emaitza faltsua izan daiteke.",
+  "lightTitle": "Argi mota (gutxi gorabeherakoa)",
+  "lightTypes": {
+    "steady": {
+      "name": "Keinurik nabarmenik gabe",
+      "description": "Driver oneko LEDa, balasto elektronikoko fluoreszentea edo eguneko argia."
+    },
+    "incandescent": {
+      "name": "Keinu leuna eta sinusoidala",
+      "description": "Harizpi-bonbilla eta halogenoen ohikoa: harizpia ez da guztiz hozten zikloen artean."
+    },
+    "fluorescent": {
+      "name": "Keinu sinusoidal nabarmena",
+      "description": "Erreaktantzia magnetikoko fluoreszenteen (hodi zaharren) edo LED sinpleen ohikoa."
+    },
+    "flickeringLed": {
+      "name": "Keinu egiten duen LEDa",
+      "description": "Keinu oso sakona edo uhin ez-sinusoidala: driver merkeko edo dimmer bidez erregulatutako LEDen ohikoa."
+    }
+  },
+  "percentFlicker": "Keinua % {{percent}}",
+  "flickerIndex": "indizea {{index}}",
+  "risk": {
+    "noObservableEffect": "IEEE 1789: maiztasun honetan ez dago ondorio behagarririk.",
+    "lowRisk": "IEEE 1789: arrisku txikia.",
+    "aboveLowRisk": "IEEE 1789: arrisku txikiko mailaren gainetik (begiak neka ditzake edo begiak mugitzean nabari daiteke)."
+  },
+  "depthIsMinimum": "Kamerak argia batez bestekotzen du esposizioan zehar eta keinua leuntzen du: benetako balioa neurtutakoa bezainbestekoa edo handiagoa da.",
+  "technicalDetails": "{{bands}} banda fotogramako · sentsoreak {{readout}} ms behar ditu fotograma irakurtzeko · {{fps}} fps · bandak sentsorearen {{axis}}",
+  "axes": {
+    "rows": "errenkadetan",
+    "columns": "zutabeetan"
+  },
+  "restart": "Berrabiarazi",
+  "howItWorksTitle": "Nola dabilen",
+  "howItWorks": "Kamerak ez du argazkia bat-batean ateratzen: sentsorea errenkadaz errenkada irakurtzen du milisegundo gutxi batzuetan («rolling shutter» obturadorea). Sarera konektatutako lanparek sarearen maiztasunaren bikoitzean egiten dute keinu (Europan 100 aldiz segundoko), beraz argi gehiago dagoen unean irakurritako errenkadak argiago ateratzen dira eta banda horizontalak agertzen dira. Fotograma batetik hurrengora bandak lekualdatzen dira; fotograma bakoitzaren ordu zehatzarekin, sentsorearen erlojuak ematen duenarekin, lekualdatze horrek keinuaren maiztasuna erakusten du, sentsorearen irakurketa-abiadura jakin beharrik gabe. Sarearen maiztasuna horren erdia da.",
+  "precision": "Zehaztasun errealista: banda onekin eta 10-20 s-ko neurketarekin, hertzio-milaren batzuk sarearen maiztasunean. Muga mugikorraren erlojuak jartzen du (bere kristala milioiko 20-50 zati desbidera daiteke, hau da ±0,001-0,003 Hz), eta erakusten den ± horretan sartuta dago. Europako sarea normalean 49,95 eta 50,05 Hz artean mantentzen da: sarearen maiztasuna denbora errealean argitaratzen duten webguneekin alderatu dezakezu.",
+  "limits": "Mugak: bandarik gabe ez dago neurketarik (keinurik gabeko argia edo esposizio luzea). Mugikorra mugitzen baduzu edo esposizioa aldatzen bada, neurketa berriro hasten da. Sakonera eta argi mota gutxi gorabeherakoak dira. Lanparak sarearen maiztasunaren bikoitzean egiten duela keinu suposatzen da, ohikoena baita; lanpara merke batzuek sarearen maiztasunean egiten dute keinu eta balio okerra emango lukete.",
+  "fields": {
+    "nominalMainsFrequency": "Sare nominala",
+    "mainsFrequency": "Sarearen maiztasuna",
+    "mainsFrequencyUncertainty": "Ziurgabetasuna",
+    "flickerFrequency": "Keinuaren maiztasuna",
+    "lightType": "Argi mota",
+    "percentFlicker": "Keinu-ehunekoa",
+    "percentFlickerUpperBound": "Gehieneko keinua (bandarik gabe)",
+    "flickerIndex": "Keinu-indizea",
+    "harmonicDistortion": "Uhinaren distortsio harmonikoa",
+    "readoutTime": "Sentsorearen irakurketa-denbora",
+    "frameRate": "Fotogramak segundoko",
+    "measurementDuration": "Neurketaren iraupena",
+    "phaseCoherence": "Fase-koherentzia"
+  }
+}
