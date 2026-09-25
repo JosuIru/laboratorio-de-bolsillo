@@ -9,6 +9,7 @@ import {
   deviationFromBaseline,
   isHardIronCoverageSufficient,
   type MagneticVector,
+  trackBaselineMagnitude,
   vectorMagnitude,
 } from './magneticField';
 
@@ -17,11 +18,47 @@ describe('vectorMagnitude y deviationFromBaseline', () => {
     expect(vectorMagnitude({ x: 3, y: 4, z: 12 })).toBe(13);
   });
 
-  it('la resta vectorial ve un giro del campo que la resta de módulos no ve', () => {
-    const baselineVector = { x: 40, y: 0, z: 0 };
-    const rotatedVector = { x: 0, y: 40, z: 0 };
-    expect(vectorMagnitude(rotatedVector) - vectorMagnitude(baselineVector)).toBe(0);
-    expect(deviationFromBaseline(rotatedVector, baselineVector)).toBeCloseTo(40 * Math.SQRT2, 10);
+  it('girar el móvil 30° en un campo de 50 µT no da desviación', () => {
+    const baselineVector = { x: 50, y: 0, z: 0 };
+    const rotationRadians = (30 * Math.PI) / 180;
+    const rotatedVector = { x: 50 * Math.cos(rotationRadians), y: 50 * Math.sin(rotationRadians), z: 0 };
+    // Con la resta vectorial daría 2·50·sin(15°) ≈ 26 µT y saltaría incluso con sensibilidad media.
+    expect(deviationFromBaseline(rotatedVector, vectorMagnitude(baselineVector))).toBeCloseTo(0, 10);
+  });
+
+  it('un aumento del módulo sí se detecta, sea cual sea la orientación', () => {
+    const baselineMagnitude = 50;
+    const strongerFieldVector = { x: 0, y: 0, z: 58 };
+    expect(deviationFromBaseline(strongerFieldVector, baselineMagnitude)).toBeCloseTo(8, 10);
+    expect(deviationFromBaseline(strongerFieldVector, baselineMagnitude)).toBeGreaterThan(detectorThresholdsBySensitivity.high.trigger);
+    expect(deviationFromBaseline({ x: 0, y: 42, z: 0 }, baselineMagnitude)).toBeCloseTo(8, 10);
+  });
+});
+
+describe('trackBaselineMagnitude', () => {
+  /** Sigue un campo constante durante `durationSeconds` a 100 Hz. */
+  function trackConstantField(initialBaseline: number, fieldMagnitude: number, durationSeconds: number, timeConstantSeconds: number) {
+    let baselineMagnitude = initialBaseline;
+    for (let sampleIndex = 0; sampleIndex < durationSeconds * 100; sampleIndex++) {
+      baselineMagnitude = trackBaselineMagnitude(baselineMagnitude, fieldMagnitude, 0.01, timeConstantSeconds);
+    }
+    return baselineMagnitude;
+  }
+
+  it('tras un escalón de 20 µT la desviación baja del umbral de rearme en pocas constantes de tiempo', () => {
+    const baselineAfterMinute = trackConstantField(50, 70, 60, 30);
+    // Tras 2τ queda un 13,5 % del escalón.
+    expect(70 - baselineAfterMinute).toBeCloseTo(20 * Math.exp(-2), 1);
+    const baselineAfterTwoMinutes = trackConstantField(50, 70, 120, 30);
+    expect(70 - baselineAfterTwoMinutes).toBeLessThan(detectorThresholdsBySensitivity.high.release);
+  });
+
+  it('pasar 2 s sobre un objeto apenas mueve la línea base', () => {
+    expect(trackConstantField(50, 70, 2, 30) - 50).toBeLessThan(1.5);
+  });
+
+  it('sin tiempo transcurrido no cambia', () => {
+    expect(trackBaselineMagnitude(50, 70, 0, 30)).toBe(50);
   });
 });
 

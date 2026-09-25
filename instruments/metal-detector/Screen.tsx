@@ -33,7 +33,6 @@ export function MetalDetectorScreen({
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const { snapshot, zero } = useMagneticField({
     isRunning: true,
-    hardIronOffset: calibrationParameters,
     sensitivity,
     isVibrationEnabled,
   });

@@ -5,13 +5,11 @@ import { magnetometerSource } from '@/core/sensors/adapters/motionAndEnvironment
 import { useSensorSubscription } from '@/core/sensors/useSensorSubscription';
 import { createEventDetector } from '@/processing/dsp/peaks';
 import {
-  applyHardIronOffset,
-  averageVectors,
   detectorThresholdsBySensitivity,
   type DetectorSensitivity,
   deviationFromBaseline,
-  type HardIronOffset,
   type MagneticVector,
+  trackBaselineMagnitude,
   vectorMagnitude,
 } from '@/processing/magnetics/magneticField';
 import { copyLatestFromRingBuffer, createRingBuffer, pushToRingBuffer } from '@/processing/signal/ringBuffer';
@@ -25,12 +23,24 @@ const historyCapacity = 1024;
 /** Tiempo que se promedia para fijar la línea base al poner a cero. */
 const zeroingDurationSeconds = 1;
 const alertVibrationMilliseconds = 60;
+/**
+ * La línea base sigue despacio al campo: en ~30 s absorbe una deriva o el escalón de una
+ * recalibración del sistema, y pasar el móvil sobre un objeto (1–2 s) apenas la mueve.
+ */
+const baselineTrackingTimeConstantSeconds = 30;
+/**
+ * Con el aviso encendido sigue aún más despacio: un objeto quieto bajo el móvil sigue avisando
+ * durante minutos, pero un escalón mayor que el umbral no deja el aviso encendido para siempre.
+ */
+const baselineTrackingDuringAlertTimeConstantSeconds = 180;
+/** Si llegan muestras tras una pausa larga, no se aplica de golpe todo el hueco a la línea base. */
+const maximumTrackingStepSeconds = 0.5;
 
 export interface MagneticFieldSnapshot {
   revision: number;
-  /** |B| corregido, en µT. */
+  /** |B| tal como lo entrega el sistema (ya compensado), en µT. */
   magnitudeMicroteslas: number | null;
-  /** ΔB = |B − B0|, en µT; null mientras no hay línea base. */
+  /** ΔB = ||B| − |B0||, en µT; null mientras no hay línea base. */
   deviationMicroteslas: number | null;
   peakDeviationMicroteslas: number;
   baselineMagnitudeMicroteslas: number | null;
@@ -42,17 +52,18 @@ export interface MagneticFieldSnapshot {
 }
 
 /**
- * Lee el magnetómetro, resta el campo propio del móvil (calibración) y mide la desviación
- * respecto a una línea base. Las muestras van a refs y la interfaz se refresca a ~20 fps.
+ * Lee el magnetómetro y mide cuánto se aparta el módulo del campo de una línea base que sigue
+ * despacio las derivas. No resta la calibración propia: expo-sensors ya entrega el campo
+ * compensado por el sistema (Sensor.TYPE_MAGNETIC_FIELD en Android, el campo calibrado de
+ * CoreMotion en iOS), que además se recalibra solo; restar encima un offset fijo lo aplicaría
+ * dos veces. Las muestras van a refs y la interfaz se refresca a ~20 fps.
  */
 export function useMagneticField({
   isRunning,
-  hardIronOffset,
   sensitivity,
   isVibrationEnabled,
 }: {
   isRunning: boolean;
-  hardIronOffset: HardIronOffset | null;
   sensitivity: DetectorSensitivity;
   isVibrationEnabled: boolean;
 }) {
@@ -61,16 +72,19 @@ export function useMagneticField({
   const [chartValues] = useState(() => new Float64Array(historyCapacity));
   const latestVector = useRef<MagneticVector | null>(null);
   const latestDeviation = useRef<number | null>(null);
-  const baselineVector = useRef<MagneticVector | null>(null);
+  const baselineMagnitude = useRef<number | null>(null);
+  const previousTimestamp = useRef<number | null>(null);
+  const isAlerting = useRef(false);
   const peakDeviation = useRef(0);
   // Al arrancar se pone a cero solo: la primera lectura estable es la referencia.
-  const zeroingSamples = useRef<MagneticVector[] | null>([]);
+  const zeroingMagnitudes = useRef<number[] | null>([]);
   const zeroingStartTimestamp = useRef<number | null>(null);
   const alertDetector = useRef(createEventDetector(
     detectorThresholdsBySensitivity[sensitivity].trigger,
     detectorThresholdsBySensitivity[sensitivity].release,
   ));
   const shouldVibrate = useRef(isVibrationEnabled);
+  const sensitivityRef = useRef(sensitivity);
 
   const [snapshot, setSnapshot] = useState<MagneticFieldSnapshot>({
     revision: 0,
@@ -87,46 +101,53 @@ export function useMagneticField({
   useEffect(() => {
     const { trigger, release } = detectorThresholdsBySensitivity[sensitivity];
     alertDetector.current = createEventDetector(trigger, release);
+    sensitivityRef.current = sensitivity;
+    isAlerting.current = false;
   }, [sensitivity]);
   useEffect(() => {
     shouldVibrate.current = isVibrationEnabled;
   }, [isVibrationEnabled]);
-  // Con otra calibración cambia el campo corregido: la línea base anterior ya no sirve.
-  const offsetX = hardIronOffset?.offsetX ?? 0;
-  const offsetY = hardIronOffset?.offsetY ?? 0;
-  const offsetZ = hardIronOffset?.offsetZ ?? 0;
-  useEffect(() => {
-    zeroingSamples.current = [];
-    zeroingStartTimestamp.current = null;
-    latestDeviation.current = null;
-  }, [offsetX, offsetY, offsetZ]);
-
   useSensorSubscription(
     magnetometerSource,
     ({ timestampSeconds, value }) => {
-      const correctedVector = applyHardIronOffset(value, hardIronOffset);
-      latestVector.current = correctedVector;
+      latestVector.current = value;
+      const elapsedSeconds = previousTimestamp.current === null ? 0 : timestampSeconds - previousTimestamp.current;
+      previousTimestamp.current = timestampSeconds;
 
-      if (zeroingSamples.current) {
+      if (zeroingMagnitudes.current) {
         zeroingStartTimestamp.current ??= timestampSeconds;
-        zeroingSamples.current.push(correctedVector);
+        zeroingMagnitudes.current.push(vectorMagnitude(value));
         if (timestampSeconds - zeroingStartTimestamp.current >= zeroingDurationSeconds) {
-          baselineVector.current = averageVectors(zeroingSamples.current);
-          zeroingSamples.current = null;
+          const magnitudeSum = zeroingMagnitudes.current.reduce((runningSum, magnitude) => runningSum + magnitude, 0);
+          baselineMagnitude.current = magnitudeSum / zeroingMagnitudes.current.length;
+          zeroingMagnitudes.current = null;
           zeroingStartTimestamp.current = null;
           peakDeviation.current = 0;
+          isAlerting.current = false;
           alertDetector.current.reset();
         }
         return;
       }
-      if (!baselineVector.current) return;
+      if (baselineMagnitude.current === null) return;
 
-      const deviation = deviationFromBaseline(correctedVector, baselineVector.current);
+      const deviation = deviationFromBaseline(value, baselineMagnitude.current);
       latestDeviation.current = deviation;
       peakDeviation.current = Math.max(peakDeviation.current, deviation);
       pushToRingBuffer(deviationHistory, deviation);
       pushToRingBuffer(timestampHistory, timestampSeconds);
-      if (alertDetector.current.push(deviation) && shouldVibrate.current) Vibration.vibrate(alertVibrationMilliseconds);
+      const { release } = detectorThresholdsBySensitivity[sensitivityRef.current];
+      if (alertDetector.current.push(deviation)) {
+        isAlerting.current = true;
+        if (shouldVibrate.current) Vibration.vibrate(alertVibrationMilliseconds);
+      } else if (deviation < release) {
+        isAlerting.current = false;
+      }
+      baselineMagnitude.current = trackBaselineMagnitude(
+        baselineMagnitude.current,
+        vectorMagnitude(value),
+        Math.min(elapsedSeconds, maximumTrackingStepSeconds),
+        isAlerting.current ? baselineTrackingDuringAlertTimeConstantSeconds : baselineTrackingTimeConstantSeconds,
+      );
     },
     { isActive: isRunning, targetRateHz: requestedRateHz },
   );
@@ -150,11 +171,11 @@ export function useMagneticField({
       setSnapshot((previousSnapshot) => ({
         revision: previousSnapshot.revision + 1,
         magnitudeMicroteslas: latestVector.current ? vectorMagnitude(latestVector.current) : null,
-        deviationMicroteslas: zeroingSamples.current ? null : latestDeviation.current,
+        deviationMicroteslas: zeroingMagnitudes.current ? null : latestDeviation.current,
         peakDeviationMicroteslas: peakDeviation.current,
-        baselineMagnitudeMicroteslas: baselineVector.current ? vectorMagnitude(baselineVector.current) : null,
-        isZeroing: zeroingSamples.current !== null,
-        isAboveThreshold: !zeroingSamples.current && (latestDeviation.current ?? 0) >= trigger,
+        baselineMagnitudeMicroteslas: baselineMagnitude.current,
+        isZeroing: zeroingMagnitudes.current !== null,
+        isAboveThreshold: !zeroingMagnitudes.current && (latestDeviation.current ?? 0) >= trigger,
         chartValues,
         chartSampleCount,
       }));
@@ -164,7 +185,7 @@ export function useMagneticField({
 
   /** Fija la línea base con la media del próximo segundo (hay que alejar el móvil del metal). */
   const zero = useCallback(() => {
-    zeroingSamples.current = [];
+    zeroingMagnitudes.current = [];
     zeroingStartTimestamp.current = null;
     latestDeviation.current = null;
   }, []);
