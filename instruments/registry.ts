@@ -12,6 +12,7 @@ import { poolStripsInstrument } from './pool-strips';
 import { rhythmInstrument } from './rhythm';
 import { seismographInstrument } from './seismograph';
 import { sonarInstrument } from './sonar';
+import { soundLocatorInstrument } from './sound-locator';
 import { superzoomInstrument } from './superzoom';
 import { tachometerInstrument } from './tachometer';
 
@@ -26,6 +27,7 @@ export const instrumentRegistry: readonly AnyInstrumentDefinition[] = [
   machineDiagnosisInstrument,
   metalDetectorInstrument,
   sonarInstrument,
+  soundLocatorInstrument,
   rhythmInstrument,
   colorHuntInstrument,
   metronomeInstrument,

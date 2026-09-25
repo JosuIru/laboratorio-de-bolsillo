@@ -1,0 +1,92 @@
+{
+  "name": "Soinu-kokatzailea",
+  "description": "Aurkitu non jo den txalo bat edo lehertu den puxika bat hiru mugikor edo gehiagorekin, iristeko denboren aldearen bidez, erlojuak sinkronizatu gabe eta haien artean konektatu gabe.",
+  "howTo": {
+    "title": "Nola erabili",
+    "step1": "1. Jarri 3 mugikor edo gehiago lurrean edo mahai batean, posizio ezagunetan (adibidez, 2 m-ko aldeko triangelu batean). Mikrofonoa da garrantzitsua: mugikor bakoitzaren beheko ertza.",
+    "step2": "2. Denetan, sakatu «Entzun». Mugikor igorlean, sakatu «Igorri txistuak»: 3 s-ko tartea duten bi txistu entzungo dira.",
+    "step3": "3. Bi txistuen artean, jo txalo indartsu bat (edo lehertu puxika bat) nahi duzun lekuan. Mugikor bakoitzak zenbaki handi bat erakutsiko du: bere tartea milisegundotan.",
+    "step4": "4. Mugikor batean, idatzi bakoitzaren posizioa eta zenbakia. Planoak hiperbolak eta kalkulatutako puntua erakusten ditu, bere errore-elipsearekin."
+  },
+  "timing": {
+    "title": "Mugikor hau",
+    "startListening": "Entzun",
+    "stopListening": "Utzi entzuteari",
+    "idle": "Sakatu «Entzun» mugikor guztietan igorri aurretik.",
+    "starting": "Mikrofonoa pizten…",
+    "waitingForChirp": "Lehen txistuaren zain…",
+    "clapNow": "Txistua entzun da! Txalo egin bigarren txistuaren aurretik",
+    "intervalLabel": "Mugikor honen tartea (lehen txistutik txalora)",
+    "intervalUnit": "milisegundo",
+    "noDriftCorrection": "Bigarren txistua ez da ondo entzun: tartea erlojuaren deriba zuzendu gabe dago (~0,1 ms-ko errorea arte).",
+    "driftCorrected": "Erlojua zuzenduta: mugikor honek {{drift}} ppm-ko aldea du igorlearekiko.",
+    "quality": "Txistuaren garbitasuna {{chirp}} · txaloa zarata baino {{clap}} aldiz handiagoa",
+    "competingOnset": "Beste kolpe bat egon da ia bezain indartsua: errepikatu ziur ez bazaude txaloa aukeratu dela.",
+    "clipped": "Txaloak mikrofonoa saturatu du: normalean ondo dabil, baina emaitza arraroa bada, urrundu pixka bat.",
+    "failures": {
+      "noClap": "Ez da txalo argirik entzun bi txistuen artean. Sakatu «Berriro» eta errepikatu.",
+      "audioGap": "Mikrofonoak audioa galdu du neurketan. Sakatu «Berriro» eta errepikatu."
+    },
+    "emit": "Igorri txistuak",
+    "emitting": "Igortzen…",
+    "again": "Berriro",
+    "help": "Mugikor bakar batek igortzen du. Mugikor bakoitzak bere audio-erlojuarekin neurtzen du lehen txistuaren eta txaloaren arteko denbora; bigarren txistuak erloju hori zenbat aurreratzen edo atzeratzen den zuzentzeko balio du. Sakatu «Berriro» denetan neurketa berri bakoitzaren aurretik."
+  },
+  "solve": {
+    "title": "Posizioa kalkulatu",
+    "layout": "Mugikorren posizioak (m)",
+    "layoutHelp": "Aukeratu kokapen estandar bat edo idatzi mikrofono bakoitzaren koordenatuak. Neurtu zintarekin: posizio batean 3 cm-ko erroreak emaitzan eragina du.",
+    "columnX": "x (m)",
+    "columnY": "y (m)",
+    "columnInterval": "Tartea (ms)",
+    "xAccessibility": "{{receiver}} mugikorraren x koordenatua",
+    "yAccessibility": "{{receiver}} mugikorraren y koordenatua",
+    "intervalAccessibility": "{{receiver}} mugikorraren tartea milisegundotan",
+    "useOwnAccessibility": "Jarri mugikor honen tartea {{receiver}} errenkadan",
+    "useOwn": "nirea",
+    "addReceiver": "Gehitu mugikorra",
+    "removeReceiver": "Kendu azkena",
+    "emitter": "Zein mugikorrek igorri ditu txistuak?",
+    "temperature": "Airearen tenperatura",
+    "incomplete": "Idatzi mugikor guztien posizioa eta tartea kalkulatzeko.",
+    "duplicatePositions": "Bi mugikor leku berean daude: berrikusi koordenatuak.",
+    "noSolution": "Ezin izan da posiziorik kalkulatu datu hauekin."
+  },
+  "layouts": {
+    "triangle": "Triangelua 2 m",
+    "square": "Karratua 2 m"
+  },
+  "plane": {
+    "accessibility": "Mugikorren posizioa duen planoa",
+    "accessibilityWithResult": "Planoa: txaloa x {{x}} m, y {{y}} m-n kalkulatu da",
+    "legend": "Karratuak: mugikorrak (eraztunarekin, igorlea). Kolore bakoitzeko kurba hiperbola bat da: soinua mugikor horretara eta A-ra neurtutako aldearekin iristen den puntuak. Gurutzea kalkulua da eta elipsea, % 95eko probabilitatez dagoen eremua. Zirkulu gorri batek beste soluzio posible bat markatzen du."
+  },
+  "result": {
+    "position": "x = {{x}} m · y = {{y}} m",
+    "ellipse": "% 95eko elipsea: ±{{major}} cm ardatz luzean, ±{{minor}} cm laburrean.",
+    "degenerate": "Mugikorren kokapenak ez du errorea kalkulatzen uzten (lerro batean al daude?).",
+    "residual": "Batez besteko hondarra: {{residual}} cm (neurketak elkarren artean zenbat ez datozen bat).",
+    "noRedundancy": "3 mugikorrekin hiperbolak beti ebakitzen dira: ezin da egiaztatu neurriren bat gaizki dagoen. 4 edo gehiagorekin, bai.",
+    "ambiguous": "Neurketak beste puntu batekin ere bat datoz: x = {{x}} m, y = {{y}} m. Hiru mugikorrekin gertatzen da soinua urrunetik datorrenean; gehitu laugarren mugikor bat erabakitzeko.",
+    "impossible": "{{receivers}} mugikorraren denbora-aldea A-rekiko haien arteko distantziak uzten duena baino handiagoa da: berrikusi zenbaki hori edo posizioak.",
+    "inconsistent": "Neurketak ez datoz bat elkarren artean (hondar handia): berrikusi zenbakiak eta posizioak, edo errepikatu txaloa.",
+    "farOutside": "Soinua mugikor taldetik urrun dago: taldetik kanpo zehaztasuna azkar jaisten da, batez ere distantzian."
+  },
+  "honestyNote": "Muga zintzoak: errorearen milisegundo bakoitza 34 cm da. Txalo baten hasiera 0,1-0,3 ms inguruko zehaztasunez markatzen da mugikorraren eta gelaren arabera; beraz, espero 5-20 cm-ko erroreak mugikor taldearen barruan eta askoz gehiago kanpoan. Horma hurbiletako errebotek, haizeak edo gaizki neurtutako mugikorrek emaitza okertzen dute. Dena plano batean doa: txaloaren altuerak mugikorrekiko ere errorea sartzen du.",
+  "fields": {
+    "positionX": "x posizioa",
+    "positionY": "y posizioa",
+    "errorSemiMajor": "Erdiardatz nagusia (% 95)",
+    "errorSemiMinor": "Erdiardatz txikia (% 95)",
+    "errorOrientation": "Elipsearen orientazioa",
+    "residual": "Batez besteko hondarra",
+    "ambiguous": "Soluzio anbiguoa",
+    "receiverCount": "Mugikor kopurua",
+    "emitterIndex": "Mugikor igorlea (0 = A)",
+    "temperature": "Tenperatura",
+    "speedOfSound": "Soinuaren abiadura",
+    "receiverX": "Mugikorrak: x",
+    "receiverY": "Mugikorrak: y",
+    "intervals": "Tarteak"
+  }
+}
