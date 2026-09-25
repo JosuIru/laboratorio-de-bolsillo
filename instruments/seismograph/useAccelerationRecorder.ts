@@ -2,7 +2,14 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { accelerometerSource } from '@/core/sensors/adapters/motionAndEnvironment';
 import { useSensorSubscription } from '@/core/sensors/useSensorSubscription';
-import { type BiquadCoefficients, type BiquadState, createBiquadState, designBiquad, processBiquadSample } from '@/processing/dsp/biquad';
+import {
+  type BiquadCoefficients,
+  type BiquadState,
+  createBiquadState,
+  designBiquad,
+  primeBiquadState,
+  processBiquadSample,
+} from '@/processing/dsp/biquad';
 import { createEventDetector } from '@/processing/dsp/peaks';
 import { estimateSampleRateHz } from '@/processing/signal/resampling';
 import {
@@ -24,6 +31,8 @@ const gravityRemovalCutoffHz = 0.5;
 const fftSize = 512;
 const displayRefreshIntervalMilliseconds = 40;
 const analysisIntervalMilliseconds = 500;
+/** Hueco entre muestras (pausa, app en segundo plano) tras el que se vuelve a cebar el filtro. */
+const maximumGapSeconds = 0.5;
 /**
  * Un golpe hace vibrar la mesa (decenas de Hz) durante un rato y la señal cruza por cero en
  * cada ciclo: tras un evento no se cuenta otro en medio segundo, y solo se rearma cuando la
@@ -49,6 +58,8 @@ interface GravityFilters {
   sampleRateHz: number;
   coefficients: BiquadCoefficients;
   axisStates: [BiquadState, BiquadState, BiquadState];
+  /** Si ya se cebó con una muestra real (ver `primeBiquadState`). */
+  isPrimed: boolean;
 }
 
 function createHistory(): AccelerationHistory {
@@ -68,6 +79,7 @@ function createGravityFilters(sampleRateHz: number): GravityFilters {
     sampleRateHz,
     coefficients: designBiquad('high-pass', gravityRemovalCutoffHz, sampleRateHz),
     axisStates: [createBiquadState(), createBiquadState(), createBiquadState()],
+    isPrimed: false,
   };
 }
 
@@ -96,13 +108,23 @@ export function useAccelerationRecorder({ isRunning, eventThreshold }: { isRunni
     accelerometerSource,
     ({ timestampSeconds, value }) => {
       recordingStartTimestamp.current ??= timestampSeconds;
+      const previousTimestamp = latestTimestamp.current;
       latestTimestamp.current = timestampSeconds;
       pushToRingBuffer(history.timestamps, timestampSeconds);
       pushToRingBuffer(history.rawX, value.x);
       pushToRingBuffer(history.rawY, value.y);
       pushToRingBuffer(history.rawZ, value.z);
 
+      // El paso alto se ceba con la primera muestra (al empezar, tras reiniciar, tras una pausa o
+      // al rediseñarlo): si arrancara en cero, la gravedad entraría como un escalón y daría un pico falso.
+      const hasLongGap = previousTimestamp !== null && timestampSeconds - previousTimestamp > maximumGapSeconds;
       const { coefficients, axisStates } = gravityFilters.current;
+      if (!gravityFilters.current.isPrimed || hasLongGap) {
+        primeBiquadState(coefficients, axisStates[0], value.x);
+        primeBiquadState(coefficients, axisStates[1], value.y);
+        primeBiquadState(coefficients, axisStates[2], value.z);
+        gravityFilters.current.isPrimed = true;
+      }
       const dynamicX = processBiquadSample(coefficients, axisStates[0], value.x);
       const dynamicY = processBiquadSample(coefficients, axisStates[1], value.y);
       const dynamicZ = processBiquadSample(coefficients, axisStates[2], value.z);
@@ -110,9 +132,8 @@ export function useAccelerationRecorder({ isRunning, eventThreshold }: { isRunni
       pushToRingBuffer(history.dynamicY, dynamicY);
       pushToRingBuffer(history.dynamicZ, dynamicZ);
 
-      // El filtro tarda unos segundos en asentarse: no se cuentan eventos hasta entonces.
-      const hasFilterSettled = timestampSeconds - recordingStartTimestamp.current > 3;
-      if (hasFilterSettled && eventDetector.current.push(Math.hypot(dynamicX, dynamicY, dynamicZ), timestampSeconds)) {
+      if (hasLongGap) eventDetector.current.reset();
+      if (eventDetector.current.push(Math.hypot(dynamicX, dynamicY, dynamicZ), timestampSeconds)) {
         eventCount.current++;
       }
     },
@@ -139,12 +160,10 @@ export function useAccelerationRecorder({ isRunning, eventThreshold }: { isRunni
       const recentTimestamps = new Float64Array(recentCount);
       copyLatestFromRingBuffer(history.timestamps, recentTimestamps);
       const measuredRateHz = estimateSampleRateHz(recentTimestamps);
-      // Rediseña el filtro de gravedad si la frecuencia real difiere de la supuesta.
+      // Rediseña el filtro de gravedad si la frecuencia real difiere de la supuesta. El estado
+      // viejo no vale con los coeficientes nuevos (daría un salto): se vuelve a cebar.
       if (measuredRateHz && Math.abs(measuredRateHz - gravityFilters.current.sampleRateHz) > 5) {
-        gravityFilters.current = {
-          ...createGravityFilters(measuredRateHz),
-          axisStates: gravityFilters.current.axisStates,
-        };
+        gravityFilters.current = createGravityFilters(measuredRateHz);
       }
       const copyAxis = (axisBuffer: RingBuffer) => {
         const axisValues = new Float64Array(recentCount);

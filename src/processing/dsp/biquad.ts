@@ -67,6 +67,19 @@ export function createBiquadState(): BiquadState {
   return { firstDelay: 0, secondDelay: 0 };
 }
 
+/**
+ * Deja el estado como si el filtro llevara mucho tiempo recibiendo `inputSample` constante.
+ * Sin esto, un paso alto que arranca en cero ve la gravedad como un escalón y da un pico falso.
+ */
+export function primeBiquadState(coefficients: BiquadCoefficients, state: BiquadState, inputSample: number): void {
+  'worklet';
+  const directCurrentGain =
+    (coefficients.b0 + coefficients.b1 + coefficients.b2) / (1 + coefficients.a1 + coefficients.a2);
+  const steadyOutput = directCurrentGain * inputSample;
+  state.secondDelay = coefficients.b2 * inputSample - coefficients.a2 * steadyOutput;
+  state.firstDelay = coefficients.b1 * inputSample - coefficients.a1 * steadyOutput + state.secondDelay;
+}
+
 export function processBiquadSample(coefficients: BiquadCoefficients, state: BiquadState, inputSample: number): number {
   'worklet';
   const outputSample = coefficients.b0 * inputSample + state.firstDelay;
