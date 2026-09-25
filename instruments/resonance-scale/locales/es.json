@@ -1,0 +1,95 @@
+{
+  "name": "Báscula de resonancia",
+  "description": "Pesa objetos pequeños (una carta, unas monedas) con el motor de vibración y el acelerómetro: cuanto más pesa lo que pones encima, menos vibra el móvil. Un juguete científico que se calibra con monedas.",
+  "weigh": "Pesar",
+  "tare": "Tara (vacío)",
+  "tareHelp": "Si la toalla o la esponja se asienta, quita todo y pulsa Tara para rehacer el cero.",
+  "tareActive": "Tara hecha en esta sesión: las masas se miden desde el último vacío.",
+  "measuring": "Vibrando y midiendo durante unos {{seconds}} s… no toques el móvil ni la mesa.",
+  "irregularPulses": "Los pulsos han salido irregulares (±{{percent}} %): quizá algo se ha movido. Repite la medida.",
+  "spectrumChart": "Espectro medio de la vibración durante los pulsos",
+  "uncalibratedHint": "Sin calibrar solo verás la amplitud de la vibración (sirve para comparar: menos amplitud, más masa). Pulsa Calibrar y mide con monedas para ver gramos.",
+  "honestyNote": "Es un juguete científico, no una báscula. La resolución es de unos pocos gramos en el mejor caso y de decenas de gramos en el peor. Todo depende de la superficie: calibra y pesa sobre la misma toalla o esponja, con el móvil en el mismo sitio y el objeto en el centro. Una superficie dura (una mesa) casi no funciona. El motor de vibración también cambia al calentarse o con poca batería: rehaz la tara a menudo.",
+  "result": {
+    "estimatedMass": "Masa estimada",
+    "uncertainty": "± {{grams}} g (intervalo aproximado del 95 %)",
+    "equivalences": "Como {{coins}} monedas de 1 € o {{sheets}} folios A4",
+    "extrapolated": "Fuera del rango calibrado: el resultado es poco fiable. Calibra con masas parecidas a esta.",
+    "negative": "Sale menos que el vacío: la superficie ha cambiado. Haz la tara y repite.",
+    "tareDone": "Cero rehecho.",
+    "tareDoneWithDrift": "Cero rehecho. El móvil vacío marcaba {{grams}} g: eso se había desplazado la superficie.",
+    "uncalibrated": "Sin calibrar: compara amplitudes o calibra con monedas.",
+    "readyCalibrated": "Pon el móvil sobre la superficie de la calibración, deja el objeto en el centro de la pantalla y pulsa Pesar.",
+    "readyUncalibrated": "Pon el móvil boca arriba sobre una toalla doblada o una esponja y pulsa Pesar para medir cuánto vibra."
+  },
+  "details": {
+    "title": "Respuesta a los pulsos",
+    "spectrumHelp": "El pico es el motor de vibración. Si su frecuencia pasa de la mitad del muestreo, aparece reflejada (alias) más abajo; la amplitud se mide igual.",
+    "amplitude": "Amplitud: {{amplitude}} ± {{spread}} m/s² (RMS, entre pulsos)",
+    "frequency": "Pico del espectro: {{frequency}} Hz",
+    "noFrequency": "Pico del espectro: los pulsos son demasiado cortos para calcularlo",
+    "acquisition": "{{pulses}} pulsos · {{rate}} muestras/s · fondo {{noise}} m/s²"
+  },
+  "compare": {
+    "title": "Comparar",
+    "row": "#{{number}}: {{mass}} · {{amplitude}} m/s² ({{change}} % respecto a la #1)",
+    "help": "Menos amplitud significa más masa. Mide varias cosas seguidas sobre la misma superficie para ordenarlas por peso."
+  },
+  "howTo": {
+    "title": "Cómo se usa",
+    "steps": "1. Dobla una toalla (o usa una esponja) sobre una mesa firme y pon el móvil boca arriba encima, siempre en el mismo sitio.\n2. Calibra: mide el móvil vacío y luego con 4 y con 8 monedas en el centro de la pantalla (mejor aún si repites alguna).\n3. Pon el objeto en el centro, pulsa Pesar y no toques nada mientras vibra.\n\nEl motor empuja siempre con la misma fuerza: cuanta más masa se mueve con el móvil, menos se acelera (a = F / m).",
+    "challenge": "Reto: ¿cuánto pesa esta carta? ¿Pasa de 20 g? ¿Qué pesa más, una llave o tres monedas de 50 céntimos?"
+  },
+  "failures": {
+    "too-few-samples": "El acelerómetro apenas ha entregado datos. Vuelve a intentarlo.",
+    "no-vibration-detected": "No se ha notado la vibración. Comprueba que la vibración del móvil está activada (modo silencio total, ahorro de batería) y que no está sobre algo demasiado blando.",
+    "too-few-pulses": "No se han distinguido bien los pulsos. Deja el móvil quieto, sin tocarlo, y repite."
+  },
+  "coins": {
+    "oneEuro": "Monedas de 1 € ({{grams}} g)",
+    "twoEuros": "Monedas de 2 € ({{grams}} g)",
+    "fiftyCents": "Monedas de 50 cent ({{grams}} g)",
+    "oneEuroShort": "1 €",
+    "twoEurosShort": "2 €",
+    "fiftyCentsShort": "50 cent",
+    "add": "Añadir una moneda de {{coin}}",
+    "remove": "Quitar una moneda de {{coin}}",
+    "extraGrams": "Otra masa conocida (g)"
+  },
+  "calibration": {
+    "instructions": "Coloca el móvil boca arriba sobre una toalla doblada o una esponja, en una mesa firme. Durante toda la calibración usa la misma superficie y no muevas el móvil: pon y quita las monedas con cuidado, apiladas en el centro de la pantalla.",
+    "plan": "Mide al menos 3 veces: vacío, con unas 4 monedas y con unas 8. Si repites alguna masa, la estimación de la incertidumbre será más realista. Calibra con masas parecidas a las que quieres pesar.",
+    "replacesActive": "La calibración nueva sustituirá a «{{name}}» como activa.",
+    "whatIsOnTop": "¿Qué hay encima del móvil?",
+    "measureEmpty": "Medir vacío",
+    "measureWith": "Medir con {{grams}} g encima",
+    "invalidMass": "Escribe una masa válida",
+    "points": "Medidas",
+    "pointSummary": "{{grams}} g → {{amplitude}} m/s² · {{frequency}} Hz",
+    "removePoint": "Quitar esta medida",
+    "needMorePoints": "Hacen falta al menos {{count}} medidas con masas distintas.",
+    "noUsableModel": "La vibración apenas cambia con la masa o no lo hace de forma coherente. Prueba una superficie más blanda, más masa (al menos {{span}} g de diferencia) o repite las medidas sin mover el móvil.",
+    "addEmptyPoint": "Consejo: incluye una medida con el móvil vacío.",
+    "model": {
+      "inverse-amplitude": "Modelo: amplitud de la vibración (a = F / masa)",
+      "peak-frequency": "Modelo: frecuencia del pico (en este móvil cambia más que la amplitud)"
+    },
+    "crossValidation": "Error al predecir cada medida con las demás: ± {{grams}} g",
+    "sensitivity": "La amplitud baja un {{percent}} % por cada 10 g.",
+    "range": "Rango calibrado: de {{minimum}} a {{maximum}} g.",
+    "profileNameHint": "Nombre (p. ej. «toalla azul»)"
+  },
+  "fields": {
+    "estimatedMass": "Masa estimada",
+    "massUncertainty": "Incertidumbre (95 %)",
+    "isExtrapolated": "Fuera del rango calibrado",
+    "modelFeature": "Rasgo del modelo",
+    "isTared": "Con tara",
+    "amplitude": "Amplitud de la vibración",
+    "amplitudeSpread": "Dispersión entre pulsos",
+    "peakFrequency": "Frecuencia del pico",
+    "pulseCount": "Pulsos",
+    "sampleRate": "Muestreo",
+    "noise": "Ruido de fondo"
+  }
+}

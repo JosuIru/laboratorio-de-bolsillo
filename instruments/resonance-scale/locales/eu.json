@@ -1,0 +1,95 @@
+{
+  "name": "Erresonantzia-balantza",
+  "description": "Pisatu objektu txikiak (gutun bat, txanpon batzuk) dardara-motorrarekin eta azelerometroarekin: gainean jartzen duzuna zenbat eta astunagoa izan, orduan eta gutxiago dardaratzen da mugikorra. Txanponekin kalibratzen den jostailu zientifikoa.",
+  "weigh": "Pisatu",
+  "tare": "Tara (hutsik)",
+  "tareHelp": "Eskuoihala edo belakia finkatzen bada, kendu dena eta sakatu Tara zeroa berriz egiteko.",
+  "tareActive": "Saio honetan tara eginda: masak azken hutsetik neurtzen dira.",
+  "measuring": "Dardaratzen eta neurtzen {{seconds}} s inguruz… ez ukitu mugikorra ez mahaia.",
+  "irregularPulses": "Pultsuak irregularrak atera dira (±{{percent}} %): agian zerbait mugitu da. Errepikatu neurketa.",
+  "spectrumChart": "Pultsuetako dardararen batez besteko espektroa",
+  "uncalibratedHint": "Kalibratu gabe dardararen anplitudea baino ez duzu ikusiko (alderatzeko balio du: anplitude txikiagoa, masa handiagoa). Sakatu Kalibratu eta neurtu txanponekin gramoak ikusteko.",
+  "honestyNote": "Jostailu zientifikoa da, ez balantza bat. Bereizmena gramo gutxi batzuetakoa da onenean, eta hamarnaka gramokoa txarrenean. Dena gainazalaren araberakoa da: kalibratu eta pisatu eskuoihal edo belaki berean, mugikorra leku berean eta objektua erdian. Gainazal gogor batean (mahai batean) ia ez du funtzionatzen. Dardara-motorra ere aldatu egiten da berotzean edo bateria gutxirekin: egin tara maiz.",
+  "result": {
+    "estimatedMass": "Kalkulatutako masa",
+    "uncertainty": "± {{grams}} g (% 95eko tarte hurbila)",
+    "equivalences": "1 euroko {{coins}} txanpon edo {{sheets}} A4 orri bezala",
+    "extrapolated": "Kalibratutako tartetik kanpo: emaitza ez da oso fidagarria. Kalibratu honen antzeko masekin.",
+    "negative": "Hutsik baino gutxiago ateratzen da: gainazala aldatu egin da. Egin tara eta errepikatu.",
+    "tareDone": "Zeroa berriz eginda.",
+    "tareDoneWithDrift": "Zeroa berriz eginda. Mugikor hutsak {{grams}} g markatzen zituen: horrenbeste mugitu zen gainazala.",
+    "uncalibrated": "Kalibratu gabe: alderatu anplitudeak edo kalibratu txanponekin.",
+    "readyCalibrated": "Jarri mugikorra kalibrazioko gainazalean, utzi objektua pantailaren erdian eta sakatu Pisatu.",
+    "readyUncalibrated": "Jarri mugikorra ahoz gora eskuoihal tolestu edo belaki baten gainean eta sakatu Pisatu zenbat dardaratzen den neurtzeko."
+  },
+  "details": {
+    "title": "Pultsuen erantzuna",
+    "spectrumHelp": "Gailurra dardara-motorra da. Bere maiztasuna laginketaren erdia baino handiagoa bada, beherago islatuta (alias) agertzen da; anplitudea berdin neurtzen da.",
+    "amplitude": "Anplitudea: {{amplitude}} ± {{spread}} m/s² (RMS, pultsuen artean)",
+    "frequency": "Espektroaren gailurra: {{frequency}} Hz",
+    "noFrequency": "Espektroaren gailurra: pultsuak laburregiak dira kalkulatzeko",
+    "acquisition": "{{pulses}} pultsu · {{rate}} lagin/s · hondoa {{noise}} m/s²"
+  },
+  "compare": {
+    "title": "Alderatu",
+    "row": "#{{number}}: {{mass}} · {{amplitude}} m/s² ({{change}} % #1arekiko)",
+    "help": "Anplitude txikiagoak masa handiagoa esan nahi du. Neurtu hainbat gauza jarraian gainazal berean pisuaren arabera ordenatzeko."
+  },
+  "howTo": {
+    "title": "Nola erabili",
+    "steps": "1. Tolestu eskuoihal bat (edo erabili belaki bat) mahai sendo baten gainean eta jarri mugikorra ahoz gora gainean, beti leku berean.\n2. Kalibratu: neurtu mugikorra hutsik, eta gero 4 eta 8 txanponekin pantailaren erdian (hobe oraindik bat errepikatzen baduzu).\n3. Jarri objektua erdian, sakatu Pisatu eta ez ukitu ezer dardaratzen ari den bitartean.\n\nMotorrak beti indar berarekin bultzatzen du: mugikorrarekin batera zenbat eta masa gehiago mugitu, orduan eta gutxiago azeleratzen da (a = F / m).",
+    "challenge": "Erronka: zenbat pisatzen du gutun honek? 20 g baino gehiago? Zerk pisatzen du gehiago, giltza batek ala 50 zentimoko hiru txanponek?"
+  },
+  "failures": {
+    "too-few-samples": "Azelerometroak ia ez du daturik eman. Saiatu berriz.",
+    "no-vibration-detected": "Ez da dardara nabaritu. Egiaztatu mugikorraren dardara aktibatuta dagoela (isilune osoa, bateria aurreztea) eta ez dagoela gauza bigunegi baten gainean.",
+    "too-few-pulses": "Ez dira pultsuak ondo bereizi. Utzi mugikorra geldi, ukitu gabe, eta errepikatu."
+  },
+  "coins": {
+    "oneEuro": "1 euroko txanponak ({{grams}} g)",
+    "twoEuros": "2 euroko txanponak ({{grams}} g)",
+    "fiftyCents": "50 zentimoko txanponak ({{grams}} g)",
+    "oneEuroShort": "1 €",
+    "twoEurosShort": "2 €",
+    "fiftyCentsShort": "50 zentimo",
+    "add": "Gehitu {{coin}}ko txanpon bat",
+    "remove": "Kendu {{coin}}ko txanpon bat",
+    "extraGrams": "Beste masa ezagun bat (g)"
+  },
+  "calibration": {
+    "instructions": "Jarri mugikorra ahoz gora eskuoihal tolestu edo belaki baten gainean, mahai sendo batean. Kalibrazio osoan erabili gainazal bera eta ez mugitu mugikorra: jarri eta kendu txanponak kontuz, pantailaren erdian pilatuta.",
+    "plan": "Neurtu gutxienez 3 aldiz: hutsik, 4 txanpon inguru eta 8 txanpon inguru. Masaren bat errepikatzen baduzu, ziurgabetasunaren kalkulua errealistagoa izango da. Kalibratu pisatu nahi dituzunen antzeko masekin.",
+    "replacesActive": "Kalibrazio berriak «{{name}}» ordeztuko du aktibo gisa.",
+    "whatIsOnTop": "Zer dago mugikorraren gainean?",
+    "measureEmpty": "Neurtu hutsik",
+    "measureWith": "Neurtu {{grams}} g gainean dituela",
+    "invalidMass": "Idatzi masa baliodun bat",
+    "points": "Neurketak",
+    "pointSummary": "{{grams}} g → {{amplitude}} m/s² · {{frequency}} Hz",
+    "removePoint": "Kendu neurketa hau",
+    "needMorePoints": "Gutxienez {{count}} neurketa behar dira, masa desberdinekin.",
+    "noUsableModel": "Dardara ia ez da aldatzen masarekin, edo ez modu koherentean. Probatu gainazal bigunago bat, masa gehiago (gutxienez {{span}} g-ko aldea) edo errepikatu neurketak mugikorra mugitu gabe.",
+    "addEmptyPoint": "Aholkua: sartu neurketa bat mugikorra hutsik dagoela.",
+    "model": {
+      "inverse-amplitude": "Eredua: dardararen anplitudea (a = F / masa)",
+      "peak-frequency": "Eredua: gailurraren maiztasuna (mugikor honetan anplitudea baino gehiago aldatzen da)"
+    },
+    "crossValidation": "Neurketa bakoitza besteekin aurreikustean errorea: ± {{grams}} g",
+    "sensitivity": "Anplitudea % {{percent}} jaisten da 10 g bakoitzeko.",
+    "range": "Kalibratutako tartea: {{minimum}} g-tik {{maximum}} g-ra.",
+    "profileNameHint": "Izena (adib. «eskuoihal urdina»)"
+  },
+  "fields": {
+    "estimatedMass": "Kalkulatutako masa",
+    "massUncertainty": "Ziurgabetasuna (% 95)",
+    "isExtrapolated": "Kalibratutako tartetik kanpo",
+    "modelFeature": "Ereduaren ezaugarria",
+    "isTared": "Tararekin",
+    "amplitude": "Dardararen anplitudea",
+    "amplitudeSpread": "Pultsuen arteko sakabanaketa",
+    "peakFrequency": "Gailurraren maiztasuna",
+    "pulseCount": "Pultsuak",
+    "sampleRate": "Laginketa",
+    "noise": "Hondoko zarata"
+  }
+}
