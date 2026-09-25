@@ -77,6 +77,20 @@ export function useMoonFrames(isDeviceSteady: () => boolean, onDetection?: (dete
     capturedCrops.current = [];
   }, []);
 
+  // Al salir de la pantalla se descarta la captura en curso: se borra el temporizador y quien
+  // espera recibe una captura vacía (y no se apila nada en la pantalla siguiente).
+  useEffect(
+    () => () => {
+      if (captureTimeout.current) clearTimeout(captureTimeout.current);
+      captureTimeout.current = null;
+      const resolveCaptureNow = resolveCapture.current;
+      resolveCapture.current = null;
+      capturedCrops.current = [];
+      resolveCaptureNow?.({ crops: [], rejectedCropCount: 0 });
+    },
+    [],
+  );
+
   const deliverCrop = useCallback(
     (crop: AlignedCrop) => {
       if (!resolveCapture.current) return;

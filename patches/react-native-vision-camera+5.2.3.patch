@@ -1,5 +1,5 @@
 diff --git a/node_modules/react-native-vision-camera/android/src/main/java/com/margelo/nitro/camera/hybrids/HybridCameraController.kt b/node_modules/react-native-vision-camera/android/src/main/java/com/margelo/nitro/camera/hybrids/HybridCameraController.kt
-index 337601a..a2d8013 100644
+index 337601a..38b0abe 100644
 --- a/node_modules/react-native-vision-camera/android/src/main/java/com/margelo/nitro/camera/hybrids/HybridCameraController.kt
 +++ b/node_modules/react-native-vision-camera/android/src/main/java/com/margelo/nitro/camera/hybrids/HybridCameraController.kt
 @@ -2,6 +2,12 @@ package com.margelo.nitro.camera.hybrids
@@ -23,7 +23,24 @@ index 337601a..a2d8013 100644
  import com.margelo.nitro.camera.extensions.converters.fromTorchState
  import com.margelo.nitro.camera.extensions.converters.toMeteringMode
  import com.margelo.nitro.camera.hybrids.inputs.HybridCameraDevice
-@@ -93,7 +100,7 @@ class HybridCameraController(
+@@ -42,6 +49,16 @@ class HybridCameraController(
+     get() = camera.cameraInfo.cameraState.value
+   private var zoomAnimator: ValueAnimator? = null
+ 
++  // Parche del Laboratorio de Bolsillo: las opciones de Camera2Interop pertenecen a la cámara
++  // física y sobreviven a la sesión. Sin esto, la exposición manual de una pantalla (AE apagado)
++  // se quedaría puesta en la siguiente que abra la misma cámara.
++  init {
++    clearCamera2InteropOptions()
++  }
++
++  @OptIn(ExperimentalCamera2Interop::class)
++  private fun clearCamera2InteropOptions() = Camera2CameraControl.from(camera.cameraControl).clearCaptureRequestOptions()
++
+   override val isConnected: Boolean
+     get() = cameraState?.type == CameraState.Type.OPEN
+ 
+@@ -93,7 +110,7 @@ class HybridCameraController(
    override val focusMode: FocusMode
      get() = FocusMode.CONTINUOUS_AUTO_FOCUS
    override val exposureMode: ExposureMode
@@ -32,7 +49,7 @@ index 337601a..a2d8013 100644
    override val whiteBalanceMode: WhiteBalanceMode
      get() = WhiteBalanceMode.CONTINUOUS_AUTO_WHITE_BALANCE
  
-@@ -184,6 +191,8 @@ class HybridCameraController(
+@@ -184,6 +201,8 @@ class HybridCameraController(
  
    override fun resetFocus(): Promise<Unit> {
      return Promise.async {
@@ -41,7 +58,7 @@ index 337601a..a2d8013 100644
        camera.cameraControl
          .cancelFocusAndMetering()
          .await()
-@@ -300,28 +309,59 @@ class HybridCameraController(
+@@ -300,28 +319,59 @@ class HybridCameraController(
      )
    }
  
@@ -105,14 +122,14 @@ index 337601a..a2d8013 100644
 +
 +  @OptIn(ExperimentalCamera2Interop::class)
 +  private suspend fun clearManualExposure() {
-+    if (lockedExposureDurationSeconds == null) return
-+    Camera2CameraControl.from(camera.cameraControl).clearCaptureRequestOptions().await()
++    // Sin mirar el estado local: otro controlador de la misma cámara pudo dejarla fijada.
 +    lockedExposureDurationSeconds = null
 +    lockedIso = null
++    clearCamera2InteropOptions().await()
    }
  
    override fun lockCurrentExposure(): Promise<Unit> {
-@@ -356,3 +396,5 @@ class HybridCameraController(
+@@ -356,3 +406,5 @@ class HybridCameraController(
      )
    }
  }

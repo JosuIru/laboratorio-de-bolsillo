@@ -1,5 +1,5 @@
 import { Canvas, Image as SkiaImageView, type SkImage } from '@shopify/react-native-skia';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type GestureResponderEvent, type LayoutChangeEvent, Pressable, StyleSheet, View } from 'react-native';
 import { Camera, type CameraRef, type MeteringMode, useCameraDevice } from 'react-native-vision-camera';
@@ -92,6 +92,15 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
   const { isDeviceSteady, isSteadyForDisplay } = useDeviceSteadiness(isCameraAllowed, hasGyroscope);
   // Desde la cuenta atrás hasta el final de la captura, la exposición no cambia.
   const [isCaptureInProgress, setIsCaptureInProgress] = useState(false);
+  // La captura espera varias veces (cuenta atrás, captura): si se sale de la pantalla entretanto,
+  // no se sigue (ni se ocupa el hilo JS apilando) en la pantalla siguiente.
+  const isMountedRef = useRef(true);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
   // La exposición automática mide sobre todo el cielo negro y quema la Luna, incluso con la
   // compensación al mínimo. Si el móvil lo admite, se fija el tiempo de exposición midiendo solo la Luna.
   const lunarManualExposure = useLunarManualExposure(cameraRef, cameraDevice, isCaptureInProgress);
@@ -176,10 +185,11 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
     setMeteringViewPoint(null);
     try {
       await cameraRef.current?.resetFocus();
-      // `resetFocus` también quita la exposición manual.
-      lunarManualExposure.reapplyExposure();
     } catch {
       // La cámara puede no estar lista; no hay nada que deshacer.
+    } finally {
+      // `resetFocus` también quita la exposición manual (aunque falle después de quitarla).
+      lunarManualExposure.reapplyExposure();
     }
   }
 
@@ -199,12 +209,14 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
     for (let secondsLeft = captureCountdownSeconds; secondsLeft > 0; secondsLeft--) {
       setCountdownSecondsLeft(secondsLeft);
       await waitMilliseconds(1000);
+      if (!isMountedRef.current) return;
     }
     setCountdownSecondsLeft(null);
     const { crops: capturedCrops, rejectedCropCount: rejectedFrameCount } = await captureCrops(
       capturedFrameTarget,
       cropSize,
     );
+    if (!isMountedRef.current) return;
     setIsCaptureInProgress(false);
     if (capturedCrops.length === 0) {
       setStatusMessage(t(rejectedFrameCount > 0 ? 'tooMuchMovement' : 'moonLostDuringCapture'));
@@ -213,6 +225,7 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
     setIsProcessing(true);
     // Deja que se pinte el indicador antes del cálculo, que ocupa el hilo JS un par de segundos.
     await new Promise((resolve) => setTimeout(resolve, 50));
+    if (!isMountedRef.current) return;
     try {
       const stackingResult = stackSharpestCrops(capturedCrops, cropSize, keptFrameFraction, 0);
       const bestSingleSkiaImage = createSkiaImage(stackingResult.bestSingleImage);
@@ -379,8 +392,8 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
         label={t('zoomLabel', { zoom: zoomFactor.toFixed(1) })}
         onDecrease={() => setRequestedZoom(Math.max(minimumZoom, zoomFactor / zoomStepFactor))}
         onIncrease={() => setRequestedZoom(Math.min(maximumZoom, zoomFactor * zoomStepFactor))}
-        isDecreaseDisabled={zoomFactor <= minimumZoom}
-        isIncreaseDisabled={zoomFactor >= maximumZoom}
+        isDecreaseDisabled={isCaptureInProgress || zoomFactor <= minimumZoom}
+        isIncreaseDisabled={isCaptureInProgress || zoomFactor >= maximumZoom}
         decreaseLabel={t('zoomOut')}
         increaseLabel={t('zoomIn')}
       />
@@ -393,8 +406,8 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
             })}
             onDecrease={lunarManualExposure.darken}
             onIncrease={lunarManualExposure.brighten}
-            isDecreaseDisabled={lunarManualExposure.isAtShortestExposure}
-            isIncreaseDisabled={lunarManualExposure.isAtLongestExposure}
+            isDecreaseDisabled={isCaptureInProgress || lunarManualExposure.isAtShortestExposure}
+            isIncreaseDisabled={isCaptureInProgress || lunarManualExposure.isAtLongestExposure}
             decreaseLabel={t('exposureDown')}
             increaseLabel={t('exposureUp')}
           />
@@ -409,6 +422,7 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
                 <AppButton
                   label={t('useAutomaticLunarExposure')}
                   onPress={lunarManualExposure.enableAutomatic}
+                  isDisabled={isCaptureInProgress}
                   variant="secondary"
                 />
               </View>
@@ -427,8 +441,8 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
           }
           onDecrease={() => setRequestedExposureBias(stepExposure(exposureScale, exposureBias, -1))}
           onIncrease={() => setRequestedExposureBias(stepExposure(exposureScale, exposureBias, 1))}
-          isDecreaseDisabled={exposureBias <= minimumExposureBias}
-          isIncreaseDisabled={exposureBias >= maximumExposureBias}
+          isDecreaseDisabled={isCaptureInProgress || exposureBias <= minimumExposureBias}
+          isIncreaseDisabled={isCaptureInProgress || exposureBias >= maximumExposureBias}
           decreaseLabel={t('exposureDown')}
           increaseLabel={t('exposureUp')}
         />
