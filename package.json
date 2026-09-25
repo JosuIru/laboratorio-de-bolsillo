@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "main": "expo-router/entry",
   "dependencies": {
+    "@shopify/react-native-skia": "2.6.2",
     "expo": "~57.0.25",
     "expo-constants": "~57.0.19",
     "expo-crypto": "~57.0.3",
@@ -64,12 +65,17 @@
     ],
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/src/$1",
-      "^@instruments/(.*)$": "<rootDir>/instruments/$1"
+      "^@instruments/(.*)$": "<rootDir>/instruments/$1",
+      "^@shopify/react-native-skia$": "<rootDir>/test/mocks/reactNativeSkia.tsx"
     }
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/JosuIru/laboratorio-de-bolsillo.git"
   },
-  "homepage": "https://github.com/JosuIru/laboratorio-de-bolsillo"
+  "homepage": "https://github.com/JosuIru/laboratorio-de-bolsillo",
+  "allowScripts": {
+    "@shopify/react-native-skia@2.6.2": true,
+    "unrs-resolver@1.12.2": true
+  }
 }

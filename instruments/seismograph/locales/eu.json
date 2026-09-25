@@ -1,0 +1,30 @@
+{
+  "name": "Sismografoa",
+  "description": "Bibrazioak denbora errealean azelerometroarekin: hiru ardatz, gailurrak eta maiztasun nagusia.",
+  "instructions": "Jarri mugikorra neurtu nahi duzun gainazalaren gainean (mahaia, lurra, makina) eta ez eutsi eskuarekin.",
+  "warmingUp": "Maiztasun-analisirako laginak biltzen…",
+  "now": "orain",
+  "sampleRate": "{{rate}} lagin/s",
+  "traceChart": "Hiru ardatzen azelerazioa grabitaterik gabe, azken segundoak",
+  "spectrumChart": "Bibrazioaren maiztasun-espektroa",
+  "pause": "Pausatu",
+  "resume": "Jarraitu",
+  "reset": "Berrabiarazi",
+  "sensitivity": {
+    "title": "Gertaerak zenbatzeko sentikortasuna",
+    "high": "Handia",
+    "medium": "Ertaina",
+    "low": "Txikia"
+  },
+  "fields": {
+    "dominantFrequency": "Maiztasun nagusia",
+    "peak": "Gailurra",
+    "rms": "Balio eraginkorra",
+    "events": "Gertaerak",
+    "threshold": "Gertaera-atalasea",
+    "sampleRate": "Laginketa-maiztasuna",
+    "duration": "Iraupena",
+    "spectrumResolution": "Espektroaren bereizmena",
+    "spectrum": "Espektroa"
+  }
+}

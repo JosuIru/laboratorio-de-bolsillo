@@ -4,7 +4,10 @@
  * remuestrean por interpolación lineal.
  */
 
-/** Frecuencia de muestreo a partir de la mediana de los intervalos (robusta frente a huecos). */
+/**
+ * Frecuencia de muestreo robusta: la mediana de los intervalos descarta los huecos y, después,
+ * la media de los intervalos cercanos a la mediana corrige el sesgo del jitter.
+ */
 export function estimateSampleRateHz(timestampsSeconds: ArrayLike<number>): number | null {
   if (timestampsSeconds.length < 2) return null;
   const intervalsSeconds: number[] = [];
@@ -19,7 +22,15 @@ export function estimateSampleRateHz(timestampsSeconds: ArrayLike<number>): numb
     intervalsSeconds.length % 2 === 1
       ? intervalsSeconds[middleIndex]!
       : (intervalsSeconds[middleIndex - 1]! + intervalsSeconds[middleIndex]!) / 2;
-  return 1 / medianIntervalSeconds;
+  let inlierSum = 0;
+  let inlierCount = 0;
+  for (const intervalSeconds of intervalsSeconds) {
+    if (intervalSeconds > 0.5 * medianIntervalSeconds && intervalSeconds < 1.5 * medianIntervalSeconds) {
+      inlierSum += intervalSeconds;
+      inlierCount++;
+    }
+  }
+  return inlierCount > 0 ? inlierCount / inlierSum : 1 / medianIntervalSeconds;
 }
 
 /**

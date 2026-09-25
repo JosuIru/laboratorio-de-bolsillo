@@ -1,0 +1,30 @@
+{
+  "name": "Sismógrafo",
+  "description": "Vibraciones en tiempo real con el acelerómetro: tres ejes, picos y frecuencia dominante.",
+  "instructions": "Apoya el móvil sobre la superficie que quieras medir (mesa, suelo, máquina) y no lo sujetes con la mano.",
+  "warmingUp": "Recogiendo muestras para el análisis de frecuencia…",
+  "now": "ahora",
+  "sampleRate": "{{rate}} muestras/s",
+  "traceChart": "Aceleración de los tres ejes sin la gravedad, últimos segundos",
+  "spectrumChart": "Espectro de frecuencias de la vibración",
+  "pause": "Pausar",
+  "resume": "Reanudar",
+  "reset": "Reiniciar",
+  "sensitivity": {
+    "title": "Sensibilidad para contar eventos",
+    "high": "Alta",
+    "medium": "Media",
+    "low": "Baja"
+  },
+  "fields": {
+    "dominantFrequency": "Frecuencia dominante",
+    "peak": "Pico",
+    "rms": "Valor eficaz",
+    "events": "Eventos",
+    "threshold": "Umbral de evento",
+    "sampleRate": "Frecuencia de muestreo",
+    "duration": "Duración",
+    "spectrumResolution": "Resolución del espectro",
+    "spectrum": "Espectro"
+  }
+}
