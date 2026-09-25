@@ -1,0 +1,51 @@
+{
+  "name": "Mantén el pulso",
+  "description": "Juego de ritmo con el micrófono: sigue unos clics, continúa tú solo y mide cuánto te adelantas, cuánto varías y si aceleras.",
+  "starting": "Abriendo el micrófono…",
+  "tryAgain": "Volver a intentarlo",
+  "start": "Empezar",
+  "again": "Otra vez",
+  "stop": "Parar",
+  "modes": {
+    "continuation": "Mantén el pulso",
+    "free": "Palmas libres"
+  },
+  "modeHelp": {
+    "continuation": "Escucha {{clicks}} clics sin dar palmadas. Cuando paren, sigue dando palmadas al mismo ritmo durante {{beats}} pulsos.",
+    "free": "Da palmadas al ritmo que quieras: verás tu tempo y lo regular que es tu pulso."
+  },
+  "phases": {
+    "countIn": "Escucha…",
+    "continuation": "¡Ahora tú! Sigue el pulso"
+  },
+  "results": {
+    "onTime": "Vas justo a tiempo",
+    "early": "Te adelantas {{milliseconds}} ms de media",
+    "late": "Vas {{milliseconds}} ms tarde de media",
+    "variability": "Variación de tu pulso: ±{{milliseconds}} ms",
+    "steadyTempo": "Mantienes el tempo",
+    "slowingDown": "Frenas un {{percent}} %",
+    "speedingUp": "Aceleras un {{percent}} %",
+    "counts": "{{hits}} de {{total}} pulsos · {{extra}} palmadas de más"
+  },
+  "clicksNotHeard": "El micrófono no ha oído bien los clics. Sube el volumen, aleja el móvil del ruido y no des palmadas mientras suenan.",
+  "free": {
+    "regularity": "Variación: {{percent}} %",
+    "keepClapping": "Sigue dando palmadas…",
+    "clapCount": "{{count}} palmadas"
+  },
+  "privacy": "El audio se analiza en el móvil y no se graba. Al guardar solo se guardan los resultados.",
+  "fields": {
+    "score": "Puntuación",
+    "targetTempo": "Tempo",
+    "meanAsynchrony": "Desfase medio",
+    "variability": "Variación del pulso",
+    "drift": "Deriva del tempo",
+    "hits": "Pulsos acertados",
+    "missed": "Pulsos perdidos",
+    "extra": "Palmadas de más",
+    "offsets": "Desfase por pulso",
+    "missedBeats": "Pulsos sin palmada",
+    "measuredTempo": "Tu tempo"
+  }
+}

@@ -296,3 +296,54 @@ export function estimateTempo(
 
   return { beatsPerMinute, confidence: coherentIntervalCount / intervalsSeconds.length };
 }
+
+export interface StreamingOnsetDetectorOptions extends LiveOnsetDetectorOptions {
+  /** Avance entre tramas en muestras: fija la resolución temporal (128 a 48 kHz ≈ 2,7 ms). */
+  hopSize?: number;
+}
+
+/**
+ * Detector en directo que acepta bloques de audio de cualquier tamaño (los que entregue el
+ * micrófono) y los trocea en tramas solapadas. Los instantes se dan en segundos desde la
+ * primera muestra recibida: la línea de tiempo del micrófono.
+ */
+export function createStreamingOnsetDetector(options: StreamingOnsetDetectorOptions) {
+  const { frameSize = defaultFrameSize, hopSize = defaultHopSize } = options;
+  if (!(hopSize > 0 && hopSize <= frameSize)) throw new RangeError(`hopSize debe estar en (0, frameSize]: ${hopSize}`);
+  const liveDetector = createLiveOnsetDetector({ ...options, frameSize });
+  // Buffer circular con las últimas `frameSize` muestras.
+  const recentSamples = new Float64Array(frameSize);
+  const frameBuffer = new Float64Array(frameSize);
+  let writeIndex = 0;
+  let receivedSampleCount = 0;
+  let samplesSinceLastFrame = 0;
+
+  return {
+    /** Devuelve los instantes (s) de los golpes que empiezan en este bloque. */
+    pushSamples(sampleChunk: ArrayLike<number>): number[] {
+      const onsetTimesSeconds: number[] = [];
+      for (let chunkIndex = 0; chunkIndex < sampleChunk.length; chunkIndex++) {
+        recentSamples[writeIndex] = sampleChunk[chunkIndex]!;
+        writeIndex = (writeIndex + 1) % frameSize;
+        receivedSampleCount++;
+        samplesSinceLastFrame++;
+        if (receivedSampleCount < frameSize || samplesSinceLastFrame < hopSize) continue;
+        // `writeIndex` apunta ahora a la muestra más antigua del buffer circular.
+        for (let frameOffset = 0; frameOffset < frameSize; frameOffset++) {
+          frameBuffer[frameOffset] = recentSamples[(writeIndex + frameOffset) % frameSize]!;
+        }
+        const onsetTimeSeconds = liveDetector.push(frameBuffer, samplesSinceLastFrame);
+        samplesSinceLastFrame = 0;
+        if (onsetTimeSeconds !== null) onsetTimesSeconds.push(onsetTimeSeconds);
+      }
+      return onsetTimesSeconds;
+    },
+    reset(): void {
+      liveDetector.reset();
+      recentSamples.fill(0);
+      writeIndex = 0;
+      receivedSampleCount = 0;
+      samplesSinceLastFrame = 0;
+    },
+  };
+}
