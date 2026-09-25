@@ -205,5 +205,11 @@ export function useGnssSky() {
     };
   }, [isReady, isAppActive]);
 
-  return { support, snapshot, startErrorMessage, requestFineLocation, refreshSupport };
+  // Desde Android 12 `onStatusChanged` avisa «ready» siempre; lo que vale es `hasRawMeasurements`.
+  const chipLacksRawMeasurements = support.status === 'ready' && support.capabilities.hasRawMeasurements === false;
+  const reportedSnapshot = chipLacksRawMeasurements
+    ? { ...snapshot, rawMeasurementsStatus: 'notSupported' as const }
+    : snapshot;
+
+  return { support, snapshot: reportedSnapshot, startErrorMessage, requestFineLocation, refreshSupport };
 }

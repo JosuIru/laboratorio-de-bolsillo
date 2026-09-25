@@ -9,6 +9,7 @@ import { smoothRssi, type SmoothedRssi } from '@/processing/bluetooth/proximity'
 import {
   countRecentOtherDevices,
   createTrackerSession,
+  markScanResumed,
   forgetStaleDevices,
   type GeoPoint,
   ingestAdvertisement,
@@ -230,6 +231,7 @@ export function useTrackerScan(followingCriteria: FollowingCriteria, isLocationE
       setPhase('bluetooth-off');
       return;
     }
+    markScanResumed(sessionRef.current, Date.now());
 
     const advertisementSubscription = nativeScanner.addListener('onAdvertisementBatch', ({ advertisements }) => {
       const session = sessionRef.current;

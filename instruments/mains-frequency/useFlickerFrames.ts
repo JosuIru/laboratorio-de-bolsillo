@@ -44,6 +44,12 @@ export function useFlickerFrames(nominalFlickerFrequencyHz: number, isActive: bo
     [nominalFlickerFrequencyHz],
   );
   const lastLuminanceUpdateTime = useRef(0);
+  // El análisis del analizador anterior no vale para la nueva frecuencia nominal.
+  const [analyzedByAnalyzer, setAnalyzedByAnalyzer] = useState(flickerAnalyzer);
+  if (analyzedByAnalyzer !== flickerAnalyzer) {
+    setAnalyzedByAnalyzer(flickerAnalyzer);
+    setAnalysis(null);
+  }
 
   useEffect(() => {
     if (!isActive) return;

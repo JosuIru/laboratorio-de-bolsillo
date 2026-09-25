@@ -68,6 +68,16 @@ export interface TrackerSession {
   otherDeviceLastSeenByAddress: Map<string, number>;
   nextGroupNumber: number;
   options: TrackerGroupingOptions;
+  /**
+   * Cuándo se reanudó el escaneo por última vez (tiempo Unix, ms), o `null` si no se ha pausado.
+   * Un hueco que abarca una pausa no es «otro momento»: el escáner estaba apagado.
+   */
+  scanResumedAtMilliseconds: number | null;
+}
+
+/** Anota que el escaneo vuelve a empezar tras una pausa (Parar o app en segundo plano). */
+export function markScanResumed(session: TrackerSession, resumedAtMilliseconds: number) {
+  session.scanResumedAtMilliseconds = resumedAtMilliseconds;
 }
 
 export function createTrackerSession(options: Partial<TrackerGroupingOptions> = {}): TrackerSession {
@@ -77,6 +87,7 @@ export function createTrackerSession(options: Partial<TrackerGroupingOptions> = 
     otherDeviceLastSeenByAddress: new Map(),
     nextGroupNumber: 1,
     options: { ...defaultTrackerGroupingOptions, ...options },
+    scanResumedAtMilliseconds: null,
   };
 }
 
@@ -99,9 +110,19 @@ function recordPlace(group: TrackerGroup, location: GeoPoint | null, radiusMeter
   if (isNewPlace) group.places.push({ latitude: location.latitude, longitude: location.longitude });
 }
 
-function recordSighting(group: TrackerGroup, timestampMilliseconds: number, episodeGapMilliseconds: number) {
+function recordSighting(
+  group: TrackerGroup,
+  timestampMilliseconds: number,
+  episodeGapMilliseconds: number,
+  scanResumedAtMilliseconds: number | null = null,
+) {
   const lastEpisode = group.episodes[group.episodes.length - 1];
-  if (lastEpisode && timestampMilliseconds - lastEpisode.endMilliseconds <= episodeGapMilliseconds) {
+  const gapSpansScanPause =
+    lastEpisode !== undefined &&
+    scanResumedAtMilliseconds !== null &&
+    lastEpisode.endMilliseconds < scanResumedAtMilliseconds &&
+    timestampMilliseconds - scanResumedAtMilliseconds <= episodeGapMilliseconds;
+  if (lastEpisode && (gapSpansScanPause || timestampMilliseconds - lastEpisode.endMilliseconds <= episodeGapMilliseconds)) {
     lastEpisode.endMilliseconds = Math.max(lastEpisode.endMilliseconds, timestampMilliseconds);
   } else {
     group.episodes.push({ startMilliseconds: timestampMilliseconds, endMilliseconds: timestampMilliseconds });
@@ -128,7 +149,7 @@ export function ingestAdvertisement(
   const existingGroup = existingGroupId ? session.groupsById.get(existingGroupId) : undefined;
 
   if (existingGroup) {
-    recordSighting(existingGroup, timestampMilliseconds, options.episodeGapMilliseconds);
+    recordSighting(existingGroup, timestampMilliseconds, options.episodeGapMilliseconds, session.scanResumedAtMilliseconds);
     existingGroup.lastSeenMilliseconds = Math.max(existingGroup.lastSeenMilliseconds, timestampMilliseconds);
     existingGroup.lastRssi = advertisement.rssi;
     existingGroup.averageRssi += averageRssiWeight * (advertisement.rssi - existingGroup.averageRssi);

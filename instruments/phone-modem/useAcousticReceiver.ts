@@ -14,6 +14,8 @@ import {
 } from '@/processing/modem/acousticModem';
 import type { ErrorCorrection } from '@/processing/modem/frameCodec';
 
+import { startRecorderExclusively, stopRecorderExclusively } from './microphoneAccess';
+
 export type AcousticListenerState =
   | { status: 'idle' }
   | { status: 'starting' }
@@ -74,7 +76,7 @@ export function useAcousticReceiver({
       isCancelled = true;
       if (statusTimer) clearInterval(statusTimer);
       audioRecorder.clearOnAudioReady();
-      void audioRecorder.stop().catch(() => undefined);
+      void stopRecorderExclusively(audioRecorder);
       void audioContext.close().catch(() => undefined);
     }
 
@@ -103,8 +105,8 @@ export function useAcousticReceiver({
             for (const receiverEvent of receiverEvents) onReceiverEventRef.current(receiverEvent);
           },
         );
-        const startResult = await audioRecorder.start();
-        if (isCancelled) return;
+        const startResult = await startRecorderExclusively(audioRecorder, () => isCancelled);
+        if (!startResult || isCancelled) return;
         if (startResult.status === 'error') throw new Error(startResult.message);
         await audioContext.resume();
         statusTimer = setInterval(() => {

@@ -7,6 +7,7 @@ import {
   computeTareOffset,
   estimateMass,
   type MassEstimate,
+  type ScaleModel,
   relativeAmplitudeSpread,
   responseMeasurementFromAnalysis,
 } from '@/processing/resonanceScale/massCalibration';
@@ -38,6 +39,14 @@ function roundTo(value: number, decimals: number): number {
   return Math.round(value * scale) / scale;
 }
 
+function isSameScaleModel(firstModel: ScaleModel, secondModel: ScaleModel): boolean {
+  return (
+    firstModel.feature === secondModel.feature &&
+    firstModel.intercept === secondModel.intercept &&
+    firstModel.slope === secondModel.slope
+  );
+}
+
 export function ResonanceScaleScreen({
   calibrationParameters,
   saveMeasurement,
@@ -49,9 +58,15 @@ export function ResonanceScaleScreen({
   const [lastAnalysis, setLastAnalysis] = useState<PulseResponseAnalysis | null>(null);
   const [lastPurpose, setLastPurpose] = useState<MeasurementPurpose>('weigh');
   const [analysisRevision, setAnalysisRevision] = useState(0);
-  const [tareOffset, setTareOffset] = useState<number | null>(null);
-  /** Cuántos gramos «pesaba» el móvil vacío antes de hacer la tara (deriva de la superficie). */
-  const [tareDriftGrams, setTareDriftGrams] = useState<number | null>(null);
+  /**
+   * Tara y modelo con el que se midió: el desfase solo vale para ese modelo (rasgo, ordenada y
+   * pendiente). Si la calibración cambia mientras la pantalla sigue montada, la tara se descarta.
+   * `driftGrams` es cuántos gramos «pesaba» el móvil vacío antes de la tara (deriva de la superficie).
+   */
+  const [tare, setTare] = useState<{ model: ScaleModel; offset: number | null; driftGrams: number | null } | null>(null);
+  const activeTare = tare && scaleModel && isSameScaleModel(tare.model, scaleModel) ? tare : null;
+  const tareOffset = activeTare?.offset ?? null;
+  const tareDriftGrams = activeTare?.driftGrams ?? null;
   const [sessionResults, setSessionResults] = useState<SessionResult[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -63,8 +78,11 @@ export function ResonanceScaleScreen({
       setLastPurpose(measurementPurpose);
       setAnalysisRevision((previousRevision) => previousRevision + 1);
       if (measurementPurpose === 'tare' && scaleModel) {
-        setTareDriftGrams(estimateMass(scaleModel, responseMeasurement)?.massGrams ?? null);
-        setTareOffset(computeTareOffset(scaleModel, responseMeasurement));
+        setTare({
+          model: scaleModel,
+          offset: computeTareOffset(scaleModel, responseMeasurement),
+          driftGrams: estimateMass(scaleModel, responseMeasurement)?.massGrams ?? null,
+        });
         return;
       }
       const massEstimate = scaleModel ? estimateMass(scaleModel, responseMeasurement, tareOffset ?? 0) : null;

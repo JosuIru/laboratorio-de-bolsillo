@@ -261,11 +261,12 @@ export function groupSeedsIntoClusters(
     let isTruncated = false;
     while (pendingPixelIndices.length > 0) {
       const pixelIndex = pendingPixelIndices.pop()!;
-      pixelIndices.push(pixelIndex);
-      brightnessValues.push(readPixelBrightness(pixels, layout, pixelIndex));
-      if (pixelIndices.length >= maximumClusterPixels) {
-        isTruncated = true;
-        break;
+      // Pasado el tope ya no se guardan píxeles, pero se sigue inundando para marcar visitada toda
+      // la mancha: si no, otra semilla dentro de ella daría un suceso «nuevo» más pequeño.
+      if (!isTruncated) {
+        pixelIndices.push(pixelIndex);
+        brightnessValues.push(readPixelBrightness(pixels, layout, pixelIndex));
+        if (pixelIndices.length >= maximumClusterPixels) isTruncated = true;
       }
       const rowIndex = Math.floor(pixelIndex / frameWidth);
       const columnIndex = pixelIndex - rowIndex * frameWidth;

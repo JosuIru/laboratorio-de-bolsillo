@@ -13,6 +13,7 @@ import {
 } from '@/processing/modem/acousticModem';
 import { decodeMessage, prepareMessage } from '@/processing/modem/frameCodec';
 
+import { startRecorderExclusively, stopRecorderExclusively } from './microphoneAccess';
 import { acousticBandOptions, acousticVolume, errorCorrectionByChannel } from './modemConfiguration';
 
 const selfTestText = 'PRUEBA 123';
@@ -100,7 +101,7 @@ export function useAcousticSelfTest() {
       if (isReleased) return;
       isReleased = true;
       audioRecorder.clearOnAudioReady();
-      void audioRecorder.stop().catch(() => undefined);
+      void stopRecorderExclusively(audioRecorder);
       void audioContext.close().catch(() => undefined);
     };
     releaseRef.current = release;
@@ -122,7 +123,8 @@ export function useAcousticSelfTest() {
         inputSampleRateHz ??= audioEvent.buffer.sampleRate;
         if (activeReceiver) collectedEvents.push(...activeReceiver.pushSamples(audioEvent.buffer.getChannelData(0)));
       });
-      const startResult = await audioRecorder.start();
+      const startResult = await startRecorderExclusively(audioRecorder, () => isReleased);
+      if (!startResult) return;
       if (startResult.status === 'error') throw new Error(startResult.message);
       await audioContext.resume();
       await waitMilliseconds(settleMilliseconds);

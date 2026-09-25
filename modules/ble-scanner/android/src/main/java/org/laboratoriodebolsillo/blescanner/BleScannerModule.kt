@@ -43,7 +43,7 @@ class BleScannerModule : Module() {
   private val mainHandler = Handler(Looper.getMainLooper())
   private val pendingAdvertisements = ArrayList<Map<String, Any?>>()
   private val pendingAdvertisementsLock = Any()
-  private var activeScanCallback: ScanCallback? = null
+  @Volatile private var activeScanCallback: ScanCallback? = null
 
   private val flushRunnable = object : Runnable {
     override fun run() {

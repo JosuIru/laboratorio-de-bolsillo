@@ -6,6 +6,7 @@ import {
   forgetStaleDevices,
   ingestAdvertisement,
   linkRotatedAddresses,
+  markScanResumed,
   type TrackerSession,
 } from './trackerGrouping';
 
@@ -58,6 +59,19 @@ describe('agrupamiento de direcciones', () => {
     expect(airTagGroup?.episodes).toHaveLength(1);
     // Los anuncios posteriores de la dirección nueva siguen yendo al grupo original.
     expect(ingestAdvertisement(session, airTagNearOwnerAdvertisement('NEW', -66, rotationMilliseconds + 22 * seconds))?.groupId).toBe('tracker-1');
+  });
+
+  it('un hueco que abarca una pausa del escaneo no abre otro episodio', () => {
+    const pausedSession = createTrackerSession();
+    advertiseRepeatedly(pausedSession, (timestamp) => airTagSeparatedAdvertisement('PAUSED', -60, timestamp), 0, minutes);
+    markScanResumed(pausedSession, 5 * minutes);
+    advertiseRepeatedly(pausedSession, (timestamp) => airTagSeparatedAdvertisement('PAUSED', -60, timestamp), 5 * minutes + seconds, 6 * minutes);
+    expect(pausedSession.groupsById.get('tracker-1')?.episodes).toHaveLength(1);
+
+    const continuousSession = createTrackerSession();
+    advertiseRepeatedly(continuousSession, (timestamp) => airTagSeparatedAdvertisement('GONE', -60, timestamp), 0, minutes);
+    advertiseRepeatedly(continuousSession, (timestamp) => airTagSeparatedAdvertisement('GONE', -60, timestamp), 5 * minutes + seconds, 6 * minutes);
+    expect(continuousSession.groupsById.get('tracker-1')?.episodes).toHaveLength(2);
   });
 
   it('no funde dos rastreadores iguales presentes a la vez', () => {

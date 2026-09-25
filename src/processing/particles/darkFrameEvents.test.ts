@@ -149,11 +149,12 @@ describe('agrupación y forma', () => {
     const clusters = groupSeedsIntoClusters(
       syntheticFrame.pixels,
       syntheticFrame.layout,
-      [0],
+      [0, 19],
       15,
       noHotPixels,
       50,
     );
+    // La segunda semilla está en la misma mancha: no debe dar un suceso aparte.
     expect(clusters).toHaveLength(1);
     expect(clusters[0]!.isTruncated).toBe(true);
   });
