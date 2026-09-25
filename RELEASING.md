@@ -71,12 +71,11 @@ actualizaciones: los usuarios tendrían que desinstalar la app y **perderían su
 Para darlos de alta (o renovarlos) desde este ordenador:
 
 ```bash
-source ~/.android-keys/laboratorio-de-bolsillo-release.env
-base64 -w0 "$LAB_RELEASE_STORE_FILE" | gh secret set LAB_RELEASE_KEYSTORE_BASE64
-printf '%s' "$LAB_RELEASE_STORE_PASSWORD" | gh secret set LAB_RELEASE_STORE_PASSWORD
-printf '%s' "$LAB_RELEASE_KEY_ALIAS" | gh secret set LAB_RELEASE_KEY_ALIAS
-printf '%s' "$LAB_RELEASE_KEY_PASSWORD" | gh secret set LAB_RELEASE_KEY_PASSWORD
+bash scripts/upload-release-secrets.sh
 ```
+
+El script comprueba que la contraseña abre la clave antes de subir nada y nunca muestra las
+credenciales.
 
 ## Dev build y versión publicada a la vez
 
