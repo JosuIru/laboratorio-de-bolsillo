@@ -14,7 +14,8 @@ export const wifiMapInstrument = defineInstrument<WifiMapMeasurementValues>({
   category: 'electromagnetism',
   // No hay un tipo de sensor «wifi» en el núcleo: se exige la ubicación, que Android pide para
   // ver el nombre de la red y las redes vecinas. El RSSI se lee aunque se deniegue.
-  requiredSensors: ['location'],
+  requiredSensors: ['wifi'],
+  optionalSensors: ['location'],
   Screen: WifiMapScreen,
   dataSchema: wifiMapSchema,
   translations: { es, eu },

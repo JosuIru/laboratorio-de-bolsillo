@@ -49,7 +49,7 @@
     "lightDuringCalibration": "Ha entrado luz durante la calibración. Tapa mejor la cámara y vuelve a empezar.",
     "lightDuringMeasurement": "Está entrando luz: esos fotogramas no cuentan.",
     "sensorWarming": "El sensor se ha calentado desde la calibración: aumenta el ruido y los falsos sucesos. Si puedes, déjalo enfriar y vuelve a calibrar.",
-    "keepScreenOn": "Deja la app abierta y la pantalla encendida (sube el tiempo de apagado de la pantalla en Ajustes): si el móvil se bloquea, la medición se para."
+    "keepScreenOn": "La pantalla se queda encendida mientras mides. Deja la app abierta: si sales de ella o bloqueas el móvil, la medición se para."
   },
   "gallery": {
     "title": "Sucesos",

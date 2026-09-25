@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 import { unavailableBecause } from './availabilityRules';
 import { cameraController } from './adapters/camera';
 import { locationController } from './adapters/location';
@@ -21,6 +23,18 @@ function staticController(sensorKind: SensorKind, availability: Omit<SensorAvail
 }
 
 /**
+ * Bluetooth, Wi‑Fi y GNSS en crudo se leen con módulos nativos propios que solo existen en
+ * Android. Los permisos (dispositivos cercanos, ubicación) los pide la pantalla de cada
+ * instrumento, porque dependen de la versión de Android y de lo que vaya a leer.
+ */
+function androidOnlyController(sensorKind: SensorKind) {
+  return staticController(
+    sensorKind,
+    Platform.OS === 'android' ? { status: 'available' } : unavailableBecause(sensorKind, 'sensors.reason.androidOnly'),
+  );
+}
+
+/**
  * Un controlador por tipo de sensor. La linterna se controla desde la cámara de cada
  * instrumento (depende del dispositivo de cámara elegido), así que aquí queda pendiente.
  */
@@ -33,6 +47,9 @@ export const sensorControllers: Record<SensorKind, SensorAccessController> = {
   location: locationController,
   camera: cameraController,
   microphone: microphoneController,
+  bluetooth: androidOnlyController('bluetooth'),
+  wifi: androidOnlyController('wifi'),
+  gnss: androidOnlyController('gnss'),
   torch: staticController('torch', unavailableBecause('torch', 'sensors.reason.notYetSupported')),
   speaker: staticController('speaker', { status: 'available' }),
   vibrator: staticController('vibrator', { status: 'available' }),

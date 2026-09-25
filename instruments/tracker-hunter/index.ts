@@ -14,7 +14,8 @@ export const trackerHunterInstrument = defineInstrument<TrackerHunterMeasurement
   category: 'electromagnetism',
   // El núcleo aún no tiene un tipo de sensor «bluetooth»: la pantalla comprueba el Bluetooth y
   // su permiso por su cuenta. El altavoz (siempre disponible) es para los pitidos del modo buscar.
-  requiredSensors: ['speaker'],
+  requiredSensors: ['bluetooth'],
+  optionalSensors: ['speaker'],
   Screen: TrackerHunterScreen,
   dataSchema: trackerHunterSchema,
   translations: { es, eu },

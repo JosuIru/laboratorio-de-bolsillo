@@ -1,3 +1,4 @@
+import { useKeepAwake } from 'expo-keep-awake';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -22,6 +23,8 @@ export function SeismicNetworkScreen({ saveMeasurement }: InstrumentScreenProps<
   const { t } = useTranslation(seismicNetworkInstrumentId);
   const themePalette = useThemePalette();
   const [screenMode, setScreenMode] = useState<ScreenMode>('station');
+  // La sincronización se pierde si la pantalla se apaga entre el golpe de referencia y el terremoto.
+  useKeepAwake();
 
   return (
     <ScreenContainer>

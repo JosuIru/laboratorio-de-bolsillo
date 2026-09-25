@@ -80,6 +80,9 @@
       "barometer": "Barómetro",
       "light": "Sensor de luz",
       "location": "Ubicación",
+      "bluetooth": "Bluetooth",
+      "wifi": "Wi‑Fi",
+      "gnss": "Satélites GNSS",
       "speaker": "Altavoz",
       "vibrator": "Vibrador",
       "torch": "Linterna"
@@ -96,7 +99,8 @@
       "locationServicesOff": "La ubicación del sistema está desactivada.",
       "permissionDenied": "Permiso denegado para {{sensor}}.",
       "permissionBlocked": "Permiso bloqueado para {{sensor}}: actívalo en los ajustes del sistema.",
-      "permissionUndetermined": "Hace falta permiso para usar {{sensor}}."
+      "permissionUndetermined": "Hace falta permiso para usar {{sensor}}.",
+      "androidOnly": "{{sensor}}: de momento solo en Android."
     }
   },
   "updates": {

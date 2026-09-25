@@ -49,7 +49,7 @@
     "lightDuringCalibration": "Argia sartu da kalibrazioan. Estali hobeto kamera eta hasi berriro.",
     "lightDuringMeasurement": "Argia sartzen ari da: fotograma horiek ez dira kontuan hartzen.",
     "sensorWarming": "Sentsorea berotu egin da kalibraziotik: zarata eta gertaera faltsuak handitzen dira. Ahal baduzu, utzi hozten eta kalibratu berriro.",
-    "keepScreenOn": "Utzi aplikazioa irekita eta pantaila piztuta (igo pantaila itzaltzeko denbora Ezarpenetan): mugikorra blokeatzen bada, neurketa gelditu egiten da."
+    "keepScreenOn": "Pantaila piztuta geratzen da neurtzen duzun bitartean. Utzi aplikazioa irekita: hortik ateratzen bazara edo mugikorra blokeatzen baduzu, neurketa gelditu egiten da."
   },
   "gallery": {
     "title": "Gertaerak",

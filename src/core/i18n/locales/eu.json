@@ -80,6 +80,9 @@
       "barometer": "Barometroa",
       "light": "Argi-sentsorea",
       "location": "Kokapena",
+      "bluetooth": "Bluetootha",
+      "wifi": "Wi‑Fia",
+      "gnss": "GNSS sateliteak",
       "speaker": "Bozgorailua",
       "vibrator": "Bibragailua",
       "torch": "Linterna"
@@ -96,7 +99,8 @@
       "locationServicesOff": "Sistemaren kokapena desaktibatuta dago.",
       "permissionDenied": "Baimena ukatuta: {{sensor}}.",
       "permissionBlocked": "Baimena blokeatuta: {{sensor}}. Aktibatu sistemaren ezarpenetan.",
-      "permissionUndetermined": "Baimena behar da hau erabiltzeko: {{sensor}}."
+      "permissionUndetermined": "Baimena behar da hau erabiltzeko: {{sensor}}.",
+      "androidOnly": "{{sensor}}: oraingoz Androiden bakarrik."
     }
   },
   "updates": {

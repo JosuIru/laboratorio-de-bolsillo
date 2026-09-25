@@ -17,7 +17,7 @@ export const gnssSkyInstrument = defineInstrument<GnssSkyMeasurementValues>({
   descriptionKey: 'description',
   icon: { glyph: '🛰', accentColor: '#0F766E' },
   category: 'electromagnetism',
-  requiredSensors: ['location'],
+  requiredSensors: ['gnss', 'location'],
   Screen: GnssSkyScreen,
   dataSchema: gnssSkySchema,
   translations: { es, eu },

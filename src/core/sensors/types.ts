@@ -7,6 +7,10 @@ export type SensorKind =
   | 'barometer'
   | 'light'
   | 'location'
+  // radios que leen módulos nativos propios (solo Android)
+  | 'bluetooth'
+  | 'wifi'
+  | 'gnss'
   // actuadores, pensando en la hoja de ruta (sonar, comunicación LED, pesaje por vibración)
   | 'speaker'
   | 'vibrator'
@@ -21,6 +25,9 @@ export const allSensorKinds: readonly SensorKind[] = [
   'barometer',
   'light',
   'location',
+  'bluetooth',
+  'wifi',
+  'gnss',
   'speaker',
   'vibrator',
   'torch',

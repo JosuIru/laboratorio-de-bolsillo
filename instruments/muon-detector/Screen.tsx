@@ -1,3 +1,4 @@
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, StyleSheet, View } from 'react-native';
@@ -166,6 +167,17 @@ export function MuonDetectorScreen({ saveMeasurement }: InstrumentScreenProps<Mu
 
   // Sin cámara (otra pantalla encima) no se mide: se cierra la medición para no diluir la tasa.
   if (!isCameraAllowed && phase === 'measuring') finishMeasurement();
+
+  // Si la pantalla se apagara, la cámara se cerraría y la medición se pararía.
+  const isScreenNeededOn = phase === 'noiseCalibration' || phase === 'hotPixelCalibration' || phase === 'measuring';
+  useEffect(() => {
+    if (!isScreenNeededOn) return;
+    const keepAwakeTag = 'muon-detector';
+    activateKeepAwakeAsync(keepAwakeTag).catch(() => undefined);
+    return () => {
+      deactivateKeepAwake(keepAwakeTag).catch(() => undefined);
+    };
+  }, [isScreenNeededOn]);
 
   // Reloj de la medición: repinta cada segundo el tiempo, la tasa y su incertidumbre.
   useEffect(() => {
