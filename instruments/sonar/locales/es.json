@@ -1,0 +1,88 @@
+{
+  "name": "Sonar ultrasónico",
+  "description": "Mide distancias con ecos de ultrasonidos como un murciélago, dibuja un ecograma y detecta gestos de la mano por efecto Doppler.",
+  "start": "Empezar",
+  "stop": "Parar",
+  "starting": "Arrancando altavoz y micrófono…",
+  "hearingWarning": "Emite sonidos muy agudos (16-22 kHz). La mayoría de adultos no los oye, pero algunos perros, gatos y personas jóvenes sí: baja el volumen o para si molesta. El sonido se para al salir de la pantalla o de la app.",
+  "modes": {
+    "distance": "Distancia",
+    "echogram": "Ecograma",
+    "gestures": "Gestos"
+  },
+  "echoSummary": "Retardo {{delay}} ms · eco a {{level}} dB del pulso directo · claridad {{clarity}}",
+  "noEcho": "Ningún eco claro entre 0,2 y 3 m.",
+  "directPathMissing": "El micrófono no oye el pulso del altavoz. Sube el volumen, prueba la otra banda o haz la prueba de hardware.",
+  "inputSampleRateTooLow": "El micrófono graba a {{sampleRate}} Hz y no llega a la banda del sonar. Prueba la banda de 16-20 kHz.",
+  "distanceHelp": "Apunta la parte de abajo del móvil (altavoz y micrófono) hacia una superficie plana y grande: una pared, una puerta o un libro. Rango útil: de 0,2 a 3 m. Para medir la distancia a algo que se mueve, graba antes el fondo vacío.",
+  "background": {
+    "record": "Grabar fondo vacío",
+    "recording": "Grabando fondo… {{percent}} %",
+    "clear": "Quitar fondo",
+    "help": "Graba el fondo sin nada delante para restar los ecos fijos (mesa, paredes) y ver solo lo que aparece o se mueve.",
+    "active": "Restando el fondo grabado: solo se ve lo que ha cambiado desde entonces."
+  },
+  "echogram": {
+    "accessibilityLabel": "Ecograma: distancia en horizontal, tiempo hacia abajo y fuerza del eco en color",
+    "help": "Cada fila es medio segundo de pulsos promediados; la más reciente arriba. Los ecos fijos forman líneas verticales; acerca y aleja la mano para ver una línea que se mueve.",
+    "strongest": "Eco más fuerte a {{distance}} m."
+  },
+  "gestures": {
+    "approaching": "Acercando ↑",
+    "receding": "Alejando ↓",
+    "still": "Quieto",
+    "closer": "acerca",
+    "away": "aleja",
+    "summary": "Tono de {{carrier}} kHz · desplazamiento {{shift}} Hz · {{velocity}} m/s",
+    "toneMissing": "El micrófono no oye el tono. Sube el volumen o prueba la otra banda.",
+    "help": "Mueve la mano hacia la parte de abajo del móvil y aléjala, a unos 10-30 cm. El tono vuelve un poco más agudo si te acercas y más grave si te alejas (efecto Doppler)."
+  },
+  "settings": {
+    "title": "Ajustes",
+    "band": "Banda de frecuencias",
+    "activeBand": "En uso: {{low}}-{{high}} kHz, muestreo {{sampleRate}} Hz.",
+    "lowSampleRate": "Este móvil graba a {{sampleRate}} Hz: la banda se ha bajado y el sonido será audible.",
+    "audibleBand": "Con esta banda muchas personas oirán el sonido.",
+    "volume": "Volumen",
+    "temperature": "Temperatura del aire",
+    "speedOfSound": "Velocidad del sonido: {{speed}} m/s (331,3 + 0,606·T)."
+  },
+  "bands": {
+    "ultrasonic": "18-22 kHz",
+    "nearUltrasonic": "16-20 kHz"
+  },
+  "hardwareTest": {
+    "title": "Prueba de hardware",
+    "help": "Emite tonos de 15 a 22 kHz uno tras otro y mide cuánto llega cada uno al micrófono. Muchos móviles cortan antes de 20 kHz; así sabrás qué banda puedes usar. Tarda unos 5 segundos: no tapes el altavoz ni el micrófono.",
+    "run": "Hacer la prueba",
+    "cancel": "Cancelar",
+    "measuringNoise": "Midiendo el ruido de fondo…",
+    "progress": "Tono de {{frequency}} kHz ({{step}} de {{total}})",
+    "reception": {
+      "good": "bien ({{decibels}} dB)",
+      "weak": "flojo ({{decibels}} dB)",
+      "none": "no llega ({{decibels}} dB)"
+    },
+    "verdicts": {
+      "ultrasonicReady": "Tu móvil emite y capta ultrasonidos: usa la banda de 18-22 kHz.",
+      "nearUltrasonicOnly": "Tu móvil corta por encima de unos 19 kHz: usa la banda de 16-20 kHz (algunas personas la oirán).",
+      "notSupported": "Tu móvil no emite o no capta bien por encima de 15 kHz: el sonar no funcionará bien."
+    },
+    "useRecommended": "Usar la banda {{band}}"
+  },
+  "honestyNote": "Prototipo. La distancia se mide desde el pulso directo altavoz → micrófono, así que la latencia del móvil no importa, pero la separación entre altavoz y micrófono y la dirección en que apuntan dan errores de unos centímetros. Las superficies blandas o pequeñas apenas devuelven eco, y Android puede filtrar el micrófono y recortar los ultrasonidos.",
+  "fields": {
+    "distance": "Distancia",
+    "echoDelay": "Retardo del eco",
+    "temperature": "Temperatura",
+    "speedOfSound": "Velocidad del sonido",
+    "echoLevel": "Nivel del eco",
+    "signalToNoise": "Claridad del eco",
+    "bandLow": "Banda: inicio",
+    "bandHigh": "Banda: final",
+    "sampleRate": "Frecuencia de muestreo",
+    "averagedPulses": "Pulsos promediados",
+    "backgroundSubtracted": "Fondo restado",
+    "echoProfile": "Perfil de ecos (0-3 m)"
+  }
+}

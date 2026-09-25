@@ -1,0 +1,88 @@
+{
+  "name": "Sonar ultrasonikoa",
+  "description": "Neurtu distantziak ultrasoinuen oihartzunekin saguzar batek bezala, marraztu ekograma bat eta detektatu eskuaren keinuak Doppler efektuaren bidez.",
+  "start": "Hasi",
+  "stop": "Gelditu",
+  "starting": "Bozgorailua eta mikrofonoa pizten…",
+  "hearingWarning": "Soinu oso zorrotzak igortzen ditu (16-22 kHz). Heldu gehienek ez dituzte entzuten, baina txakur, katu eta gazte batzuek bai: jaitsi bolumena edo gelditu gogaikarria bada. Soinua gelditu egiten da pantailatik edo aplikaziotik irtetean.",
+  "modes": {
+    "distance": "Distantzia",
+    "echogram": "Ekograma",
+    "gestures": "Keinuak"
+  },
+  "echoSummary": "Atzerapena {{delay}} ms · oihartzuna pultsu zuzenetik {{level}} dB-ra · argitasuna {{clarity}}",
+  "noEcho": "Ez dago oihartzun argirik 0,2 eta 3 m artean.",
+  "directPathMissing": "Mikrofonoak ez du bozgorailuaren pultsua entzuten. Igo bolumena, probatu beste banda edo egin hardware-proba.",
+  "inputSampleRateTooLow": "Mikrofonoak {{sampleRate}} Hz-tan grabatzen du eta ez da sonarraren bandara iristen. Probatu 16-20 kHz-ko banda.",
+  "distanceHelp": "Zuzendu mugikorraren beheko aldea (bozgorailua eta mikrofonoa) gainazal lau eta handi batera: horma bat, ate bat edo liburu bat. Tarte erabilgarria: 0,2 m-tik 3 m-ra. Mugitzen den zerbaiterako distantzia neurtzeko, grabatu lehenago hondo hutsa.",
+  "background": {
+    "record": "Grabatu hondo hutsa",
+    "recording": "Hondoa grabatzen… % {{percent}}",
+    "clear": "Kendu hondoa",
+    "help": "Grabatu hondoa aurrean ezer gabe, oihartzun finkoak (mahaia, hormak) kentzeko eta agertzen edo mugitzen dena bakarrik ikusteko.",
+    "active": "Grabatutako hondoa kentzen: ordutik aldatu dena bakarrik ikusten da."
+  },
+  "echogram": {
+    "accessibilityLabel": "Ekograma: distantzia horizontalean, denbora beherantz eta oihartzunaren indarra kolorez",
+    "help": "Errenkada bakoitza batez besteko pultsuen segundo erdi bat da; berriena goian. Oihartzun finkoek lerro bertikalak egiten dituzte; hurbildu eta urrundu eskua mugitzen den lerro bat ikusteko.",
+    "strongest": "Oihartzunik indartsuena {{distance}} m-ra."
+  },
+  "gestures": {
+    "approaching": "Hurbiltzen ↑",
+    "receding": "Urruntzen ↓",
+    "still": "Geldi",
+    "closer": "hurbildu",
+    "away": "urrundu",
+    "summary": "{{carrier}} kHz-ko tonua · desplazamendua {{shift}} Hz · {{velocity}} m/s",
+    "toneMissing": "Mikrofonoak ez du tonua entzuten. Igo bolumena edo probatu beste banda.",
+    "help": "Mugitu eskua mugikorraren beheko alderantz eta urrundu, 10-30 cm ingurura. Tonua zertxobait zorrotzago itzultzen da hurbiltzen bazara eta baxuago urruntzen bazara (Doppler efektua)."
+  },
+  "settings": {
+    "title": "Ezarpenak",
+    "band": "Maiztasun-banda",
+    "activeBand": "Erabiltzen: {{low}}-{{high}} kHz, laginketa {{sampleRate}} Hz.",
+    "lowSampleRate": "Mugikor honek {{sampleRate}} Hz-tan grabatzen du: banda jaitsi egin da eta soinua entzungarria izango da.",
+    "audibleBand": "Banda honekin jende askok entzungo du soinua.",
+    "volume": "Bolumena",
+    "temperature": "Airearen tenperatura",
+    "speedOfSound": "Soinuaren abiadura: {{speed}} m/s (331,3 + 0,606·T)."
+  },
+  "bands": {
+    "ultrasonic": "18-22 kHz",
+    "nearUltrasonic": "16-20 kHz"
+  },
+  "hardwareTest": {
+    "title": "Hardware-proba",
+    "help": "15 eta 22 kHz arteko tonuak igortzen ditu bata bestearen atzetik, eta bakoitzetik zenbat iristen den mikrofonora neurtzen du. Mugikor askok 20 kHz baino lehen mozten dute; horrela jakingo duzu zein banda erabil dezakezun. 5 segundo inguru behar ditu: ez estali bozgorailua ezta mikrofonoa ere.",
+    "run": "Egin proba",
+    "cancel": "Utzi",
+    "measuringNoise": "Hondoko zarata neurtzen…",
+    "progress": "{{frequency}} kHz-ko tonua ({{step}}/{{total}})",
+    "reception": {
+      "good": "ondo ({{decibels}} dB)",
+      "weak": "ahul ({{decibels}} dB)",
+      "none": "ez da iristen ({{decibels}} dB)"
+    },
+    "verdicts": {
+      "ultrasonicReady": "Zure mugikorrak ultrasoinuak igortzen eta jasotzen ditu: erabili 18-22 kHz-ko banda.",
+      "nearUltrasonicOnly": "Zure mugikorrak 19 kHz inguruaren gainetik mozten du: erabili 16-20 kHz-ko banda (batzuek entzungo dute).",
+      "notSupported": "Zure mugikorrak ez du ondo igortzen edo jasotzen 15 kHz-en gainetik: sonarrak ez du ondo funtzionatuko."
+    },
+    "useRecommended": "Erabili {{band}} banda"
+  },
+  "honestyNote": "Prototipoa. Distantzia bozgorailutik mikrofonora doan pultsu zuzenetik neurtzen da, beraz mugikorraren latentziak ez du eraginik; baina bozgorailuaren eta mikrofonoaren arteko tarteak eta nora begiratzen duten horrek zentimetro gutxiko erroreak eragiten dituzte. Gainazal bigun edo txikiek ia ez dute oihartzunik itzultzen, eta Androidek mikrofonoa iragazi eta ultrasoinuak moztu ditzake.",
+  "fields": {
+    "distance": "Distantzia",
+    "echoDelay": "Oihartzunaren atzerapena",
+    "temperature": "Tenperatura",
+    "speedOfSound": "Soinuaren abiadura",
+    "echoLevel": "Oihartzunaren maila",
+    "signalToNoise": "Oihartzunaren argitasuna",
+    "bandLow": "Banda: hasiera",
+    "bandHigh": "Banda: amaiera",
+    "sampleRate": "Laginketa-maiztasuna",
+    "averagedPulses": "Batez bestekoan sartutako pultsuak",
+    "backgroundSubtracted": "Hondoa kenduta",
+    "echoProfile": "Oihartzun-profila (0-3 m)"
+  }
+}
