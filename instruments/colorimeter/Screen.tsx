@@ -104,7 +104,10 @@ export function ColorimeterScreen({
           labBlueYellow: roundTo(colorimeterReading.sampleLab.blueYellow, 2),
           correctionModel: correction?.model ?? 'none',
           referencePatchCount: colorimeterReading.usedPatchCount,
-          ...(correction ? { correctionMeanResidualDeltaE: roundTo(correction.meanResidualDeltaE, 2) } : {}),
+          // Error de validación dejando un parche fuera; sin parches de sobra no hay valor honesto.
+          ...(correction && correction.meanValidationDeltaE !== null
+            ? { correctionMeanResidualDeltaE: roundTo(correction.meanValidationDeltaE, 2) }
+            : {}),
           sampleRelativeDeviation: roundTo(colorimeterReading.sampleRelativeDeviation, 3),
           ...(selectedScale && scaleMatch
             ? {
@@ -229,13 +232,21 @@ export function ColorimeterScreen({
             </BodyText>
             <BodyText tone="secondary">
               {colorimeterReading.correction
-                ? t('correctionSummary', {
-                    patchCount: colorimeterReading.usedPatchCount,
-                    model: t(`correctionModel.${colorimeterReading.correction.model}`),
-                    residual: colorimeterReading.correction.meanResidualDeltaE.toFixed(1),
-                  })
+                ? colorimeterReading.correction.meanValidationDeltaE !== null
+                  ? t('correctionSummary', {
+                      patchCount: colorimeterReading.usedPatchCount,
+                      model: t(`correctionModel.${colorimeterReading.correction.model}`),
+                      residual: colorimeterReading.correction.meanValidationDeltaE.toFixed(1),
+                    })
+                  : t('correctionSummaryUnvalidated', {
+                      patchCount: colorimeterReading.usedPatchCount,
+                      model: t(`correctionModel.${colorimeterReading.correction.model}`),
+                    })
                 : t('noCorrection')}
             </BodyText>
+            {colorimeterReading.correction?.isReducedToWhiteBalance ? (
+              <BodyText tone="danger">{t('reducedToWhiteBalance')}</BodyText>
+            ) : null}
             {!colorimeterReading.isSampleUniform ? <BodyText tone="danger">{t('nonUniformSample')}</BodyText> : null}
             {selectedScale && scaleMatch ? (
               <View style={styles.scaleResult}>

@@ -379,15 +379,23 @@ export function PoolStripsScreen({ saveMeasurement }: InstrumentScreenProps<Pool
         </View>
         {displayedReading?.correction ? (
           <BodyText tone="secondary">
-            {t('card.correctionSummary', {
-              patchCount: displayedReading.usedPatchCount,
-              model: t(`correctionModel.${displayedReading.correction.model}`),
-              residual: displayedReading.correction.meanResidualDeltaE.toFixed(1),
-            })}
+            {displayedReading.correction.meanValidationDeltaE !== null
+              ? t('card.correctionSummary', {
+                  patchCount: displayedReading.usedPatchCount,
+                  model: t(`correctionModel.${displayedReading.correction.model}`),
+                  residual: displayedReading.correction.meanValidationDeltaE.toFixed(1),
+                })
+              : t('card.correctionSummaryUnvalidated', {
+                  patchCount: displayedReading.usedPatchCount,
+                  model: t(`correctionModel.${displayedReading.correction.model}`),
+                })}
           </BodyText>
         ) : (
           <BodyText tone="secondary">{t('card.noCorrection')}</BodyText>
         )}
+        {displayedReading?.correction?.isReducedToWhiteBalance ? (
+          <BodyText tone="danger">{t('card.reducedToWhiteBalance')}</BodyText>
+        ) : null}
         <View style={styles.buttonRow}>
           <View style={styles.buttonCell}>
             <AppButton

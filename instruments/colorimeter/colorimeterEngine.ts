@@ -1,10 +1,4 @@
-import {
-  applyColorCorrection,
-  bestModelForPatchCount,
-  type ColorCorrection,
-  ColorCorrectionError,
-  fitColorCorrection,
-} from '@/processing/color/colorCorrection';
+import { applyColorCorrection, chooseColorCorrection, type ColorCorrection } from '@/processing/color/colorCorrection';
 import {
   hexToRgb8,
   type Lab,
@@ -37,7 +31,11 @@ export interface ColorimeterReading {
   correctedSampleLinear: LinearRgb;
   sampleLab: Lab;
   /** Corrección aplicada con los parches visibles, o null si no hay ninguno colocado. */
-  correction: Pick<ColorCorrection, 'model' | 'meanResidualDeltaE' | 'maximumResidualDeltaE'> | null;
+  correction: Pick<
+    ColorCorrection,
+    'model' | 'meanValidationDeltaE' | 'maximumValidationDeltaE' | 'isReducedToWhiteBalance'
+  > | null;
+  /** Parches usados en el ajuste (en el balance de blancos, solo los neutros si los hay). */
   usedPatchCount: number;
   /** Variación relativa máxima entre canales dentro de la región de muestra. */
   sampleRelativeDeviation: number;
@@ -85,16 +83,9 @@ export function evaluateColorimeterFrame(
       : [];
   });
 
-  let correction: ColorCorrection | null = null;
-  const correctionModel = bestModelForPatchCount(patchMeasurements.length);
-  if (correctionModel) {
-    try {
-      correction = fitColorCorrection(patchMeasurements, correctionModel);
-    } catch (fitError) {
-      // Parches degenerados (p. ej. todos del mismo color): se mide sin corregir.
-      if (!(fitError instanceof ColorCorrectionError)) throw fitError;
-    }
-  }
+  // El modelo depende de lo distintos que sean los parches medidos, no solo de cuántos hay; si
+  // son degenerados (p. ej. todos del mismo color), se mide sin corregir.
+  const correction = chooseColorCorrection(patchMeasurements);
 
   const rawSampleLinear = sampleStatistics.meanLinear;
   const correctedSampleLinear = clampLinear(correction ? applyColorCorrection(correction, rawSampleLinear) : rawSampleLinear);
@@ -110,11 +101,12 @@ export function evaluateColorimeterFrame(
     correction: correction
       ? {
           model: correction.model,
-          meanResidualDeltaE: correction.meanResidualDeltaE,
-          maximumResidualDeltaE: correction.maximumResidualDeltaE,
+          meanValidationDeltaE: correction.meanValidationDeltaE,
+          maximumValidationDeltaE: correction.maximumValidationDeltaE,
+          isReducedToWhiteBalance: correction.isReducedToWhiteBalance,
         }
       : null,
-    usedPatchCount: correction ? patchMeasurements.length : 0,
+    usedPatchCount: correction ? correction.fittedPatchCount : 0,
     sampleRelativeDeviation,
     isSampleUniform: sampleRelativeDeviation <= nonUniformRelativeDeviation,
     scaleMatch: scaleEntries.length > 0 ? matchColorAgainstScale(sampleLab, scaleEntries) : null,

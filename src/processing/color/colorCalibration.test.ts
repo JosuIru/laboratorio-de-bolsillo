@@ -1,13 +1,14 @@
 import {
   applyColorCorrection,
-  bestModelForPatchCount,
+  bestModelForPatches,
+  chooseColorCorrection,
   ColorCorrectionError,
   fitColorCorrection,
   type ReferencePatchMeasurement,
 } from './colorCorrection';
 import { deltaE2000 } from './colorDifference';
-import { type LinearRgb, linearRgbToLab, srgbToLab, srgbToLinear } from './colorSpaces';
-import { solveLeastSquares, solveLinearSystem } from './linearAlgebra';
+import { hexToRgb8, type LinearRgb, linearRgbToLab, srgbToLab, srgbToLinear } from './colorSpaces';
+import { normalMatrixConditionNumber, solveLeastSquares, solveLinearSystem, symmetricEigenvalues } from './linearAlgebra';
 import { createSrgbToLinearTable, measureRegionColor } from './regionSampling';
 import { type ColorScaleEntry, matchColorAgainstScale } from './scaleMatching';
 
@@ -51,6 +52,33 @@ describe('solveLinearSystem', () => {
     expect(solution![0]).toBeCloseTo(1.96, 6);
     expect(solution![1]).toBeCloseTo(1.06, 6);
   });
+
+  it('calcula los autovalores de una matriz simétrica', () => {
+    const eigenvalues = symmetricEigenvalues([
+      [2, 1, 0],
+      [1, 2, 0],
+      [0, 0, 5],
+    ]).sort((left, right) => left - right);
+    expect(eigenvalues[0]).toBeCloseTo(1, 10);
+    expect(eigenvalues[1]).toBeCloseTo(3, 10);
+    expect(eigenvalues[2]).toBeCloseTo(5, 10);
+  });
+
+  it('el número de condición se dispara con filas colineales', () => {
+    expect(
+      normalMatrixConditionNumber([
+        [1, 0],
+        [0, 1],
+      ]),
+    ).toBeCloseTo(1, 10);
+    expect(
+      normalMatrixConditionNumber([
+        [1, 1],
+        [2, 2],
+        [3, 3],
+      ]),
+    ).toBe(Number.POSITIVE_INFINITY);
+  });
 });
 
 /** Simula una cámara: matriz de mezcla de canales + luz parásita. */
@@ -79,7 +107,7 @@ const cardMeasurements: ReferencePatchMeasurement[] = referenceCardColors.map((r
 describe('fitColorCorrection', () => {
   it('el modelo afín recupera exactamente una cámara afín', () => {
     const correction = fitColorCorrection(cardMeasurements, 'affine');
-    expect(correction.maximumResidualDeltaE).toBeLessThan(1e-6);
+    expect(correction.maximumValidationDeltaE).toBeLessThan(1e-6);
     const unknownSample = { red: 0.3, green: 0.4, blue: 0.2 };
     const correctedSample = applyColorCorrection(correction, simulateCamera(unknownSample));
     expect(correctedSample.red).toBeCloseTo(unknownSample.red, 8);
@@ -95,14 +123,22 @@ describe('fitColorCorrection', () => {
       ) / cardMeasurements.length;
     const linearCorrection = fitColorCorrection(cardMeasurements, 'linear');
     const affineCorrection = fitColorCorrection(cardMeasurements, 'affine');
-    expect(linearCorrection.meanResidualDeltaE).toBeLessThan(uncorrectedMeanDeltaE);
-    expect(affineCorrection.meanResidualDeltaE).toBeLessThan(linearCorrection.meanResidualDeltaE);
+    expect(linearCorrection.meanValidationDeltaE!).toBeLessThan(uncorrectedMeanDeltaE);
+    expect(affineCorrection.meanValidationDeltaE!).toBeLessThan(linearCorrection.meanValidationDeltaE!);
   });
 
-  it('con un solo parche, el balance de blancos deja ese parche perfecto', () => {
+  it('con un solo parche, el balance de blancos lo deja perfecto pero no presume de error', () => {
     const diagonalCorrection = fitColorCorrection(cardMeasurements.slice(0, 1), 'diagonal');
-    expect(diagonalCorrection.maximumResidualDeltaE).toBeLessThan(1e-6);
+    const correctedWhite = applyColorCorrection(diagonalCorrection, cardMeasurements[0]!.measured);
+    expect(correctedWhite.red).toBeCloseTo(cardMeasurements[0]!.reference.red, 10);
     expect(diagonalCorrection.matrixRows[0].slice(1)).toEqual([0, 0, 0]);
+    expect(diagonalCorrection.meanValidationDeltaE).toBeNull();
+  });
+
+  it('un ajuste exacto (tantos parches como incógnitas) no da error de validación', () => {
+    expect(fitColorCorrection(cardMeasurements.slice(0, 4), 'affine').meanValidationDeltaE).toBeNull();
+    expect(fitColorCorrection(cardMeasurements.slice(2, 5), 'linear').meanValidationDeltaE).toBeNull();
+    expect(fitColorCorrection(cardMeasurements.slice(0, 5), 'affine').meanValidationDeltaE).not.toBeNull();
   });
 
   it('exige suficientes parches y parches distintos', () => {
@@ -111,11 +147,67 @@ describe('fitColorCorrection', () => {
     expect(() => fitColorCorrection(identicalPatches, 'linear')).toThrow(ColorCorrectionError);
   });
 
-  it('elige el mejor modelo según el número de parches', () => {
-    expect(bestModelForPatchCount(0)).toBeNull();
-    expect(bestModelForPatchCount(1)).toBe('diagonal');
-    expect(bestModelForPatchCount(3)).toBe('linear');
-    expect(bestModelForPatchCount(24)).toBe('affine');
+});
+
+describe('chooseColorCorrection', () => {
+  /**
+   * Preajuste ColorChecker de 6 parches del colorímetro (blanco, gris, negro, rojo, verde y azul)
+   * medido con la cámara simulada, con algo de ruido fijo.
+   */
+  const colorCheckerHexColors = ['#F3F3F2', '#7A7A79', '#343434', '#AF363C', '#469449', '#383D96'];
+  const colorCheckerMeasurements: ReferencePatchMeasurement[] = colorCheckerHexColors.map(
+    (hexColor, patchIndex) => {
+      const reference = srgbToLinear(hexToRgb8(hexColor)!);
+      const measured = simulateCamera(reference);
+      const noise = (channelOffset: number) => 0.003 * Math.sin((patchIndex + 1) * 12.9898 + channelOffset * 78.233);
+      return {
+        reference,
+        measured: { red: measured.red + noise(1), green: measured.green + noise(2), blue: measured.blue + noise(3) },
+      };
+    },
+  );
+  const [whiteMeasurement, grayMeasurement, blackMeasurement, redMeasurement] = colorCheckerMeasurements;
+
+  it('sin parches no corrige', () => {
+    expect(bestModelForPatches([])).toBeNull();
+    expect(chooseColorCorrection([])).toBeNull();
+  });
+
+  it('con los 6 parches variados sigue eligiendo la matriz afín', () => {
+    const correction = chooseColorCorrection(colorCheckerMeasurements)!;
+    expect(correction.model).toBe('affine');
+    expect(correction.isReducedToWhiteBalance).toBe(false);
+    expect(correction.fittedPatchCount).toBe(6);
+    expect(correction.meanValidationDeltaE).not.toBeNull();
+  });
+
+  it('con blanco, gris y negro (colineales) baja a balance de blancos y da un naranja plausible', () => {
+    const neutralMeasurements = [whiteMeasurement!, grayMeasurement!, blackMeasurement!];
+    expect(bestModelForPatches(neutralMeasurements)).toBe('diagonal');
+    const correction = chooseColorCorrection(neutralMeasurements)!;
+    expect(correction.model).toBe('diagonal');
+    expect(correction.isReducedToWhiteBalance).toBe(true);
+    // Con 3 parches y 1 incógnita por canal sí hay validación.
+    expect(correction.meanValidationDeltaE).not.toBeNull();
+
+    const trueOrange = { red: 0.3, green: 0.15, blue: 0.05 };
+    const correctedOrange = applyColorCorrection(correction, simulateCamera(trueOrange));
+    // Antes, la matriz lineal mal condicionada daba (0,334; 0,334; −0,011): un gris amarillento.
+    expect(correctedOrange.red).toBeGreaterThan(correctedOrange.green + 0.08);
+    expect(correctedOrange.green).toBeGreaterThan(correctedOrange.blue);
+    expect(correctedOrange.blue).toBeGreaterThan(0);
+    expect(correctedOrange.red).toBeCloseTo(trueOrange.red, 1);
+  });
+
+  it('con grises y un solo color tampoco se fía de la matriz', () => {
+    expect(bestModelForPatches([whiteMeasurement!, grayMeasurement!, blackMeasurement!, redMeasurement!])).toBe('diagonal');
+    // El balance de blancos se ajusta solo con los neutros: el rojo no desvía las ganancias.
+    expect(chooseColorCorrection([whiteMeasurement!, grayMeasurement!, blackMeasurement!, redMeasurement!])!.fittedPatchCount).toBe(3);
+  });
+
+  it('con blanco y tres colores primarios admite matriz', () => {
+    expect(bestModelForPatches([whiteMeasurement!, ...colorCheckerMeasurements.slice(3)])).toBe('affine');
+    expect(bestModelForPatches(colorCheckerMeasurements.slice(3))).toBe('linear');
   });
 });
 

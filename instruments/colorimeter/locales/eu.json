@@ -9,7 +9,9 @@
   "clearMarkers": "Kendu markatzaileak",
   "rawColor": "Kamera",
   "correctedColor": "Zuzenduta",
-  "correctionSummary": "{{patchCount}} adabakirekin zuzenduta ({{model}}), batez besteko errorea ΔE {{residual}}",
+  "correctionSummary": "{{patchCount}} adabakirekin zuzenduta ({{model}}), errore estimatua ΔE {{residual}}",
+  "correctionSummaryUnvalidated": "{{patchCount}} adabakirekin zuzenduta ({{model}}). Hain adabaki gutxirekin doikuntza zehatza da eta ezin da haren errorea estimatu: jarri gehiago egiaztatzeko.",
+  "reducedToWhiteBalance": "Jarritako adabakiak ia denak grisak dira: zuri-balantzea bakarrik zuzentzen da. Jarri gutxienez kolore desberdineko bi adabaki ere, matrizearekin zuzentzeko.",
   "noCorrection": "Zuzenketarik gabe: jarri erreferentzia-txartelaren adabakiak kolore fidagarriak neurtzeko.",
   "nonUniformSample": "Lagin-eremua ez da uniformea: hurbildu edo zentratu kolore lau batean.",
   "nearestEntry": "Antzekoena: {{label}} (ΔE {{deltaE}})",
@@ -60,7 +62,7 @@
     "scaleName": "Eskala",
     "correctionModel": "Zuzenketa",
     "referencePatchCount": "Erreferentzia-adabakiak",
-    "correctionResidual": "Zuzenketaren errorea",
+    "correctionResidual": "Zuzenketaren errore estimatua",
     "sampleRelativeDeviation": "Laginaren barneko aldakuntza"
   }
 }
