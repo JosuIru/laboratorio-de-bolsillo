@@ -1,0 +1,61 @@
+{
+  "name": "Afinagailu tradizionala",
+  "description": "Doitasun handiko afinagailua: tenperamentu berdina, intonazio justua, pitagorikoa eta mesotonikoa, eta alboka, txistu, trikitixa edo gaitarako taula propioak.",
+  "playANote": "Jo nota bat",
+  "flat": "Baxua",
+  "sharp": "Altua",
+  "frequencies": "{{measured}} Hz · helburua {{target}} Hz",
+  "microphoneError": "Ezin da mikrofonoa erabili: {{message}}",
+  "pause": "Pausatu",
+  "resume": "Entzun",
+  "reference": {
+    "title": "Erreferentziako La"
+  },
+  "system": {
+    "title": "Afinazio-sistema",
+    "equal": "Tenperamentu berdina",
+    "just": "Intonazio justua",
+    "pythagorean": "Pitagorikoa",
+    "quarter-comma-meantone": "Mesotonikoa 1/4 koma",
+    "hint": "Justuak hirugarren eta bosgarren puruak uzten ditu tonikarekiko: bordoiarekin (gaita) edo pedal-notarekin ondo nahasten dena da."
+  },
+  "tonic": {
+    "title": "Tonika",
+    "hint": "Tenperatu gabeko sistemetan nota bakoitza tonikaren araberakoa da: aukeratu instrumentuarena edo piezarena."
+  },
+  "custom": {
+    "title": "Taula propioa",
+    "hint": "Bere eskala duen instrumentu baterako: sortu taula bat, aukeratu tonika, jo nota bakoitza ondo afinatuta eta sakatu «Gorde jotzen ari den nota». Tenperamentu berdinetik zenbat zentimo aldentzen den gordetzen da.",
+    "storeCurrentNote": "Gorde jotzen ari den nota",
+    "storedDegree": "Gordeta: {{note}} {{cents}} ct",
+    "delete": "Ezabatu taula hau",
+    "namePlaceholder": "Izena (adib. nire alboka)",
+    "create": "Sortu taula",
+    "chooseDegreeHint": "Ukitu taulako maila bat nota non gorde aukeratzeko (bestela, hurbilena erabiltzen da). Horrela, tonuerdi erdia baino gehiago aldentzen diren notak ere gorde daitezke.",
+    "storeInDegree": "Gorde jotzen ari den nota hemen: {{note}}",
+    "tooFarFromDegree": "Jotzen ari den nota tonuerdi bat baino gehiago aldentzen da maila horretatik."
+  },
+  "notes": {
+    "0": "Do",
+    "1": "Do♯",
+    "2": "Re",
+    "3": "Re♯",
+    "4": "Mi",
+    "5": "Fa",
+    "6": "Fa♯",
+    "7": "Sol",
+    "8": "Sol♯",
+    "9": "La",
+    "10": "La♯",
+    "11": "Si"
+  },
+  "fields": {
+    "noteName": "Nota",
+    "centsOffset": "Desbideratzea",
+    "frequencyHz": "Maiztasuna",
+    "targetFrequencyHz": "Helburuko maiztasuna",
+    "tuningSystem": "Afinazio-sistema",
+    "tonicNote": "Tonika",
+    "referenceA4Hz": "Erreferentziako La"
+  }
+}

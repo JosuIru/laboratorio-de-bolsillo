@@ -19,6 +19,7 @@ import { seismicNetworkInstrument } from './seismic-network';
 import { seismographInstrument } from './seismograph';
 import { sonarInstrument } from './sonar';
 import { superzoomInstrument } from './superzoom';
+import { traditionalTunerInstrument } from './traditional-tuner';
 import { tachometerInstrument } from './tachometer';
 import { trackerHunterInstrument } from './tracker-hunter';
 import { wifiMapInstrument } from './wifi-map';
@@ -40,6 +41,7 @@ export const instrumentRegistry: readonly AnyInstrumentDefinition[] = [
   rhythmInstrument,
   colorHuntInstrument,
   metronomeInstrument,
+  traditionalTunerInstrument,
   colorimeterInstrument,
   poolStripsInstrument,
   beerWineColorInstrument,

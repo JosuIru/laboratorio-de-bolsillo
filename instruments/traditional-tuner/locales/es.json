@@ -1,0 +1,61 @@
+{
+  "name": "Afinador tradicional",
+  "description": "Afinador de precisión con temperamento igual, entonación justa, pitagórica y mesotónica, y tablas propias para alboka, txistu, trikitixa o gaita.",
+  "playANote": "Toca una nota",
+  "flat": "Bajo",
+  "sharp": "Alto",
+  "frequencies": "{{measured}} Hz · objetivo {{target}} Hz",
+  "microphoneError": "No se puede usar el micrófono: {{message}}",
+  "pause": "Pausar",
+  "resume": "Escuchar",
+  "reference": {
+    "title": "La de referencia"
+  },
+  "system": {
+    "title": "Sistema de afinación",
+    "equal": "Temperamento igual",
+    "just": "Entonación justa",
+    "pythagorean": "Pitagórica",
+    "quarter-comma-meantone": "Mesotónica 1/4 de coma",
+    "hint": "La justa deja terceras y quintas puras respecto a la tónica: es la que empasta con un bordón (gaita) o con la nota pedal."
+  },
+  "tonic": {
+    "title": "Tónica",
+    "hint": "En los sistemas no temperados cada nota depende de la tónica: elige la del instrumento o la de la pieza."
+  },
+  "custom": {
+    "title": "Tabla propia",
+    "hint": "Para un instrumento con su propia escala: crea una tabla, elige su tónica, toca cada nota bien afinada y pulsa «Guardar la nota que suena». Se guarda cuántas centésimas se aparta del temperamento igual.",
+    "storeCurrentNote": "Guardar la nota que suena",
+    "storedDegree": "Guardado: {{note}} {{cents}} ct",
+    "delete": "Borrar esta tabla",
+    "namePlaceholder": "Nombre (p. ej. mi alboka)",
+    "create": "Crear tabla",
+    "chooseDegreeHint": "Toca un grado de la tabla para elegir dónde guardar la nota (si no, se usa el más cercano). Así se pueden guardar notas que se apartan más de medio semitono.",
+    "storeInDegree": "Guardar la nota que suena en {{note}}",
+    "tooFarFromDegree": "La nota que suena se aparta más de un semitono de ese grado."
+  },
+  "notes": {
+    "0": "Do",
+    "1": "Do♯",
+    "2": "Re",
+    "3": "Re♯",
+    "4": "Mi",
+    "5": "Fa",
+    "6": "Fa♯",
+    "7": "Sol",
+    "8": "Sol♯",
+    "9": "La",
+    "10": "La♯",
+    "11": "Si"
+  },
+  "fields": {
+    "noteName": "Nota",
+    "centsOffset": "Desviación",
+    "frequencyHz": "Frecuencia",
+    "targetFrequencyHz": "Frecuencia objetivo",
+    "tuningSystem": "Sistema de afinación",
+    "tonicNote": "Tónica",
+    "referenceA4Hz": "La de referencia"
+  }
+}
