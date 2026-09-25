@@ -59,18 +59,28 @@ export interface BeatSchedulerPosition {
 /**
  * Pulsos que caen antes de `horizonSeconds` a partir de la posición actual. El tempo y el
  * compás se leen en cada llamada, así que un cambio se nota en el pulso siguiente.
+ *
+ * Si el hilo JS se ha bloqueado y la posición se ha quedado antes de `currentTimeSeconds`, los
+ * pulsos perdidos se saltan (sonarían todos a la vez): la rejilla avanza al siguiente pulso
+ * futuro sin perder el sitio en el compás.
  */
 export function scheduleBeatsUntil(
   position: BeatSchedulerPosition,
   horizonSeconds: number,
   beatsPerMinute: number,
   beatsPerBar: number,
+  currentTimeSeconds = -Infinity,
 ): { scheduledBeats: ScheduledBeat[]; nextPosition: BeatSchedulerPosition } {
   const periodSeconds = 60 / clampBeatsPerMinute(beatsPerMinute);
   const scheduledBeats: ScheduledBeat[] = [];
   let { nextBeatTimeSeconds, nextBeatInBar } = position;
   // Si el compás se ha acortado, el pulso siguiente vuelve al principio.
   if (nextBeatInBar >= beatsPerBar) nextBeatInBar = 0;
+  if (nextBeatTimeSeconds < currentTimeSeconds) {
+    const skippedBeatCount = Math.ceil((currentTimeSeconds - nextBeatTimeSeconds) / periodSeconds);
+    nextBeatTimeSeconds += skippedBeatCount * periodSeconds;
+    nextBeatInBar = (nextBeatInBar + skippedBeatCount) % beatsPerBar;
+  }
   while (nextBeatTimeSeconds < horizonSeconds) {
     scheduledBeats.push({
       timeSeconds: nextBeatTimeSeconds,

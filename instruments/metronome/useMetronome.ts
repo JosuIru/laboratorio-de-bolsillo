@@ -37,6 +37,11 @@ interface ActiveMetronome {
 export function useMetronome(beatsPerMinute: number, beatsPerBar: number) {
   const [metronomeState, setMetronomeState] = useState<MetronomeState>({ phase: 'idle' });
   const activeMetronomeRef = useRef<ActiveMetronome | null>(null);
+  /**
+   * Cambia en cada arranque y cada parada. Un arranque que vuelve de `await resume()` con otro
+   * valor ya no vale (otro «Empezar», pantalla tapada o desmontada) y cierra su contexto.
+   */
+  const startTokenRef = useRef(0);
   // El programador lee el tempo y el compás actuales en cada vuelta, sin reiniciar el audio.
   const beatsPerMinuteRef = useRef(beatsPerMinute);
   const beatsPerBarRef = useRef(beatsPerBar);
@@ -46,6 +51,7 @@ export function useMetronome(beatsPerMinute: number, beatsPerBar: number) {
   }, [beatsPerMinute, beatsPerBar]);
 
   const stopAudio = useCallback(() => {
+    startTokenRef.current += 1;
     const activeMetronome = activeMetronomeRef.current;
     if (!activeMetronome) return;
     activeMetronomeRef.current = null;
@@ -62,10 +68,17 @@ export function useMetronome(beatsPerMinute: number, beatsPerBar: number) {
 
   const start = useCallback(async () => {
     stopAudio();
+    const startToken = startTokenRef.current;
+    let pendingAudioContext: AudioContext | null = null;
     try {
       AudioManager.setAudioSessionOptions({ iosCategory: 'playback', iosMode: 'default', iosOptions: [] });
       const audioContext = new AudioContext();
+      pendingAudioContext = audioContext;
       await audioContext.resume();
+      if (startTokenRef.current !== startToken) {
+        void audioContext.close().catch(() => undefined);
+        return;
+      }
       const accentClick = createClickBuffer(audioContext, true, accentClickAmplitude);
       const regularClick = createClickBuffer(audioContext, false, regularClickAmplitude);
       let schedulerPosition: BeatSchedulerPosition = {
@@ -83,6 +96,7 @@ export function useMetronome(beatsPerMinute: number, beatsPerBar: number) {
           audioContext.currentTime + schedulingHorizonSeconds,
           beatsPerMinuteRef.current,
           beatsPerBarRef.current,
+          audioContext.currentTime,
         );
         schedulerPosition = nextPosition;
         for (const scheduledBeat of scheduledBeats) {
@@ -110,6 +124,10 @@ export function useMetronome(beatsPerMinute: number, beatsPerBar: number) {
       setMetronomeState({ phase: 'playing', currentBeatInBar: null, soundedBeatCount: 0 });
       scheduleAndUpdateDisplay();
     } catch (startError) {
+      if (activeMetronomeRef.current?.audioContext !== pendingAudioContext) {
+        void pendingAudioContext?.close().catch(() => undefined);
+      }
+      if (startTokenRef.current !== startToken) return;
       stopAudio();
       setMetronomeState({ phase: 'error', errorMessage: String(startError) });
     }
