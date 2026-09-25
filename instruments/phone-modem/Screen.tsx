@@ -1,3 +1,4 @@
+import { useKeepAwake } from 'expo-keep-awake';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
@@ -52,6 +53,8 @@ function markRevealedMessages(messages: ReceivedModemMessage[], candidateKey: st
 export function PhoneModemScreen({ saveMeasurement, sensorAvailability }: InstrumentScreenProps<PhoneModemMeasurementValues>) {
   const { t } = useTranslation(phoneModemInstrumentId);
   const themePalette = useThemePalette();
+  // Una emisión por luz dura decenas de segundos: la pantalla no debe apagarse a medias.
+  useKeepAwake();
   const [direction, setDirection] = useState<ModemDirection>('send');
   const [channel, setChannel] = useState<ModemChannel>('sound');
   const [acousticBand, setAcousticBand] = useState<AcousticBandPreset>('ultrasonic');
