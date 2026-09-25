@@ -4,9 +4,20 @@ import { classifyAdvertisement, type TrackerClassification } from './trackerSign
 export interface GeoPoint {
   latitude: number;
   longitude: number;
+  /** Radio de incertidumbre de la posición, si se conoce. */
+  accuracyMeters?: number;
 }
 
-/** Tramo de presencia continua: el rastreador se vio sin huecos mayores que `episodeGapMilliseconds`. */
+/** Tramo con el escaneo encendido; `endMilliseconds` es `null` mientras sigue en marcha. */
+export interface ScanInterval {
+  startMilliseconds: number;
+  endMilliseconds: number | null;
+}
+
+/**
+ * Tramo de presencia continua: el rastreador se vio sin huecos mayores que `episodeGapMilliseconds`
+ * de escaneo activo (el tiempo con el escaneo parado no cuenta como hueco).
+ */
 export interface SightingEpisode {
   startMilliseconds: number;
   endMilliseconds: number;
@@ -23,6 +34,11 @@ export interface TrackerGroup {
   /** Direcciones en orden de aparición; la última es la actual. */
   addresses: string[];
   firstSeenMilliseconds: number;
+  /**
+   * Tiempo escaneando entre la primera y la última vez que se vio: no cuenta las pausas del
+   * escaneo (Parar, pantalla bloqueada, app en segundo plano).
+   */
+  observedScanningMilliseconds: number;
   /** Primera vez que se vio la dirección actual (para enlazar rotaciones sin solaparse). */
   currentAddressFirstSeenMilliseconds: number;
   lastSeenMilliseconds: number;
@@ -31,7 +47,10 @@ export interface TrackerGroup {
   averageRssi: number;
   sightingCount: number;
   episodes: SightingEpisode[];
-  /** Sitios distintos (separados más de `distinctPlaceRadiusMeters`) donde se ha visto. */
+  /**
+   * Sitios distintos (separados más de `distinctPlaceRadiusMeters`) donde se ha visto. Solo cuentan
+   * posiciones con precisión igual o mejor que ese radio.
+   */
   places: GeoPoint[];
 }
 
@@ -69,15 +88,39 @@ export interface TrackerSession {
   nextGroupNumber: number;
   options: TrackerGroupingOptions;
   /**
-   * Cuándo se reanudó el escaneo por última vez (tiempo Unix, ms), o `null` si no se ha pausado.
-   * Un hueco que abarca una pausa no es «otro momento»: el escáner estaba apagado.
+   * Tramos con el escaneo encendido (tiempo Unix, ms), en orden. Los huecos y el tiempo observado
+   * solo cuentan el tiempo dentro de estos tramos: con el escáner apagado no se puede saber si el
+   * rastreador seguía ahí. Si está vacío (nadie ha anotado el escaneo) se supone escaneo continuo.
    */
-  scanResumedAtMilliseconds: number | null;
+  scanIntervals: ScanInterval[];
 }
 
-/** Anota que el escaneo vuelve a empezar tras una pausa (Parar o app en segundo plano). */
-export function markScanResumed(session: TrackerSession, resumedAtMilliseconds: number) {
-  session.scanResumedAtMilliseconds = resumedAtMilliseconds;
+/** Anota que el escaneo empieza (o se reanuda tras Parar o tras pasar la app a segundo plano). */
+export function markScanStarted(session: TrackerSession, startedAtMilliseconds: number) {
+  const lastInterval = session.scanIntervals[session.scanIntervals.length - 1];
+  if (lastInterval && lastInterval.endMilliseconds === null) return;
+  session.scanIntervals.push({ startMilliseconds: startedAtMilliseconds, endMilliseconds: null });
+}
+
+/** Anota que el escaneo se para. */
+export function markScanStopped(session: TrackerSession, stoppedAtMilliseconds: number) {
+  const lastInterval = session.scanIntervals[session.scanIntervals.length - 1];
+  if (lastInterval && lastInterval.endMilliseconds === null) {
+    lastInterval.endMilliseconds = Math.max(lastInterval.startMilliseconds, stoppedAtMilliseconds);
+  }
+}
+
+/** Tiempo con el escaneo encendido entre dos instantes (0 si `toMilliseconds` no es posterior). */
+export function scannedMillisecondsBetween(session: TrackerSession, fromMilliseconds: number, toMilliseconds: number): number {
+  if (toMilliseconds <= fromMilliseconds) return 0;
+  if (session.scanIntervals.length === 0) return toMilliseconds - fromMilliseconds;
+  let scannedMilliseconds = 0;
+  for (const scanInterval of session.scanIntervals) {
+    const overlapStartMilliseconds = Math.max(fromMilliseconds, scanInterval.startMilliseconds);
+    const overlapEndMilliseconds = Math.min(toMilliseconds, scanInterval.endMilliseconds ?? Infinity);
+    if (overlapEndMilliseconds > overlapStartMilliseconds) scannedMilliseconds += overlapEndMilliseconds - overlapStartMilliseconds;
+  }
+  return scannedMilliseconds;
 }
 
 export function createTrackerSession(options: Partial<TrackerGroupingOptions> = {}): TrackerSession {
@@ -87,7 +130,7 @@ export function createTrackerSession(options: Partial<TrackerGroupingOptions> = 
     otherDeviceLastSeenByAddress: new Map(),
     nextGroupNumber: 1,
     options: { ...defaultTrackerGroupingOptions, ...options },
-    scanResumedAtMilliseconds: null,
+    scanIntervals: [],
   };
 }
 
@@ -106,23 +149,18 @@ export function distanceBetweenPointsMeters(firstPoint: GeoPoint, secondPoint: G
 
 function recordPlace(group: TrackerGroup, location: GeoPoint | null, radiusMeters: number) {
   if (!location) return;
+  // Una posición imprecisa (p. ej. al pasar de wifi a red móvil, 500-2000 m) no distingue sitios.
+  if (location.accuracyMeters !== undefined && location.accuracyMeters > radiusMeters) return;
   const isNewPlace = group.places.every((knownPlace) => distanceBetweenPointsMeters(knownPlace, location) > radiusMeters);
   if (isNewPlace) group.places.push({ latitude: location.latitude, longitude: location.longitude });
 }
 
-function recordSighting(
-  group: TrackerGroup,
-  timestampMilliseconds: number,
-  episodeGapMilliseconds: number,
-  scanResumedAtMilliseconds: number | null = null,
-) {
+function recordSighting(session: TrackerSession, group: TrackerGroup, timestampMilliseconds: number) {
   const lastEpisode = group.episodes[group.episodes.length - 1];
-  const gapSpansScanPause =
-    lastEpisode !== undefined &&
-    scanResumedAtMilliseconds !== null &&
-    lastEpisode.endMilliseconds < scanResumedAtMilliseconds &&
-    timestampMilliseconds - scanResumedAtMilliseconds <= episodeGapMilliseconds;
-  if (lastEpisode && (gapSpansScanPause || timestampMilliseconds - lastEpisode.endMilliseconds <= episodeGapMilliseconds)) {
+  const scannedGapMilliseconds = lastEpisode
+    ? scannedMillisecondsBetween(session, lastEpisode.endMilliseconds, timestampMilliseconds)
+    : Infinity;
+  if (lastEpisode && scannedGapMilliseconds <= session.options.episodeGapMilliseconds) {
     lastEpisode.endMilliseconds = Math.max(lastEpisode.endMilliseconds, timestampMilliseconds);
   } else {
     group.episodes.push({ startMilliseconds: timestampMilliseconds, endMilliseconds: timestampMilliseconds });
@@ -149,7 +187,12 @@ export function ingestAdvertisement(
   const existingGroup = existingGroupId ? session.groupsById.get(existingGroupId) : undefined;
 
   if (existingGroup) {
-    recordSighting(existingGroup, timestampMilliseconds, options.episodeGapMilliseconds, session.scanResumedAtMilliseconds);
+    recordSighting(session, existingGroup, timestampMilliseconds);
+    existingGroup.observedScanningMilliseconds += scannedMillisecondsBetween(
+      session,
+      existingGroup.lastSeenMilliseconds,
+      timestampMilliseconds,
+    );
     existingGroup.lastSeenMilliseconds = Math.max(existingGroup.lastSeenMilliseconds, timestampMilliseconds);
     existingGroup.lastRssi = advertisement.rssi;
     existingGroup.averageRssi += averageRssiWeight * (advertisement.rssi - existingGroup.averageRssi);
@@ -165,6 +208,7 @@ export function ingestAdvertisement(
     classification,
     addresses: [advertisement.address],
     firstSeenMilliseconds: timestampMilliseconds,
+    observedScanningMilliseconds: 0,
     currentAddressFirstSeenMilliseconds: timestampMilliseconds,
     lastSeenMilliseconds: timestampMilliseconds,
     lastRssi: advertisement.rssi,
@@ -192,9 +236,12 @@ function mergeRotatedGroup(session: TrackerSession, olderGroup: TrackerGroup, ne
     session.groupIdByAddress.set(address, olderGroup.groupId);
   }
   for (const newerEpisode of newerGroup.episodes) {
-    recordSighting(olderGroup, newerEpisode.startMilliseconds, session.options.episodeGapMilliseconds);
-    recordSighting(olderGroup, newerEpisode.endMilliseconds, session.options.episodeGapMilliseconds);
+    recordSighting(session, olderGroup, newerEpisode.startMilliseconds);
+    recordSighting(session, olderGroup, newerEpisode.endMilliseconds);
   }
+  olderGroup.observedScanningMilliseconds +=
+    scannedMillisecondsBetween(session, olderGroup.lastSeenMilliseconds, newerGroup.firstSeenMilliseconds) +
+    newerGroup.observedScanningMilliseconds;
   for (const newerPlace of newerGroup.places) recordPlace(olderGroup, newerPlace, session.options.distinctPlaceRadiusMeters);
   olderGroup.currentAddressFirstSeenMilliseconds = newerGroup.currentAddressFirstSeenMilliseconds;
   olderGroup.lastSeenMilliseconds = newerGroup.lastSeenMilliseconds;
@@ -257,6 +304,15 @@ export function forgetStaleDevices(session: TrackerSession, nowMilliseconds: num
   for (const [address, lastSeenMilliseconds] of [...session.otherDeviceLastSeenByAddress]) {
     if (lastSeenMilliseconds < forgetBeforeMilliseconds) session.otherDeviceLastSeenByAddress.delete(address);
   }
+  // Los tramos de escaneo anteriores a lo que se recuerda ya no sirven; se guarda siempre el
+  // último para no caer en «escaneo continuo» por tener la lista vacía.
+  const lastScanInterval = session.scanIntervals[session.scanIntervals.length - 1];
+  session.scanIntervals = session.scanIntervals.filter(
+    (scanInterval) =>
+      scanInterval === lastScanInterval ||
+      scanInterval.endMilliseconds === null ||
+      scanInterval.endMilliseconds >= forgetBeforeMilliseconds,
+  );
 }
 
 /** Cuántas direcciones que no son rastreadores se han oído en la última ventana. */

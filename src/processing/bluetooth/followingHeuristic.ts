@@ -1,7 +1,7 @@
 import type { TrackerGroup } from './trackerGrouping';
 
 export interface FollowingCriteria {
-  /** Tiempo mínimo entre la primera y la última vez que se ha visto. */
+  /** Tiempo mínimo escaneando entre la primera y la última vez que se ha visto (sin contar pausas). */
   minimumFollowingMinutes: number;
   /** Sitios distintos (hace falta la ubicación) que cuentan como «varios sitios». */
   minimumDistinctPlaces: number;
@@ -42,7 +42,8 @@ export function assessFollowing(
   group: TrackerGroup,
   criteria: FollowingCriteria = defaultFollowingCriteria,
 ): FollowingAssessment {
-  const observedMinutes = (group.lastSeenMilliseconds - group.firstSeenMilliseconds) / 60_000;
+  // Solo el tiempo con el escaneo encendido: una pausa no demuestra que el rastreador siguiera ahí.
+  const observedMinutes = group.observedScanningMilliseconds / 60_000;
   const distinctPlaceCount = group.places.length;
   const episodeCount = group.episodes.length;
   const baseAssessment = { observedMinutes, distinctPlaceCount, episodeCount, isCappedBecauseNearOwner: false };

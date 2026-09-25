@@ -9,11 +9,12 @@ import { smoothRssi, type SmoothedRssi } from '@/processing/bluetooth/proximity'
 import {
   countRecentOtherDevices,
   createTrackerSession,
-  markScanResumed,
   forgetStaleDevices,
   type GeoPoint,
   ingestAdvertisement,
   linkRotatedAddresses,
+  markScanStarted,
+  markScanStopped,
   type TrackerGroup,
   type TrackerSession,
 } from '@/processing/bluetooth/trackerGrouping';
@@ -209,8 +210,10 @@ export function useTrackerScan(followingCriteria: FollowingCriteria, isLocationE
     stopScanRef.current = null;
     stopScan?.();
     if (scanStartedMillisecondsRef.current !== null) {
-      accumulatedScanningMillisecondsRef.current += Date.now() - scanStartedMillisecondsRef.current;
+      const stoppedAtMilliseconds = Date.now();
+      accumulatedScanningMillisecondsRef.current += stoppedAtMilliseconds - scanStartedMillisecondsRef.current;
       scanStartedMillisecondsRef.current = null;
+      markScanStopped(sessionRef.current, stoppedAtMilliseconds);
     }
   }, []);
 
@@ -231,7 +234,6 @@ export function useTrackerScan(followingCriteria: FollowingCriteria, isLocationE
       setPhase('bluetooth-off');
       return;
     }
-    markScanResumed(sessionRef.current, Date.now());
 
     const advertisementSubscription = nativeScanner.addListener('onAdvertisementBatch', ({ advertisements }) => {
       const session = sessionRef.current;
@@ -273,6 +275,20 @@ export function useTrackerScan(followingCriteria: FollowingCriteria, isLocationE
 
     const listRefreshInterval = setInterval(publishSnapshot, listRefreshIntervalMilliseconds);
     const housekeepingInterval = setInterval(() => {
+      // Si se apaga el Bluetooth, el escáner deja de entregar anuncios sin avisar: se para y se
+      // muestra el aviso de Bluetooth apagado en vez de seguir en «Escaneando…».
+      let isBluetoothStillEnabled = true;
+      try {
+        isBluetoothStillEnabled = nativeScanner.isBluetoothEnabled();
+      } catch {
+        // Si no se puede consultar, se sigue escaneando.
+      }
+      if (!isBluetoothStillEnabled) {
+        releaseScan();
+        publishSnapshot();
+        setPhase('bluetooth-off');
+        return;
+      }
       const nowMilliseconds = Date.now();
       const rotationLinks = linkRotatedAddresses(sessionRef.current, nowMilliseconds);
       forgetStaleDevices(sessionRef.current, nowMilliseconds);
@@ -304,6 +320,7 @@ export function useTrackerScan(followingCriteria: FollowingCriteria, isLocationE
     try {
       nativeScanner.startScan();
       scanStartedMillisecondsRef.current = Date.now();
+      markScanStarted(sessionRef.current, scanStartedMillisecondsRef.current);
       setPhase('scanning');
     } catch (startError) {
       releaseScan();
@@ -318,7 +335,14 @@ export function useTrackerScan(followingCriteria: FollowingCriteria, isLocationE
     let isCancelled = false;
     const refreshLocation = async () => {
       const location = await getLocationForMeasurement({ maxAgeMilliseconds: locationRefreshIntervalMilliseconds });
-      if (!isCancelled && location) currentLocationRef.current = { latitude: location.latitude, longitude: location.longitude };
+      if (!isCancelled && location) {
+        // La precisión permite descartar posiciones imprecisas al contar sitios distintos.
+        currentLocationRef.current = {
+          latitude: location.latitude,
+          longitude: location.longitude,
+          ...(location.accuracyMeters !== undefined ? { accuracyMeters: location.accuracyMeters } : {}),
+        };
+      }
     };
     void refreshLocation();
     const locationInterval = setInterval(() => void refreshLocation(), locationRefreshIntervalMilliseconds);
@@ -335,7 +359,10 @@ export function useTrackerScan(followingCriteria: FollowingCriteria, isLocationE
   const clearSession = useCallback(() => {
     sessionRef.current = createTrackerSession();
     accumulatedScanningMillisecondsRef.current = 0;
-    if (scanStartedMillisecondsRef.current !== null) scanStartedMillisecondsRef.current = Date.now();
+    if (scanStartedMillisecondsRef.current !== null) {
+      scanStartedMillisecondsRef.current = Date.now();
+      markScanStarted(sessionRef.current, scanStartedMillisecondsRef.current);
+    }
     selectSearchedGroup(null);
     publishSnapshot();
   }, [publishSnapshot, selectSearchedGroup]);

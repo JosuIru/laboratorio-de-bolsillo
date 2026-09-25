@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Linking, Platform, Pressable, StyleSheet, Switch, View } from 'react-native';
 
@@ -94,6 +95,17 @@ export function TrackerHunterScreen({ saveMeasurement }: InstrumentScreenProps<T
     isSignalLost(searchReading?.lastSeenMilliseconds ?? null, Math.max(snapshot.snapshotTakenMilliseconds, searchReading?.lastSeenMilliseconds ?? 0));
   const searchHeat = smoothedRssiDbm !== null && !isSearchSignalLost ? rssiToHeat(smoothedRssiDbm) : null;
   useProximityBeeper(searchedGroupId !== null && isSoundEnabled && phase === 'scanning', searchHeat);
+
+  // Si la pantalla se apagara, la app pasaría a segundo plano y el escaneo se pararía.
+  const isScreenNeededOn = phase === 'scanning';
+  useEffect(() => {
+    if (!isScreenNeededOn) return;
+    const keepAwakeTag = 'tracker-hunter';
+    activateKeepAwakeAsync(keepAwakeTag).catch(() => undefined);
+    return () => {
+      deactivateKeepAwake(keepAwakeTag).catch(() => undefined);
+    };
+  }, [isScreenNeededOn]);
 
   if (phase === 'unsupported') {
     return (
