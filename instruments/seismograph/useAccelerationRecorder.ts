@@ -62,6 +62,14 @@ interface GravityFilters {
   isPrimed: boolean;
 }
 
+const emptyDisplaySnapshot = {
+  revision: 0,
+  eventCount: 0,
+  durationSeconds: 0,
+  sessionPeakDynamicAcceleration: 0,
+  sessionRmsDynamicAcceleration: 0,
+};
+
 function createHistory(): AccelerationHistory {
   return {
     timestamps: createRingBuffer(historyCapacity),
@@ -96,8 +104,14 @@ export function useAccelerationRecorder({ isRunning, eventThreshold }: { isRunni
   const eventCount = useRef(0);
   const recordingStartTimestamp = useRef<number | null>(null);
   const latestTimestamp = useRef<number | null>(null);
+  /**
+   * Pico y valor eficaz del módulo de la aceleración dinámica en toda la sesión (desde el
+   * último «Reiniciar»), para que lo guardado cubra el mismo tiempo que la duración y los
+   * eventos. El análisis espectral solo mira los últimos segundos.
+   */
+  const sessionStatistics = useRef({ peakDynamicAcceleration: 0, sumOfSquares: 0, sampleCount: 0 });
 
-  const [displaySnapshot, setDisplaySnapshot] = useState({ revision: 0, eventCount: 0, durationSeconds: 0 });
+  const [displaySnapshot, setDisplaySnapshot] = useState(emptyDisplaySnapshot);
   const [vibrationAnalysis, setVibrationAnalysis] = useState<VibrationAnalysis | null>(null);
 
   useEffect(() => {
@@ -132,8 +146,14 @@ export function useAccelerationRecorder({ isRunning, eventThreshold }: { isRunni
       pushToRingBuffer(history.dynamicY, dynamicY);
       pushToRingBuffer(history.dynamicZ, dynamicZ);
 
+      const dynamicMagnitude = Math.hypot(dynamicX, dynamicY, dynamicZ);
+      const statistics = sessionStatistics.current;
+      statistics.peakDynamicAcceleration = Math.max(statistics.peakDynamicAcceleration, dynamicMagnitude);
+      statistics.sumOfSquares += dynamicMagnitude * dynamicMagnitude;
+      statistics.sampleCount++;
+
       if (hasLongGap) eventDetector.current.reset();
-      if (eventDetector.current.push(Math.hypot(dynamicX, dynamicY, dynamicZ), timestampSeconds)) {
+      if (eventDetector.current.push(dynamicMagnitude, timestampSeconds)) {
         eventCount.current++;
       }
     },
@@ -144,14 +164,20 @@ export function useAccelerationRecorder({ isRunning, eventThreshold }: { isRunni
     if (!isRunning) return;
     const displayTimer = setInterval(
       () =>
-        setDisplaySnapshot((previousSnapshot) => ({
-          revision: previousSnapshot.revision + 1,
-          eventCount: eventCount.current,
-          durationSeconds:
-            recordingStartTimestamp.current !== null && latestTimestamp.current !== null
-              ? latestTimestamp.current - recordingStartTimestamp.current
-              : 0,
-        })),
+        setDisplaySnapshot((previousSnapshot) => {
+          const statistics = sessionStatistics.current;
+          return {
+            revision: previousSnapshot.revision + 1,
+            eventCount: eventCount.current,
+            durationSeconds:
+              recordingStartTimestamp.current !== null && latestTimestamp.current !== null
+                ? latestTimestamp.current - recordingStartTimestamp.current
+                : 0,
+            sessionPeakDynamicAcceleration: statistics.peakDynamicAcceleration,
+            sessionRmsDynamicAcceleration:
+              statistics.sampleCount > 0 ? Math.sqrt(statistics.sumOfSquares / statistics.sampleCount) : 0,
+          };
+        }),
       displayRefreshIntervalMilliseconds,
     );
     const analysisTimer = setInterval(() => {
@@ -192,8 +218,9 @@ export function useAccelerationRecorder({ isRunning, eventThreshold }: { isRunni
     eventCount.current = 0;
     recordingStartTimestamp.current = null;
     latestTimestamp.current = null;
+    sessionStatistics.current = { peakDynamicAcceleration: 0, sumOfSquares: 0, sampleCount: 0 };
     setVibrationAnalysis(null);
-    setDisplaySnapshot((previousSnapshot) => ({ revision: previousSnapshot.revision + 1, eventCount: 0, durationSeconds: 0 }));
+    setDisplaySnapshot((previousSnapshot) => ({ ...emptyDisplaySnapshot, revision: previousSnapshot.revision + 1 }));
   }, [history]);
 
   /** Copia ordenada de las últimas `sampleCount` muestras de un buffer. */
@@ -208,6 +235,8 @@ export function useAccelerationRecorder({ isRunning, eventThreshold }: { isRunni
     displayRevision: displaySnapshot.revision,
     eventCount: displaySnapshot.eventCount,
     recordingDurationSeconds: displaySnapshot.durationSeconds,
+    sessionPeakDynamicAcceleration: displaySnapshot.sessionPeakDynamicAcceleration,
+    sessionRmsDynamicAcceleration: displaySnapshot.sessionRmsDynamicAcceleration,
     vibrationAnalysis,
     readLatest,
     reset,

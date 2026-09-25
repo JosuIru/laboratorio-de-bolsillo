@@ -35,10 +35,13 @@ export function SeismographScreen({ saveMeasurement }: InstrumentScreenProps<Sei
     displayRevision,
     eventCount,
     recordingDurationSeconds,
+    sessionPeakDynamicAcceleration,
+    sessionRmsDynamicAcceleration,
     vibrationAnalysis,
     readLatest,
     reset,
   } = useAccelerationRecorder({ isRunning, eventThreshold });
+  const hasSessionData = recordingDurationSeconds > 0;
 
   const displayRateHz = vibrationAnalysis?.sampleRateHz ?? 100;
   const traceSampleCount = Math.min(history.timestamps.capacity, Math.round(displayRateHz * traceDurationSeconds));
@@ -71,8 +74,9 @@ export function SeismographScreen({ saveMeasurement }: InstrumentScreenProps<Sei
           ...(vibrationAnalysis.dominantFrequencyHz !== null
             ? { dominantFrequencyHz: vibrationAnalysis.dominantFrequencyHz }
             : {}),
-          peakDynamicAcceleration: vibrationAnalysis.peakDynamicAcceleration,
-          rmsDynamicAcceleration: vibrationAnalysis.rmsDynamicAcceleration,
+          // Pico y valor eficaz de toda la sesión, como la duración y los eventos.
+          peakDynamicAcceleration: sessionPeakDynamicAcceleration,
+          rmsDynamicAcceleration: sessionRmsDynamicAcceleration,
           eventCount,
           sensitivityThreshold: eventThreshold,
           spectrumResolutionHz: vibrationAnalysis.binResolutionHz,
@@ -114,14 +118,22 @@ export function SeismographScreen({ saveMeasurement }: InstrumentScreenProps<Sei
         />
         <Reading
           label={t('fields.peak')}
-          value={vibrationAnalysis ? `${formatNumber(vibrationAnalysis.peakDynamicAcceleration, 3)} m/s²` : '—'}
+          value={hasSessionData ? `${formatNumber(sessionPeakDynamicAcceleration, 3)} m/s²` : '—'}
         />
         <Reading
           label={t('fields.rms')}
-          value={vibrationAnalysis ? `${formatNumber(vibrationAnalysis.rmsDynamicAcceleration, 3)} m/s²` : '—'}
+          value={hasSessionData ? `${formatNumber(sessionRmsDynamicAcceleration, 3)} m/s²` : '—'}
         />
         <Reading label={t('fields.events')} value={String(eventCount)} />
       </View>
+      {vibrationAnalysis ? (
+        <BodyText tone="secondary">
+          {t('recentReadings', {
+            peak: formatNumber(vibrationAnalysis.peakDynamicAcceleration, 3),
+            rms: formatNumber(vibrationAnalysis.rmsDynamicAcceleration, 3),
+          })}
+        </BodyText>
+      ) : null}
 
       <SignalChart
         series={traceSeries}
