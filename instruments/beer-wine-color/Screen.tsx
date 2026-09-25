@@ -18,6 +18,7 @@ import {
   estimateWineColor,
   isValidPathLengthMm,
   measureTransmittance,
+  opticalPathLengthCm,
   recommendedPathLengthMm,
   type WineStyle,
 } from './beerWineColorEngine';
@@ -71,7 +72,7 @@ export function BeerWineColorScreen({ saveMeasurement }: InstrumentScreenProps<B
     const sampleRegion = averagedRegions?.[0];
     const paperRegion = averagedRegions?.[1];
     if (!sampleRegion || !paperRegion || !isValidPathLengthMm(pathLengthMm)) return null;
-    const pathLengthCm = pathLengthMm / 10;
+    const pathLengthCm = opticalPathLengthCm(pathLengthMm);
     const transmittanceMeasurement = measureTransmittance(sampleRegion, paperRegion);
     return {
       ...transmittanceMeasurement,
@@ -127,7 +128,10 @@ export function BeerWineColorScreen({ saveMeasurement }: InstrumentScreenProps<B
               }
             : {}),
           ...(wineEstimate
-            ? { colorIntensity: roundTo(wineEstimate.colorIntensity, 2), hue: roundTo(wineEstimate.hue, 2) }
+            ? {
+                colorIntensity: roundTo(wineEstimate.colorIntensity, 2),
+                ...(wineEstimate.hue !== null ? { hue: roundTo(wineEstimate.hue, 2) } : {}),
+              }
             : {}),
           transmittanceRed: roundTo(transmittance.red, 4),
           transmittanceGreen: roundTo(transmittance.green, 4),
@@ -283,10 +287,12 @@ export function BeerWineColorScreen({ saveMeasurement }: InstrumentScreenProps<B
               <View style={styles.resultBlock}>
                 <BodyText style={styles.mainValue}>{t(`wineDescriptor.${colorReading.wineEstimate.descriptor}`)}</BodyText>
                 <BodyText>
-                  {t('wineResult', {
-                    intensity: colorReading.wineEstimate.colorIntensity.toFixed(2),
-                    hue: colorReading.wineEstimate.hue.toFixed(2),
-                  })}
+                  {colorReading.wineEstimate.hue !== null
+                    ? t('wineResult', {
+                        intensity: colorReading.wineEstimate.colorIntensity.toFixed(2),
+                        hue: colorReading.wineEstimate.hue.toFixed(2),
+                      })
+                    : t('wineIntensityOnly', { intensity: colorReading.wineEstimate.colorIntensity.toFixed(2) })}
                 </BodyText>
               </View>
             ) : null}

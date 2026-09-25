@@ -240,10 +240,16 @@ export interface WineColorEstimate {
    * verde y rojo, que hacen de 420, 520 y 620 nm en el método de la OIV).
    */
   colorIntensity: number;
-  /** Tonalidad aproximada: absorbancia azul / verde (A420/A520 en el método de la OIV). */
-  hue: number;
+  /**
+   * Tonalidad aproximada: absorbancia azul / verde (A420/A520 en el método de la OIV). Solo en
+   * rosados y tintos, y null si el verde apenas absorbe (el cociente no significaría nada).
+   */
+  hue: number | null;
   descriptor: WineColorDescriptor;
 }
+
+/** Absorbancia verde por centímetro por debajo de la cual la tonalidad no se calcula. */
+export const minimumGreenAbsorbanceForHue = 0.05;
 
 /** Absorbancia por centímetro de un canal a partir de su transmitancia. */
 function absorbancePerCm(channelTransmittance: number, pathLengthCm: number): number {
@@ -259,7 +265,8 @@ export function estimateWineColor(
   const greenAbsorbance = absorbancePerCm(measuredTransmittance.green, pathLengthCm);
   const redAbsorbance = absorbancePerCm(measuredTransmittance.red, pathLengthCm);
   const colorIntensity = blueAbsorbance + greenAbsorbance + redAbsorbance;
-  const hue = blueAbsorbance / Math.max(greenAbsorbance, 1e-3);
+  const hue =
+    wineStyle !== 'white' && greenAbsorbance >= minimumGreenAbsorbanceForHue ? blueAbsorbance / greenAbsorbance : null;
   return { colorIntensity, hue, descriptor: describeWineColor(wineStyle, blueAbsorbance, hue) };
 }
 
@@ -267,13 +274,19 @@ export function estimateWineColor(
  * Nombre orientativo del color. Los blancos se ordenan por la absorbancia azul (lo amarillo que
  * es); rosados y tintos, por la tonalidad (de violáceo a teja al envejecer).
  */
-export function describeWineColor(wineStyle: WineStyle, blueAbsorbancePerCm: number, hue: number): WineColorDescriptor {
+export function describeWineColor(
+  wineStyle: WineStyle,
+  blueAbsorbancePerCm: number,
+  hue: number | null,
+): WineColorDescriptor {
   if (wineStyle === 'white') {
     if (blueAbsorbancePerCm < 0.08) return 'pale';
     if (blueAbsorbancePerCm < 0.2) return 'straw';
     if (blueAbsorbancePerCm < 0.4) return 'golden';
     return 'amber';
   }
+  // Sin tonalidad, el verde casi no absorbe: el vino tira a amarillo anaranjado.
+  if (hue === null) return wineStyle === 'rose' ? 'onion-skin' : 'tawny';
   if (wineStyle === 'rose') {
     if (hue < 0.8) return 'raspberry';
     if (hue < 1.1) return 'salmon';
@@ -287,16 +300,24 @@ export function describeWineColor(wineStyle: WineStyle, blueAbsorbancePerCm: num
 
 // ── Profundidad del líquido ─────────────────────────────────────────────────────────────────
 
-export const minimumPathLengthMm = 1;
+export const minimumPathLengthMm = 0.5;
 export const maximumPathLengthMm = 100;
 
-/** Profundidad recomendada: los tintos absorben tanto que con más de unos milímetros no pasa luz. */
+/** Profundidad recomendada: los tintos absorben tanto que con más de un milímetro casi no pasa luz. */
 export const recommendedPathLengthMm: Record<'beer' | WineStyle, number> = {
   beer: 10,
   white: 10,
   rose: 10,
-  red: 2,
+  red: 1,
 };
+
+/**
+ * Camino óptico a partir de la altura del líquido: con el papel iluminado desde arriba, la luz
+ * cruza el líquido dos veces (baja hasta el papel y sube hasta la cámara).
+ */
+export function opticalPathLengthCm(liquidDepthMm: number): number {
+  return (2 * liquidDepthMm) / 10;
+}
 
 export function isValidPathLengthMm(pathLengthMm: number | null): pathLengthMm is number {
   return (

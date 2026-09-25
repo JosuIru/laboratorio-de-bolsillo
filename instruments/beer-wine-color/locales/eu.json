@@ -15,7 +15,7 @@
   },
   "pathLength": "Likidoaren altuera",
   "pathLengthHint": "Gomendatua: {{recommended}} mm inguru. Altuera zenbat eta zehatzagoa izan, orduan eta zehatzagoa emaitza.",
-  "pathLengthInvalid": "Idatzi 1 eta 100 mm arteko altuera.",
+  "pathLengthInvalid": "Idatzi 0,5 eta 100 mm arteko altuera.",
   "marker": {
     "sample": "Likidoaren bidez",
     "paper": "Likidorik gabeko papera"
@@ -25,6 +25,7 @@
   "clearMarkers": "Kendu markatzaileak",
   "beerResult": "{{srm}} SRM · {{ebc}} EBC",
   "wineResult": "Intentsitatea ≈ {{intensity}} · Ñabardura ≈ {{hue}}",
+  "wineIntensityOnly": "Intentsitatea ≈ {{intensity}}",
   "transmittance": "Igarotzen den argia: gorria % {{red}}, berdea % {{green}}, urdina % {{blue}}",
   "poorBeerFit": "Kolorea ez dator bat garagardo batenarekin: berrikusi argia, markatzaileak eta altuera.",
   "approximateNote": "Balio gutxi gorabeherakoak: kamera ez da espektrofotometro bat, eta metodoa oraindik ez dago kolore ezaguneko laginekin balioztatuta.",

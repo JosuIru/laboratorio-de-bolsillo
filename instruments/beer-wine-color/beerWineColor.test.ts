@@ -9,6 +9,7 @@ import {
   estimateWineColor,
   isValidPathLengthMm,
   measureTransmittance,
+  opticalPathLengthCm,
   predictBeerTransmittance,
   srmToEbc,
 } from './beerWineColorEngine';
@@ -117,6 +118,15 @@ describe('estimateWineColor', () => {
     expect(wineEstimate.descriptor).toBe('ruby');
   });
 
+  it('no calcula la tonalidad de un blanco ni la de un vino cuyo verde apenas absorbe', () => {
+    const paleWine = { red: 0.98, green: 0.97, blue: 0.8 };
+    expect(estimateWineColor(paleWine, 2, 'white').hue).toBeNull();
+    const roseWithNoisyGreen = { red: 1, green: 1.02, blue: 0.7 };
+    const roseEstimate = estimateWineColor(roseWithNoisyGreen, 2, 'rose');
+    expect(roseEstimate.hue).toBeNull();
+    expect(roseEstimate.descriptor).toBe('onion-skin');
+  });
+
   it('pone nombre según el tipo de vino', () => {
     expect(describeWineColor('white', 0.05, 2)).toBe('pale');
     expect(describeWineColor('white', 0.3, 2)).toBe('golden');
@@ -126,10 +136,18 @@ describe('estimateWineColor', () => {
   });
 });
 
+describe('opticalPathLengthCm', () => {
+  it('la luz cruza el líquido dos veces: 10 mm de altura son 2 cm de camino', () => {
+    expect(opticalPathLengthCm(10)).toBeCloseTo(2, 6);
+  });
+});
+
 describe('isValidPathLengthMm', () => {
-  it('acepta entre 1 y 100 mm', () => {
+  it('acepta entre 0,5 y 100 mm', () => {
     expect(isValidPathLengthMm(10)).toBe(true);
-    expect(isValidPathLengthMm(0.5)).toBe(false);
+    expect(isValidPathLengthMm(0.5)).toBe(true);
+    expect(isValidPathLengthMm(0.4)).toBe(false);
+    expect(isValidPathLengthMm(101)).toBe(false);
     expect(isValidPathLengthMm(null)).toBe(false);
     expect(isValidPathLengthMm(Number.NaN)).toBe(false);
   });

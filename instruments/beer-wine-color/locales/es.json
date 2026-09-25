@@ -15,7 +15,7 @@
   },
   "pathLength": "Altura del líquido",
   "pathLengthHint": "Recomendado: unos {{recommended}} mm. Cuanto más exacta sea la altura, más exacto será el resultado.",
-  "pathLengthInvalid": "Escribe una altura entre 1 y 100 mm.",
+  "pathLengthInvalid": "Escribe una altura entre 0,5 y 100 mm.",
   "marker": {
     "sample": "A través del líquido",
     "paper": "Papel sin líquido"
@@ -25,6 +25,7 @@
   "clearMarkers": "Quitar marcadores",
   "beerResult": "{{srm}} SRM · {{ebc}} EBC",
   "wineResult": "Intensidad ≈ {{intensity}} · Tonalidad ≈ {{hue}}",
+  "wineIntensityOnly": "Intensidad ≈ {{intensity}}",
   "transmittance": "Luz que pasa: rojo {{red}} %, verde {{green}} %, azul {{blue}} %",
   "poorBeerFit": "El color no encaja con el de una cerveza: revisa la luz, los marcadores y la altura.",
   "approximateNote": "Valores orientativos: la cámara no es un espectrofotómetro y el método aún no está validado con muestras de color conocido.",
