@@ -341,6 +341,11 @@ export function chooseCropSize(radiusPixels: number, minimumCropSize = 96, maxim
   return Math.max(minimumCropSize, Math.min(maximumCropSize, evenCropSize));
 }
 
+/** Radio del desenfoque de la máscara de enfoque: escala con el tamaño, ~1 px por cada 100 px de recorte. */
+export function sharpeningSigmaForCropSize(cropSize: number): number {
+  return Math.max(1, cropSize / 100);
+}
+
 export interface StackingResult {
   stackedImage: FloatRgbImage;
   bestSingleImage: FloatRgbImage;
@@ -361,10 +366,10 @@ export function stackSharpestCrops(
   const rankedCropIndices = rankCropsBySharpness(crops, cropSize);
   const usedCropCount = Math.max(1, Math.round(crops.length * keptFraction));
   const keptCrops = rankedCropIndices.slice(0, usedCropCount).map((cropIndex) => crops[cropIndex]!);
-  // El desenfoque de la máscara escala con el tamaño: ~1 px por cada 100 px de recorte.
-  const sharpeningSigma = Math.max(1, cropSize / 100);
+  const stackedImage = stackAlignedCrops(keptCrops, cropSize);
   return {
-    stackedImage: sharpenImage(stackAlignedCrops(keptCrops, cropSize), sharpeningSigma, sharpeningAmount),
+    stackedImage:
+      sharpeningAmount > 0 ? sharpenImage(stackedImage, sharpeningSigmaForCropSize(cropSize), sharpeningAmount) : stackedImage,
     bestSingleImage: cropToFloatImage(crops[rankedCropIndices[0]!]!, cropSize),
     usedCropCount,
   };

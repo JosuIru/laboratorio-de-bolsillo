@@ -38,7 +38,7 @@
   "exposureUp": "+ Argi",
   "exposureUnsupported": "Mugikor honek ez du esposizioa doitzen uzten: ukitu Ilargia bertan argia neurtzeko.",
   "captureAndStack": "Hartu {{count}} fotograma eta pilatu",
-  "capturingProgress": "Hartzen… {{captured}} / {{target}}",
+  "capturingProgress": "Hartzen… {{captured}} / {{target}} ({{rejected}} baztertuta mugimenduagatik)",
   "stopCapture": "Gelditu",
   "moonLostDuringCapture": "Ilargia iruditik irten da hartzean. Bermatu mugikorra eta saiatu berriro.",
   "resultTitle": "Emaitza",
@@ -55,6 +55,20 @@
   "guideBelowHorizon": "Ilargia horizontearen azpian dago: orain ezin da ikusi",
   "guideNeedsLocation": "Aktibatu zure kokapena (goian) eta irudiko gezi batek Ilargiraino eramango zaitu.",
   "compassCalibrationHint": "Geziak mugikorraren iparrorratza erabiltzen du: bat ez badator, kalibratu mugikorra 8 itxuran mugituz, objektu metalikoetatik urrun.",
+  "exposureStepsLabel": "Esposizioa {{exposure}} urrats (gutx. {{minimum}})",
+  "overexposedAtMinimumHint": "Gehiegi esposatuta jarraitzen du esposizioa gutxienekoan izanda ere: ukitu Ilargia irudian, kamerak bertan argia neurtzeko.",
+  "deviceSteady": "Mugikorra geldi: hartzeko prest.",
+  "deviceMoving": "Mugikorra mugitzen ari da: bermatu zerbait sendotan. Mugitutako fotogramak baztertu egiten dira.",
+  "captureCountdown": "{{seconds}} barru hartuko da… ez ukitu mugikorra",
+  "tooMuchMovement": "Fotograma guztiak mugituta atera dira. Bermatu mugikorra zerbait sendotan eta saiatu berriro.",
+  "rejectedFramesExplanation": "{{count}} fotograma baztertu dira mugikorra mugitzen ari zelako.",
+  "sharpeningTitle": "Xehetasunen nabarmentzea",
+  "sharpening": {
+    "none": "Nabarmendu gabe",
+    "soft": "Leuna",
+    "medium": "Ertaina",
+    "strong": "Indartsua"
+  },
   "fields": {
     "phaseName": "Fasea",
     "illuminatedPercent": "Argiztatuta",
@@ -67,6 +81,8 @@
     "stackedFrameCount": "Pilatutako fotogramak",
     "moonDiameterPixels": "Diametroa irudian",
     "zoomFactor": "Zooma",
-    "exposureBias": "Esposizio-konpentsazioa"
+    "exposureBias": "Esposizio-konpentsazioa",
+    "exposureCompensationSteps": "Esposizio-konpentsazioa (urratsak)",
+    "sharpeningAmount": "Nabarmentzea"
   }
 }

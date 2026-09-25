@@ -38,7 +38,7 @@
   "exposureUp": "+ Luz",
   "exposureUnsupported": "Este móvil no permite ajustar la exposición: toca la Luna para medir la luz sobre ella.",
   "captureAndStack": "Capturar {{count}} fotogramas y apilar",
-  "capturingProgress": "Capturando… {{captured}} / {{target}}",
+  "capturingProgress": "Capturando… {{captured}} / {{target}} ({{rejected}} descartados por movimiento)",
   "stopCapture": "Parar",
   "moonLostDuringCapture": "La Luna salió de la imagen durante la captura. Apoya el móvil y vuelve a intentarlo.",
   "resultTitle": "Resultado",
@@ -55,6 +55,20 @@
   "guideBelowHorizon": "La Luna está bajo el horizonte: ahora no se puede ver",
   "guideNeedsLocation": "Activa tu ubicación (arriba) y una flecha en la imagen te llevará hasta la Luna.",
   "compassCalibrationHint": "La flecha usa la brújula del móvil: si no cuadra, calíbrala moviendo el móvil en forma de 8, lejos de objetos metálicos.",
+  "exposureStepsLabel": "Exposición {{exposure}} pasos (mín. {{minimum}})",
+  "overexposedAtMinimumHint": "Sigue sobreexpuesta con la exposición al mínimo: toca la Luna en la imagen para que la cámara mida la luz sobre ella.",
+  "deviceSteady": "Móvil quieto: listo para capturar.",
+  "deviceMoving": "El móvil se mueve: apóyalo en algo firme. Los fotogramas movidos se descartan.",
+  "captureCountdown": "Capturando en {{seconds}}… no toques el móvil",
+  "tooMuchMovement": "Todos los fotogramas salieron movidos. Apoya el móvil en algo firme y vuelve a intentarlo.",
+  "rejectedFramesExplanation": "Se descartaron {{count}} fotogramas porque el móvil se movía.",
+  "sharpeningTitle": "Realce del detalle",
+  "sharpening": {
+    "none": "Sin realce",
+    "soft": "Suave",
+    "medium": "Medio",
+    "strong": "Fuerte"
+  },
   "fields": {
     "phaseName": "Fase",
     "illuminatedPercent": "Iluminada",
@@ -67,6 +81,8 @@
     "stackedFrameCount": "Fotogramas apilados",
     "moonDiameterPixels": "Diámetro en la imagen",
     "zoomFactor": "Zoom",
-    "exposureBias": "Compensación de exposición"
+    "exposureBias": "Compensación de exposición",
+    "exposureCompensationSteps": "Compensación de exposición (pasos)",
+    "sharpeningAmount": "Realce"
   }
 }
