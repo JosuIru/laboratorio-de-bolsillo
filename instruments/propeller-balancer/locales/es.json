@@ -1,0 +1,53 @@
+{
+  "name": "Equilibrador de hélices",
+  "description": "Equilibra hélices, ventiladores y rotores con el acelerómetro: cuatro medidas con un peso de prueba dicen cuánto peso poner y dónde.",
+  "howTo": {
+    "title": "Cómo equilibrar",
+    "mount": "Sujeta el móvil firme al soporte del motor o del ventilador (cinta, brida): tiene que vibrar con él y no moverse entre medidas. Funciona de 300 a 5400 rpm.",
+    "marks": "Marca en el buje la posición 0° (por ejemplo, la pala 1) y, en el sentido de giro, 120° y 240°. Necesitas un peso de prueba pequeño y conocido (un trozo de cinta o plastilina pesado en una báscula de cocina).",
+    "safety": "Para el motor antes de poner o quitar el peso, gira siempre a la misma velocidad y aparta las manos de la hélice."
+  },
+  "setup": {
+    "title": "Rotor",
+    "bladeCount": "Número de palas",
+    "trialMass": "Peso de prueba",
+    "trialMassInvalid": "Escribe el peso de prueba en gramos."
+  },
+  "runs": {
+    "title": "Medidas",
+    "initial": "Sin peso",
+    "trial": "Prueba en {{angle}}°",
+    "value": "{{amplitude}} m/s² · {{rpm}} rpm",
+    "instructionInitial": "Arranca el motor sin ningún peso añadido y pulsa «Medir» (6 s).",
+    "instructionTrial": "Para el motor, pon el peso de prueba ({{mass}} g) en {{angle}}°, arranca a la misma velocidad y pulsa «Medir». Luego quítalo.",
+    "measure": "Medir",
+    "measuring": "Midiendo…",
+    "failed": "No se ha encontrado una vibración clara a la velocidad de giro: comprueba que el móvil está bien sujeto y el motor en marcha.",
+    "speedChanged": "La velocidad ha cambiado más de un 5 % entre medidas: el cálculo será menos fiable."
+  },
+  "result": {
+    "title": "Corrección",
+    "correction": "Pon {{mass}} g a {{angle}}°",
+    "removeTrial": "Quita antes el peso de prueba. El ángulo se cuenta desde la marca de 0° en el mismo sentido que las pruebas.",
+    "blade": "Pala {{blade}}: {{mass}} g",
+    "checkHint": "Pon la corrección y comprueba el resultado con el motor a la misma velocidad.",
+    "measureCheck": "Medir el resultado",
+    "checkValue": "Antes {{before}} m/s², ahora {{after}} m/s² ({{reduction}} % menos)"
+  },
+  "problem": {
+    "trial-too-small": "El peso de prueba apenas cambia la vibración: usa uno más pesado o ponlo más lejos del centro y repite.",
+    "inconsistent": "Las medidas no encajan (¿cambió la velocidad o se movió el móvil?). Repite las cuatro.",
+    "already-balanced": "La vibración ya es muy pequeña: el rotor está equilibrado para lo que distingue el móvil."
+  },
+  "restart": "Empezar de nuevo",
+  "fields": {
+    "correctionMassGrams": "Peso de corrección",
+    "correctionAngleDegrees": "Ángulo de corrección",
+    "rotationSpeedRpm": "Velocidad",
+    "runAmplitudes": "Vibración en cada medida",
+    "amplitudeAfterCorrection": "Vibración tras corregir",
+    "trialMassGrams": "Peso de prueba",
+    "bladeCount": "Palas",
+    "outcome": "Resultado"
+  }
+}

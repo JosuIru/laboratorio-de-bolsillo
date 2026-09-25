@@ -1,0 +1,53 @@
+{
+  "name": "Helize-orekatzailea",
+  "description": "Orekatu helizeak, haizagailuak eta errotoreak azelerometroarekin: proba-pisu batekin egindako lau neurketek esaten dute zenbat pisu jarri eta non.",
+  "howTo": {
+    "title": "Nola orekatu",
+    "mount": "Lotu mugikorra ondo motorraren edo haizagailuaren euskarrira (zinta, brida): harekin batera bibratu behar du eta ez mugitu neurketen artean. 300 eta 5400 rpm artean dabil.",
+    "marks": "Markatu ardatzean 0° posizioa (adibidez, 1. pala) eta, biraren noranzkoan, 120° eta 240°. Proba-pisu txiki eta ezagun bat behar duzu (zinta edo plastilina zati bat sukaldeko balantza batean pisatuta).",
+    "safety": "Gelditu motorra pisua jarri edo kendu aurretik, biratu beti abiadura berean eta urrundu eskuak helizetik."
+  },
+  "setup": {
+    "title": "Errotorea",
+    "bladeCount": "Pala kopurua",
+    "trialMass": "Proba-pisua",
+    "trialMassInvalid": "Idatzi proba-pisua gramotan."
+  },
+  "runs": {
+    "title": "Neurketak",
+    "initial": "Pisurik gabe",
+    "trial": "Proba {{angle}}°-tan",
+    "value": "{{amplitude}} m/s² · {{rpm}} rpm",
+    "instructionInitial": "Abiarazi motorra pisurik gehitu gabe eta sakatu «Neurtu» (6 s).",
+    "instructionTrial": "Gelditu motorra, jarri proba-pisua ({{mass}} g) {{angle}}°-tan, abiarazi abiadura berean eta sakatu «Neurtu». Gero kendu.",
+    "measure": "Neurtu",
+    "measuring": "Neurtzen…",
+    "failed": "Ez da bibrazio argirik aurkitu biraketa-abiaduran: egiaztatu mugikorra ondo lotuta dagoela eta motorra martxan.",
+    "speedChanged": "Abiadura % 5 baino gehiago aldatu da neurketen artean: kalkulua ez da hain fidagarria izango."
+  },
+  "result": {
+    "title": "Zuzenketa",
+    "correction": "Jarri {{mass}} g {{angle}}°-tan",
+    "removeTrial": "Kendu lehenago proba-pisua. Angelua 0°-ko markatik zenbatzen da, proben noranzko berean.",
+    "blade": "{{blade}}. pala: {{mass}} g",
+    "checkHint": "Jarri zuzenketa eta egiaztatu emaitza motorra abiadura berean dela.",
+    "measureCheck": "Neurtu emaitza",
+    "checkValue": "Lehen {{before}} m/s², orain {{after}} m/s² (% {{reduction}} gutxiago)"
+  },
+  "problem": {
+    "trial-too-small": "Proba-pisuak ia ez du bibrazioa aldatzen: erabili astunago bat edo jarri erdigunetik urrunago eta errepikatu.",
+    "inconsistent": "Neurketak ez datoz bat (abiadura aldatu da edo mugikorra mugitu da?). Errepikatu laurak.",
+    "already-balanced": "Bibrazioa oso txikia da jada: errotorea orekatuta dago mugikorrak bereizten duenerako."
+  },
+  "restart": "Hasi berriro",
+  "fields": {
+    "correctionMassGrams": "Zuzenketa-pisua",
+    "correctionAngleDegrees": "Zuzenketa-angelua",
+    "rotationSpeedRpm": "Abiadura",
+    "runAmplitudes": "Bibrazioa neurketa bakoitzean",
+    "amplitudeAfterCorrection": "Bibrazioa zuzendu ondoren",
+    "trialMassGrams": "Proba-pisua",
+    "bladeCount": "Palak",
+    "outcome": "Emaitza"
+  }
+}
