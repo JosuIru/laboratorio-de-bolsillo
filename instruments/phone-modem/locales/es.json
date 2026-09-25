@@ -1,0 +1,129 @@
+{
+  "name": "Módem de espías",
+  "description": "Manda mensajes cortos de un móvil a otro con sonidos casi ultrasónicos o con destellos de luz, como un espía. Con mensajes secretos y autodestrucción.",
+  "intro": "Un móvil envía y el otro recibe. Por sonido, con tonos muy agudos que casi nadie oye; por luz, haciendo parpadear la pantalla o la linterna delante de la cámara del otro. Los dos móviles tienen que usar el mismo canal, banda y velocidad.",
+  "directions": {
+    "send": "Enviar",
+    "receive": "Recibir"
+  },
+  "channels": {
+    "sound": "Sonido",
+    "light": "Luz"
+  },
+  "settings": {
+    "band": "Banda",
+    "speed": "Velocidad (bits en el aire)",
+    "emitter": "Emisor de luz",
+    "sameSettings": "El receptor tiene que tener exactamente los mismos ajustes que el emisor."
+  },
+  "bands": {
+    "ultrasonic": "Casi ultrasónica\n17,7–19,5 kHz",
+    "audible": "Audible\n1,5–2,7 kHz"
+  },
+  "speeds": {
+    "slow": "Lenta",
+    "normal": "Normal",
+    "fast": "Rápida"
+  },
+  "emitters": {
+    "screen": "Pantalla",
+    "torch": "Linterna"
+  },
+  "sound": {
+    "ultrasonicWarning": "Tonos de 17,7 a 19,5 kHz: la mayoría de adultos no los oye, pero niños, perros y gatos quizá sí. Muchos móviles cortan antes de 18 kHz: haz la autoprueba y, si no llega, usa la banda audible.",
+    "audibleNote": "Suena como un pitido de módem antiguo. Es la banda de respaldo: llega casi siempre, aunque la oye todo el mundo.",
+    "sampleRateTooLow": "El audio de este móvil va a {{sampleRate}} Hz y no llega a esta banda. Usa la banda audible."
+  },
+  "light": {
+    "speedNote": "La cámara ve unos 30 fotogramas por segundo, así que la luz solo puede llevar unos pocos bits por segundo. La linterna tarda en encenderse y apagarse: con ella usa la velocidad lenta o normal. La rápida, solo con la pantalla y de cerca."
+  },
+  "selfTest": {
+    "title": "Autoprueba de sonido",
+    "help": "El móvil se manda un mensaje a sí mismo (del altavoz a su propio micrófono) en cada banda, para saber cuál funciona en este aparato.",
+    "run": "Hacer la autoprueba",
+    "cancel": "Cancelar la autoprueba",
+    "running": "Probando la banda {{band}}…",
+    "useBand": "Usar la banda {{band}}",
+    "noBand": "No ha llegado en ninguna banda. Sube el volumen del sistema, quita la funda y vuelve a probar.",
+    "outcomes": {
+      "received": "Llega bien",
+      "receivedWithQuality": "Llega bien (calidad {{percent}} %)",
+      "damaged": "Llega con errores",
+      "damagedWithQuality": "Llega con errores (calidad {{percent}} %)",
+      "notHeard": "No se oye",
+      "unsupported": "No cabe en el audio de este móvil"
+    }
+  },
+  "send": {
+    "messageLabel": "Mensaje",
+    "messagePlaceholder": "Escribe un mensaje corto o elige uno",
+    "secretKeyLabel": "Clave secreta (opcional)",
+    "secretKeyPlaceholder": "p. ej. gorrión",
+    "secretKeyHelp": "Con clave, el mensaje viaja revuelto y solo lo lee quien escriba la misma clave al recibir. Es un juego: no es un cifrado seguro.",
+    "willSendAs": "Se enviará como: {{text}}",
+    "summary": "{{bits}} bits · unos {{seconds}} s · {{rawRate}} bit/s en el aire ({{usefulRate}} útiles)",
+    "tooLong": "Demasiado largo: ocupa {{units}} y caben {{maximum}} (los acentos y los emojis ocupan más).",
+    "torchReady": "Linterna lista. Apunta la parte de atrás del móvil hacia la cámara del receptor.",
+    "torchStarting": "Preparando la cámara para controlar la linterna…",
+    "sending": "Enviando… {{percent}} %",
+    "lightOn": "Luz encendida",
+    "lightOff": "Luz apagada",
+    "cancel": "Cancelar",
+    "send": "Enviar",
+    "soundHelp": "Pon los móviles cerca (a menos de 1 m) con el altavoz del emisor hacia el micrófono del receptor, y sube el volumen. El receptor tiene que estar escuchando antes de enviar.",
+    "screenHelp": "Sube el brillo de la pantalla al máximo. Al enviar, la pantalla parpadeará en blanco y negro: ponla frente a la cámara del receptor, a 10-30 cm, y no la muevas hasta que acabe.",
+    "torchHelp": "La linterna llega más lejos que la pantalla (unos metros a oscuras). Mantén quietos los dos móviles hasta que acabe."
+  },
+  "presets": {
+    "eagle": "El águila ha aterrizado",
+    "package": "El paquete está en la taquilla 7",
+    "midnight": "Nos vemos a medianoche en el puente",
+    "umbrella": "Busca al hombre del paraguas rojo",
+    "abort": "Aborta la misión. Repito: aborta"
+  },
+  "receive": {
+    "start": "Empezar a recibir",
+    "stop": "Dejar de recibir",
+    "starting": "Arrancando…",
+    "searching": "Buscando el preámbulo de un mensaje…",
+    "receivingHeader": "Preámbulo encontrado: leyendo la cabecera…",
+    "receivingBits": "Recibiendo: {{collected}} de {{expected}} bits",
+    "microphoneBusy": "El micrófono está ocupado con la autoprueba.",
+    "soundLevel": "Nivel del micrófono: {{level}} dBFS",
+    "toneBarsHelp": "Cada barra es uno de los tonos del módem, de grave a agudo: al llegar un mensaje saltan de uno a otro.",
+    "noBlinking": "No se ve nada parpadear. Centra la luz del otro móvil en el recuadro.",
+    "lightDetails": "Contraste {{contrast}} % · {{fps}} fotogramas/s",
+    "soundHelp": "Deja este móvil quieto y en silencio cerca del emisor. Los mensajes llegan solos, uno detrás de otro.",
+    "lightHelp": "Apunta la cámara trasera a la pantalla o a la linterna del emisor, que quede dentro del recuadro, y mantén el móvil quieto. Mejor con poca luz alrededor. La traza muestra el brillo de la zona que más parpadea."
+  },
+  "messages": {
+    "title": "Mensajes recibidos",
+    "empty": "Todavía no ha llegado ningún mensaje.",
+    "decryptionKeyLabel": "Clave para descifrar",
+    "decryptionKeyPlaceholder": "La misma que usó el emisor",
+    "selfDestructToggle": "Autodestruir los mensajes secretos {{seconds}} s después de descifrarlos",
+    "lostFrames_one": "{{count}} mensaje se ha perdido a medias.",
+    "lostFrames_other": "{{count}} mensajes se han perdido a medias.",
+    "damaged": "Mensaje dañado: el código de comprobación (CRC) no cuadra.",
+    "destroyed": "💥 Este mensaje se ha autodestruido.",
+    "selfDestructIn": "Este mensaje se autodestruirá en {{seconds}} s",
+    "secret": "🔒 Mensaje secreto: escribe la clave para leerlo.",
+    "wrongKey": "🔒 Clave incorrecta.",
+    "quality": "Calidad {{percent}} %",
+    "details": "{{bits}} bits · {{corrected}} corregidos · {{rate}} bit/s"
+  },
+  "limits": {
+    "title": "Límites",
+    "sound": "Alcance típico: de unos centímetros a un par de metros, según el altavoz, el micrófono y el ruido. Los ecos de la habitación y los golpes pueden estropear un mensaje: el código Hamming corrige un error de cada 7 bits y el CRC-16 descarta lo que no se ha podido arreglar, así que un mensaje o llega bien o se marca como dañado. La calidad mide lo claro que se distinguía cada tono.",
+    "light": "Muy lento: la cámara ve como mucho 30 imágenes por segundo, así que un mensaje de 30 letras tarda de 20 s a un minuto. Funciona mejor con poca luz y los móviles quietos. Por la luz no hay corrección de errores (cada bit cuesta demasiado): el CRC-16 marca como dañado lo que llegue mal. La calidad combina la regularidad de los destellos y los errores de Manchester."
+  },
+  "fields": {
+    "channel": "Canal",
+    "message": "Mensaje",
+    "secret": "Secreto",
+    "bitRate": "Velocidad",
+    "quality": "Calidad del enlace",
+    "channelBits": "Bits de la trama",
+    "correctedBits": "Bits corregidos"
+  }
+}

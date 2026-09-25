@@ -1,0 +1,129 @@
+{
+  "name": "Espioien modema",
+  "description": "Bidali mezu laburrak mugikor batetik bestera ia ultrasoinuak diren soinuekin edo argi-distirekin, espioi batek bezala. Mezu sekretuekin eta auto-suntsiketarekin.",
+  "intro": "Mugikor batek bidaltzen du eta besteak jasotzen. Soinuz, ia inork entzuten ez dituen tonu oso zorrotzekin; argiz, pantaila edo linterna keinuka jarrita bestearen kameraren aurrean. Bi mugikorrek kanal, banda eta abiadura berdinak erabili behar dituzte.",
+  "directions": {
+    "send": "Bidali",
+    "receive": "Jaso"
+  },
+  "channels": {
+    "sound": "Soinua",
+    "light": "Argia"
+  },
+  "settings": {
+    "band": "Banda",
+    "speed": "Abiadura (bitak airean)",
+    "emitter": "Argi-igorlea",
+    "sameSettings": "Hartzaileak igorlearen doikuntza berberak izan behar ditu."
+  },
+  "bands": {
+    "ultrasonic": "Ia ultrasonikoa\n17,7–19,5 kHz",
+    "audible": "Entzungarria\n1,5–2,7 kHz"
+  },
+  "speeds": {
+    "slow": "Motela",
+    "normal": "Normala",
+    "fast": "Azkarra"
+  },
+  "emitters": {
+    "screen": "Pantaila",
+    "torch": "Linterna"
+  },
+  "sound": {
+    "ultrasonicWarning": "17,7 eta 19,5 kHz arteko tonuak: heldu gehienek ez dituzte entzuten, baina haurrek, txakurrek eta katuek agian bai. Mugikor askok 18 kHz baino lehen mozten dute: egin autoproba eta, iristen ez bada, erabili banda entzungarria.",
+    "audibleNote": "Modem zahar baten txistua bezala entzuten da. Ordezko banda da: ia beti iristen da, nahiz eta denek entzuten duten.",
+    "sampleRateTooLow": "Mugikor honen audioa {{sampleRate}} Hz-tan dabil eta ez da banda honetara iristen. Erabili banda entzungarria."
+  },
+  "light": {
+    "speedNote": "Kamerak segundoko 30 bat irudi ikusten ditu; beraz, argiak segundoko bit gutxi batzuk baino ezin ditu eraman. Linternak denbora behar du pizteko eta itzaltzeko: harekin erabili abiadura motela edo normala. Azkarra, pantailarekin eta gertutik bakarrik."
+  },
+  "selfTest": {
+    "title": "Soinuaren autoproba",
+    "help": "Mugikorrak mezu bat bidaltzen dio bere buruari (bozgorailutik bere mikrofonora) banda bakoitzean, aparatu honetan zein dabilen jakiteko.",
+    "run": "Egin autoproba",
+    "cancel": "Utzi autoproba",
+    "running": "{{band}} banda probatzen…",
+    "useBand": "Erabili {{band}} banda",
+    "noBand": "Ez da inongo bandatan iritsi. Igo sistemaren bolumena, kendu zorroa eta probatu berriro.",
+    "outcomes": {
+      "received": "Ondo iristen da",
+      "receivedWithQuality": "Ondo iristen da (kalitatea % {{percent}})",
+      "damaged": "Akatsekin iristen da",
+      "damagedWithQuality": "Akatsekin iristen da (kalitatea % {{percent}})",
+      "notHeard": "Ez da entzuten",
+      "unsupported": "Ez da sartzen mugikor honen audioan"
+    }
+  },
+  "send": {
+    "messageLabel": "Mezua",
+    "messagePlaceholder": "Idatzi mezu labur bat edo aukeratu bat",
+    "secretKeyLabel": "Gako sekretua (aukerakoa)",
+    "secretKeyPlaceholder": "adib. txolarrea",
+    "secretKeyHelp": "Gakoarekin, mezua nahastuta bidaiatzen du eta jasotzean gako bera idazten duenak bakarrik irakur dezake. Jolas bat da: ez da zifratze segurua.",
+    "willSendAs": "Honela bidaliko da: {{text}}",
+    "summary": "{{bits}} bit · {{seconds}} s inguru · {{rawRate}} bit/s airean ({{usefulRate}} erabilgarri)",
+    "tooLong": "Luzeegia: {{units}} hartzen ditu eta {{maximum}} sartzen dira (azentuek eta emojiek gehiago hartzen dute).",
+    "torchReady": "Linterna prest. Zuzendu mugikorraren atzealdea hartzailearen kamerara.",
+    "torchStarting": "Kamera prestatzen linterna kontrolatzeko…",
+    "sending": "Bidaltzen… % {{percent}}",
+    "lightOn": "Argia piztuta",
+    "lightOff": "Argia itzalita",
+    "cancel": "Utzi",
+    "send": "Bidali",
+    "soundHelp": "Jarri mugikorrak gertu (metro bat baino gutxiagora), igorlearen bozgorailua hartzailearen mikrofonorantz, eta igo bolumena. Hartzaileak entzuten egon behar du bidali aurretik.",
+    "screenHelp": "Igo pantailaren distira gehienera. Bidaltzean, pantaila keinuka arituko da zuri-beltzean: jarri hartzailearen kameraren aurrean, 10-30 cm-ra, eta ez mugitu amaitu arte.",
+    "torchHelp": "Linterna pantaila baino urrunago iristen da (metro batzuk ilunpean). Eutsi bi mugikorrak geldi amaitu arte."
+  },
+  "presets": {
+    "eagle": "Arranoa lurreratu da",
+    "package": "Paketea 7. armairuan dago",
+    "midnight": "Gauerdian zubian elkartuko gara",
+    "umbrella": "Bilatu aterki gorridun gizona",
+    "abort": "Bertan behera misioa. Errepikatzen dut: bertan behera"
+  },
+  "receive": {
+    "start": "Hasi jasotzen",
+    "stop": "Utzi jasotzeari",
+    "starting": "Abiarazten…",
+    "searching": "Mezu baten preanbulua bilatzen…",
+    "receivingHeader": "Preanbulua aurkitu da: goiburua irakurtzen…",
+    "receivingBits": "Jasotzen: {{expected}} bitetatik {{collected}}",
+    "microphoneBusy": "Mikrofonoa autoprobarekin lanpetuta dago.",
+    "soundLevel": "Mikrofonoaren maila: {{level}} dBFS",
+    "toneBarsHelp": "Barra bakoitza modemaren tonu bat da, baxutik zorrotzera: mezu bat iristean batetik bestera jauzi egiten dute.",
+    "noBlinking": "Ez da ezer keinuka ikusten. Jarri beste mugikorraren argia laukiaren erdian.",
+    "lightDetails": "Kontrastea % {{contrast}} · {{fps}} irudi/s",
+    "soundHelp": "Utzi mugikor hau geldi eta isilik igorlearen ondoan. Mezuak berez iristen dira, bata bestearen atzetik.",
+    "lightHelp": "Zuzendu atzeko kamera igorlearen pantailara edo linternara, laukiaren barruan gera dadin, eta eutsi mugikorra geldi. Hobe inguruan argi gutxi badago. Arrastoak gehien keinuka ari den eremuaren distira erakusten du."
+  },
+  "messages": {
+    "title": "Jasotako mezuak",
+    "empty": "Oraindik ez da mezurik iritsi.",
+    "decryptionKeyLabel": "Deszifratzeko gakoa",
+    "decryptionKeyPlaceholder": "Igorleak erabilitako bera",
+    "selfDestructToggle": "Suntsitu mezu sekretuak deszifratu eta {{seconds}} s-ra",
+    "lostFrames_one": "Mezu {{count}} erdibidean galdu da.",
+    "lostFrames_other": "{{count}} mezu erdibidean galdu dira.",
+    "damaged": "Mezu hondatua: egiaztapen-kodea (CRC) ez dator bat.",
+    "destroyed": "💥 Mezu honek bere burua suntsitu du.",
+    "selfDestructIn": "Mezu hau {{seconds}} s barru suntsituko da",
+    "secret": "🔒 Mezu sekretua: idatzi gakoa irakurtzeko.",
+    "wrongKey": "🔒 Gako okerra.",
+    "quality": "Kalitatea % {{percent}}",
+    "details": "{{bits}} bit · {{corrected}} zuzenduta · {{rate}} bit/s"
+  },
+  "limits": {
+    "title": "Mugak",
+    "sound": "Ohiko irismena: zentimetro batzuetatik metro pare batera, bozgorailuaren, mikrofonoaren eta zarataren arabera. Gelako oihartzunek eta kolpeek mezu bat honda dezakete: Hamming kodeak 7 bitetik akats bat zuzentzen du eta CRC-16ak konpondu ezin izan dena baztertzen du; beraz, mezua ondo iristen da edo hondatutzat markatzen da. Kalitateak tonu bakoitza zenbateraino bereizten zen neurtzen du.",
+    "light": "Oso motela: kamerak segundoko 30 irudi ikusten ditu gehienez; beraz, 30 letrako mezu batek 20 s-tik minutu batera behar ditu. Hobeto dabil argi gutxirekin eta mugikorrak geldi daudela. Argiz ez dago akatsen zuzenketarik (bit bakoitzak gehiegi kostatzen du): CRC-16ak hondatutzat markatzen du gaizki iristen dena. Kalitateak distiren erregulartasuna eta Manchester akatsak konbinatzen ditu."
+  },
+  "fields": {
+    "channel": "Kanala",
+    "message": "Mezua",
+    "secret": "Sekretua",
+    "bitRate": "Abiadura",
+    "quality": "Loturaren kalitatea",
+    "channelBits": "Tramaren bitak",
+    "correctedBits": "Zuzendutako bitak"
+  }
+}
