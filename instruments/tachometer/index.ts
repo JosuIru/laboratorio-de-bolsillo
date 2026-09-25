@@ -9,7 +9,7 @@ export const tachometerInstrument = defineInstrument<TachometerMeasurementValues
   id: tachometerInstrumentId,
   nameKey: 'name',
   descriptionKey: 'description',
-  icon: { glyph: '⟳', accentColor: '#0E7490' },
+  icon: { glyph: '⟳', accentColor: '#BE185D' },
   category: 'acoustics',
   requiredSensors: ['microphone'],
   Screen: TachometerScreen,
