@@ -9,7 +9,7 @@ import { SignalChart } from '@/ui/charts/SignalChart';
 import { AppButton, BodyText, Card, LoadingState, ScreenContainer } from '@/ui/components';
 import { useThemePalette } from '@/ui/theme';
 
-import { useProximityBeeper } from '../tracker-hunter/useProximityBeeper';
+import { useProximityBeeper } from '@/core/audio/useProximityBeeper';
 import type { MetalDetectorCalibrationParameters } from './calibration';
 import { detectorBeepHeat } from './detectorBeep';
 import { metalDetectorInstrumentId } from './instrumentId';

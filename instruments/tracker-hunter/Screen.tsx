@@ -12,7 +12,7 @@ import { useThemePalette } from '@/ui/theme';
 
 import { trackerHunterInstrumentId } from './instrumentId';
 import type { TrackerHunterMeasurementValues } from './schema';
-import { useProximityBeeper } from './useProximityBeeper';
+import { useProximityBeeper } from '@/core/audio/useProximityBeeper';
 import { requestLocationForPlaces, scanTooFrequentlyErrorCode, type TrackerListEntry, useTrackerScan } from './useTrackerScan';
 
 const followingThresholdOptionsMinutes: readonly number[] = [5, 10, 20, 30];
