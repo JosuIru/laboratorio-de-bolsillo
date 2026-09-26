@@ -1,3 +1,5 @@
+import { createSrgbToLinearTable } from '@/processing/color/regionSampling';
+
 import {
   blendProfiles,
   findSpectrumPeaks,
@@ -31,6 +33,33 @@ describe('sampleProfileAlongLine', () => {
     expect(intensities[10]).toBeCloseTo(200, 6);
     expect(greens[10]).toBeCloseTo(200, 6);
     expect(intensities[5]).toBe(0);
+  });
+
+  it('con la tabla lineal quita la gamma y cuenta los puntos saturados', () => {
+    const frameWidth = 20;
+    const frameHeight = 10;
+    const bytesPerRow = frameWidth * 4;
+    const pixels = new Uint8Array(bytesPerRow * frameHeight);
+    for (let rowIndex = 0; rowIndex < frameHeight; rowIndex++) {
+      pixels[rowIndex * bytesPerRow + 5 * 4 + 1] = 128;
+      pixels[rowIndex * bytesPerRow + 10 * 4 + 1] = 255;
+    }
+    const { intensities, saturatedSampleCount } = sampleProfileAlongLine(
+      pixels,
+      frameWidth,
+      frameHeight,
+      bytesPerRow,
+      'rgba',
+      { x: 0, y: 5 },
+      { x: 19, y: 5 },
+      20,
+      2,
+      createSrgbToLinearTable(),
+    );
+    // 128 con gamma es ~22 % de luz, no la mitad: un pico el doble de alto sale ~4,6 veces mayor.
+    expect(intensities[5]).toBeCloseTo(255 * 0.2158, 0);
+    expect(intensities[10]).toBeCloseTo(255, 6);
+    expect(saturatedSampleCount).toBe(1);
   });
 });
 

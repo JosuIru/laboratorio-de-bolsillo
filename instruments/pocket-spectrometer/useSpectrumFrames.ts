@@ -3,6 +3,7 @@ import { CommonResolutions, type Frame, useFrameOutput } from 'react-native-visi
 import { scheduleOnRN } from 'react-native-worklets';
 
 import { readFramePixels } from '@/core/camera/framePixels';
+import { createSrgbToLinearTable } from '@/processing/color/regionSampling';
 
 import type { CameraPoint } from '@instruments/colorimeter/useColorimeterFrames';
 
@@ -25,6 +26,8 @@ export interface SpectrumProfile {
   reds: Float64Array;
   greens: Float64Array;
   blues: Float64Array;
+  /** Fracción de puntos de la línea con píxeles saturados en el último fotograma. */
+  saturatedFraction: number;
   revision: number;
 }
 
@@ -33,6 +36,7 @@ export interface SpectrumProfile {
  * cámara) y devuelve la media de los últimos perfiles. Al mover la línea se empieza de cero.
  */
 export function useSpectrumFrames(cameraLine: CameraLine | null) {
+  const [srgbToLinearTable] = useState(createSrgbToLinearTable);
   const lastDeliveryTime = useRef(0);
   const [spectrumProfile, setSpectrumProfile] = useState<SpectrumProfile | null>(null);
   const [profiledLine, setProfiledLine] = useState(cameraLine);
@@ -42,7 +46,13 @@ export function useSpectrumFrames(cameraLine: CameraLine | null) {
   }
 
   const deliverProfile = useCallback(
-    (newIntensities: Float64Array, newReds: Float64Array, newGreens: Float64Array, newBlues: Float64Array) => {
+    (
+      newIntensities: Float64Array,
+      newReds: Float64Array,
+      newGreens: Float64Array,
+      newBlues: Float64Array,
+      saturatedSampleCount: number,
+    ) => {
       const currentTime = Date.now();
       if (currentTime - lastDeliveryTime.current < 1000 / maximumProfilesPerSecond) return;
       lastDeliveryTime.current = currentTime;
@@ -51,6 +61,7 @@ export function useSpectrumFrames(cameraLine: CameraLine | null) {
         reds: blendProfiles(previousProfile?.reds ?? null, newReds, newProfileWeight),
         greens: blendProfiles(previousProfile?.greens ?? null, newGreens, newProfileWeight),
         blues: blendProfiles(previousProfile?.blues ?? null, newBlues, newProfileWeight),
+        saturatedFraction: saturatedSampleCount / newIntensities.length,
         revision: (previousProfile?.revision ?? 0) + 1,
       }));
     },
@@ -67,7 +78,7 @@ export function useSpectrumFrames(cameraLine: CameraLine | null) {
       }
       const startPoint = frame.convertCameraPointToFramePoint(cameraLine.start);
       const endPoint = frame.convertCameraPointToFramePoint(cameraLine.end);
-      const { intensities, reds, greens, blues } = sampleProfileAlongLine(
+      const { intensities, reds, greens, blues, saturatedSampleCount } = sampleProfileAlongLine(
         framePixels.pixels,
         framePixels.width,
         framePixels.height,
@@ -77,11 +88,12 @@ export function useSpectrumFrames(cameraLine: CameraLine | null) {
         endPoint,
         profileSampleCount,
         halfThicknessPixels,
+        srgbToLinearTable,
       );
       frame.dispose();
-      scheduleOnRN(deliverProfile, intensities, reds, greens, blues);
+      scheduleOnRN(deliverProfile, intensities, reds, greens, blues, saturatedSampleCount);
     },
-    [cameraLine, deliverProfile],
+    [cameraLine, deliverProfile, srgbToLinearTable],
   );
 
   const frameOutput = useFrameOutput({

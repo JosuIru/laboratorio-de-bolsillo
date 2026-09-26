@@ -18,6 +18,11 @@ export interface FramePoint {
  * Perfil de intensidad a lo largo del segmento `start`→`end` (en píxeles del fotograma): en cada
  * uno de los `sampleCount` puntos se promedia una tira perpendicular de `halfThicknessPixels`
  * a cada lado, para quitar ruido. Devuelve la intensidad (R+G+B en 0–765) y el color medio.
+ *
+ * Con `srgbToLinearTable`, la intensidad se suma en luz lineal (reescalada a 0–765): los bytes
+ * de la cámara llevan gamma y, sumados tal cual, aplastan los picos altos y realzan los bajos.
+ * El color medio se deja con gamma, que es como se pinta. `saturatedSampleCount` cuenta los
+ * puntos con algún píxel a 255: ahí la altura del pico está recortada.
  */
 export function sampleProfileAlongLine(
   pixels: Uint8Array,
@@ -29,7 +34,14 @@ export function sampleProfileAlongLine(
   end: FramePoint,
   sampleCount: number,
   halfThicknessPixels: number,
-): { intensities: Float64Array; reds: Float64Array; greens: Float64Array; blues: Float64Array } {
+  srgbToLinearTable?: Float64Array,
+): {
+  intensities: Float64Array;
+  reds: Float64Array;
+  greens: Float64Array;
+  blues: Float64Array;
+  saturatedSampleCount: number;
+} {
   'worklet';
   const bytesPerPixel = pixelLayout === 'rgb' ? 3 : 4;
   const redOffset = pixelLayout === 'bgra' ? 2 : 0;
@@ -45,6 +57,7 @@ export function sampleProfileAlongLine(
   const perpendicularX = -segmentY / segmentLength;
   const perpendicularY = segmentX / segmentLength;
   const thicknessSteps = Math.max(0, Math.round(halfThicknessPixels));
+  let saturatedSampleCount = 0;
 
   for (let sampleIndex = 0; sampleIndex < sampleCount; sampleIndex++) {
     const fraction = sampleCount === 1 ? 0 : sampleIndex / (sampleCount - 1);
@@ -53,24 +66,36 @@ export function sampleProfileAlongLine(
     let redSum = 0;
     let greenSum = 0;
     let blueSum = 0;
+    let linearSum = 0;
+    let isSampleSaturated = false;
     let pixelCount = 0;
     for (let offset = -thicknessSteps; offset <= thicknessSteps; offset++) {
       const pixelX = Math.round(centerX + perpendicularX * offset);
       const pixelY = Math.round(centerY + perpendicularY * offset);
       if (pixelX < 0 || pixelY < 0 || pixelX >= frameWidth || pixelY >= frameHeight) continue;
       const pixelStart = pixelY * bytesPerRow + pixelX * bytesPerPixel;
-      redSum += pixels[pixelStart + redOffset]!;
-      greenSum += pixels[pixelStart + 1]!;
-      blueSum += pixels[pixelStart + blueOffset]!;
+      const redValue = pixels[pixelStart + redOffset]!;
+      const greenValue = pixels[pixelStart + 1]!;
+      const blueValue = pixels[pixelStart + blueOffset]!;
+      redSum += redValue;
+      greenSum += greenValue;
+      blueSum += blueValue;
+      if (srgbToLinearTable) {
+        linearSum += srgbToLinearTable[redValue]! + srgbToLinearTable[greenValue]! + srgbToLinearTable[blueValue]!;
+      }
+      if (redValue === 255 || greenValue === 255 || blueValue === 255) isSampleSaturated = true;
       pixelCount++;
     }
     if (pixelCount === 0) continue;
+    if (isSampleSaturated) saturatedSampleCount++;
     reds[sampleIndex] = redSum / pixelCount;
     greens[sampleIndex] = greenSum / pixelCount;
     blues[sampleIndex] = blueSum / pixelCount;
-    intensities[sampleIndex] = (redSum + greenSum + blueSum) / pixelCount;
+    intensities[sampleIndex] = srgbToLinearTable
+      ? (255 * linearSum) / pixelCount
+      : (redSum + greenSum + blueSum) / pixelCount;
   }
-  return { intensities, reds, greens, blues };
+  return { intensities, reds, greens, blues, saturatedSampleCount };
 }
 
 /** Media exponencial de perfiles sucesivos: estabiliza el espectro sin congelarlo. */

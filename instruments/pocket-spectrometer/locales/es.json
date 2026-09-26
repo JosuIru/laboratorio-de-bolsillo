@@ -39,5 +39,6 @@
     "startWavelengthNm": "Inicio del espectro",
     "endWavelengthNm": "Final del espectro",
     "profile": "Perfil"
-  }
+  },
+  "saturationWarning": "Hay zonas saturadas (blanco puro): la altura de esos picos está recortada. Aleja la luz o apunta a un borde menos brillante."
 }

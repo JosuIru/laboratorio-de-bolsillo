@@ -39,5 +39,6 @@
     "startWavelengthNm": "Espektroaren hasiera",
     "endWavelengthNm": "Espektroaren amaiera",
     "profile": "Profila"
-  }
+  },
+  "saturationWarning": "Zona saturatuak daude (zuri hutsa): gailur horien altuera moztuta dago. Urrundu argia edo apuntatu ertz ez hain distiratsu batera."
 }

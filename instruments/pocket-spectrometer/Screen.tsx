@@ -62,6 +62,9 @@ function loadCalibration(): StoredCalibration | null {
   }
 }
 
+/** Por encima de esta fracción de la línea saturada, los picos salen recortados. */
+const saturationWarningFraction = 0.02;
+
 export function PocketSpectrometerScreen({
   saveMeasurement,
 }: InstrumentScreenProps<PocketSpectrometerMeasurementValues>) {
@@ -69,7 +72,8 @@ export function PocketSpectrometerScreen({
   const themePalette = useThemePalette();
   const cameraRef = useRef<CameraRef>(null);
   const isCameraAllowed = useIsCameraAllowed();
-  const [previewWidth, setPreviewWidth] = useState(0);
+  const [previewSize, setPreviewSize] = useState<{ width: number; height: number } | null>(null);
+  const previewWidth = previewSize?.width ?? 0;
   const [viewToCameraMapping, setViewToCameraMapping] = useState<ViewToCameraMapping | null>(null);
   const [calibration, setCalibration] = useState<StoredCalibration | null>(loadCalibration);
   const [guideFraction, setGuideFraction] = useState(() => loadCalibration()?.guideFraction ?? 0.5);
@@ -99,7 +103,12 @@ export function PocketSpectrometerScreen({
 
   function handlePreviewLayout(layoutEvent: LayoutChangeEvent) {
     const { width, height } = layoutEvent.nativeEvent.layout;
-    setPreviewWidth(width);
+    setPreviewSize({ width, height });
+    captureViewToCameraMapping(width, height);
+  }
+
+  /** Correspondencia vista → cámara. Si la cámara aún no está lista, se reintenta al arrancar la vista previa. */
+  function captureViewToCameraMapping(width: number, height: number) {
     const cameraView = cameraRef.current;
     if (!cameraView) return;
     try {
@@ -112,7 +121,7 @@ export function PocketSpectrometerScreen({
       );
       if (mapping) setViewToCameraMapping(mapping);
     } catch {
-      // La vista previa aún no está lista: se reintenta al volver a medirse.
+      // La vista previa aún no está lista: se reintenta en `onPreviewStarted`.
     }
   }
 
@@ -205,6 +214,9 @@ export function PocketSpectrometerScreen({
           isActive={isCameraAllowed}
           outputs={[frameOutput]}
           resizeMode="cover"
+          onPreviewStarted={() => {
+            if (previewSize) captureViewToCameraMapping(previewSize.width, previewSize.height);
+          }}
           onError={(cameraError) => {
             if (!isExpectedCameraInterruption(cameraError)) {
               setStatusMessage(t('core:common.error', { message: cameraError.message }));
@@ -234,11 +246,14 @@ export function PocketSpectrometerScreen({
             <SignalChart
               series={[{ values: spectrumProfile.intensities, color: themePalette.accent }]}
               height={140}
-              verticalRange={{ mode: 'from-zero', minimumMaximum: 60 }}
+              verticalRange={{ mode: 'from-zero', minimumMaximum: 20 }}
               revision={spectrumProfile.revision}
               horizontalLabels={horizontalLabels}
               accessibilityLabel={t('chartLabel')}
             />
+            {spectrumProfile.saturatedFraction > saturationWarningFraction ? (
+              <BodyText tone="danger">{t('saturationWarning')}</BodyText>
+            ) : null}
             <View style={styles.colorStrip}>
               {Array.from({ length: 48 }, (_, stripIndex) => {
                 const sourceIndex = Math.round((stripIndex * (profileSampleCount - 1)) / 47);
