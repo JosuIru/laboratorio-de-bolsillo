@@ -1,11 +1,13 @@
 import { AlphaType, Canvas, ColorType, Image as SkiaImageView, type SkImage, Skia } from '@shopify/react-native-skia';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { type ReactNode, type RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type GestureResponderEvent, type LayoutChangeEvent, Pressable, StyleSheet, View } from 'react-native';
 import { Camera, type CameraRef, type MeteringMode, useCameraDevice } from 'react-native-vision-camera';
 
 import { writeImageToCachePng } from '@/core/camera/imageFiles';
+import { centeredFrameSquareInView, type PreviewPoint } from '@/core/camera/previewGeometry';
 import { useCameraZoomAndExposure } from '@/core/camera/useCameraZoomAndExposure';
+import { useCameraPointsInView } from '@/core/camera/useCameraPointsInView';
 import { useDeviceSteadiness } from '@/core/camera/useDeviceSteadiness';
 import type { InstrumentScreenProps } from '@/core/instruments/types';
 import { isExpectedCameraInterruption } from '@/core/sensors/cameraErrors';
@@ -18,7 +20,8 @@ import {
   type SuperResolutionResult,
 } from '@/processing/image/burstSuperResolution';
 import { type FloatRgbImage, sharpenImage } from '@/processing/image/lunarStacking';
-import { AppButton, BodyText, Card, LoadingState, ScreenContainer, SectionTitle } from '@/ui/components';
+import { AppButton, BodyText, Card, LoadingState, SectionTitle } from '@/ui/components';
+import { CameraOverlayButton, CameraOverlayText, CameraScreenLayout } from '@/ui/FullScreenCamera';
 import { useThemePalette } from '@/ui/theme';
 
 import type { SuperzoomMeasurementValues } from './schema';
@@ -26,7 +29,6 @@ import { useBurstFrames } from './useBurstFrames';
 
 export const superzoomInstrumentId = 'superzoom';
 
-const previewHeight = 340;
 /**
  * Lado del recorte central de cada fotograma (el resultado mide el doble). Más grande abarca más
  * escena, pero el cálculo crece con el área: el grande tarda unas cuatro veces lo que el pequeño.
@@ -76,28 +78,47 @@ function createSkiaImage(image: FloatRgbImage): SkImage | null {
 /** Recuadro que marca en la vista previa la zona que se amplía (la vista usa `contain`). */
 function CropFrameOverlay({
   previewWidth,
+  previewHeight,
   frameWidth,
   frameHeight,
   cropSizePixels,
 }: {
   previewWidth: number;
+  previewHeight: number;
   frameWidth: number;
   frameHeight: number;
   cropSizePixels: number;
 }) {
-  const displayScale = Math.min(previewWidth / frameWidth, previewHeight / frameHeight);
-  const cropSideOnScreen = cropSizePixels * displayScale;
+  const cropRect = centeredFrameSquareInView({
+    viewWidth: previewWidth,
+    viewHeight: previewHeight,
+    frameWidth,
+    frameHeight,
+    squareSidePixels: cropSizePixels,
+  });
+  return <View pointerEvents="none" style={[styles.cropFrame, cropRect]} />;
+}
+
+/** Recuadro del punto de enfoque, situado a partir de su punto de cámara (no se descoloca al cambiar de tamaño). */
+function MeteringMarker({
+  cameraRef,
+  meteringCameraPoints,
+  previewWidth,
+  previewHeight,
+}: {
+  cameraRef: RefObject<CameraRef | null>;
+  meteringCameraPoints: readonly (PreviewPoint | null)[];
+  previewWidth: number;
+  previewHeight: number;
+}) {
+  const [meteringViewPoint] = useCameraPointsInView(cameraRef, meteringCameraPoints, previewWidth, previewHeight);
+  if (!meteringViewPoint) return null;
   return (
     <View
       pointerEvents="none"
       style={[
-        styles.cropFrame,
-        {
-          width: cropSideOnScreen,
-          height: cropSideOnScreen,
-          left: (previewWidth - cropSideOnScreen) / 2,
-          top: (previewHeight - cropSideOnScreen) / 2,
-        },
+        styles.meteringMarker,
+        { left: meteringViewPoint.x - meteringMarkerRadius, top: meteringViewPoint.y - meteringMarkerRadius },
       ]}
     />
   );
@@ -166,7 +187,6 @@ function ChoiceChips<TOption extends string | number>({
 
 export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: InstrumentScreenProps<SuperzoomMeasurementValues>) {
   const { t } = useTranslation(superzoomInstrumentId);
-  const themePalette = useThemePalette();
   const cameraRef = useRef<CameraRef>(null);
   const cameraDevice = useCameraDevice('back');
   const isCameraAllowed = useIsCameraAllowed();
@@ -176,8 +196,11 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
   const { zoomFactor, minimumZoom, maximumZoom, setRequestedZoom, exposureBias, handleCameraStarted } =
     useCameraZoomAndExposure(cameraRef, cameraDevice);
 
-  const [previewWidth, setPreviewWidth] = useState(0);
-  const [meteringViewPoint, setMeteringViewPoint] = useState<{ x: number; y: number } | null>(null);
+  // Enfoque fijado: se guarda el punto en coordenadas de cámara para dibujarlo bien a cualquier tamaño.
+  const [isMeteringLocked, setIsMeteringLocked] = useState(false);
+  const [meteringCameraPoints, setMeteringCameraPoints] = useState<(PreviewPoint | null)[]>([null]);
+  // Cambia con cada resultado nuevo: en pantalla completa abre el panel para verlo.
+  const [resultSequenceNumber, setResultSequenceNumber] = useState(0);
   const [countdownSecondsLeft, setCountdownSecondsLeft] = useState<number | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [superzoomOutcome, setSuperzoomOutcome] = useState<SuperzoomOutcome | null>(null);
@@ -220,7 +243,14 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
     const meteringModes: MeteringMode[] = [];
     if (cameraDevice.supportsExposureMetering) meteringModes.push('AE');
     if (cameraDevice.supportsFocusMetering) meteringModes.push('AF');
-    setMeteringViewPoint(viewPoint);
+    let meteringCameraPoint: PreviewPoint | null = null;
+    try {
+      meteringCameraPoint = cameraRef.current?.convertViewPointToCameraPoint(viewPoint) ?? null;
+    } catch {
+      // La vista previa aún no está lista: se enfoca igual, pero sin dibujar el recuadro.
+    }
+    setIsMeteringLocked(true);
+    setMeteringCameraPoints([meteringCameraPoint]);
     try {
       // Enfoque y exposición fijos: si cambian durante la ráfaga, los fotogramas no casan.
       await cameraRef.current?.focusTo(viewPoint, {
@@ -236,7 +266,8 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
   }
 
   async function handleUnlockMetering() {
-    setMeteringViewPoint(null);
+    setIsMeteringLocked(false);
+    setMeteringCameraPoints([null]);
     try {
       await cameraRef.current?.resetFocus();
     } catch {
@@ -281,6 +312,7 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
         zoomFactor: captureZoomFactor,
         processingSeconds: (Date.now() - processingStartTime) / 1000,
       });
+      setResultSequenceNumber((previousSequenceNumber) => previousSequenceNumber + 1);
     } catch (processingError) {
       setStatusMessage(t('core:common.error', { message: String(processingError) }));
     } finally {
@@ -337,90 +369,231 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
     }
   }
 
-  return (
-    <ScreenContainer>
-      <BodyText tone="secondary">{t('intro')}</BodyText>
+  function zoomOut() {
+    setRequestedZoom(Math.max(minimumZoom, zoomFactor / zoomStepFactor));
+  }
 
-      <View
-        style={[styles.previewContainer, { borderColor: themePalette.border }]}
-        onLayout={(layoutEvent: LayoutChangeEvent) => setPreviewWidth(layoutEvent.nativeEvent.layout.width)}>
-        <Camera
-          ref={cameraRef}
-          style={StyleSheet.absoluteFill}
-          device={cameraDevice ?? 'back'}
-          isActive={isCameraAllowed}
-          outputs={[frameOutput]}
-          zoom={zoomFactor}
-          exposure={exposureBias}
-          onError={handleCameraError}
-          onStarted={handleCameraStarted}
-          resizeMode="contain"
+  function zoomIn() {
+    setRequestedZoom(Math.min(maximumZoom, zoomFactor * zoomStepFactor));
+  }
+
+  const isZoomOutDisabled = zoomFactor <= minimumZoom || isBusy;
+  const isZoomInDisabled = zoomFactor >= maximumZoom || isBusy;
+  const captureLabel = t('capture', { count: capturedFrameTarget });
+  const isCaptureDisabled = !isCameraAllowed || !isFrameLargeEnough;
+
+  // Piezas que se reparten de forma distinta en el modo normal y en pantalla completa.
+  const focusLockRow = isMeteringLocked ? (
+    <View style={styles.buttonRow}>
+      <BodyText style={styles.flexText}>{t('focusLocked')}</BodyText>
+      <View style={styles.unlockButton}>
+        <AppButton label={t('unlockFocus')} onPress={() => void handleUnlockMetering()} variant="secondary" />
+      </View>
+    </View>
+  ) : null;
+  const frameTooSmallText = !isFrameLargeEnough ? <BodyText tone="danger">{t('frameTooSmall')}</BodyText> : null;
+  const steadinessText =
+    hasGyroscope && !isBusy ? (
+      <BodyText tone={isSteadyForDisplay ? 'secondary' : 'danger'}>
+        {t(isSteadyForDisplay ? 'deviceSteady' : 'deviceMoving')}
+      </BodyText>
+    ) : null;
+  const cropSizeChooser = !isBusy ? (
+    <>
+      <BodyText tone="secondary">{t('cropSizeTitle')}</BodyText>
+      <ChoiceChips<number>
+        options={cropSizeOptions.map((_option, optionIndex) => optionIndex)}
+        selectedOption={cropSizeOptionIndex}
+        labelFor={(optionIndex) => t(cropSizeOptions[optionIndex]?.labelKey ?? 'cropSizes.medium')}
+        onSelect={setCropSizeOptionIndex}
+      />
+    </>
+  ) : null;
+  const processingIndicator = isProcessing ? <LoadingState label={t('processing')} /> : null;
+  const resultSection =
+    superzoomOutcome && displayedSkiaImage ? (
+      <>
+        <SectionTitle>{t('resultTitle')}</SectionTitle>
+        <ChoiceChips<DisplayedVersion>
+          options={['superzoom', 'singleFrame']}
+          selectedOption={displayedVersion}
+          labelFor={(version) => t(`versions.${version}`)}
+          onSelect={setDisplayedVersion}
         />
-        {frameDimensions && previewWidth > 0 ? (
-          <CropFrameOverlay
-            previewWidth={previewWidth}
-            frameWidth={frameDimensions.frameWidth}
-            frameHeight={frameDimensions.frameHeight}
-            cropSizePixels={cropSizePixels}
-          />
+        <ResultImage label={t(`versions.${displayedVersion}`)} skiaImage={displayedSkiaImage} />
+        <BodyText tone="secondary">{t('compareHint')}</BodyText>
+        <BodyText tone="secondary">{t('sharpeningTitle')}</BodyText>
+        <ChoiceChips<number>
+          options={sharpeningLevels.map((_level, levelIndex) => levelIndex)}
+          selectedOption={sharpeningLevelIndex}
+          labelFor={(levelIndex) => t(sharpeningLevels[levelIndex]?.labelKey ?? 'sharpening.none')}
+          onSelect={setSharpeningLevelIndex}
+        />
+        <BodyText tone="secondary">
+          {t('mergeExplanation', {
+            captured: superzoomOutcome.capturedFrameCount,
+            merged: superzoomOutcome.result.usedFrameCount,
+            size: superzoomOutcome.result.image.size,
+            seconds: superzoomOutcome.processingSeconds.toFixed(1),
+          })}
+        </BodyText>
+        <BodyText tone="secondary">
+          {superzoomOutcome.result.meanShiftPixels < 0.5
+            ? t('tooLittleMovement')
+            : t('handMovement', { shift: superzoomOutcome.result.meanShiftPixels.toFixed(1) })}
+        </BodyText>
+        <AppButton label={t('core:common.save')} onPress={() => void handleSave()} isBusy={isSaving} />
+      </>
+    ) : null;
+  const statusText = statusMessage ? <BodyText tone="secondary">{statusMessage}</BodyText> : null;
+  const howItWorksText = (
+    <BodyText tone="secondary" style={styles.smallText}>
+      {t('howItWorks')}
+    </BodyText>
+  );
+
+  // Lectura flotante en pantalla completa: cuenta atrás, progreso de la ráfaga o zoom y pulso.
+  let fullScreenReadout: ReactNode;
+  if (countdownSecondsLeft !== null) {
+    fullScreenReadout = (
+      <>
+        <CameraOverlayText>{t('holdStill')}</CameraOverlayText>
+        <CameraOverlayText style={styles.readoutCountdown}>{countdownSecondsLeft}</CameraOverlayText>
+      </>
+    );
+  } else if (isCapturing && captureProgress) {
+    fullScreenReadout = (
+      <CameraOverlayText style={styles.readoutValue}>
+        {t('capturingProgress', {
+          captured: captureProgress.capturedFrameCount,
+          target: captureProgress.targetFrameCount,
+        })}
+      </CameraOverlayText>
+    );
+  } else if (isProcessing) {
+    fullScreenReadout = <CameraOverlayText>{t('processing')}</CameraOverlayText>;
+  } else {
+    fullScreenReadout = (
+      <>
+        <CameraOverlayText style={styles.readoutValue}>{t('zoomLabel', { zoom: zoomFactor.toFixed(1) })}</CameraOverlayText>
+        {!isFrameLargeEnough ? (
+          <CameraOverlayText style={styles.readoutWarning}>{t('frameTooSmall')}</CameraOverlayText>
+        ) : hasGyroscope ? (
+          <CameraOverlayText style={isSteadyForDisplay ? undefined : styles.readoutWarning}>
+            {t(isSteadyForDisplay ? 'deviceSteady' : 'deviceMoving')}
+          </CameraOverlayText>
         ) : null}
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t('tapToFocusHint')}
-          accessibilityState={{ disabled: isBusy }}
-          disabled={isBusy}
-          style={StyleSheet.absoluteFill}
-          onPress={(pressEvent) => void handlePreviewPress(pressEvent)}>
-          {meteringViewPoint ? (
-            <View
-              pointerEvents="none"
-              style={[
-                styles.meteringMarker,
-                { left: meteringViewPoint.x - meteringMarkerRadius, top: meteringViewPoint.y - meteringMarkerRadius },
-              ]}
+      </>
+    );
+  }
+
+  return (
+    <CameraScreenLayout
+      title={t('name')}
+      aboveNormalPreview={<BodyText tone="secondary">{t('intro')}</BodyText>}
+      renderPreview={({ previewWidth, previewHeight }) => (
+        <>
+          <Camera
+            ref={cameraRef}
+            style={StyleSheet.absoluteFill}
+            device={cameraDevice ?? 'back'}
+            isActive={isCameraAllowed}
+            outputs={[frameOutput]}
+            zoom={zoomFactor}
+            exposure={exposureBias}
+            onError={handleCameraError}
+            onStarted={handleCameraStarted}
+            resizeMode="contain"
+          />
+          {frameDimensions && previewWidth > 0 && previewHeight > 0 ? (
+            <CropFrameOverlay
+              previewWidth={previewWidth}
+              previewHeight={previewHeight}
+              frameWidth={frameDimensions.frameWidth}
+              frameHeight={frameDimensions.frameHeight}
+              cropSizePixels={cropSizePixels}
             />
           ) : null}
-        </Pressable>
-      </View>
-
-      <BodyText tone="secondary">{t('tapToFocusHint')}</BodyText>
-      {meteringViewPoint ? (
-        <View style={styles.buttonRow}>
-          <BodyText style={styles.flexText}>{t('focusLocked')}</BodyText>
-          <View style={styles.unlockButton}>
-            <AppButton label={t('unlockFocus')} onPress={() => void handleUnlockMetering()} variant="secondary" />
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('tapToFocusHint')}
+            accessibilityState={{ disabled: isBusy }}
+            disabled={isBusy}
+            style={StyleSheet.absoluteFill}
+            onPress={(pressEvent) => void handlePreviewPress(pressEvent)}>
+            <MeteringMarker
+              cameraRef={cameraRef}
+              meteringCameraPoints={meteringCameraPoints}
+              previewWidth={previewWidth}
+              previewHeight={previewHeight}
+            />
+          </Pressable>
+        </>
+      )}
+      topActions={
+        isMeteringLocked ? (
+          <CameraOverlayButton
+            label={t('unlockFocus')}
+            accessibilityLabel={`${t('focusLocked')} ${t('unlockFocus')}`}
+            onPress={() => void handleUnlockMetering()}
+          />
+        ) : null
+      }
+      readout={fullScreenReadout}
+      primaryActions={
+        <>
+          <View style={styles.primaryActionCell}>
+            <AppButton label={t('zoomOut')} onPress={zoomOut} isDisabled={isZoomOutDisabled} variant="secondary" />
           </View>
-        </View>
-      ) : null}
-      {!isFrameLargeEnough ? <BodyText tone="danger">{t('frameTooSmall')}</BodyText> : null}
-      {hasGyroscope && !isBusy ? (
-        <BodyText tone={isSteadyForDisplay ? 'secondary' : 'danger'}>
-          {t(isSteadyForDisplay ? 'deviceSteady' : 'deviceMoving')}
-        </BodyText>
-      ) : null}
+          <View style={styles.captureActionCell}>
+            {isCapturing ? (
+              <AppButton label={t('stopCapture')} onPress={stopCapture} variant="danger" />
+            ) : (
+              <AppButton
+                label={captureLabel}
+                onPress={() => void handleCapture()}
+                isDisabled={isCaptureDisabled}
+                isBusy={isBusy}
+              />
+            )}
+          </View>
+          <View style={styles.primaryActionCell}>
+            <AppButton label={t('zoomIn')} onPress={zoomIn} isDisabled={isZoomInDisabled} variant="secondary" />
+          </View>
+        </>
+      }
+      panelContent={
+        <>
+          <BodyText tone="secondary">{t('tapToFocusHint')}</BodyText>
+          {focusLockRow}
+          {frameTooSmallText}
+          {steadinessText}
+          <BodyText tone="secondary">{t('zoomHint')}</BodyText>
+          {cropSizeChooser}
+          {processingIndicator}
+          {resultSection}
+          {statusText}
+          {howItWorksText}
+        </>
+      }
+      panelOpenRequestKey={resultSequenceNumber > 0 ? resultSequenceNumber : null}>
+      <BodyText tone="secondary">{t('tapToFocusHint')}</BodyText>
+      {focusLockRow}
+      {frameTooSmallText}
+      {steadinessText}
 
       <StepperRow
         label={t('zoomLabel', { zoom: zoomFactor.toFixed(1) })}
         decreaseLabel={t('zoomOut')}
         increaseLabel={t('zoomIn')}
-        onDecrease={() => setRequestedZoom(Math.max(minimumZoom, zoomFactor / zoomStepFactor))}
-        onIncrease={() => setRequestedZoom(Math.min(maximumZoom, zoomFactor * zoomStepFactor))}
-        isDecreaseDisabled={zoomFactor <= minimumZoom || isBusy}
-        isIncreaseDisabled={zoomFactor >= maximumZoom || isBusy}
+        onDecrease={zoomOut}
+        onIncrease={zoomIn}
+        isDecreaseDisabled={isZoomOutDisabled}
+        isIncreaseDisabled={isZoomInDisabled}
       />
       <BodyText tone="secondary">{t('zoomHint')}</BodyText>
 
-      {!isBusy ? (
-        <>
-          <BodyText tone="secondary">{t('cropSizeTitle')}</BodyText>
-          <ChoiceChips<number>
-            options={cropSizeOptions.map((_option, optionIndex) => optionIndex)}
-            selectedOption={cropSizeOptionIndex}
-            labelFor={(optionIndex) => t(cropSizeOptions[optionIndex]?.labelKey ?? 'cropSizes.medium')}
-            onSelect={setCropSizeOptionIndex}
-          />
-        </>
-      ) : null}
+      {cropSizeChooser}
 
       {countdownSecondsLeft !== null ? (
         <Card style={styles.centeredCard}>
@@ -441,54 +614,13 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
           </View>
         </View>
       ) : null}
-      {isProcessing ? <LoadingState label={t('processing')} /> : null}
-      {!isBusy ? (
-        <AppButton
-          label={t('capture', { count: capturedFrameTarget })}
-          onPress={() => void handleCapture()}
-          isDisabled={!isCameraAllowed || !isFrameLargeEnough}
-        />
-      ) : null}
+      {processingIndicator}
+      {!isBusy ? <AppButton label={captureLabel} onPress={() => void handleCapture()} isDisabled={isCaptureDisabled} /> : null}
 
-      {superzoomOutcome && displayedSkiaImage ? (
-        <>
-          <SectionTitle>{t('resultTitle')}</SectionTitle>
-          <ChoiceChips<DisplayedVersion>
-            options={['superzoom', 'singleFrame']}
-            selectedOption={displayedVersion}
-            labelFor={(version) => t(`versions.${version}`)}
-            onSelect={setDisplayedVersion}
-          />
-          <ResultImage label={t(`versions.${displayedVersion}`)} skiaImage={displayedSkiaImage} />
-          <BodyText tone="secondary">{t('compareHint')}</BodyText>
-          <BodyText tone="secondary">{t('sharpeningTitle')}</BodyText>
-          <ChoiceChips<number>
-            options={sharpeningLevels.map((_level, levelIndex) => levelIndex)}
-            selectedOption={sharpeningLevelIndex}
-            labelFor={(levelIndex) => t(sharpeningLevels[levelIndex]?.labelKey ?? 'sharpening.none')}
-            onSelect={setSharpeningLevelIndex}
-          />
-          <BodyText tone="secondary">
-            {t('mergeExplanation', {
-              captured: superzoomOutcome.capturedFrameCount,
-              merged: superzoomOutcome.result.usedFrameCount,
-              size: superzoomOutcome.result.image.size,
-              seconds: superzoomOutcome.processingSeconds.toFixed(1),
-            })}
-          </BodyText>
-          <BodyText tone="secondary">
-            {superzoomOutcome.result.meanShiftPixels < 0.5
-              ? t('tooLittleMovement')
-              : t('handMovement', { shift: superzoomOutcome.result.meanShiftPixels.toFixed(1) })}
-          </BodyText>
-          <AppButton label={t('core:common.save')} onPress={() => void handleSave()} isBusy={isSaving} />
-        </>
-      ) : null}
-      {statusMessage ? <BodyText tone="secondary">{statusMessage}</BodyText> : null}
-      <BodyText tone="secondary" style={styles.smallText}>
-        {t('howItWorks')}
-      </BodyText>
-    </ScreenContainer>
+      {resultSection}
+      {statusText}
+      {howItWorksText}
+    </CameraScreenLayout>
   );
 }
 
@@ -511,13 +643,6 @@ function ResultImage({ label, skiaImage }: { label: string; skiaImage: SkImage }
 }
 
 const styles = StyleSheet.create({
-  previewContainer: {
-    height: previewHeight,
-    borderRadius: 12,
-    overflow: 'hidden',
-    borderWidth: StyleSheet.hairlineWidth,
-    backgroundColor: '#000000',
-  },
   cropFrame: { position: 'absolute', borderWidth: 2, borderColor: '#FACC15', borderRadius: 4 },
   meteringMarker: {
     position: 'absolute',
@@ -539,4 +664,9 @@ const styles = StyleSheet.create({
   chip: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 16, borderWidth: 1.5 },
   resultImageFrame: { width: '100%', aspectRatio: 1, backgroundColor: '#000000', borderRadius: 8, overflow: 'hidden' },
   smallText: { fontSize: 13 },
+  primaryActionCell: { flex: 1 },
+  captureActionCell: { flex: 1.6 },
+  readoutCountdown: { fontSize: 40, lineHeight: 46, fontWeight: '700', fontVariant: ['tabular-nums'] },
+  readoutValue: { fontSize: 18, lineHeight: 24, fontWeight: '700', fontVariant: ['tabular-nums'] },
+  readoutWarning: { color: '#FCA5A5' },
 });

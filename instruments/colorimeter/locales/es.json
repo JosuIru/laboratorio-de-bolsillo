@@ -6,6 +6,7 @@
   "placeSampleFirst": "Toca la imagen para colocar la muestra (M) y, si tienes tarjeta de referencia, sus parches.",
   "torchOn": "Encender linterna",
   "torchOff": "Apagar linterna",
+  "torch": "Linterna",
   "clearMarkers": "Quitar marcadores",
   "rawColor": "Cámara",
   "correctedColor": "Corregido",
