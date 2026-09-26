@@ -1,0 +1,56 @@
+{
+  "name": "Garbigailuaren amaiera",
+  "description": "Jarri mugikorra garbigailuaren, lehorgailuaren edo ontzi-garbigailuaren gainean, eta alarma batekin abisatuko dizu zikloa amaitzen denean.",
+  "instructions": "Jarri mugikorra etzanda makinaren gainean, ertzetik urrun, eta sakatu «Zaindu» makina martxan jarri aurretik: lehen segundoetan hondo-zarata neurtzen du, makina geldi dagoela.",
+  "keepOpenWarning": "Utzi aplikazioa pantaila honetan irekita: pantaila piztuta geratzen da neurtzen jarraitzeko. Aplikaziotik irteten bazara, pantailaz aldatzen baduzu edo itzaltzen baduzu, zaintzeari utziko dio eta alarmak ez du joko. Konektatu mugikorra kargagailura.",
+  "status": {
+    "idle": "Zaindu gabe",
+    "measuringBackground": "Hondo-zarata neurtzen…",
+    "measuringBackgroundDetail": "Ez ukitu makina ez mugikorra. {{seconds}} s falta dira.",
+    "waitingForStart": "Abiatu zain",
+    "waitingForStartDetail": "Orain jar dezakezu makina martxan.",
+    "running": "Martxan",
+    "runningDetail": "{{duration}} daramatza martxan.",
+    "pausedDetail": "{{quiet}} daramatza geldi. Horrela {{limit}} betetzen baditu, amaitutzat emango da.",
+    "finished": "Zikloa amaitu da!",
+    "finishedDetail": "{{duration}} iraun du (hasiera: {{start}}, amaiera: {{end}})."
+  },
+  "interrupted": "Zaintzeari utzi zaio, aplikazioa atzeko planora pasatu delako edo pantailaz aldatu duzulako.",
+  "highBackground": "Hondo-zarata handia da. Makina lehendik martxan bazegoen, sakatu «Martxan dago jada».",
+  "alreadyRunningNote": "Makina martxan zegoela hasi zinen zaintzen: iraupena ordutik aurrera kontatzen da.",
+  "levelChart": "Saio osoko bibrazio-maila, dezibeletan (0 dB = 1 m/s²). Beste lerroa atalasea da.",
+  "legend": {
+    "level": "Bibrazioa",
+    "threshold": "Atalasea"
+  },
+  "now": "orain",
+  "sensitivity": {
+    "title": "Sentikortasuna",
+    "hint": "Handia ontzi-garbigailuetarako eta makina leunetarako; txikia, makina bibrazio handiko leku batean badago.",
+    "high": "Handia",
+    "medium": "Ertaina",
+    "low": "Txikia"
+  },
+  "quietMinutes": {
+    "title": "Amaitutzat emateko, geldi egon beharreko minutuak",
+    "hint": "Garbigailuak zikloaren erdian gelditzen dira (beratzea, husketa): goizegi abisatzen badizu, igo balio hau.",
+    "option": "{{count}} min"
+  },
+  "watch": "Zaindu",
+  "alreadyRunning": "Martxan dago jada",
+  "stopWatching": "Utzi zaintzeari",
+  "stopAlarm": "Gelditu alarma",
+  "watchAgain": "Beste ziklo bat zaindu",
+  "fields": {
+    "cycleDuration": "Zikloaren iraupena",
+    "startTime": "Hasiera",
+    "endTime": "Amaiera",
+    "meanLevel": "Batez besteko maila martxan",
+    "peakLevel": "Maila handiena",
+    "threshold": "Atalasea",
+    "backgroundLevel": "Hondo-zarata",
+    "quietMinutes": "Amaitzeko geldi-minutuak",
+    "startAssumed": "Makina martxan zegoela hasi zen zaintzen",
+    "currentLevel": "Bibrazioa orain"
+  }
+}
