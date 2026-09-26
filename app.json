@@ -82,7 +82,18 @@
           }
         }
       ],
-      "react-native-fast-tflite"
+      "react-native-fast-tflite",
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Permite ver las fotos que guarda el Laboratorio de Bolsillo.",
+          "savePhotosPermission": "Permite guardar en la galería las imágenes de tus mediciones.",
+          "isAccessMediaLocationEnabled": false,
+          "granularPermissions": [
+            "photo"
+          ]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
