@@ -78,6 +78,28 @@ describe('scoreContinuation', () => {
     expect(continuationScore.beatOffsetsMilliseconds.at(-1)).toBeCloseTo(15 * 0.04 * 500, 6);
   });
 
+  it('un eco espurio no desplaza las palmadas siguientes, aunque la persona frene', () => {
+    // Frena un 4 % y, tras la segunda palmada, un eco suena algo más de medio pulso después.
+    const slowingClaps = beatIndices.map(
+      (_, beatOffset) => beatTimeSeconds(beatGrid, clickCount) + beatOffset * periodSeconds * 1.04,
+    );
+    const echoTimeSeconds = slowingClaps[1]! + 0.26;
+    const continuationScore = scoreContinuation([...slowingClaps, echoTimeSeconds], beatGrid, continuationOptions);
+    expect(continuationScore.hitBeatCount).toBe(16);
+    expect(continuationScore.extraClapCount).toBe(1);
+    expect(continuationScore.tempoDriftPercent).toBeCloseTo(4, 6);
+    expect(continuationScore.beatOffsetsMilliseconds[2]).toBeCloseTo(2 * 0.04 * 500, 6);
+  });
+
+  it('los ecos justo detrás de cada palmada cuentan como palmadas de más', () => {
+    const claps = beatIndices.map((beatIndex) => beatTimeSeconds(beatGrid, beatIndex));
+    const echoes = claps.filter((_, clapIndex) => clapIndex % 4 === 0).map((clapTime) => clapTime + 0.12);
+    const continuationScore = scoreContinuation([...claps, ...echoes], beatGrid, continuationOptions);
+    expect(continuationScore.hitBeatCount).toBe(16);
+    expect(continuationScore.extraClapCount).toBe(echoes.length);
+    expect(continuationScore.intervalVariabilityMilliseconds).toBeCloseTo(0, 6);
+  });
+
   it('cuenta pulsos perdidos y palmadas de más', () => {
     const claps = beatIndices
       .filter((beatIndex) => beatIndex !== 12 && beatIndex !== 13)

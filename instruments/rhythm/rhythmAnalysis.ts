@@ -142,9 +142,23 @@ export interface ContinuationScore {
   score: number;
 }
 
+/** Palmadas recientes con las que se estima el desfase actual respecto a la rejilla. */
+const recentClapsForPhase = 3;
+
+function medianOf(values: readonly number[]): number {
+  const sortedValues = [...values].sort((leftValue, rightValue) => leftValue - rightValue);
+  const middleIndex = Math.floor(sortedValues.length / 2);
+  return sortedValues.length % 2 === 1
+    ? sortedValues[middleIndex]!
+    : (sortedValues[middleIndex - 1]! + sortedValues[middleIndex]!) / 2;
+}
+
 /**
- * Asigna cada palmada a un pulso siguiendo sus propios intervalos (no la rejilla), para no
- * perder la cuenta si la persona acelera o frena poco a poco, y mide desfases y deriva.
+ * Asigna cada palmada al pulso más cercano de la rejilla, desplazada por el desfase mediano de
+ * las últimas palmadas asignadas: así no se pierde la cuenta si la persona acelera o frena poco a
+ * poco, y un golpe suelto (un eco, un ruido) no arrastra a los demás, porque no se encadena a la
+ * palmada anterior. Si dos golpes caen en el mismo pulso se queda el más cercano a lo previsto y
+ * el otro cuenta como palmada de más. Después mide desfases y deriva.
  */
 export function scoreContinuation(
   clapTimesSeconds: readonly number[],
@@ -158,20 +172,30 @@ export function scoreContinuation(
 
   const clapByBeatIndex = new Map<number, number>();
   let extraClapCount = 0;
-  let previousAssignment: { beatIndex: number; timeSeconds: number } | null = null;
   for (const clapTimeSeconds of sortedClaps) {
-    const beatIndex: number =
-      previousAssignment === null
-        ? Math.round((clapTimeSeconds - beatGrid.firstBeatSeconds) / periodSeconds)
-        : previousAssignment.beatIndex + Math.round((clapTimeSeconds - previousAssignment.timeSeconds) / periodSeconds);
+    // Desfase actual: mediana de lo que se adelantaban o retrasaban las últimas palmadas.
+    const recentBeatIndices = [...clapByBeatIndex.keys()]
+      .sort((leftIndex, rightIndex) => leftIndex - rightIndex)
+      .slice(-recentClapsForPhase);
+    const phaseOffsetSeconds = recentBeatIndices.length
+      ? medianOf(
+          recentBeatIndices.map(
+            (recentBeatIndex) => clapByBeatIndex.get(recentBeatIndex)! - beatTimeSeconds(beatGrid, recentBeatIndex),
+          ),
+        )
+      : 0;
+    const beatIndex = Math.round((clapTimeSeconds - phaseOffsetSeconds - beatGrid.firstBeatSeconds) / periodSeconds);
     if (beatIndex < firstBeatIndex || beatIndex > lastBeatIndex) continue;
     const existingClap = clapByBeatIndex.get(beatIndex);
     if (existingClap !== undefined) {
       extraClapCount++;
+      const predictedSeconds = beatTimeSeconds(beatGrid, beatIndex) + phaseOffsetSeconds;
+      if (Math.abs(clapTimeSeconds - predictedSeconds) < Math.abs(existingClap - predictedSeconds)) {
+        clapByBeatIndex.set(beatIndex, clapTimeSeconds);
+      }
       continue;
     }
     clapByBeatIndex.set(beatIndex, clapTimeSeconds);
-    previousAssignment = { beatIndex, timeSeconds: clapTimeSeconds };
   }
 
   const beatOffsetsMilliseconds: (number | null)[] = [];
