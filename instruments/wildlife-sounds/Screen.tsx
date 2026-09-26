@@ -1,5 +1,5 @@
 import * as Location from 'expo-location';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, StyleSheet, Switch, View } from 'react-native';
 
@@ -10,6 +10,7 @@ import { useStopWhenAppInactive } from '@/core/useStopWhenAppInactive';
 import { AppButton, BodyText, Card, ScreenContainer, SectionTitle } from '@/ui/components';
 import { useThemePalette } from '@/ui/theme';
 
+import { ChipSelector } from './ChipSelector';
 import {
   confidenceBarFraction,
   confidenceLevelFor,
@@ -18,14 +19,32 @@ import {
   type LoggingDecision,
   possibleMinimumScore,
   probableMinimumScore,
-  type RankedClass,
   topScoringClasses,
 } from './classification';
+import {
+  type CustomMatchingResult,
+  type CustomSoundSensitivity,
+  formatCustomSoundsJsonLines,
+  matchCustomClasses,
+  type PreparedCustomClass,
+  similarityText,
+  similarityThresholdBySensitivity,
+} from './customSounds';
+import { CustomSoundsPanel } from './CustomSoundsPanel';
+import {
+  createCustomSoundClass,
+  deleteCustomSoundClass,
+  deleteLatestCustomSoundExample,
+  insertCustomSoundExample,
+  renameCustomSoundClass,
+} from './customSoundStore';
+import { DetectionLogPanel } from './DetectionLogPanel';
 import {
   type DetectionRecord,
   encodeFloat16LittleEndian,
   formatDetectionsCsv,
   formatDetectionsJsonLines,
+  type NewDetectionRecord,
   roundCoordinate,
   roundScore,
 } from './detectionLog';
@@ -47,8 +66,23 @@ import {
 import { MelSpectrogramView } from './MelSpectrogramView';
 import type { FaunaManifest, SoundClass } from './modelManifest';
 import { approximateModelMegabytes } from './modelStore';
+import {
+  type AdjustedRankedClass,
+  type ClassPenalties,
+  computeClassPenalties,
+  occurrenceContextFor,
+  offSeasonPenalty,
+  outOfAreaPenalty,
+  plausibilityPenalty,
+  rankClassesWithPenalties,
+  type SpeciesPlausibility,
+} from './occurrenceFilter';
 import type { WildlifeSoundsMeasurementValues } from './schema';
+import { SessionPanel } from './SessionPanel';
+import { appendSessionDetections, type SessionDetection, sessionDetectionsForWindow } from './sessionTimeline';
 import { shareDetectionExport, type DetectionExportKind } from './shareDetectionFiles';
+import { useCustomSounds } from './useCustomSounds';
+import { useOccurrenceData } from './useOccurrenceData';
 import { type AnalyzedWindow, useWildlifeListener } from './useWildlifeListener';
 import { useWildlifeModel } from './useWildlifeModel';
 import type { ModelAccelerator } from './wildlifeClassifier';
@@ -63,11 +97,31 @@ const recentDetectionCount = 10;
 const quietLevelDecibels = -70;
 /** La ubicación se reutiliza durante este tiempo: no hace falta pedirla cada 2,5 s. */
 const locationReuseMilliseconds = 60_000;
+/**
+ * Un ejemplo de «Tus sonidos» tiene que empezar después de pulsar «Grabar»; se admite este margen
+ * porque la hora de la ventana se toma al acabar de recibir el audio, no del reloj del micrófono.
+ */
+const enrollmentStartToleranceMilliseconds = 300;
+
+type ScreenTab = 'listen' | 'session' | 'custom' | 'log';
+const screenTabs: readonly ScreenTab[] = ['listen', 'session', 'custom', 'log'];
 
 interface LatestAnalysis {
-  topClasses: RankedClass[];
+  topClasses: AdjustedRankedClass[];
   loggingDecision: LoggingDecision;
   analyzedWindow: AnalyzedWindow;
+  customMatching: CustomMatchingResult | null;
+}
+
+interface PendingEnrollment {
+  classId: number;
+  className: string;
+  requestedAt: number;
+}
+
+interface RoundedLocation {
+  latitude: number;
+  longitude: number;
 }
 
 async function readLogSnapshot(): Promise<{ statistics: DetectionStatistics; recentRecords: DetectionRecord[] }> {
@@ -82,16 +136,11 @@ function megabytesText(byteCount: number): string {
   return (byteCount / 1_000_000).toFixed(1);
 }
 
-function localTimeText(isoTimestamp: string): string {
-  const detectionDate = new Date(isoTimestamp);
-  const twoDigits = (numericValue: number) => String(numericValue).padStart(2, '0');
-  return `${twoDigits(detectionDate.getHours())}:${twoDigits(detectionDate.getMinutes())}:${twoDigits(detectionDate.getSeconds())}`;
-}
-
 export function WildlifeSoundsScreen({ saveMeasurement }: InstrumentScreenProps<WildlifeSoundsMeasurementValues>) {
   const { t, i18n } = useTranslation(wildlifeSoundsInstrumentId);
   const themePalette = useThemePalette();
   const appLocale = i18n.language;
+  const [activeTab, setActiveTab] = useState<ScreenTab>('listen');
 
   const [requestedAccelerator, setRequestedAccelerator] = useState<ModelAccelerator>('cpu');
   const {
@@ -110,6 +159,7 @@ export function WildlifeSoundsScreen({ saveMeasurement }: InstrumentScreenProps<
   const [wasInterrupted, setWasInterrupted] = useState(false);
   const [latestAnalysis, setLatestAnalysis] = useState<LatestAnalysis | null>(null);
   const [sessionSummary, setSessionSummary] = useState<ListeningSessionSummary | null>(null);
+  const [sessionDetections, setSessionDetections] = useState<SessionDetection[]>([]);
   const [sessionEndTimestamp, setSessionEndTimestamp] = useState<number | null>(null);
   const [analysisErrorMessage, setAnalysisErrorMessage] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -117,11 +167,60 @@ export function WildlifeSoundsScreen({ saveMeasurement }: InstrumentScreenProps<
 
   const [isLocationEnabled, setIsLocationEnabled] = useState(false);
   const [isLocationDenied, setIsLocationDenied] = useState(false);
-  const isLocationEnabledRef = useRef(isLocationEnabled);
   const cachedLocationRef = useRef<{ location: GeoLocation | undefined; fetchedAt: number } | null>(null);
+
+  // --- Filtro por lugar y época ---
+  const [isOccurrenceFilterEnabled, setIsOccurrenceFilterEnabled] = useState(true);
+  const [filterLocation, setFilterLocation] = useState<RoundedLocation | null>(null);
+  const [currentMonthIndex] = useState(() => new Date().getMonth());
+  const { occurrenceState, retryOccurrenceDownload } = useOccurrenceData(installedModel?.manifest ?? null);
+  const occurrenceData = occurrenceState.status === 'ready' ? occurrenceState.occurrenceData : null;
+  const occurrenceContext = useMemo(
+    () =>
+      occurrenceData && filterLocation
+        ? occurrenceContextFor(occurrenceData, filterLocation.latitude, filterLocation.longitude, currentMonthIndex)
+        : null,
+    [occurrenceData, filterLocation, currentMonthIndex],
+  );
+  const isFilterApplied = isOccurrenceFilterEnabled && isLocationEnabled && occurrenceContext?.status === 'active';
+  const classPenalties: ClassPenalties | null = useMemo(
+    () =>
+      isFilterApplied && occurrenceData && occurrenceContext && manifest
+        ? computeClassPenalties(occurrenceData, occurrenceContext, manifest.classes)
+        : null,
+    [isFilterApplied, occurrenceData, occurrenceContext, manifest],
+  );
+
+  // --- Tus sonidos ---
+  const {
+    targetClasses,
+    backgroundClass,
+    library: customSoundLibrary,
+    exampleCountByClassId,
+    preparedClasses,
+    libraryErrorMessage,
+    refreshLibrary,
+  } = useCustomSounds();
+  const [customSensitivity, setCustomSensitivity] = useState<CustomSoundSensitivity>('normal');
+  const [pendingEnrollment, setPendingEnrollment] = useState<PendingEnrollment | null>(null);
+  const [isEnrollmentOnly, setIsEnrollmentOnly] = useState(false);
+  const [customStatusMessage, setCustomStatusMessage] = useState<string | null>(null);
+
+  // El análisis de cada ventana llega por un callback: lee lo que cambia desde referencias.
+  const isLocationEnabledRef = useRef(isLocationEnabled);
+  const classPenaltiesRef = useRef<ClassPenalties | null>(classPenalties);
+  const preparedClassesRef = useRef<PreparedCustomClass[]>(preparedClasses);
+  const similarityThresholdRef = useRef(similarityThresholdBySensitivity[customSensitivity]);
+  const pendingEnrollmentRef = useRef<PendingEnrollment | null>(pendingEnrollment);
+  const isEnrollmentOnlyRef = useRef(isEnrollmentOnly);
   useEffect(() => {
     isLocationEnabledRef.current = isLocationEnabled;
-  }, [isLocationEnabled]);
+    classPenaltiesRef.current = classPenalties;
+    preparedClassesRef.current = preparedClasses;
+    similarityThresholdRef.current = similarityThresholdBySensitivity[customSensitivity];
+    pendingEnrollmentRef.current = pendingEnrollment;
+    isEnrollmentOnlyRef.current = isEnrollmentOnly;
+  }, [isLocationEnabled, classPenalties, preparedClasses, customSensitivity, pendingEnrollment, isEnrollmentOnly]);
 
   const [logStatistics, setLogStatistics] = useState<DetectionStatistics | null>(null);
   const [recentDetections, setRecentDetections] = useState<DetectionRecord[]>([]);
@@ -160,22 +259,92 @@ export function WildlifeSoundsScreen({ saveMeasurement }: InstrumentScreenProps<
     [manifest, appLocale],
   );
 
-  async function readLocationForDetection(): Promise<GeoLocation | undefined> {
+  /** Ubicación reciente (se reutiliza un minuto). */
+  const readRecentLocation = useCallback(async (): Promise<GeoLocation | undefined> => {
     const cachedLocation = cachedLocationRef.current;
     if (cachedLocation && Date.now() - cachedLocation.fetchedAt < locationReuseMilliseconds) return cachedLocation.location;
     const location = await getLocationForMeasurement({ maxAgeMilliseconds: 5 * 60_000 });
     cachedLocationRef.current = { location, fetchedAt: Date.now() };
     return location;
-  }
+  }, []);
+
+  const updateFilterLocation = useCallback((location: GeoLocation | undefined) => {
+    if (location) {
+      setFilterLocation({ latitude: roundCoordinate(location.latitude), longitude: roundCoordinate(location.longitude) });
+    }
+  }, []);
+
+  // Con la ubicación activada, se pide al activarla y al empezar a escuchar (para el filtro).
+  useEffect(() => {
+    if (!isLocationEnabled) return;
+    let isEffectActive = true;
+    readRecentLocation()
+      .then((location) => {
+        if (isEffectActive) updateFilterLocation(location);
+      })
+      .catch(() => undefined);
+    return () => {
+      isEffectActive = false;
+    };
+  }, [isLocationEnabled, isListening, readRecentLocation, updateFilterLocation]);
+
+  const stopEnrollmentListening = useCallback(() => {
+    isEnrollmentOnlyRef.current = false;
+    setIsEnrollmentOnly(false);
+    setIsListening(false);
+  }, []);
+
+  /** Guarda la ventana como ejemplo de la clase que se está enseñando. */
+  const saveEnrollmentWindow = useCallback(
+    (enrollment: PendingEnrollment, analyzedWindow: AnalyzedWindow, hasHumanVoice: boolean, modelVersion: string) => {
+      pendingEnrollmentRef.current = null;
+      setPendingEnrollment(null);
+      if (isEnrollmentOnlyRef.current) stopEnrollmentListening();
+      if (hasHumanVoice) {
+        // Privacidad: tampoco se guarda el embedding de una voz como ejemplo.
+        setCustomStatusMessage(t('custom.rejectedVoice'));
+        return;
+      }
+      const isQuiet = analyzedWindow.levelDecibels < quietLevelDecibels;
+      void insertCustomSoundExample(
+        enrollment.classId,
+        new Date(analyzedWindow.windowEndTimestamp).toISOString(),
+        modelVersion,
+        encodeFloat16LittleEndian(analyzedWindow.classification.embedding),
+      )
+        .then(refreshLibrary)
+        .then(() => setCustomStatusMessage(t(isQuiet ? 'custom.savedQuiet' : 'custom.saved', { name: enrollment.className })))
+        .catch((insertError: unknown) => setCustomStatusMessage(t('core:common.error', { message: String(insertError) })));
+    },
+    [refreshLibrary, stopEnrollmentListening, t],
+  );
 
   const handleWindowAnalyzed = useCallback(
     (analyzedWindow: AnalyzedWindow) => {
       if (!classifier) return;
       const { classes, modelVersion } = classifier.manifest;
-      const topClasses = topScoringClasses(analyzedWindow.classification.logits, displayedClassCount);
+      const { logits, embedding } = analyzedWindow.classification;
+      const topClasses = rankClassesWithPenalties(logits, classPenaltiesRef.current, displayedClassCount);
       const loggingDecision = decideDetectionLogging(topClasses, classes);
-      setLatestAnalysis({ topClasses, loggingDecision, analyzedWindow });
+      const hasHumanVoice = loggingDecision.kind === 'human-voice';
+      const customMatching =
+        !hasHumanVoice && preparedClassesRef.current.length > 0
+          ? matchCustomClasses(embedding, preparedClassesRef.current, similarityThresholdRef.current)
+          : null;
+      setLatestAnalysis({ topClasses, loggingDecision, analyzedWindow, customMatching });
       setAnalysisErrorMessage(null);
+
+      // Se lee antes de guardar el ejemplo, que puede apagar la escucha solo-para-grabar.
+      const wasEnrollmentOnly = isEnrollmentOnlyRef.current;
+      const enrollment = pendingEnrollmentRef.current;
+      const windowStartTimestamp = analyzedWindow.windowEndTimestamp - analyzedWindow.windowSeconds * 1000;
+      if (enrollment && windowStartTimestamp >= enrollment.requestedAt - enrollmentStartToleranceMilliseconds) {
+        saveEnrollmentWindow(enrollment, analyzedWindow, hasHumanVoice, modelVersion);
+      }
+      // Escuchando solo para grabar un ejemplo: ni sesión ni registro.
+      if (wasEnrollmentOnly) return;
+
+      const matchedCustomClasses = customMatching?.classMatches.filter((classMatch) => classMatch.isMatch) ?? [];
       const speciesLabel = loggingDecision.kind === 'log' ? classes[loggingDecision.speciesClassIndex]!.label : '';
       setSessionSummary((previousSummary) =>
         previousSummary
@@ -188,32 +357,60 @@ export function WildlifeSoundsScreen({ saveMeasurement }: InstrumentScreenProps<
             )
           : previousSummary,
       );
-      if (loggingDecision.kind !== 'log') return;
+      const windowDetections = sessionDetectionsForWindow(
+        topClasses,
+        classes,
+        matchedCustomClasses,
+        analyzedWindow.windowEndTimestamp,
+        hasHumanVoice,
+      );
+      if (windowDetections.length > 0) {
+        setSessionDetections((previousDetections) => appendSessionDetections(previousDetections, windowDetections));
+      }
+      if (loggingDecision.kind !== 'log' && matchedCustomClasses.length === 0) return;
 
       void (async () => {
         try {
-          const location = isLocationEnabledRef.current ? await readLocationForDetection() : undefined;
-          await insertDetection({
+          const location = isLocationEnabledRef.current ? await readRecentLocation() : undefined;
+          updateFilterLocation(location);
+          // En el registro va lo que dice el modelo (top y puntuaciones sin el filtro de lugar y
+          // época), para que los datos se puedan reinterpretar; el filtro solo decide qué especie se apunta.
+          const modelTopClasses = topScoringClasses(logits, displayedClassCount);
+          const sharedFields: Omit<NewDetectionRecord, 'speciesLabel' | 'speciesScore' | 'isCustomClass'> = {
             detectedAtIso: new Date(analyzedWindow.windowEndTimestamp).toISOString(),
             durationSeconds: analyzedWindow.windowSeconds,
             latitude: location ? roundCoordinate(location.latitude) : null,
             longitude: location ? roundCoordinate(location.longitude) : null,
-            speciesLabel,
-            speciesScore: roundScore(loggingDecision.speciesScore),
-            topClasses: topClasses.map((rankedClass) => ({
+            topClasses: modelTopClasses.map((rankedClass) => ({
               label: classes[rankedClass.classIndex]?.label ?? String(rankedClass.classIndex),
               score: roundScore(rankedClass.score),
             })),
             modelVersion,
-            embeddingFloat16Bytes: encodeFloat16LittleEndian(analyzedWindow.classification.embedding),
-          });
+            embeddingFloat16Bytes: encodeFloat16LittleEndian(embedding),
+          };
+          if (loggingDecision.kind === 'log') {
+            await insertDetection({
+              ...sharedFields,
+              speciesLabel,
+              speciesScore: roundScore(logits[loggingDecision.speciesClassIndex] ?? loggingDecision.speciesScore),
+              isCustomClass: false,
+            });
+          }
+          for (const customMatch of matchedCustomClasses) {
+            await insertDetection({
+              ...sharedFields,
+              speciesLabel: customMatch.name,
+              speciesScore: roundScore(customMatch.similarity),
+              isCustomClass: true,
+            });
+          }
           await refreshLog();
         } catch (insertError) {
           setStatusMessage(t('log.saveError', { message: String(insertError) }));
         }
       })();
     },
-    [classifier, refreshLog, t],
+    [classifier, readRecentLocation, refreshLog, saveEnrollmentWindow, t, updateFilterLocation],
   );
 
   const handleAnalysisError = useCallback((errorMessage: string) => setAnalysisErrorMessage(errorMessage), []);
@@ -225,12 +422,16 @@ export function WildlifeSoundsScreen({ saveMeasurement }: InstrumentScreenProps<
     onAnalysisError: handleAnalysisError,
   });
   useKeepScreenOnWhile(isListening, wildlifeSoundsInstrumentId);
+  const isSessionListening = isListening && !isEnrollmentOnly;
 
   // Al tapar la pantalla o pasar a segundo plano, la escucha se da por terminada y se avisa.
   const releaseNothing = useCallback(() => undefined, []);
   useStopWhenAppInactive(() => {
     if (!isListening) return;
     setIsListening(false);
+    setPendingEnrollment(null);
+    setIsEnrollmentOnly(false);
+    if (isEnrollmentOnly) return;
     setSessionEndTimestamp(Date.now());
     setWasInterrupted(true);
   }, releaseNothing);
@@ -241,13 +442,19 @@ export function WildlifeSoundsScreen({ saveMeasurement }: InstrumentScreenProps<
     setAnalysisErrorMessage(null);
     setLatestAnalysis(null);
     setSessionSummary(createListeningSessionSummary(Date.now()));
+    setSessionDetections([]);
     setSessionEndTimestamp(null);
+    // Si ya se escuchaba para grabar un ejemplo, la escucha sigue y pasa a ser una sesión.
+    isEnrollmentOnlyRef.current = false;
+    setIsEnrollmentOnly(false);
     setIsListening(true);
   }
 
   function handleStopListening() {
     setIsListening(false);
-    setSessionEndTimestamp(Date.now());
+    setPendingEnrollment(null);
+    if (!isEnrollmentOnly) setSessionEndTimestamp(Date.now());
+    setIsEnrollmentOnly(false);
   }
 
   async function handleDownloadPress() {
@@ -360,255 +567,408 @@ export function WildlifeSoundsScreen({ saveMeasurement }: InstrumentScreenProps<
     }
   }
 
+  // --- Tus sonidos: acciones ---
+
+  /** Graba el próximo trozo de 5 s como ejemplo. Si no se estaba escuchando, escucha solo para eso. */
+  function startEnrollment(classId: number, className: string) {
+    if (!classifier) return;
+    setCustomStatusMessage(null);
+    setPendingEnrollment({ classId, className, requestedAt: Date.now() });
+    if (!isListening) {
+      isEnrollmentOnlyRef.current = true;
+      setIsEnrollmentOnly(true);
+      setWasInterrupted(false);
+      setIsListening(true);
+    }
+  }
+
+  function handleCancelEnrollment() {
+    pendingEnrollmentRef.current = null;
+    setPendingEnrollment(null);
+    if (isEnrollmentOnly) stopEnrollmentListening();
+  }
+
+  function runLibraryChange(libraryChange: () => Promise<unknown>) {
+    setCustomStatusMessage(null);
+    void libraryChange()
+      .then(refreshLibrary)
+      .catch((changeError: unknown) => setCustomStatusMessage(t('core:common.error', { message: String(changeError) })));
+  }
+
+  async function handleRecordBackground() {
+    try {
+      const backgroundClassId = backgroundClass?.id ?? (await createCustomSoundClass(t('custom.backgroundName'), true));
+      if (!backgroundClass) await refreshLibrary();
+      startEnrollment(backgroundClassId, t('custom.backgroundName'));
+    } catch (createError) {
+      setCustomStatusMessage(t('core:common.error', { message: String(createError) }));
+    }
+  }
+
+  async function handleExportCustomSounds() {
+    setCustomStatusMessage(null);
+    try {
+      const fileContents = formatCustomSoundsJsonLines(customSoundLibrary.customClasses, customSoundLibrary.examples);
+      const dateText = new Date().toISOString().slice(0, 10);
+      await shareDetectionExport(`quien-canta-mis-sonidos-${dateText}.jsonl`, fileContents, 'jsonl', t('custom.shareTitle'));
+    } catch (exportError) {
+      setCustomStatusMessage(t('core:common.error', { message: String(exportError) }));
+    }
+  }
+
+  // --- Textos derivados ---
+
+  function occurrenceFilterStatus(): { text: string; tone: 'secondary' | 'accent' | 'danger' } {
+    if (!isOccurrenceFilterEnabled) return { text: t('filter.off'), tone: 'secondary' };
+    if (!isLocationEnabled) return { text: t('filter.needsLocation'), tone: 'secondary' };
+    if (occurrenceState.status === 'absent') return { text: t('filter.needsModel'), tone: 'secondary' };
+    if (occurrenceState.status === 'loading') return { text: t('filter.loading'), tone: 'secondary' };
+    if (occurrenceState.status === 'unavailable') return { text: t('filter.unavailable'), tone: 'danger' };
+    if (!occurrenceContext) return { text: t('filter.waitingLocation'), tone: 'secondary' };
+    if (occurrenceContext.status === 'outside-grid') return { text: t('filter.outsideGrid'), tone: 'secondary' };
+    if (occurrenceContext.status === 'no-cell-data') return { text: t('filter.noCellData'), tone: 'secondary' };
+    return { text: t('filter.active', { count: classPenalties?.penalizedClassCount ?? 0 }), tone: 'accent' };
+  }
+
+  function plausibilityMarkText(rankedClass: AdjustedRankedClass): string | null {
+    const plausibility: SpeciesPlausibility | undefined = rankedClass.plausibility;
+    if (!plausibility) return null;
+    const reasons = [
+      plausibility.isUnlikelyHere ? t('filter.markUnlikelyHere') : null,
+      plausibility.isOffSeason ? t('filter.markOffSeason') : null,
+    ].filter((reason): reason is string => reason !== null);
+    return `${reasons.join(' · ')} (−${plausibilityPenalty(plausibility)}; ${t('filter.modelScore', {
+      score: rankedClass.rawScore.toFixed(1),
+    })})`;
+  }
+
   const isDownloading = downloadState.status === 'downloading';
   const downloadProgress = downloadState.status === 'downloading' ? downloadState.progress : null;
   const downloadFraction =
     downloadProgress && downloadProgress.totalBytes > 0 ? downloadProgress.bytesWritten / downloadProgress.totalBytes : 0;
   const latestWindow = latestAnalysis?.analyzedWindow ?? null;
+  const filterStatus = occurrenceFilterStatus();
+  const customMatching = latestAnalysis?.customMatching ?? null;
+  const matchedCustomClasses = customMatching?.classMatches.filter((classMatch) => classMatch.isMatch) ?? [];
+  const closestCustomClass = customMatching?.classMatches[0] ?? null;
+  const sessionTimelineEnd =
+    sessionEndTimestamp ?? latestWindow?.windowEndTimestamp ?? sessionSummary?.sessionStartTimestamp ?? 0;
+
+  function tabLabel(tab: ScreenTab): string {
+    if (tab === 'session' && isSessionListening && sessionDetections.length > 0) return `${t('tabs.session')} ●`;
+    if (tab === 'custom' && pendingEnrollment) return `${t('tabs.custom')} ●`;
+    return t(`tabs.${tab}`);
+  }
 
   return (
     <ScreenContainer>
       <BodyText tone="secondary">{t('intro')}</BodyText>
-      <Card>
-        <BodyText style={styles.emphasis}>{t('privacyTitle')}</BodyText>
-        <BodyText tone="secondary">{t('privacy')}</BodyText>
-      </Card>
+      <ChipSelector options={screenTabs} selectedOption={activeTab} labelFor={tabLabel} onSelect={setActiveTab} accessibilityRole="tab" />
 
-      <SectionTitle>{t('model.title')}</SectionTitle>
-      {installedModel ? (
-        <Card>
-          <BodyText>
-            {t('model.installed', {
-              version: installedModel.manifest.modelVersion,
-              megabytes: megabytesText(installedModel.manifest.modelBytes),
-            })}
-          </BodyText>
-          <BodyText tone="secondary" style={styles.smallText}>
-            {t('model.license')}
-          </BodyText>
-          {classifierState.status === 'loading' ? <BodyText tone="secondary">{t('model.loading')}</BodyText> : null}
-          {classifierState.status === 'error' ? (
-            <BodyText tone="danger">{t('model.loadError', { message: classifierState.errorMessage })}</BodyText>
-          ) : null}
-          <View style={styles.switchRow}>
-            <BodyText style={styles.switchLabel}>{t('model.useGpu')}</BodyText>
-            <Switch
-              value={requestedAccelerator === 'gpu'}
-              onValueChange={(shouldUseGpu) => setRequestedAccelerator(shouldUseGpu ? 'gpu' : 'cpu')}
-              disabled={isListening}
-              accessibilityLabel={t('model.useGpu')}
-              trackColor={{ true: themePalette.accent, false: themePalette.border }}
-            />
-          </View>
-          <BodyText tone="secondary" style={styles.smallText}>
-            {classifier?.acceleratorFallbackReason ? t('model.gpuFallback') : t('model.useGpuHelp')}
-          </BodyText>
-          <AppButton label={t('model.delete')} variant="secondary" onPress={handleDeleteModelPress} />
-        </Card>
-      ) : (
-        <Card>
-          <BodyText>{t('model.missing', { megabytes: approximateModelMegabytes })}</BodyText>
-          {isDownloading ? (
-            <>
-              <BodyText tone="secondary">
-                {!downloadProgress
-                  ? t('model.downloadStarting')
-                  : downloadProgress.stage === 'verifying'
-                    ? t('model.verifying')
-                    : t('model.downloading', {
-                        percent: Math.round(downloadFraction * 100),
-                        downloaded: megabytesText(downloadProgress.bytesWritten),
-                        total: megabytesText(downloadProgress.totalBytes),
-                      })}
+      {activeTab === 'listen' ? (
+        <>
+          <Card>
+            <BodyText style={styles.emphasis}>{t('privacyTitle')}</BodyText>
+            <BodyText tone="secondary">{t('privacy')}</BodyText>
+          </Card>
+
+          <SectionTitle>{t('model.title')}</SectionTitle>
+          {installedModel ? (
+            <Card>
+              <BodyText>
+                {t('model.installed', {
+                  version: installedModel.manifest.modelVersion,
+                  megabytes: megabytesText(installedModel.manifest.modelBytes),
+                })}
               </BodyText>
-              <ProgressBar fraction={downloadFraction} color={themePalette.accent} trackColor={themePalette.border} />
-              <AppButton label={t('model.cancel')} variant="secondary" onPress={cancelDownload} />
-            </>
-          ) : (
-            <AppButton
-              label={t('model.download')}
-              onPress={() => void handleDownloadPress()}
-              isBusy={downloadState.status === 'fetching-manifest'}
-            />
-          )}
-          {downloadState.status === 'fetching-manifest' ? (
-            <BodyText tone="secondary">{t('model.fetchingManifest')}</BodyText>
-          ) : null}
-          {downloadState.status === 'error' ? (
-            <BodyText tone="danger">{t('model.downloadError', { message: downloadState.errorMessage })}</BodyText>
-          ) : null}
-        </Card>
-      )}
-
-      {classifier ? (
-        <>
-          <AppButton
-            label={isListening ? t('listen.stop') : t('listen.start')}
-            variant={isListening ? 'danger' : 'primary'}
-            onPress={isListening ? handleStopListening : handleStartListening}
-          />
-          <BodyText tone="secondary" style={styles.smallText}>
-            {t('listen.keepAwake')}
-          </BodyText>
-          {listenerState.status === 'starting' ? <BodyText tone="secondary">{t('listen.starting')}</BodyText> : null}
-          {listenerState.status === 'listening' ? (
-            <BodyText tone="secondary">
-              {t('listen.listening', {
-                sampleRate: listenerState.inputSampleRateHz,
-                hop: String(latestWindow?.hopSeconds ?? 2.5).replace('.', ','),
-              })}
-            </BodyText>
-          ) : null}
-          {listenerState.status === 'listening' && !latestAnalysis ? (
-            <BodyText tone="secondary">{t('listen.waitingFirst')}</BodyText>
-          ) : null}
-          {listenerState.status === 'error' ? (
-            <BodyText tone="danger">{t('core:common.error', { message: listenerState.errorMessage })}</BodyText>
-          ) : null}
-          {wasInterrupted ? <BodyText tone="danger">{t('listen.interrupted')}</BodyText> : null}
-          {analysisErrorMessage ? (
-            <BodyText tone="danger">{t('listen.analysisError', { message: analysisErrorMessage })}</BodyText>
-          ) : null}
-        </>
-      ) : null}
-
-      {manifest && (latestAnalysis || isListening) ? (
-        <>
-          <SectionTitle>{t('results.title')}</SectionTitle>
-          {!latestAnalysis ? (
-            <BodyText tone="secondary">{t('results.nothingYet')}</BodyText>
+              <BodyText tone="secondary" style={styles.smallText}>
+                {t('model.license')}
+              </BodyText>
+              {classifierState.status === 'loading' ? <BodyText tone="secondary">{t('model.loading')}</BodyText> : null}
+              {classifierState.status === 'error' ? (
+                <BodyText tone="danger">{t('model.loadError', { message: classifierState.errorMessage })}</BodyText>
+              ) : null}
+              <View style={styles.switchRow}>
+                <BodyText style={styles.switchLabel}>{t('model.useGpu')}</BodyText>
+                <Switch
+                  value={requestedAccelerator === 'gpu'}
+                  onValueChange={(shouldUseGpu) => setRequestedAccelerator(shouldUseGpu ? 'gpu' : 'cpu')}
+                  disabled={isListening}
+                  accessibilityLabel={t('model.useGpu')}
+                  trackColor={{ true: themePalette.accent, false: themePalette.border }}
+                />
+              </View>
+              <BodyText tone="secondary" style={styles.smallText}>
+                {classifier?.acceleratorFallbackReason ? t('model.gpuFallback') : t('model.useGpuHelp')}
+              </BodyText>
+              <AppButton label={t('model.delete')} variant="secondary" onPress={handleDeleteModelPress} />
+            </Card>
           ) : (
             <Card>
-              {latestAnalysis.loggingDecision.kind === 'human-voice' ? (
-                <BodyText tone="danger">{t('results.humanVoice')}</BodyText>
-              ) : (
+              <BodyText>{t('model.missing', { megabytes: approximateModelMegabytes })}</BodyText>
+              {isDownloading ? (
                 <>
-                  {latestAnalysis.topClasses.map((rankedClass) => {
-                    const soundClass = manifest.classes[rankedClass.classIndex];
-                    return soundClass ? (
-                      <ClassResultRow
-                        key={rankedClass.classIndex}
-                        soundClass={soundClass}
-                        score={rankedClass.score}
-                        displayName={displayNameFor(soundClass, appLocale)}
-                        confidenceText={t(`results.confidence.${confidenceLevelFor(rankedClass.score)}`)}
-                        scoreText={t('results.score', { score: rankedClass.score.toFixed(1) })}
-                        soundKindText={t('results.soundKind')}
-                      />
-                    ) : null;
-                  })}
-                  {latestAnalysis.loggingDecision.kind === 'log' ? (
-                    <BodyText tone="accent">{t('results.logged')}</BodyText>
-                  ) : null}
+                  <BodyText tone="secondary">
+                    {!downloadProgress
+                      ? t('model.downloadStarting')
+                      : downloadProgress.stage === 'verifying'
+                        ? t('model.verifying')
+                        : t('model.downloading', {
+                            percent: Math.round(downloadFraction * 100),
+                            downloaded: megabytesText(downloadProgress.bytesWritten),
+                            total: megabytesText(downloadProgress.totalBytes),
+                          })}
+                  </BodyText>
+                  <ProgressBar fraction={downloadFraction} color={themePalette.accent} trackColor={themePalette.border} />
+                  <AppButton label={t('model.cancel')} variant="secondary" onPress={cancelDownload} />
                 </>
+              ) : (
+                <AppButton
+                  label={t('model.download')}
+                  onPress={() => void handleDownloadPress()}
+                  isBusy={downloadState.status === 'fetching-manifest'}
+                />
               )}
-              {latestWindow && latestWindow.levelDecibels < quietLevelDecibels ? (
-                <BodyText tone="secondary" style={styles.smallText}>
-                  {t('listen.quiet', { level: Math.round(latestWindow.levelDecibels) })}
-                </BodyText>
+              {downloadState.status === 'fetching-manifest' ? (
+                <BodyText tone="secondary">{t('model.fetchingManifest')}</BodyText>
               ) : null}
-              {latestWindow && classifier ? (
-                <BodyText tone="secondary" style={styles.smallText}>
-                  {t('listen.timing', {
-                    total: Math.round(latestWindow.analysisMilliseconds),
-                    resample: Math.round(latestWindow.resampleMilliseconds),
-                    model: Math.round(latestWindow.classification.inferenceMilliseconds),
-                    accelerator: t(`accelerator.${classifier.activeAccelerator}`),
-                  })}
-                </BodyText>
+              {downloadState.status === 'error' ? (
+                <BodyText tone="danger">{t('model.downloadError', { message: downloadState.errorMessage })}</BodyText>
               ) : null}
             </Card>
           )}
-          <BodyText tone="secondary" style={styles.smallText}>
-            {t('results.scoreHelp', { possible: possibleMinimumScore, probable: probableMinimumScore })}
-          </BodyText>
-          {latestWindow && latestAnalysis?.loggingDecision.kind !== 'human-voice' ? (
-            <>
-              <SectionTitle>{t('results.spectrogramTitle')}</SectionTitle>
-              <MelSpectrogramView
-                melSpectrogram={latestWindow.classification.melSpectrogram}
-                frameCount={latestWindow.classification.spectrogramFrameCount}
-                melBinCount={latestWindow.classification.melBinCount}
-                height={140}
-                horizontalLabels={['0 s', `${latestWindow.windowSeconds} s`]}
-                accessibilityLabel={t('results.spectrogramAccessibility')}
+
+          <SectionTitle>{t('filter.title')}</SectionTitle>
+          <Card>
+            <View style={styles.switchRow}>
+              <BodyText style={styles.switchLabel}>{t('log.useLocation')}</BodyText>
+              <Switch
+                value={isLocationEnabled}
+                onValueChange={(shouldUseLocation) => void handleLocationToggle(shouldUseLocation)}
+                accessibilityLabel={t('log.useLocation')}
+                trackColor={{ true: themePalette.accent, false: themePalette.border }}
               />
+            </View>
+            <BodyText tone={isLocationDenied ? 'danger' : 'secondary'} style={styles.smallText}>
+              {isLocationDenied ? t('log.locationDenied') : t('log.useLocationHelp')}
+            </BodyText>
+            <View style={styles.switchRow}>
+              <BodyText style={styles.switchLabel}>{t('filter.enable')}</BodyText>
+              <Switch
+                value={isOccurrenceFilterEnabled}
+                onValueChange={setIsOccurrenceFilterEnabled}
+                accessibilityLabel={t('filter.enable')}
+                trackColor={{ true: themePalette.accent, false: themePalette.border }}
+              />
+            </View>
+            <BodyText tone={filterStatus.tone} style={styles.smallText}>
+              {filterStatus.text}
+            </BodyText>
+            <BodyText tone="secondary" style={styles.smallText}>
+              {t('filter.help', { areaPenalty: outOfAreaPenalty, seasonPenalty: offSeasonPenalty })}
+            </BodyText>
+            {isOccurrenceFilterEnabled && occurrenceState.status === 'unavailable' ? (
+              <AppButton label={t('filter.retry')} variant="secondary" onPress={retryOccurrenceDownload} />
+            ) : null}
+          </Card>
+
+          {classifier ? (
+            <>
+              <AppButton
+                label={isSessionListening ? t('listen.stop') : t('listen.start')}
+                variant={isSessionListening ? 'danger' : 'primary'}
+                onPress={isSessionListening ? handleStopListening : handleStartListening}
+              />
+              <BodyText tone="secondary" style={styles.smallText}>
+                {t('listen.keepAwake')}
+              </BodyText>
+              {pendingEnrollment ? <BodyText tone="accent">{t('custom.recording')}</BodyText> : null}
+              {listenerState.status === 'starting' ? <BodyText tone="secondary">{t('listen.starting')}</BodyText> : null}
+              {listenerState.status === 'listening' ? (
+                <BodyText tone="secondary">
+                  {t('listen.listening', {
+                    sampleRate: listenerState.inputSampleRateHz,
+                    hop: String(latestWindow?.hopSeconds ?? 2.5).replace('.', ','),
+                  })}
+                </BodyText>
+              ) : null}
+              {listenerState.status === 'listening' && !latestAnalysis ? (
+                <BodyText tone="secondary">{t('listen.waitingFirst')}</BodyText>
+              ) : null}
+              {listenerState.status === 'error' ? (
+                <BodyText tone="danger">{t('core:common.error', { message: listenerState.errorMessage })}</BodyText>
+              ) : null}
+              {wasInterrupted ? <BodyText tone="danger">{t('listen.interrupted')}</BodyText> : null}
+              {analysisErrorMessage ? (
+                <BodyText tone="danger">{t('listen.analysisError', { message: analysisErrorMessage })}</BodyText>
+              ) : null}
+            </>
+          ) : null}
+
+          {manifest && (latestAnalysis || isListening) ? (
+            <>
+              <SectionTitle>{t('results.title')}</SectionTitle>
+              {!latestAnalysis ? (
+                <BodyText tone="secondary">{t('results.nothingYet')}</BodyText>
+              ) : (
+                <>
+                  {customMatching && customMatching.classMatches.length > 0 ? (
+                    <Card>
+                      <BodyText style={styles.emphasis}>{t('results.customTitle')}</BodyText>
+                      {matchedCustomClasses.map((classMatch) => (
+                        <View key={classMatch.classId} style={styles.resultHeader}>
+                          <BodyText tone="accent" style={styles.resultName} numberOfLines={1}>
+                            {classMatch.name}
+                          </BodyText>
+                          <BodyText tone="secondary" style={styles.resultScore}>
+                            {t('results.similarity', { similarity: similarityText(classMatch.similarity) })}
+                          </BodyText>
+                        </View>
+                      ))}
+                      {matchedCustomClasses.length === 0 && closestCustomClass ? (
+                        <BodyText tone="secondary" style={styles.smallText}>
+                          {t(closestCustomClass.isBeatenByBackground ? 'results.customBeatenByBackground' : 'results.customNone', {
+                            name: closestCustomClass.name,
+                            similarity: similarityText(closestCustomClass.similarity),
+                          })}
+                        </BodyText>
+                      ) : null}
+                    </Card>
+                  ) : null}
+                  <Card>
+                    {latestAnalysis.loggingDecision.kind === 'human-voice' ? (
+                      <BodyText tone="danger">{t('results.humanVoice')}</BodyText>
+                    ) : (
+                      <>
+                        {latestAnalysis.topClasses.map((rankedClass) => {
+                          const soundClass = manifest.classes[rankedClass.classIndex];
+                          return soundClass ? (
+                            <ClassResultRow
+                              key={rankedClass.classIndex}
+                              soundClass={soundClass}
+                              score={rankedClass.score}
+                              displayName={displayNameFor(soundClass, appLocale)}
+                              confidenceText={t(`results.confidence.${confidenceLevelFor(rankedClass.score)}`)}
+                              scoreText={t('results.score', { score: rankedClass.score.toFixed(1) })}
+                              soundKindText={t('results.soundKind')}
+                              plausibilityText={plausibilityMarkText(rankedClass)}
+                            />
+                          ) : null;
+                        })}
+                        {latestAnalysis.loggingDecision.kind === 'log' && !isEnrollmentOnly ? (
+                          <BodyText tone="accent">{t('results.logged')}</BodyText>
+                        ) : null}
+                      </>
+                    )}
+                    {latestWindow && latestWindow.levelDecibels < quietLevelDecibels ? (
+                      <BodyText tone="secondary" style={styles.smallText}>
+                        {t('listen.quiet', { level: Math.round(latestWindow.levelDecibels) })}
+                      </BodyText>
+                    ) : null}
+                    {latestWindow && classifier ? (
+                      <BodyText tone="secondary" style={styles.smallText}>
+                        {t('listen.timing', {
+                          total: Math.round(latestWindow.analysisMilliseconds),
+                          resample: Math.round(latestWindow.resampleMilliseconds),
+                          model: Math.round(latestWindow.classification.inferenceMilliseconds),
+                          accelerator: t(`accelerator.${classifier.activeAccelerator}`),
+                        })}
+                      </BodyText>
+                    ) : null}
+                  </Card>
+                </>
+              )}
+              <BodyText tone="secondary" style={styles.smallText}>
+                {t('results.scoreHelp', { possible: possibleMinimumScore, probable: probableMinimumScore })}
+              </BodyText>
+              {latestWindow && latestAnalysis?.loggingDecision.kind !== 'human-voice' ? (
+                <>
+                  <SectionTitle>{t('results.spectrogramTitle')}</SectionTitle>
+                  <MelSpectrogramView
+                    melSpectrogram={latestWindow.classification.melSpectrogram}
+                    frameCount={latestWindow.classification.spectrogramFrameCount}
+                    melBinCount={latestWindow.classification.melBinCount}
+                    height={140}
+                    horizontalLabels={['0 s', `${latestWindow.windowSeconds} s`]}
+                    accessibilityLabel={t('results.spectrogramAccessibility')}
+                  />
+                </>
+              ) : null}
             </>
           ) : null}
         </>
       ) : null}
 
-      {sessionSummary && !isListening && sessionSummary.analyzedWindowCount > 0 ? (
+      {activeTab === 'session' ? (
+        sessionSummary ? (
+          <>
+            <BodyText tone="secondary">
+              {t('session.summary', {
+                windows: sessionSummary.analyzedWindowCount,
+                logged: sessionSummary.loggedDetectionCount,
+                voice: sessionSummary.humanVoiceWindowCount,
+              })}
+            </BodyText>
+            <SessionPanel
+              sessionDetections={sessionDetections}
+              sessionStartTimestamp={sessionSummary.sessionStartTimestamp}
+              sessionEndTimestamp={sessionTimelineEnd}
+              commonNameForLabel={commonNameForLabel}
+            />
+            {!isSessionListening && sessionSummary.analyzedWindowCount > 0 ? (
+              <AppButton label={t('session.save')} onPress={() => void handleSaveSession()} isBusy={isSaving} />
+            ) : null}
+          </>
+        ) : (
+          <BodyText tone="secondary">{t('sessionList.notStarted')}</BodyText>
+        )
+      ) : null}
+
+      {activeTab === 'custom' ? (
         <>
-          <SectionTitle>{t('session.title')}</SectionTitle>
-          <BodyText tone="secondary">
-            {t('session.summary', {
-              windows: sessionSummary.analyzedWindowCount,
-              logged: sessionSummary.loggedDetectionCount,
-              voice: sessionSummary.humanVoiceWindowCount,
-            })}
-          </BodyText>
-          {sessionSummary.speciesTallies.length > 0 ? (
-            <BodyText>{formatSpeciesSummary(sessionSummary.speciesTallies, commonNameForLabel)}</BodyText>
+          <CustomSoundsPanel
+            targetClasses={targetClasses}
+            backgroundClass={backgroundClass}
+            exampleCountByClassId={exampleCountByClassId}
+            sensitivity={customSensitivity}
+            onSensitivityChange={setCustomSensitivity}
+            enrollingClassId={pendingEnrollment?.classId ?? null}
+            isModelReady={classifier !== null}
+            onCreateClass={(className) => runLibraryChange(() => createCustomSoundClass(className, false))}
+            onRecordExample={(classId) =>
+              startEnrollment(classId, targetClasses.find((customClass) => customClass.id === classId)?.name ?? '')
+            }
+            onRecordBackground={() => void handleRecordBackground()}
+            onCancelRecording={handleCancelEnrollment}
+            onRemoveLatestExample={(classId) => runLibraryChange(() => deleteLatestCustomSoundExample(classId))}
+            onRenameClass={(classId, newName) => runLibraryChange(() => renameCustomSoundClass(classId, newName))}
+            onDeleteClass={(classId) => runLibraryChange(() => deleteCustomSoundClass(classId))}
+            onExport={() => void handleExportCustomSounds()}
+          />
+          {customStatusMessage ? <BodyText tone="accent">{customStatusMessage}</BodyText> : null}
+          {pendingEnrollment && listenerState.status === 'error' ? (
+            <BodyText tone="danger">{t('core:common.error', { message: listenerState.errorMessage })}</BodyText>
           ) : null}
-          <AppButton label={t('session.save')} onPress={() => void handleSaveSession()} isBusy={isSaving} />
+          {libraryErrorMessage ? (
+            <BodyText tone="danger">{t('core:common.error', { message: libraryErrorMessage })}</BodyText>
+          ) : null}
         </>
       ) : null}
 
-      <SectionTitle>{t('log.title')}</SectionTitle>
-      <BodyText tone="secondary" style={styles.smallText}>
-        {t('log.explanation')}
-      </BodyText>
-      <View style={styles.switchRow}>
-        <BodyText style={styles.switchLabel}>{t('log.useLocation')}</BodyText>
-        <Switch
-          value={isLocationEnabled}
-          onValueChange={(shouldUseLocation) => void handleLocationToggle(shouldUseLocation)}
-          accessibilityLabel={t('log.useLocation')}
-          trackColor={{ true: themePalette.accent, false: themePalette.border }}
+      {activeTab === 'log' ? (
+        <DetectionLogPanel
+          logStatistics={logStatistics}
+          recentDetections={recentDetections}
+          commonNameForLabel={commonNameForLabel}
+          onExport={(exportKind) => void handleExport(exportKind)}
+          onDelete={handleDeleteLogPress}
         />
-      </View>
-      <BodyText tone={isLocationDenied ? 'danger' : 'secondary'} style={styles.smallText}>
-        {isLocationDenied ? t('log.locationDenied') : t('log.useLocationHelp')}
-      </BodyText>
-      {logStatistics ? (
-        <BodyText>
-          {t('log.statistics', {
-            detections: logStatistics.detectionCount,
-            species: logStatistics.distinctSpeciesCount,
-          })}
-        </BodyText>
       ) : null}
-      {recentDetections.length === 0 ? (
-        <BodyText tone="secondary">{t('log.empty')}</BodyText>
-      ) : (
-        <Card>
-          <BodyText tone="secondary">{t('log.recent')}</BodyText>
-          {recentDetections.map((detectionRecord) => (
-            <View key={detectionRecord.id} style={styles.detectionRow}>
-              <BodyText style={styles.detectionTime}>{localTimeText(detectionRecord.detectedAtIso)}</BodyText>
-              <BodyText style={styles.detectionName} numberOfLines={1}>
-                {commonNameForLabel(detectionRecord.speciesLabel)}
-              </BodyText>
-              <BodyText style={styles.detectionScore}>{detectionRecord.speciesScore.toFixed(1)}</BodyText>
-            </View>
-          ))}
-        </Card>
-      )}
-      {logStatistics && logStatistics.detectionCount > 0 ? (
-        <>
-          <View style={styles.buttonRow}>
-            <View style={styles.buttonCell}>
-              <AppButton label={t('log.exportJsonl')} variant="secondary" onPress={() => void handleExport('jsonl')} />
-            </View>
-            <View style={styles.buttonCell}>
-              <AppButton label={t('log.exportCsv')} variant="secondary" onPress={() => void handleExport('csv')} />
-            </View>
-          </View>
-          <AppButton label={t('log.delete')} variant="danger" onPress={handleDeleteLogPress} />
-        </>
-      ) : null}
+
       {statusMessage ? <BodyText tone="secondary">{statusMessage}</BodyText> : null}
+      {activeTab !== 'custom' && customStatusMessage && pendingEnrollment === null ? (
+        <BodyText tone="accent">{customStatusMessage}</BodyText>
+      ) : null}
 
       <BodyText tone="secondary" style={styles.smallText}>
         {t('disclaimer')}
@@ -632,6 +992,7 @@ function ClassResultRow({
   confidenceText,
   scoreText,
   soundKindText,
+  plausibilityText,
 }: {
   soundClass: SoundClass;
   score: number;
@@ -639,6 +1000,8 @@ function ClassResultRow({
   confidenceText: string;
   scoreText: string;
   soundKindText: string;
+  /** Marca del filtro de lugar y época, si la especie está penalizada. */
+  plausibilityText: string | null;
 }) {
   const themePalette = useThemePalette();
   const confidenceLevel = confidenceLevelFor(score);
@@ -654,13 +1017,18 @@ function ClassResultRow({
     <View style={styles.resultRow}>
       <View style={styles.resultHeader}>
         <BodyText style={styles.resultName} numberOfLines={1}>
-          {displayName}
+          {plausibilityText ? `${displayName} ⚑` : displayName}
         </BodyText>
         <BodyText tone="secondary" style={styles.resultScore}>{`${confidenceText} · ${scoreText}`}</BodyText>
       </View>
       {secondaryName !== displayName ? (
         <BodyText tone="secondary" style={isSpecies ? styles.scientificName : styles.smallText}>
           {secondaryName}
+        </BodyText>
+      ) : null}
+      {plausibilityText ? (
+        <BodyText tone="secondary" style={styles.smallText}>
+          {plausibilityText}
         </BodyText>
       ) : null}
       <ProgressBar fraction={confidenceBarFraction(score)} color={barColor} trackColor={themePalette.border} />
@@ -680,10 +1048,4 @@ const styles = StyleSheet.create({
   resultName: { flex: 1, fontWeight: '600' },
   resultScore: { fontSize: 13, fontVariant: ['tabular-nums'] },
   scientificName: { fontSize: 13, fontStyle: 'italic' },
-  detectionRow: { flexDirection: 'row', gap: 8 },
-  detectionTime: { fontVariant: ['tabular-nums'] },
-  detectionName: { flex: 1 },
-  detectionScore: { fontVariant: ['tabular-nums'] },
-  buttonRow: { flexDirection: 'row', gap: 8 },
-  buttonCell: { flex: 1 },
 });
