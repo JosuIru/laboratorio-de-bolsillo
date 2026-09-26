@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -17,6 +17,7 @@ import {
   defaultVolume,
   echogramMaximumDecibels,
   echogramMinimumDecibels,
+  maximumEmissionMinutes,
   maximumRangeMeters,
   savedProfileColumnCount,
   sonarInstrumentId,
@@ -124,6 +125,22 @@ export function SonarScreen({ saveMeasurement }: InstrumentScreenProps<SonarMeas
   const [temperatureCelsius, setTemperatureCelsius] = useState(defaultTemperatureCelsius);
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [wasStoppedAutomatically, setWasStoppedAutomatically] = useState(false);
+
+  // La emisión se para sola a los pocos minutos (batería y oídos ajenos); cambiar de modo no la reinicia.
+  useEffect(() => {
+    if (!isRunning) return;
+    const automaticStopTimer = setTimeout(() => {
+      setIsRunning(false);
+      setWasStoppedAutomatically(true);
+    }, maximumEmissionMinutes * 60_000);
+    return () => clearTimeout(automaticStopTimer);
+  }, [isRunning]);
+
+  function handleToggleRunning() {
+    setWasStoppedAutomatically(false);
+    setIsRunning((wasRunning) => !wasRunning);
+  }
 
   const { testState, runTest, cancelTest } = useUltrasoundHardwareTest(volume);
   const isTestRunning = testState.phase === 'running';
@@ -256,10 +273,13 @@ export function SonarScreen({ saveMeasurement }: InstrumentScreenProps<SonarMeas
 
       <AppButton
         label={isRunning ? t('stop') : t('start')}
-        onPress={() => setIsRunning((wasRunning) => !wasRunning)}
+        onPress={handleToggleRunning}
         variant={isRunning ? 'secondary' : 'primary'}
         isDisabled={isTestRunning}
       />
+      {wasStoppedAutomatically ? (
+        <BodyText tone="danger">{t('automaticStop', { minutes: maximumEmissionMinutes })}</BodyText>
+      ) : null}
       {activeStatus.status === 'error' ? (
         <BodyText tone="danger">{t('core:common.error', { message: activeStatus.errorMessage })}</BodyText>
       ) : null}

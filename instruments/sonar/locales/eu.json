@@ -3,6 +3,7 @@
   "description": "Neurtu distantziak ultrasoinuen oihartzunekin saguzar batek bezala, marraztu ekograma bat eta detektatu eskuaren keinuak Doppler efektuaren bidez.",
   "start": "Hasi",
   "stop": "Gelditu",
+  "automaticStop": "Bere kabuz gelditu da {{minutes}} minutuz igortzen egon ondoren, bateria aurrezteko eta animaliak eta soinu zorrotzak entzuten dituztenak ez gogaitzeko. Sakatu «Hasi» jarraitzeko.",
   "starting": "Bozgorailua eta mikrofonoa pizten…",
   "hearingWarning": "Soinu oso zorrotzak igortzen ditu (16-22 kHz). Heldu gehienek ez dituzte entzuten, baina txakur, katu eta gazte batzuek bai: jaitsi bolumena edo gelditu gogaikarria bada. Soinua gelditu egiten da pantailatik edo aplikaziotik irtetean.",
   "modes": {
