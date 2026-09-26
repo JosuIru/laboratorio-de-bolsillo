@@ -1,0 +1,83 @@
+{
+  "name": "Modo noche",
+  "description": "Fotos con poca luz sin ruido: junta una ráfaga, quita lo que se mueve y aclara la escena sin quemar las luces.",
+  "intro": "Para calles de noche, interiores oscuros o el cielo al anochecer. Si puedes, apoya el móvil: así cada foto puede durar más y sale con menos ruido.",
+  "tapToFocusHint": "Toca algo con luz para enfocar: de noche el enfoque automático duda.",
+  "focusLocked": "Enfoque fijado.",
+  "unlockFocus": "Soltar",
+  "holdingPrediction": {
+    "tripod": "Móvil quieto: fotos largas (hasta 185 ms) con ISO bajo.",
+    "handheld": "Móvil en la mano: fotos cortas (1/30 s como mucho) con ISO alto, y más fotos."
+  },
+  "noGyroscope": "(Sin giroscopio no se puede saber si está apoyado: elige tú.)",
+  "exposureLockingUnsupported": "Este móvil no deja fijar el tiempo de exposición desde las apps: se usa la exposición automática y el apilado solo quita ruido.",
+  "frameTooSmall": "Las fotos de este móvil son demasiado pequeñas para el recorte central: elige «Toda».",
+  "framingTitle": "Qué se apila (cuanto más grande, más tarda el cálculo):",
+  "framingOptions": {
+    "wholeSmall": "Toda (768 px)",
+    "wholeLarge": "Toda (1024 px, más lento)",
+    "center": "Centro con detalle"
+  },
+  "holdingTitle": "¿Cómo sujetas el móvil?",
+  "holdingChoices": {
+    "auto": "Detectar",
+    "tripod": "Apoyado",
+    "handheld": "En la mano"
+  },
+  "holdStill": "No muevas el móvil…",
+  "capture": "Foto nocturna",
+  "capturingProgress": "No te muevas… foto {{captured}} / {{target}}",
+  "decodingProgress": "Ya puedes moverte. Leyendo la foto {{captured}} / {{target}}…",
+  "stopCapture": "Parar",
+  "burstFailed": "No se han podido tomar las fotos: {{message}}",
+  "noFramesCaptured": "No ha llegado ninguna foto. Vuelve a intentarlo.",
+  "processing": "Alineando y promediando las fotos… (unos segundos)",
+  "resultTitle": "Resultado",
+  "versions": {
+    "night": "Modo noche",
+    "singleSameLook": "Una foto, mismo ajuste",
+    "singleRaw": "Una foto tal cual"
+  },
+  "versionHints": {
+    "night": "Todas las fotos alineadas y promediadas, sin lo que se movió, con la reducción de ruido y el ambiente elegidos.",
+    "singleSameLook": "Una sola foto de la ráfaga con el mismo revelado: compara el ruido y el detalle en las sombras.",
+    "singleRaw": "Una sola foto tal como la dio la cámara, sin tocar."
+  },
+  "openFullSize": "Ver a tamaño real",
+  "ambienceTitle": "Ambiente: de «parece de noche» a «como de día» (las luces no se queman).",
+  "ambienceLevels": {
+    "night": "Noche",
+    "dusk": "Penumbra",
+    "evening": "Anochecer",
+    "cloudy": "Nublado",
+    "day": "Día"
+  },
+  "noiseReductionTitle": "Reducción de ruido:",
+  "noiseReductionLevels": {
+    "off": "Nada",
+    "soft": "Suave",
+    "medium": "Media"
+  },
+  "exposureSummary": "{{mode}}: {{count}} fotos de {{exposure}} con ISO {{iso}}.",
+  "exposureAutomaticSummary": "{{mode}}: {{count}} fotos con la exposición automática.",
+  "isoCeilingReached": "Muy poca luz para fotos tan cortas: el ISO llegó al máximo y cada foto salió más oscura; el revelado lo compensa. Apoyar el móvil permite fotos más largas.",
+  "stackSummary": "Ruido reducido ×{{noise}} (con {{count}} fotos, lo ideal sería ×{{ideal}}). Se descartó el {{rejected}} % de las muestras por moverse. Alineado por zonas en {{local}} de {{others}} fotos; la mano se movió {{shift}} px de media.",
+  "whiteBalanceLocked": "Balance de blancos fijo durante la ráfaga.",
+  "whiteBalanceNotLocked": "Balance de blancos automático: los colores de las fotos se igualan al apilar.",
+  "timings": "Tiempos: ráfaga {{captureSeconds}} s; leer y recortar {{decodeSeconds}} s; alinear {{alignSeconds}} s; por zonas {{localSeconds}} s; promediar {{mergeSeconds}} s; revelado {{developSeconds}} s.",
+  "howItWorks": "Cómo funciona: con poca luz cada foto trae mucho ruido. En vez de una foto larga (que saldría movida), se toma una ráfaga con la exposición fija: si el móvil está apoyado (lo dice el giroscopio), fotos de hasta 185 ms con ISO bajo; en la mano, de 1/30 s como mucho con ISO alto. Las fotos se alinean (entera y por zonas, para corregir pequeños giros) y se promedian: el ruido baja como la raíz del número de fotos. Lo que se movió (un coche, una persona) aparece solo en alguna foto y se descarta punto a punto comparándolo con el resto. Después se suaviza el ruido que queda y se revela en luz lineal con una curva que aclara las sombras y lleva la luz más fuerte justo al blanco. Todo se calcula en el móvil.",
+  "fields": {
+    "capturedFrameCount": "Fotos apiladas",
+    "holdingMode": "Sujeción",
+    "exposureSeconds": "Exposición de cada foto",
+    "iso": "ISO",
+    "outputSize": "Tamaño del resultado",
+    "noiseReductionFactor": "Reducción del ruido",
+    "rejectedPercent": "Muestras descartadas",
+    "locallyAlignedFrameCount": "Fotos alineadas por zonas",
+    "ambience": "Ambiente",
+    "noiseReductionLevel": "Reducción de ruido",
+    "captureSeconds": "Tiempo de captura",
+    "processingSeconds": "Tiempo de cálculo"
+  }
+}

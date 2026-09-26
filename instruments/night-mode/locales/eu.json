@@ -1,0 +1,83 @@
+{
+  "name": "Gau modua",
+  "description": "Argi gutxiko argazkiak zaratarik gabe: segida bat batzen du, mugitzen dena kentzen du eta eszena argitzen du argiak erre gabe.",
+  "intro": "Gaueko kaleetarako, barnealde ilunetarako edo ilunabarreko zerurako. Ahal baduzu, bermatu mugikorra: horrela argazki bakoitzak gehiago iraun dezake eta zarata gutxiagorekin ateratzen da.",
+  "tapToFocusHint": "Ukitu argia duen zerbait fokatzeko: gauez fokatze automatikoak zalantza egiten du.",
+  "focusLocked": "Fokua finkatuta.",
+  "unlockFocus": "Askatu",
+  "holdingPrediction": {
+    "tripod": "Mugikorra geldi: argazki luzeak (185 ms arte) ISO baxuarekin.",
+    "handheld": "Mugikorra eskuan: argazki laburrak (1/30 s gehienez) ISO altuarekin, eta argazki gehiago."
+  },
+  "noGyroscope": "(Giroskopiorik gabe ezin da jakin bermatuta dagoen: aukeratu zuk.)",
+  "exposureLockingUnsupported": "Mugikor honek ez du uzten aplikazioetatik esposizio-denbora finkatzen: esposizio automatikoa erabiltzen da eta pilaketak zarata bakarrik kentzen du.",
+  "frameTooSmall": "Mugikor honen argazkiak txikiegiak dira erdiko moztuarentzat: aukeratu «Osoa».",
+  "framingTitle": "Zer pilatzen den (zenbat eta handiagoa, orduan eta gehiago irauten du kalkuluak):",
+  "framingOptions": {
+    "wholeSmall": "Osoa (768 px)",
+    "wholeLarge": "Osoa (1024 px, motelago)",
+    "center": "Erdia xehetasunez"
+  },
+  "holdingTitle": "Nola heltzen diozu mugikorrari?",
+  "holdingChoices": {
+    "auto": "Detektatu",
+    "tripod": "Bermatuta",
+    "handheld": "Eskuan"
+  },
+  "holdStill": "Ez mugitu mugikorra…",
+  "capture": "Gaueko argazkia",
+  "capturingProgress": "Ez mugitu… {{captured}} / {{target}} argazkia",
+  "decodingProgress": "Orain mugi zaitezke. {{captured}} / {{target}} argazkia irakurtzen…",
+  "stopCapture": "Gelditu",
+  "burstFailed": "Ezin izan dira argazkiak atera: {{message}}",
+  "noFramesCaptured": "Ez da argazkirik iritsi. Saiatu berriro.",
+  "processing": "Argazkiak lerrokatzen eta batez bestekoa egiten… (segundo batzuk)",
+  "resultTitle": "Emaitza",
+  "versions": {
+    "night": "Gau modua",
+    "singleSameLook": "Argazki bat, doikuntza bera",
+    "singleRaw": "Argazki bat bere horretan"
+  },
+  "versionHints": {
+    "night": "Argazki guztiak lerrokatuta eta batez bestekoa eginda, mugitu zena kenduta, aukeratutako zarata-murrizketarekin eta giroarekin.",
+    "singleSameLook": "Segidako argazki bakar bat errebelatze berarekin: alderatu zarata eta itzaletako xehetasuna.",
+    "singleRaw": "Argazki bakar bat, kamerak eman bezala, ukitu gabe."
+  },
+  "openFullSize": "Ikusi benetako tamainan",
+  "ambienceTitle": "Giroa: gauaren itxuratik egunaren itxurara (argiak ez dira erretzen).",
+  "ambienceLevels": {
+    "night": "Gaua",
+    "dusk": "Itzalpea",
+    "evening": "Ilunabarra",
+    "cloudy": "Hodeitsua",
+    "day": "Eguna"
+  },
+  "noiseReductionTitle": "Zarata-murrizketa:",
+  "noiseReductionLevels": {
+    "off": "Batere ez",
+    "soft": "Leuna",
+    "medium": "Ertaina"
+  },
+  "exposureSummary": "{{mode}}: {{count}} argazki, bakoitza {{exposure}}, ISO {{iso}}.",
+  "exposureAutomaticSummary": "{{mode}}: {{count}} argazki esposizio automatikoarekin.",
+  "isoCeilingReached": "Argi gutxiegi hain argazki laburretarako: ISOa gehienera iritsi da eta argazki bakoitza ilunago atera da; errebelatzeak konpentsatzen du. Mugikorra bermatuta argazki luzeagoak atera daitezke.",
+  "stackSummary": "Zarata ×{{noise}} murriztuta ({{count}} argazkirekin, ideala ×{{ideal}} litzateke). Laginen % {{rejected}} baztertu da mugitzeagatik. Eremuka lerrokatutako argazkiak: {{local}} / {{others}}; eskua {{shift}} px mugitu zen batez beste.",
+  "whiteBalanceLocked": "Zuri-balantzea finko segidan zehar.",
+  "whiteBalanceNotLocked": "Zuri-balantze automatikoa: argazkien koloreak berdindu egiten dira pilatzean.",
+  "timings": "Denborak: segida {{captureSeconds}} s; irakurri eta moztu {{decodeSeconds}} s; lerrokatu {{alignSeconds}} s; eremuka {{localSeconds}} s; batez bestekoa {{mergeSeconds}} s; errebelatzea {{developSeconds}} s.",
+  "howItWorks": "Nola dabilen: argi gutxirekin argazki bakoitzak zarata asko dakar. Argazki luze baten ordez (mugituta aterako litzateke), esposizio finkoko segida bat ateratzen da: mugikorra bermatuta badago (giroskopioak esaten du), 185 ms arteko argazkiak ISO baxuarekin; eskuan, 1/30 s gehienez ISO altuarekin. Argazkiak lerrokatu egiten dira (osorik eta eremuka, biraketa txikiak zuzentzeko) eta haien batez bestekoa egiten da: zarata argazki kopuruaren erro karratuaren arabera jaisten da. Mugitu zena (auto bat, pertsona bat) argazkiren batean bakarrik agertzen da eta puntuz puntu baztertzen da gainerakoekin alderatuta. Ondoren, geratzen den zarata leuntzen da eta argi linealean errebelatzen da, itzalak argitzen dituen eta argirik indartsuena zuri-zurira eramaten duen kurba batekin. Dena mugikorrean kalkulatzen da.",
+  "fields": {
+    "capturedFrameCount": "Pilatutako argazkiak",
+    "holdingMode": "Heltzeko modua",
+    "exposureSeconds": "Argazki bakoitzaren esposizioa",
+    "iso": "ISO",
+    "outputSize": "Emaitzaren tamaina",
+    "noiseReductionFactor": "Zarataren murrizketa",
+    "rejectedPercent": "Baztertutako laginak",
+    "locallyAlignedFrameCount": "Eremuka lerrokatutako argazkiak",
+    "ambience": "Giroa",
+    "noiseReductionLevel": "Zarata-murrizketa",
+    "captureSeconds": "Argazkiak ateratzeko denbora",
+    "processingSeconds": "Kalkulu-denbora"
+  }
+}
