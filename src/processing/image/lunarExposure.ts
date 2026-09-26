@@ -22,9 +22,12 @@ export interface LunarBrightnessReading {
 
 /**
  * Punto de partida con ISO bajo: regla «Looney 11» (f/11, 1/ISO para la Luna llena) llevada a un
- * objetivo de móvil de f/1,8, con un paso de margen para las fases con menos luz.
+ * objetivo de móvil de f/1,8 da ~1/3700 s a ISO 100. Medido en un moto g57 (f/1,8) con la Luna casi
+ * llena: 1/6500 s a ISO 143 (≈ 1/4600 s a ISO 100) dejó el disco bien expuesto, sin saturar; a
+ * 1/1000 s e ISO 1500 salía blanco del todo. Se empieza en 1/4000 s y el ajuste automático corrige
+ * a partir de ahí (las fases finas necesitan más).
  */
-export const initialLunarExposureSeconds = 1 / 2000;
+export const initialLunarExposureSeconds = 1 / 4000;
 
 /** Un tercio de paso: el incremento de los botones y del ajuste fino. */
 export const exposureThirdStopFactor = 2 ** (1 / 3);
