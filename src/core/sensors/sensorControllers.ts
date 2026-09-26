@@ -35,9 +35,17 @@ function androidOnlyController(sensorKind: SensorKind) {
 }
 
 /**
- * Un controlador por tipo de sensor. La linterna se controla desde la cámara de cada
- * instrumento (depende del dispositivo de cámara elegido), así que aquí queda pendiente.
+ * La linterna se enciende desde la cámara de cada instrumento, con su mismo permiso: está
+ * disponible si la cámara lo está. Si el móvil no tiene flash, lo avisa el propio instrumento
+ * (depende de la cámara elegida).
  */
+const torchController = {
+  sensorKind: 'torch',
+  checkAvailability: async () => ({ ...(await cameraController.checkAvailability()), sensorKind: 'torch' }),
+  requestPermission: async () => ({ ...(await cameraController.requestPermission()), sensorKind: 'torch' }),
+} satisfies SensorAccessController;
+
+/** Un controlador por tipo de sensor. */
 export const sensorControllers: Record<SensorKind, SensorAccessController> = {
   accelerometer: accelerometerSource,
   gyroscope: gyroscopeSource,
@@ -50,7 +58,7 @@ export const sensorControllers: Record<SensorKind, SensorAccessController> = {
   bluetooth: androidOnlyController('bluetooth'),
   wifi: androidOnlyController('wifi'),
   gnss: androidOnlyController('gnss'),
-  torch: staticController('torch', unavailableBecause('torch', 'sensors.reason.notYetSupported')),
+  torch: torchController,
   speaker: staticController('speaker', { status: 'available' }),
   vibrator: staticController('vibrator', { status: 'available' }),
 };
