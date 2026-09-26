@@ -1,5 +1,8 @@
 import type { GeoLocation } from '@/core/sensors/adapters/location';
 
+import type { MeasurementImage } from './imageAttachments';
+import type { MeasurementFilter } from './measurementFilter';
+
 export type { GeoLocation };
 
 /** Cualquier objeto serializable a JSON; su forma la define el esquema del instrumento. */
@@ -61,5 +64,12 @@ export interface MeasurementRepository {
   findById(measurementId: string): Promise<Measurement | null>;
   listByInstrument(instrumentId: string, page?: MeasurementPage): Promise<Measurement[]>;
   countByInstrument(instrumentId: string): Promise<number>;
+  /** Mediciones de varios instrumentos, de la más reciente a la más antigua. */
+  listFiltered(filter: MeasurementFilter, page?: MeasurementPage): Promise<Measurement[]>;
+  countFiltered(filter: MeasurementFilter): Promise<number>;
+  /** Número de mediciones de cada instrumento que tiene alguna. */
+  countPerInstrument(): Promise<Map<string, number>>;
+  /** Adjuntos de imagen de las mediciones que cumplen el filtro, de la más reciente a la más antigua. */
+  listImages(filter: MeasurementFilter, page?: MeasurementPage): Promise<MeasurementImage[]>;
   remove(measurementId: string): Promise<void>;
 }

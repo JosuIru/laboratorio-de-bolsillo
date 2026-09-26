@@ -94,13 +94,62 @@ export function measurementsToJson(
     formatVersion: jsonExportFormatVersion,
     exportedAt: exportedAt.toISOString(),
     instrument: { id: instrumentId, schemaVersion: schema.version, fields: schema.fields },
-    measurements: measurements.map((measurement) => ({
-      ...measurement,
-      timestampIso: new Date(measurement.timestamp).toISOString(),
-      attachments: measurement.attachments.map(({ fileUri: _localFileUri, ...portableAttachment }) => portableAttachment),
-    })),
+    measurements: measurements.map(toPortableMeasurement),
   };
   return JSON.stringify(exportDocument, null, 2);
+}
+
+function toPortableMeasurement(measurement: Measurement) {
+  return {
+    ...measurement,
+    timestampIso: new Date(measurement.timestamp).toISOString(),
+    attachments: measurement.attachments.map(({ fileUri: _localFileUri, ...portableAttachment }) => portableAttachment),
+  };
+}
+
+export const multiInstrumentJsonExportFormatName = 'laboratorio-de-bolsillo/measurements-collection';
+
+export interface InstrumentMeasurementGroup {
+  instrumentId: string;
+  schema: Pick<MeasurementSchema, 'fields' | 'version'>;
+  measurements: readonly Measurement[];
+}
+
+/**
+ * Exportación de varios instrumentos en un solo JSON: un bloque por instrumento con el mismo
+ * contenido que la exportación individual. Los instrumentos sin mediciones no se incluyen.
+ */
+export function measurementGroupsToJson(
+  measurementGroups: readonly InstrumentMeasurementGroup[],
+  exportedAt: Date = new Date(),
+): string {
+  const exportDocument = {
+    format: multiInstrumentJsonExportFormatName,
+    formatVersion: jsonExportFormatVersion,
+    exportedAt: exportedAt.toISOString(),
+    instruments: measurementGroups
+      .filter((measurementGroup) => measurementGroup.measurements.length > 0)
+      .map((measurementGroup) => ({
+        instrument: {
+          id: measurementGroup.instrumentId,
+          schemaVersion: measurementGroup.schema.version,
+          fields: measurementGroup.schema.fields,
+        },
+        measurements: measurementGroup.measurements.map(toPortableMeasurement),
+      })),
+  };
+  return JSON.stringify(exportDocument, null, 2);
+}
+
+/** Separa una lista de mediciones por instrumento, conservando el orden de aparición. */
+export function groupMeasurementsByInstrument(measurements: readonly Measurement[]): Map<string, Measurement[]> {
+  const measurementsByInstrument = new Map<string, Measurement[]>();
+  for (const measurement of measurements) {
+    const instrumentMeasurements = measurementsByInstrument.get(measurement.instrumentId) ?? [];
+    instrumentMeasurements.push(measurement);
+    measurementsByInstrument.set(measurement.instrumentId, instrumentMeasurements);
+  }
+  return measurementsByInstrument;
 }
 
 /** Nombre de fichero seguro: `seismograph-2026-09-25T18-30-00.csv`. */

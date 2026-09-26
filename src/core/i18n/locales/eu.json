@@ -160,5 +160,47 @@
       "peek": "ekintza nagusiak",
       "open": "zabalik"
     }
+  },
+  "imageViewer": {
+    "counter": "{{current}} / {{total}}",
+    "close": "Itxi",
+    "previous": "Aurreko irudia",
+    "next": "Hurrengo irudia",
+    "share": "Partekatu",
+    "saveToGallery": "Gorde galerian",
+    "savedTitle": "Irudia gordeta",
+    "savedInAlbum": "Galerian dago, «Laboratorio de Bolsillo» albumean.",
+    "savedInGallery": "Argazki-galerian dago.",
+    "permissionDeniedTitle": "Ez dago gordetzeko baimenik",
+    "permissionDeniedMessage": "Irudia gordetzeko, utzi aplikazioari argazkiak galerian gehitzen. Gordetzeko baimena baino ez da eskatzen, ez zure argazkiak ikusteko.",
+    "permissionBlockedMessage": "Argazkiak gordetzeko baimena ukatu duzu. Aktibatu sistemaren ezarpenetan, aplikazioaren baimenetan (Argazkiak eta bideoak).",
+    "loadError": "Ezin da irudia ireki: baliteke fitxategia ezabatuta egotea.",
+    "openImage": "Ikusi {{fileName}} irudia"
+  },
+  "myData": {
+    "title": "Nire datuak",
+    "homeCardTitle": "Nire datuak",
+    "homeCardDescription": "Zure neurketa eta irudi guztiak, tresna guztietakoak.",
+    "allInstruments": "Denak",
+    "instrumentFilter": "Tresnak",
+    "dateFilter": "Datak",
+    "dateRange": {
+      "today": "Gaur",
+      "last7Days": "7 egun",
+      "last30Days": "30 egun",
+      "all": "Dena"
+    },
+    "viewList": "Zerrenda",
+    "viewGallery": "Galeria",
+    "measurementCount_one": "Neurketa {{count}}",
+    "measurementCount_other": "{{count}} neurketa",
+    "empty": "Oraindik ez duzu neurketarik gorde. Erabili edozein tresnaren gordetzeko botoia.",
+    "emptyFiltered": "Ez dago neurketarik iragazki hauekin.",
+    "emptyGallery": "Ez dago irudirik iragazki hauekin.",
+    "openHistory": "Ireki tresna honen historia: {{instrument}}",
+    "export": "Esportatu",
+    "exportHint": "Iragazkiak betetzen dituzten neurketak esportatzen dira.",
+    "exportCsvHint": "CSVn esportatzeko, aukeratu tresna bakar bat: bakoitzak bere zutabeak ditu.",
+    "exportAllJson": "Esportatu JSON (denak)"
   }
 }

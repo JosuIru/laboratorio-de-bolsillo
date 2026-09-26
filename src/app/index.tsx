@@ -30,6 +30,23 @@ export default function HomeScreen() {
         }}
       />
       <BodyText tone="secondary">{t('app.tagline')}</BodyText>
+      <Link href="/my-data" asChild>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('myData.homeCardTitle')}
+          style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
+          <Card>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <BodyText style={{ fontSize: 24 }}>🗂️</BodyText>
+              <View style={{ flex: 1 }}>
+                <BodyText style={{ fontWeight: '600' }}>{t('myData.homeCardTitle')}</BodyText>
+                <BodyText tone="secondary">{t('myData.homeCardDescription')}</BodyText>
+              </View>
+              <BodyText tone="accent">›</BodyText>
+            </View>
+          </Card>
+        </Pressable>
+      </Link>
       {enabledInstrumentSections.length === 0 ? (
         <Card>
           <BodyText tone="secondary">{t('home.empty')}</BodyText>

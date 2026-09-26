@@ -1,7 +1,14 @@
 import type { MeasurementFieldDescriptor } from '@/core/measurements/schema';
 import type { Measurement } from '@/core/measurements/types';
 
-import { buildExportFileName, escapeCsvCell, measurementsToCsv, measurementsToJson } from './formatMeasurements';
+import {
+  buildExportFileName,
+  escapeCsvCell,
+  groupMeasurementsByInstrument,
+  measurementGroupsToJson,
+  measurementsToCsv,
+  measurementsToJson,
+} from './formatMeasurements';
 
 const exampleFields: MeasurementFieldDescriptor[] = [
   { key: 'dominantFrequencyHz', labelKey: 'f', type: 'number', unit: 'Hz' },
@@ -95,6 +102,45 @@ describe('measurementsToJson', () => {
       fileName: 'a.wav',
       mimeType: 'audio/wav',
     });
+    expect(JSON.stringify(exportDocument)).not.toContain('file:///');
+  });
+});
+
+describe('exportación conjunta de varios instrumentos', () => {
+  const moonMeasurement: Measurement = {
+    id: 'm3',
+    instrumentId: 'moon',
+    schemaVersion: 2,
+    timestamp: Date.UTC(2026, 8, 25, 20, 0, 0),
+    values: { phase: 0.5 },
+    attachments: [{ id: 'a2', kind: 'photo', fileUri: 'file:///private/luna.png', fileName: 'luna.png', mimeType: 'image/png' }],
+  };
+  const mixedMeasurements = [exampleMeasurements[0]!, moonMeasurement, exampleMeasurements[1]!];
+
+  it('agrupa por instrumento conservando el orden', () => {
+    const measurementsByInstrument = groupMeasurementsByInstrument(mixedMeasurements);
+    expect([...measurementsByInstrument.keys()]).toEqual(['audio-spectrum', 'moon']);
+    expect(measurementsByInstrument.get('audio-spectrum')?.map((measurement) => measurement.id)).toEqual(['m1', 'm2']);
+  });
+
+  it('escribe un bloque por instrumento con su esquema, sin rutas locales ni grupos vacíos', () => {
+    const exportDocument = JSON.parse(
+      measurementGroupsToJson(
+        [
+          { instrumentId: 'audio-spectrum', schema: { fields: exampleFields, version: 1 }, measurements: exampleMeasurements },
+          { instrumentId: 'moon', schema: { fields: [], version: 2 }, measurements: [moonMeasurement] },
+          { instrumentId: 'sonar', schema: { fields: [], version: 1 }, measurements: [] },
+        ],
+        new Date(0),
+      ),
+    );
+    expect(exportDocument.format).toBe('laboratorio-de-bolsillo/measurements-collection');
+    expect(exportDocument.instruments.map((block: { instrument: { id: string } }) => block.instrument.id)).toEqual([
+      'audio-spectrum',
+      'moon',
+    ]);
+    expect(exportDocument.instruments[1].instrument.schemaVersion).toBe(2);
+    expect(exportDocument.instruments[1].measurements[0].timestampIso).toBe('2026-09-25T20:00:00.000Z');
     expect(JSON.stringify(exportDocument)).not.toContain('file:///');
   });
 });

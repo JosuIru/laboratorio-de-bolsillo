@@ -1,6 +1,15 @@
 import { getDatabase } from '@/core/storage/database';
 
-import { type AttachmentRow, attachmentToRow, type MeasurementRow, measurementToRow, rowToMeasurement } from './rowMapping';
+import { buildImageAttachmentSqlCondition, type MeasurementImage } from './imageAttachments';
+import { buildMeasurementFilterSql } from './measurementFilter';
+import {
+  type AttachmentRow,
+  attachmentToRow,
+  type MeasurementRow,
+  measurementToRow,
+  rowToAttachment,
+  rowToMeasurement,
+} from './rowMapping';
 import type { Measurement, MeasurementPage, MeasurementRepository } from './types';
 
 async function attachMeasurementAttachments(measurementRows: MeasurementRow[]): Promise<Measurement[]> {
@@ -93,6 +102,56 @@ export const sqliteMeasurementRepository: MeasurementRepository = {
       [instrumentId],
     );
     return countRow?.measurementCount ?? 0;
+  },
+
+  async listFiltered(filter, page?: MeasurementPage) {
+    const database = await getDatabase();
+    const { whereClause, parameters } = buildMeasurementFilterSql(filter, 'm');
+    const measurementRows = await database.getAllAsync<MeasurementRow>(
+      `SELECT m.* FROM measurements m ${whereClause} ORDER BY m.timestamp DESC, m.id LIMIT ? OFFSET ?`,
+      [...parameters, page?.limit ?? -1, page?.offset ?? 0],
+    );
+    return attachMeasurementAttachments(measurementRows);
+  },
+
+  async countFiltered(filter) {
+    const database = await getDatabase();
+    const { whereClause, parameters } = buildMeasurementFilterSql(filter, 'm');
+    const countRow = await database.getFirstAsync<{ measurementCount: number }>(
+      `SELECT COUNT(*) AS measurementCount FROM measurements m ${whereClause}`,
+      parameters,
+    );
+    return countRow?.measurementCount ?? 0;
+  },
+
+  async countPerInstrument() {
+    const database = await getDatabase();
+    const countRows = await database.getAllAsync<{ instrument_id: string; measurementCount: number }>(
+      'SELECT instrument_id, COUNT(*) AS measurementCount FROM measurements GROUP BY instrument_id',
+    );
+    return new Map(countRows.map((countRow) => [countRow.instrument_id, countRow.measurementCount]));
+  },
+
+  async listImages(filter, page?: MeasurementPage) {
+    const database = await getDatabase();
+    const { whereClause, parameters } = buildMeasurementFilterSql(filter, 'm');
+    const imageCondition = buildImageAttachmentSqlCondition('a');
+    const combinedWhereClause = whereClause ? `${whereClause} AND ${imageCondition}` : `WHERE ${imageCondition}`;
+    const imageRows = await database.getAllAsync<AttachmentRow & { instrument_id: string; timestamp: number }>(
+      `SELECT a.*, m.instrument_id AS instrument_id, m.timestamp AS timestamp
+         FROM attachments a JOIN measurements m ON m.id = a.measurement_id
+         ${combinedWhereClause}
+         ORDER BY m.timestamp DESC, m.id, a.rowid LIMIT ? OFFSET ?`,
+      [...parameters, page?.limit ?? -1, page?.offset ?? 0],
+    );
+    return imageRows.map(
+      (imageRow): MeasurementImage => ({
+        attachment: rowToAttachment(imageRow),
+        measurementId: imageRow.measurement_id,
+        instrumentId: imageRow.instrument_id,
+        timestamp: imageRow.timestamp,
+      }),
+    );
   },
 
   async remove(measurementId) {

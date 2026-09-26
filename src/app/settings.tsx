@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Linking, Pressable, Share, StyleSheet, Switch, View } from 'react-native';
@@ -70,6 +71,12 @@ export default function SettingsScreen() {
           );
         })}
       </View>
+
+      <SectionTitle>{t('myData.title')}</SectionTitle>
+      <Card>
+        <BodyText tone="secondary">{t('myData.homeCardDescription')}</BodyText>
+        <AppButton label={t('myData.title')} variant="secondary" onPress={() => router.push('/my-data')} />
+      </Card>
 
       <SectionTitle>{t('settings.location')}</SectionTitle>
       <Card>

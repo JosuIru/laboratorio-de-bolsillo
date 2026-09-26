@@ -1,15 +1,19 @@
 import { Stack, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, StyleSheet, View } from 'react-native';
 
-import { type ExportFormat, shareAttachment, shareMeasurements } from '@/core/export/shareMeasurements';
+import { type ExportFormat, shareMeasurements } from '@/core/export/shareMeasurements';
 import { findInstrument } from '@/core/instruments/registryAccess';
 import type { AnyInstrumentDefinition } from '@/core/instruments/types';
 import { deleteMeasurement } from '@/core/measurements/measurementService';
 import { sqliteMeasurementRepository } from '@/core/measurements/sqliteMeasurementRepository';
-import { type Measurement, readMeasurementField } from '@/core/measurements/types';
+import { collectMeasurementImages } from '@/core/measurements/imageAttachments';
+import { type Attachment, type Measurement, readMeasurementField } from '@/core/measurements/types';
 import { AppButton, BodyText, Card, LoadingState, ScreenContainer } from '@/ui/components';
+import { ImageViewer, type ImageViewerItem } from '@/ui/ImageViewer';
+import { MeasurementAttachments } from '@/ui/MeasurementAttachments';
+import { formatMeasurementFieldValue } from '@/ui/measurementText';
 
 const pageSize = 30;
 
@@ -21,6 +25,22 @@ export default function MeasurementHistoryScreen() {
   const [totalMeasurementCount, setTotalMeasurementCount] = useState(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [exportingFormat, setExportingFormat] = useState<ExportFormat | null>(null);
+  const [openedImageIndex, setOpenedImageIndex] = useState<number | null>(null);
+
+  // El visor recorre las imágenes de todas las mediciones cargadas, no solo las de una.
+  const viewerImages = useMemo<ImageViewerItem[]>(
+    () =>
+      collectMeasurementImages(measurements ?? []).map((measurementImage) => ({
+        attachment: measurementImage.attachment,
+        caption: new Date(measurementImage.timestamp).toLocaleString(i18n.language),
+      })),
+    [measurements, i18n.language],
+  );
+
+  function openImage(attachment: Attachment) {
+    const imageIndex = viewerImages.findIndex((viewerImage) => viewerImage.attachment.id === attachment.id);
+    if (imageIndex >= 0) setOpenedImageIndex(imageIndex);
+  }
 
   const loadFirstPage = useCallback(async () => {
     try {
@@ -138,12 +158,15 @@ export default function MeasurementHistoryScreen() {
           instrument={instrument}
           locale={i18n.language}
           onDelete={() => confirmDelete(measurement.id)}
+          onOpenImage={openImage}
         />
       ))}
 
       {measurements.length < totalMeasurementCount ? (
         <AppButton label={t('history.loadMore')} onPress={() => void handleLoadMore()} variant="secondary" />
       ) : null}
+
+      <ImageViewer images={viewerImages} openedIndex={openedImageIndex} onClose={() => setOpenedImageIndex(null)} />
     </ScreenContainer>
   );
 }
@@ -153,19 +176,19 @@ function MeasurementRow({
   instrument,
   locale,
   onDelete,
+  onOpenImage,
 }: {
   measurement: Measurement;
   instrument: AnyInstrumentDefinition;
   locale: string;
   onDelete(): void;
+  onOpenImage(attachment: Attachment): void;
 }) {
   const { t } = useTranslation();
   const numberFormatter = new Intl.NumberFormat(locale, { maximumFractionDigits: 3 });
 
   function formatFieldValue(fieldValue: unknown, unit: string | undefined): string {
-    if (Array.isArray(fieldValue)) return t('history.arrayValues', { count: fieldValue.length });
-    const formattedValue = typeof fieldValue === 'number' ? numberFormatter.format(fieldValue) : String(fieldValue ?? '—');
-    return unit ? `${formattedValue} ${unit}` : formattedValue;
+    return formatMeasurementFieldValue(t, numberFormatter, fieldValue, unit);
   }
 
   const detailTags = [
@@ -196,18 +219,7 @@ function MeasurementRow({
       })}
       {measurement.note ? <BodyText tone="secondary">{measurement.note}</BodyText> : null}
       {detailTags.length > 0 ? <BodyText tone="secondary">{detailTags.join(' · ')}</BodyText> : null}
-      {measurement.attachments.map((attachment) => (
-        <AppButton
-          key={attachment.id}
-          label={t('history.shareAttachment', { fileName: attachment.fileName })}
-          variant="secondary"
-          onPress={() =>
-            shareAttachment(attachment, t('history.exportDialogTitle')).catch((shareError: unknown) =>
-              Alert.alert(t('common.error', { message: String(shareError) })),
-            )
-          }
-        />
-      ))}
+      <MeasurementAttachments attachments={measurement.attachments} onOpenImage={onOpenImage} />
     </Card>
   );
 }
