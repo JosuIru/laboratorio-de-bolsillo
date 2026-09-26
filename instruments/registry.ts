@@ -34,6 +34,7 @@ import { seismographInstrument } from './seismograph';
 import { sonarInstrument } from './sonar';
 import { singTheNoteInstrument } from './sing-the-note';
 import { soundLocatorInstrument } from './sound-locator';
+import { starSkyInstrument } from './star-sky';
 import { stepMusicInstrument } from './step-music';
 import { superzoomInstrument } from './superzoom';
 import { traditionalTunerInstrument } from './traditional-tuner';
@@ -91,6 +92,7 @@ export const instrumentSections: readonly InstrumentSection[] = [
       seismographInstrument,
       motionMagnifierInstrument,
       moonInstrument,
+      starSkyInstrument,
       exampleLevelInstrument,
     ],
   },

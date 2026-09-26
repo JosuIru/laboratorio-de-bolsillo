@@ -1,0 +1,140 @@
+{
+  "name": "Cielo estrellado",
+  "description": "Estrellas apiladas, trazos de estrellas y vigilancia de meteoros con el móvil quieto en un trípode.",
+  "intro": "Pon el móvil en un trípode (o bien apoyado) apuntando al cielo. Apila muchas fotos para ver más estrellas, dibuja sus trazos o vigila las estrellas fugaces.",
+  "modeTitle": "Modo",
+  "modes": {
+    "stack": "Apilar estrellas",
+    "trails": "Trazos",
+    "meteors": "Meteoros"
+  },
+  "modeHints": {
+    "stack": "Muchas fotos cortas, alineadas siguiendo el giro del cielo y promediadas: el ruido baja y salen estrellas que no se ven en una sola foto.",
+    "trails": "El máximo de cada píxel de todas las fotos: las estrellas dibujan arcos alrededor del polo. Cuanto más tiempo, más largos. Para cuando quieras.",
+    "meteors": "Vigila el vídeo de la cámara y guarda la foto de cada estrella fugaz, con su hora. Descarta satélites, aviones y píxeles calientes."
+  },
+  "isoTitle": "Sensibilidad (más ISO: más estrellas, pero más ruido)",
+  "frameCountTitle": "Fotos que se apilan",
+  "fieldTitle": "Zona de la foto",
+  "fieldChoices": {
+    "whole": "Todo el campo (reducido)",
+    "center": "Centro (resolución completa)"
+  },
+  "gapFillingTitle": "Rellenar huecos entre fotos",
+  "choices": {
+    "on": "Sí",
+    "off": "No"
+  },
+  "nightView": {
+    "enable": "Vista nocturna",
+    "disable": "Exposición automática",
+    "exposure": "Exposición {{milliseconds}} ms · ISO {{iso}}",
+    "automaticExposure": "Este móvil no deja fijar la exposición: se usa la automática",
+    "focusInfinity": "enfoque en el infinito",
+    "focusAutomatic": "enfoque automático",
+    "whiteBalanceLocked": "balance de blancos fijo"
+  },
+  "start": {
+    "stack": "Apilar {{frames}} fotos",
+    "trails": "Empezar los trazos",
+    "meteors": "Empezar a vigilar"
+  },
+  "stop": "Parar",
+  "processing": "Procesando…",
+  "noPhotos": "no ha llegado ninguna foto",
+  "burstFailed": "No se han podido tomar las fotos: {{message}}",
+  "progress": {
+    "photos": "Foto {{captured}} de {{target}}… no toques el móvil",
+    "stack": {
+      "detecting": "Buscando estrellas: foto {{completed}} de {{total}}",
+      "firstPass": "Alineando y sumando (1.ª pasada): {{completed}} de {{total}}",
+      "secondPass": "Alineando y sumando (2.ª pasada): {{completed}} de {{total}}",
+      "finishing": "Quitando el fondo y contando estrellas…"
+    },
+    "trails": "{{frames}} fotos · {{elapsed}}"
+  },
+  "stack": {
+    "title": "Estrellas apiladas",
+    "versions": {
+      "stacked": "Apilado",
+      "single": "Una foto suelta"
+    },
+    "compareHint": "Las dos versiones van con el mismo estirado de brillo: así se ve cuánto ruido quita el apilado. Toca la imagen para verla a pantalla completa.",
+    "starCounts": "Estrellas detectadas: {{stacked}} en el apilado y {{single}} en una foto suelta.",
+    "limitingMagnitudes": "Magnitud límite aproximada: {{stacked}} apilando, {{single}} con una foto.",
+    "magnitudeUnknown": "no se sabe (muy pocas estrellas)",
+    "magnitudeValue": "{{magnitude}}",
+    "noiseReduction": "El ruido del cielo ha bajado ×{{factor}} (lo ideal sería ×{{expected}}, es decir, +{{gain}} magnitudes).",
+    "alignment": "Se han apilado {{stacked}} de {{captured}} fotos. El cielo ha girado hasta {{rotation}}° y se ha desplazado hasta {{shift}} px respecto a la de referencia.",
+    "unaligned": "{{frames}} fotos no se han podido alinear (¿nubes, móvil movido?) y no se han usado.",
+    "field": "Campo de {{width}}° × {{height}}°, {{scale}}″ por píxel. Fondo restado: {{gradient}} niveles de gradiente. Muestras recortadas: {{rejected}} %.",
+    "magnitudeCaveat": "La magnitud límite se estima contando estrellas por grado cuadrado (media de todo el cielo): cerca de la Vía Láctea sale más alta de lo real, y lejos de ella, más baja."
+  },
+  "trails": {
+    "title": "Trazos de estrellas",
+    "summary": "{{frames}} fotos en {{elapsed}}. Copias intermedias para rellenar huecos: {{copies}}."
+  },
+  "meteors": {
+    "title": "Vigilancia de meteoros",
+    "count": "Meteoros: {{meteors}} en {{elapsed}}",
+    "liveCount": "☄ {{meteors}} · {{elapsed}}",
+    "rate": "Tasa: {{rate}} meteoros por hora (en este campo de la cámara, no en todo el cielo).",
+    "rateTooShort": "La tasa por hora se calcula a partir del primer minuto.",
+    "statistics": "Fotogramas analizados: {{frames}} · saltados por cambios bruscos de luz: {{skipped}} · objetos lentos descartados (satélites, aviones): {{slow}}",
+    "warmingUp": "Preparando el fondo con los primeros fotogramas…",
+    "latest": "Último meteoro, a las {{time}}",
+    "eventRow": "#{{number}} · {{time}} · {{length}} px",
+    "eventCaption": "Meteoro a las {{time}}"
+  },
+  "conditions": {
+    "title": "El cielo ahora",
+    "darkness": {
+      "day": "Es de día: espera a la noche.",
+      "civilTwilight": "Crepúsculo civil: aún hay mucha luz.",
+      "nauticalTwilight": "Crepúsculo náutico: ya se ven las estrellas brillantes.",
+      "astronomicalTwilight": "Crepúsculo astronómico: casi de noche cerrada.",
+      "night": "Noche cerrada: el Sol está a más de 18° bajo el horizonte."
+    },
+    "moonPhaseOnly": "Luna iluminada al {{percent}} %.",
+    "moonBelowHorizon": "La Luna (iluminada al {{percent}} %) está bajo el horizonte.",
+    "moonAboveHorizon": "La Luna (iluminada al {{percent}} %) está a {{altitude}}° sobre el horizonte.",
+    "moonInterference": {
+      "none": "La Luna no molesta ahora.",
+      "low": "La Luna apenas aclara el cielo.",
+      "moderate": "La Luna aclara el cielo: se verán menos estrellas débiles.",
+      "strong": "La Luna ilumina mucho el cielo: mejor otra noche para estrellas débiles o meteoros."
+    },
+    "locationHint": "Con la ubicación se sabe si el Sol y la Luna están sobre el horizonte.",
+    "useLocation": "Usar ubicación"
+  },
+  "tips": {
+    "title": "Consejos",
+    "tripod": "Trípode o móvil bien apoyado, y no lo toques durante la captura (la cámara dispara sola).",
+    "noMoon": "Mejor sin Luna o con la Luna bajo el horizonte.",
+    "darkPlace": "Lejos de farolas y de las luces del pueblo; apunta lejos del resplandor de la ciudad.",
+    "darkAdaptation": "Deja que tus ojos se adapten unos 10 minutos a la oscuridad y baja el brillo de la pantalla.",
+    "exposureLimit": "El móvil no deja exponer más de unos 185 ms por foto: eso limita las estrellas débiles que salen en cada una. Apilar muchas fotos lo compensa (100 fotos ≈ +2,5 magnitudes).",
+    "batteryAndDew": "El frío gasta la batería y puede empañar la lente: lleva batería externa y un paño."
+  },
+  "howItWorks": "Cómo funciona: en cada foto se buscan las estrellas (máximos sobre el fondo con umbral según el ruido y centroide subpíxel). Se emparejan por las distancias entre ellas con las de la foto de referencia para calcular el giro y el desplazamiento del cielo, se alinean y se promedian descartando lo que se sale (aviones, píxeles calientes). Después se resta el gradiente del cielo con un polinomio suave y se estira el brillo con asinh. Los meteoros se buscan como segmentos rectos nuevos (diferencia con la mediana de los fotogramas anteriores y transformada de Hough) que no siguen en los fotogramas siguientes.",
+  "fields": {
+    "mode": "Modo",
+    "capturedFrameCount": "Fotos tomadas",
+    "exposure": "Exposición",
+    "iso": "ISO",
+    "stackedFrameCount": "Fotos apiladas",
+    "starsInStack": "Estrellas en el apilado",
+    "starsInSingleFrame": "Estrellas en una foto",
+    "limitingMagnitudeStack": "Magnitud límite (apilado)",
+    "limitingMagnitudeSingle": "Magnitud límite (una foto)",
+    "noiseReductionFactor": "Reducción del ruido",
+    "largestRotation": "Giro del cielo",
+    "fieldWidth": "Ancho del campo",
+    "fieldHeight": "Alto del campo",
+    "trailDuration": "Duración de los trazos",
+    "meteorCount": "Meteoros",
+    "meteorsPerHour": "Meteoros por hora",
+    "watchedMinutes": "Tiempo vigilando",
+    "rejectedSlowMoverCount": "Objetos lentos descartados"
+  }
+}
