@@ -51,6 +51,7 @@
     "tapInsideRoom": "Ukitu planoko gela baten barruan.",
     "noSamples": "Ez da seinalearen irakurketarik iritsi. Saiatu berriro.",
     "pointAdded": "Puntua gordeta: {{rssi}} dBm (±{{spread}} dB aldatzen da).",
+    "accessPointChanged": "Neurketa baztertuta: mugikorrak sarbide-puntuz aldatu du neurtzen ari zela (mesh sareetan edo errepikagailuekin gertatzen da). Geldi egon eta ukitu berriro puntua.",
     "secondCorner": "Orain ukitu kontrako izkina.",
     "roomTooSmall": "Gela txikiegia: ukitu elkarrengandik urrun dauden bi izkina.",
     "undoRoom": "Kendu azkena",

@@ -51,6 +51,7 @@
     "tapInsideRoom": "Toca dentro de una habitación del plano.",
     "noSamples": "No ha llegado ninguna lectura de la señal. Prueba otra vez.",
     "pointAdded": "Punto guardado: {{rssi}} dBm (varía ±{{spread}} dB).",
+    "accessPointChanged": "Medida descartada: el móvil ha cambiado de punto de acceso mientras medía (pasa en redes en malla o con repetidores). Quédate quieto y vuelve a tocar el punto.",
     "secondCorner": "Ahora toca la esquina opuesta.",
     "roomTooSmall": "Habitación demasiado pequeña: toca dos esquinas separadas.",
     "undoRoom": "Quitar la última",

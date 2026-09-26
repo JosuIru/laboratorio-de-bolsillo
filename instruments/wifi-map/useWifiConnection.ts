@@ -21,7 +21,14 @@ export interface WifiConnectionSnapshot {
   chartSampleCount: number;
 }
 
-type RssiCollector = (rssiDbm: number) => void;
+type RssiCollector = (rssiDbm: number, bssid: string | null) => void;
+
+/** Lecturas recogidas en un punto y los puntos de acceso (BSSID) que las dieron. */
+export interface CollectedRssiSamples {
+  rssiSamples: number[];
+  /** BSSID distintos vistos durante la medida (vacío si Android no los da, sin permiso de ubicación). */
+  observedBssids: string[];
+}
 
 /**
  * Consulta la conexión Wi‑Fi cada 500 ms mientras la pantalla está activa. Además permite
@@ -50,7 +57,7 @@ export function useWifiConnection(isRunning: boolean) {
       const connection = getWifiConnectionInfo();
       if (connection && isValidRssi(connection.rssiDbm)) {
         pushToRingBuffer(rssiHistory, connection.rssiDbm);
-        activeCollectors.forEach((collectSample) => collectSample(connection.rssiDbm));
+        activeCollectors.forEach((collectSample) => collectSample(connection.rssiDbm, connection.bssid));
       }
       const chartSampleCount = copyLatestFromRingBuffer(rssiHistory, chartValues);
       setSnapshot((previousSnapshot) => ({
@@ -76,16 +83,20 @@ export function useWifiConnection(isRunning: boolean) {
     };
   }, []);
 
-  /** Recoge las lecturas de RSSI durante `durationMilliseconds` y las devuelve. */
+  /** Recoge las lecturas de RSSI durante `durationMilliseconds` y las devuelve con sus BSSID. */
   const collectRssiSamples = useCallback((durationMilliseconds: number) => {
-    return new Promise<number[]>((resolve) => {
+    return new Promise<CollectedRssiSamples>((resolve) => {
       const collectedSamples: number[] = [];
-      const collectSample: RssiCollector = (rssiDbm) => collectedSamples.push(rssiDbm);
+      const observedBssids = new Set<string>();
+      const collectSample: RssiCollector = (rssiDbm, bssid) => {
+        collectedSamples.push(rssiDbm);
+        if (bssid) observedBssids.add(bssid);
+      };
       activeCollectorsRef.current.add(collectSample);
       const finishTimeout = setTimeout(() => {
         activeCollectorsRef.current.delete(collectSample);
         pendingTimeoutsRef.current.delete(finishTimeout);
-        resolve(collectedSamples);
+        resolve({ rssiSamples: collectedSamples, observedBssids: [...observedBssids] });
       }, durationMilliseconds);
       pendingTimeoutsRef.current.add(finishTimeout);
     });

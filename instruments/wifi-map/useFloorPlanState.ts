@@ -1,9 +1,10 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { PlanPoint, PlanRoom, SignalMeasurementPoint } from '@/processing/wifi/floorPlan';
 import { interpolateHeatmap, summarizeDeadZones } from '@/processing/wifi/heatmapInterpolation';
 import { recommendRepeaterLocation } from '@/processing/wifi/repeaterRecommendation';
 
+import { loadFloorPlan, saveFloorPlan } from './floorPlanStorage';
 import { heatmapColumnCount, heatmapRowCount, planAspectRatio } from './wifiMapConfiguration';
 
 /** Punto del mapa con la frecuencia a la que estaba conectado (para avisar si cambia de banda). */
@@ -14,12 +15,18 @@ export interface MappedPoint extends SignalMeasurementPoint {
 
 /**
  * Estado del mapa (habitaciones y puntos) y lo que se deriva de él: mapa de calor, zonas
- * muertas y sitio del repetidor. Vive en la pantalla principal para no perderse al cambiar de modo.
+ * muertas y sitio del repetidor. Vive en la pantalla principal para no perderse al cambiar de modo,
+ * y se guarda en el móvil para recuperar el plano la próxima vez que se abra el instrumento.
  */
 export function useFloorPlanState() {
-  const [rooms, setRooms] = useState<PlanRoom[]>([]);
-  const [mappedPoints, setMappedPoints] = useState<MappedPoint[]>([]);
+  const [storedFloorPlan] = useState(loadFloorPlan);
+  const [rooms, setRooms] = useState<PlanRoom[]>(storedFloorPlan.rooms);
+  const [mappedPoints, setMappedPoints] = useState<MappedPoint[]>(storedFloorPlan.mappedPoints);
   const [pendingRoomCorner, setPendingRoomCorner] = useState<PlanPoint | null>(null);
+
+  useEffect(() => {
+    saveFloorPlan({ rooms, mappedPoints });
+  }, [rooms, mappedPoints]);
 
   const heatmapGrid = useMemo(
     () =>
