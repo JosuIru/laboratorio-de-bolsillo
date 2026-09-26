@@ -7,8 +7,13 @@
 # las dependencias o la configuración nativa (package-lock.json, plugins/, modules/). Si no,
 # Gradle reaprovecha el C++ ya compilado. Para forzar el build limpio: LAB_CLEAN_BUILD=1.
 #
+# Genera un APK por arquitectura además del universal (plugin withAndroidAbiSplits) y los deja en dist/:
+#   laboratorio-de-bolsillo-<v>.apk              universal: vale para cualquier móvil
+#   laboratorio-de-bolsillo-<v>-arm64-v8a.apk    64 bits (casi todos los móviles actuales), más pequeño
+#   laboratorio-de-bolsillo-<v>-armeabi-v7a.apk  32 bits
+#
 # Opciones:
-#   --arm64   solo arm64-v8a (móviles actuales; la mitad de tiempo). Para pruebas, no para publicar.
+#   --arm64   solo arm64-v8a (la mitad de tiempo): deja únicamente el APK de 64 bits. Para pruebas.
 set -euo pipefail
 
 projectRoot="$(cd "$(dirname "$0")/.." && pwd)"
@@ -29,10 +34,10 @@ cd "$projectRoot"
 appVersion="$(node -p "require('./app.json').expo.version")"
 
 nativeArchitectures="armeabi-v7a,arm64-v8a"
-apkSuffix=""
+isArm64Only=0
 for scriptArgument in "$@"; do
   case "$scriptArgument" in
-    --arm64) nativeArchitectures="arm64-v8a"; apkSuffix="-arm64" ;;
+    --arm64) nativeArchitectures="arm64-v8a"; isArm64Only=1 ;;
     *) echo "ERROR: opción desconocida: $scriptArgument" >&2; exit 1 ;;
   esac
 done
@@ -55,10 +60,49 @@ else
   echo "Dependencias nativas iguales: prebuild incremental"
   npx expo prebuild --platform android
 fi
+apkOutputDirectory="android/app/build/outputs/apk/release"
+# Sin APK de builds anteriores: así no se copia uno viejo de otra arquitectura.
+rm -f "$apkOutputDirectory"/*.apk
 (cd android && ./gradlew assembleRelease --build-cache -PreactNativeArchitectures="$nativeArchitectures")
 
 mkdir -p dist
-releaseApkPath="dist/laboratorio-de-bolsillo-$appVersion$apkSuffix.apk"
-cp android/app/build/outputs/apk/release/app-release.apk "$releaseApkPath"
-bash scripts/verify-apk-signature.sh "$releaseApkPath"
-echo "APK listo: $releaseApkPath"
+distributionApkPrefix="dist/laboratorio-de-bolsillo-$appVersion"
+if [[ "$isArm64Only" == "0" ]]; then
+  # Se van a publicar con `dist/laboratorio-de-bolsillo-<v>*.apk`: fuera los de builds anteriores.
+  rm -f "$distributionApkPrefix".apk "$distributionApkPrefix"-*.apk
+fi
+
+copiedApkPaths=()
+# Copia un APK de Gradle a dist/ y verifica que está firmado con la clave oficial.
+copyAndVerifyApk() {
+  local gradleApkPath="$1" distributionApkPath="$2"
+  cp "$gradleApkPath" "$distributionApkPath"
+  bash scripts/verify-apk-signature.sh "$distributionApkPath"
+  copiedApkPaths+=("$distributionApkPath")
+}
+
+if [[ -f "$apkOutputDirectory/app-universal-release.apk" ]]; then
+  copyAndVerifyApk "$apkOutputDirectory/app-universal-release.apk" "$distributionApkPrefix.apk"
+elif [[ -f "$apkOutputDirectory/app-release.apk" ]]; then
+  # Sin divisiones por ABI (plugin desactivado): un solo APK con lo que se haya compilado.
+  if [[ "$isArm64Only" == "1" ]]; then
+    copyAndVerifyApk "$apkOutputDirectory/app-release.apk" "$distributionApkPrefix-arm64-v8a.apk"
+  else
+    copyAndVerifyApk "$apkOutputDirectory/app-release.apk" "$distributionApkPrefix.apk"
+  fi
+elif [[ "$isArm64Only" == "0" ]]; then
+  echo "ERROR: Gradle no ha generado el APK universal en $apkOutputDirectory" >&2
+  exit 1
+fi
+for apkArchitecture in arm64-v8a armeabi-v7a; do
+  if [[ -f "$apkOutputDirectory/app-$apkArchitecture-release.apk" ]]; then
+    copyAndVerifyApk "$apkOutputDirectory/app-$apkArchitecture-release.apk" "$distributionApkPrefix-$apkArchitecture.apk"
+  fi
+done
+
+if [[ ${#copiedApkPaths[@]} -eq 0 ]]; then
+  echo "ERROR: no hay ningún APK en $apkOutputDirectory" >&2
+  exit 1
+fi
+echo "APK listos:"
+printf '  %s\n' "${copiedApkPaths[@]}"

@@ -63,6 +63,7 @@
           "debugAppName": "Laboratorio (dev)"
         }
       ],
+      "./plugins/withAndroidAbiSplits",
       [
         "react-native-audio-api",
         {
