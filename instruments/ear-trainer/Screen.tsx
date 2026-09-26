@@ -37,6 +37,11 @@ export function EarTrainerScreen({ saveMeasurement }: InstrumentScreenProps<EarT
   const [scaleId, setScaleId] = useState<ScaleId>('major');
   const [rootNoteIndex, setRootNoteIndex] = useState<NoteIndex>(0);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  // La escala del ejercicio en curso: los chips pueden cambiar después sin afectar a lo guardado.
+  const [exerciseScaleId, setExerciseScaleId] = useState<ScaleId>('major');
+  // El ejercicio terminado que ya se ha guardado, para no guardarlo dos veces.
+  const [savedTrainingState, setSavedTrainingState] = useState<typeof trainingState | null>(null);
 
   const noteName = (noteIndex: NoteIndex) => t(`notes.${noteIndex}`);
   function describeStep(step: EarTrainingStep): string {
@@ -47,6 +52,7 @@ export function EarTrainerScreen({ saveMeasurement }: InstrumentScreenProps<EarT
 
   function handleStart() {
     setStatusMessage(null);
+    setExerciseScaleId(scaleId);
     const steps =
       exerciseKind === 'intervals'
         ? createIntervalSteps(difficulty, Math.random)
@@ -55,13 +61,14 @@ export function EarTrainerScreen({ saveMeasurement }: InstrumentScreenProps<EarT
   }
 
   async function handleSave() {
-    if (trainingState.phase !== 'finished') return;
+    if (trainingState.phase !== 'finished' || isSaving || savedTrainingState === trainingState) return;
+    setIsSaving(true);
     setStatusMessage(null);
     const { summary } = trainingState;
     try {
       await saveMeasurement({
         values: {
-          exercise: trainingState.exerciseKind === 'scales' ? `scale:${scaleId}` : 'intervals',
+          exercise: trainingState.exerciseKind === 'scales' ? `scale:${exerciseScaleId}` : 'intervals',
           difficulty: trainingState.difficulty,
           hitCount: summary.hitCount,
           stepCount: summary.roundCount,
@@ -75,9 +82,12 @@ export function EarTrainerScreen({ saveMeasurement }: InstrumentScreenProps<EarT
             .join(','),
         },
       });
+      setSavedTrainingState(trainingState);
       setStatusMessage(t('core:instrument.savedMeasurement'));
     } catch (saveError) {
       setStatusMessage(t('core:common.error', { message: String(saveError) }));
+    } finally {
+      setIsSaving(false);
     }
   }
 
@@ -187,7 +197,13 @@ export function EarTrainerScreen({ saveMeasurement }: InstrumentScreenProps<EarT
               })}
             </BodyText>
           ) : null}
-          <AppButton label={t('core:common.save')} variant="secondary" onPress={() => void handleSave()} />
+          <AppButton
+            label={t('core:common.save')}
+            variant="secondary"
+            isBusy={isSaving}
+            isDisabled={savedTrainingState === trainingState}
+            onPress={() => void handleSave()}
+          />
         </Card>
       ) : (
         <Card>
