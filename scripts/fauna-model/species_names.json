@@ -1,0 +1,6170 @@
+{
+ "Parus major": {
+  "grupo": "Aves",
+  "es": "Carbonero Común",
+  "eu": "Kaskabeltz handi",
+  "en": "Great Tit"
+ },
+ "Turdus merula": {
+  "grupo": "Aves",
+  "es": "Mirlo común",
+  "eu": "Zozo",
+  "en": "Common Blackbird"
+ },
+ "Cyanistes caeruleus": {
+  "grupo": "Aves",
+  "es": "Herrerillo común",
+  "eu": "Amilotx urdin",
+  "en": "Blue Tit"
+ },
+ "Erithacus rubecula": {
+  "grupo": "Aves",
+  "es": "Petirrojo",
+  "eu": "Txantxangorri",
+  "en": "European Robin"
+ },
+ "Fringilla coelebs": {
+  "grupo": "Aves",
+  "es": "Pinzón Vulgar",
+  "eu": "Txonta arrunt",
+  "en": "Chaffinch"
+ },
+ "Columba palumbus": {
+  "grupo": "Aves",
+  "es": "Paloma Torcaz",
+  "eu": "Pagauso",
+  "en": "Common Wood Pigeon"
+ },
+ "Anas platyrhynchos": {
+  "grupo": "Aves",
+  "es": "Pato de collar",
+  "eu": null,
+  "en": "Mallard"
+ },
+ "Pica pica": {
+  "grupo": "Aves",
+  "es": "Urraca común",
+  "eu": "Mika",
+  "en": "Eurasian Magpie"
+ },
+ "Buteo buteo": {
+  "grupo": "Aves",
+  "es": "Busardo ratonero",
+  "eu": "Zapelatz arrunt",
+  "en": "Common Buzzard"
+ },
+ "Larus argentatus": {
+  "grupo": "Aves",
+  "es": "Gaviota Argéntea",
+  "eu": "Kaio hauskara",
+  "en": "Herring Gull"
+ },
+ "Passer domesticus": {
+  "grupo": "Aves",
+  "es": "Gorrión casero",
+  "eu": "Etxe-txolarre",
+  "en": "House Sparrow"
+ },
+ "Larus fuscus": {
+  "grupo": "Aves",
+  "es": "Gaviota sombría",
+  "eu": "Kaio ilun",
+  "en": "Lesser Black-backed Gull"
+ },
+ "Phylloscopus collybita": {
+  "grupo": "Aves",
+  "es": "Mosquitero Común",
+  "eu": "Txio arrunt",
+  "en": "Common Chiffchaff"
+ },
+ "Sturnus vulgaris": {
+  "grupo": "Aves",
+  "es": "Estornino pinto",
+  "eu": "Arabazozo pikart",
+  "en": "Common Starling"
+ },
+ "Chroicocephalus ridibundus": {
+  "grupo": "Aves",
+  "es": "Gaviota encapuchada",
+  "eu": "Antxeta mokogorri",
+  "en": "Black-headed Gull"
+ },
+ "Hirundo rustica": {
+  "grupo": "Aves",
+  "es": "Golondrina tijereta",
+  "eu": "Enara arrunt",
+  "en": "Barn Swallow"
+ },
+ "Ardea cinerea": {
+  "grupo": "Aves",
+  "es": "Garza real",
+  "eu": "Koartza hauskara",
+  "en": "Grey Heron"
+ },
+ "Chloris chloris": {
+  "grupo": "Aves",
+  "es": "Verderón",
+  "eu": "Txorru arrunt",
+  "en": "European Greenfinch"
+ },
+ "Sylvia atricapilla": {
+  "grupo": "Aves",
+  "es": "Curruca capirotada",
+  "eu": "Txinbo kaskabeltz",
+  "en": "Eurasian Blackcap"
+ },
+ "Motacilla alba": {
+  "grupo": "Aves",
+  "es": "Lavandera blanca",
+  "eu": "Buztanikara zuri",
+  "en": "White Wagtail"
+ },
+ "Carduelis carduelis": {
+  "grupo": "Aves",
+  "es": "Jilguero",
+  "eu": "Karnaba",
+  "en": "European Goldfinch"
+ },
+ "Troglodytes troglodytes": {
+  "grupo": "Aves",
+  "es": "Chivirín chochín",
+  "eu": "Txepetx",
+  "en": "Winter Wren"
+ },
+ "Corvus corone": {
+  "grupo": "Aves",
+  "es": "Corneja negra",
+  "eu": null,
+  "en": "Carrion Crow"
+ },
+ "Phalacrocorax carbo": {
+  "grupo": "Aves",
+  "es": "Cormorán grande",
+  "eu": "Ubarroi handi",
+  "en": "Great Cormorant"
+ },
+ "Dendrocopos major": {
+  "grupo": "Aves",
+  "es": "Pico Picapinos",
+  "eu": "Okil handi",
+  "en": "Great Spotted Woodpecker"
+ },
+ "Falco tinnunculus": {
+  "grupo": "Aves",
+  "es": "Cernícalo vulgar",
+  "eu": "Belatz gorri",
+  "en": "Common Kestrel"
+ },
+ "Phylloscopus trochilus": {
+  "grupo": "Aves",
+  "es": "Mosquitero Musical",
+  "eu": "Txio hori",
+  "en": "Willow Warbler"
+ },
+ "Cygnus olor": {
+  "grupo": "Aves",
+  "es": "Cisne vulgar",
+  "eu": "Beltxarga arrunta",
+  "en": "Mute Swan"
+ },
+ "Anser anser": {
+  "grupo": "Aves",
+  "es": "Ánsar común",
+  "eu": "Antzara hankagorrizta",
+  "en": "Greylag Goose"
+ },
+ "Fulica atra": {
+  "grupo": "Aves",
+  "es": "Focha común",
+  "eu": "Kopetazuri arrunt",
+  "en": "Eurasian Coot"
+ },
+ "Coloeus monedula": {
+  "grupo": "Aves",
+  "es": "Grajilla occidental",
+  "eu": "Beletxiki",
+  "en": "Western Jackdaw"
+ },
+ "Vanellus vanellus": {
+  "grupo": "Aves",
+  "es": "Avefría europea",
+  "eu": "Hegabera",
+  "en": "Northern Lapwing"
+ },
+ "Turdus philomelos": {
+  "grupo": "Aves",
+  "es": "Zorzal común",
+  "eu": "Birigarro arrunta",
+  "en": "Song Thrush"
+ },
+ "Garrulus glandarius": {
+  "grupo": "Aves",
+  "es": "Arrendajo euroasiático",
+  "eu": "Eskinoso",
+  "en": "Eurasian Jay"
+ },
+ "Streptopelia decaocto": {
+  "grupo": "Aves",
+  "es": "Paloma de Collar",
+  "eu": "Turkiar usapal",
+  "en": "Eurasian Collared Dove"
+ },
+ "Corvus cornix": {
+  "grupo": "Aves",
+  "es": "Corneja Cenicienta",
+  "eu": null,
+  "en": "Hooded Crow"
+ },
+ "Regulus regulus": {
+  "grupo": "Aves",
+  "es": "Reyezuelo sencillo",
+  "eu": "Mendi-erregetxo",
+  "en": "Goldcrest"
+ },
+ "Haematopus ostralegus": {
+  "grupo": "Aves",
+  "es": "Ostrero euroasiático",
+  "eu": "Itsas mika",
+  "en": "Eurasian Oystercatcher"
+ },
+ "Prunella modularis": {
+  "grupo": "Aves",
+  "es": "Acentor Común",
+  "eu": "Tuntun arrunt",
+  "en": "Dunnock"
+ },
+ "Aythya fuligula": {
+  "grupo": "Aves",
+  "es": "Porrón moñudo",
+  "eu": "Murgilari mottodun",
+  "en": "Tufted Duck"
+ },
+ "Sitta europaea": {
+  "grupo": "Aves",
+  "es": "Trepador azul",
+  "eu": "Garrapo",
+  "en": "Eurasian Nuthatch"
+ },
+ "Emberiza schoeniclus": {
+  "grupo": "Aves",
+  "es": "Escribano palustre",
+  "eu": null,
+  "en": "Reed Bunting"
+ },
+ "Anas crecca": {
+  "grupo": "Aves",
+  "es": "Cerceta ala verde",
+  "eu": null,
+  "en": "Common Teal"
+ },
+ "Podiceps cristatus": {
+  "grupo": "Aves",
+  "es": "Somormujo lavanco",
+  "eu": "Murgil handi",
+  "en": "Great Crested Grebe"
+ },
+ "Alauda arvensis": {
+  "grupo": "Aves",
+  "es": "Alondra común",
+  "eu": "Hegatxabal arrunt",
+  "en": "Eurasian Skylark"
+ },
+ "Emberiza citrinella": {
+  "grupo": "Aves",
+  "es": "Escribano cerillo",
+  "eu": "Berdantza hori",
+  "en": "Yellowhammer"
+ },
+ "Anthus pratensis": {
+  "grupo": "Aves",
+  "es": "Bisbita pratense",
+  "eu": "Negu-txirta",
+  "en": "Meadow Pipit"
+ },
+ "Larus canus": {
+  "grupo": "Aves",
+  "es": "Gaviota cana",
+  "eu": "Kaio mokohori",
+  "en": "Mew Gull"
+ },
+ "Gallinula chloropus": {
+  "grupo": "Aves",
+  "es": "Gallineta frente roja",
+  "eu": null,
+  "en": "Common Moorhen"
+ },
+ "Aegithalos caudatus": {
+  "grupo": "Aves",
+  "es": "Mito",
+  "eu": "Buztanluze",
+  "en": "Long-tailed Tit"
+ },
+ "Spinus spinus": {
+  "grupo": "Aves",
+  "es": "Jilguero lúgano",
+  "eu": "Tarin",
+  "en": "Eurasian Siskin"
+ },
+ "Columba livia": {
+  "grupo": "Aves",
+  "es": "Paloma doméstica",
+  "eu": null,
+  "en": "Rock Dove"
+ },
+ "Turdus pilaris": {
+  "grupo": "Aves",
+  "es": "Zorzal real",
+  "eu": "Durdula",
+  "en": "Fieldfare"
+ },
+ "Circus aeruginosus": {
+  "grupo": "Aves",
+  "es": "Aguilucho lagunero",
+  "eu": null,
+  "en": "Western Marsh Harrier"
+ },
+ "Linaria cannabina": {
+  "grupo": "Aves",
+  "es": "Pardillo común",
+  "eu": "Txoka arrunt",
+  "en": "Common Linnet"
+ },
+ "Apus apus": {
+  "grupo": "Aves",
+  "es": "Vencejo común",
+  "eu": "Sorbeltz arrunt",
+  "en": "Common Swift"
+ },
+ "Pyrrhula pyrrhula": {
+  "grupo": "Aves",
+  "es": "Camachuelo Común",
+  "eu": "Gailupa",
+  "en": "Eurasian Bullfinch"
+ },
+ "Acrocephalus scirpaceus": {
+  "grupo": "Aves",
+  "es": "Carricero Africano",
+  "eu": "Lezkari arrunt",
+  "en": "Eurasian Reed Warbler"
+ },
+ "Bucephala clangula": {
+  "grupo": "Aves",
+  "es": "Pato chillón",
+  "eu": "Murgilari urrebegi",
+  "en": "Common Goldeneye"
+ },
+ "Passer montanus": {
+  "grupo": "Aves",
+  "es": "Gorrión Molinero",
+  "eu": "Landa-txolarre",
+  "en": "Eurasian Tree Sparrow"
+ },
+ "Branta canadensis": {
+  "grupo": "Aves",
+  "es": "Ganso canadiense",
+  "eu": "Branta kanadarra",
+  "en": "Canada Goose"
+ },
+ "Accipiter nisus": {
+  "grupo": "Aves",
+  "es": "Gavilán común",
+  "eu": "Gabirai arrunta",
+  "en": "Eurasian Sparrowhawk"
+ },
+ "Corvus corax": {
+  "grupo": "Aves",
+  "es": "Cuervo común",
+  "eu": "Erroi",
+  "en": "Common Raven"
+ },
+ "Mareca strepera": {
+  "grupo": "Aves",
+  "es": "Ánade friso",
+  "eu": "Ipar-ahate",
+  "en": "Gadwall"
+ },
+ "Ardea alba": {
+  "grupo": "Aves",
+  "es": "Garceta grande",
+  "eu": null,
+  "en": "Great Egret"
+ },
+ "Tringa totanus": {
+  "grupo": "Aves",
+  "es": "Archibebe común",
+  "eu": "Bernagorri arrunt",
+  "en": "Common Redshank"
+ },
+ "Ficedula hypoleuca": {
+  "grupo": "Aves",
+  "es": "Papamoscas Cerojillo",
+  "eu": null,
+  "en": "European Pied Flycatcher"
+ },
+ "Tadorna tadorna": {
+  "grupo": "Aves",
+  "es": "Tarro blanco",
+  "eu": "Paita arrunt",
+  "en": "Common Shelduck"
+ },
+ "Mareca penelope": {
+  "grupo": "Aves",
+  "es": "Silbón europeo",
+  "eu": "Ahate txistulari",
+  "en": "Eurasian Wigeon"
+ },
+ "Delichon urbicum": {
+  "grupo": "Aves",
+  "es": "Avión común occidental",
+  "eu": null,
+  "en": "House Martin"
+ },
+ "Picus viridis": {
+  "grupo": "Aves",
+  "es": "Carpintero verde",
+  "eu": "Okil berde",
+  "en": "European Green Woodpecker"
+ },
+ "Periparus ater": {
+  "grupo": "Aves",
+  "es": "Carbonero garrapinos",
+  "eu": "Pinu kaskabeltza",
+  "en": "Coal Tit"
+ },
+ "Numenius arquata": {
+  "grupo": "Aves",
+  "es": "Zarapito real",
+  "eu": "Kurlinta handia",
+  "en": "Eurasian Curlew"
+ },
+ "Grus grus": {
+  "grupo": "Aves",
+  "es": "Grulla común",
+  "eu": "Kurrilo arrunt",
+  "en": "Common Crane"
+ },
+ "Phoenicurus ochruros": {
+  "grupo": "Aves",
+  "es": "Colirrojo Tizón",
+  "eu": "Buztangorri ilun",
+  "en": "Black Redstart"
+ },
+ "Saxicola rubicola": {
+  "grupo": "Aves",
+  "es": "Tarabilla común",
+  "eu": "Pitxartxar burubeltza",
+  "en": "European Stonechat"
+ },
+ "Phasianus colchicus": {
+  "grupo": "Aves",
+  "es": "Faisán de collar",
+  "eu": "Faisai arrunta",
+  "en": "Common Pheasant"
+ },
+ "Acanthis flammea": {
+  "grupo": "Aves",
+  "es": "Pardillo norteño",
+  "eu": "Txoka gorrizta",
+  "en": "Common Redpoll"
+ },
+ "Spatula clypeata": {
+  "grupo": "Aves",
+  "es": "Cuchara común",
+  "eu": "Ahate mokozabal",
+  "en": "Northern Shoveler"
+ },
+ "Turdus iliacus": {
+  "grupo": "Aves",
+  "es": "Zorzal alirrojo",
+  "eu": "Birigarro hegal gorri",
+  "en": "Redwing"
+ },
+ "Tachybaptus ruficollis": {
+  "grupo": "Aves",
+  "es": "Zampullín común",
+  "eu": "Txilinporta txiki",
+  "en": "Little Grebe"
+ },
+ "Cygnus cygnus": {
+  "grupo": "Aves",
+  "es": "Cisne cantor",
+  "eu": "Beltxarga oihulari",
+  "en": "Whooper Swan"
+ },
+ "Gallinago gallinago": {
+  "grupo": "Aves",
+  "es": "Agachona común",
+  "eu": "Istingor arrunt",
+  "en": "Common Snipe"
+ },
+ "Haliaeetus albicilla": {
+  "grupo": "Aves",
+  "es": "Pigargo Coliblanco",
+  "eu": "Itsas arrano buztanzuri(a)",
+  "en": "White-tailed Eagle"
+ },
+ "Mergus merganser": {
+  "grupo": "Aves",
+  "es": "Mergo mayor",
+  "eu": "Zerra handi",
+  "en": "Common Merganser"
+ },
+ "Milvus milvus": {
+  "grupo": "Aves",
+  "es": "Milano Real",
+  "eu": "Miru Gorria",
+  "en": "Red Kite"
+ },
+ "Larus marinus": {
+  "grupo": "Aves",
+  "es": "Gavión atlántico",
+  "eu": "Kaio beltz",
+  "en": "Great Black-backed Gull"
+ },
+ "Calidris alpina": {
+  "grupo": "Aves",
+  "es": "Playero dorso rojo",
+  "eu": "Txirri arrunt",
+  "en": "Dunlin"
+ },
+ "Cuculus canorus": {
+  "grupo": "Aves",
+  "es": "Cuco común",
+  "eu": "Kuku",
+  "en": "Common Cuckoo"
+ },
+ "Actitis hypoleucos": {
+  "grupo": "Aves",
+  "es": "Andarríos chico",
+  "eu": "Kuliska txiki",
+  "en": "Common Sandpiper"
+ },
+ "Acrocephalus schoenobaenus": {
+  "grupo": "Aves",
+  "es": "Carricerín Común",
+  "eu": "Benarriz arrunt",
+  "en": "Sedge Warbler"
+ },
+ "Alcedo atthis": {
+  "grupo": "Aves",
+  "es": "Martín pescador común",
+  "eu": "Martin arrantzale",
+  "en": "Common Kingfisher"
+ },
+ "Ciconia ciconia": {
+  "grupo": "Aves",
+  "es": "Cigüeña blanca",
+  "eu": "Amiamoko Zuria",
+  "en": "White Stork"
+ },
+ "Certhia brachydactyla": {
+  "grupo": "Aves",
+  "es": "Agateador europeo",
+  "eu": null,
+  "en": "Short-toed Treecreeper"
+ },
+ "Sterna hirundo": {
+  "grupo": "Aves",
+  "es": "Charrán común",
+  "eu": "Txenada arrunta",
+  "en": "Common Tern"
+ },
+ "Somateria mollissima": {
+  "grupo": "Aves",
+  "es": "Eider común",
+  "eu": "Eider arrunt",
+  "en": "Common Eider"
+ },
+ "Motacilla flava": {
+  "grupo": "Aves",
+  "es": "Lavandera boyera",
+  "eu": "Larre-buztanikara",
+  "en": "Western Yellow Wagtail"
+ },
+ "Egretta garzetta": {
+  "grupo": "Aves",
+  "es": "Garceta común",
+  "eu": "Lertxuntxo txiki",
+  "en": "Little Egret"
+ },
+ "Corvus frugilegus": {
+  "grupo": "Aves",
+  "es": "Graja",
+  "eu": "Ipar-bele",
+  "en": "Rook"
+ },
+ "Serinus serinus": {
+  "grupo": "Aves",
+  "es": "Verdecillo",
+  "eu": null,
+  "en": "European Serin"
+ },
+ "Sylvia borin": {
+  "grupo": "Aves",
+  "es": "Curruca mosquitera",
+  "eu": "Baso-txinbo",
+  "en": "Garden Warbler"
+ },
+ "Aythya ferina": {
+  "grupo": "Aves",
+  "es": "Porrón europeo",
+  "eu": "Murgilari arrunt",
+  "en": "Common Pochard"
+ },
+ "Fringilla montifringilla": {
+  "grupo": "Aves",
+  "es": "Pinzón Real",
+  "eu": "Negu-txonta",
+  "en": "Brambling"
+ },
+ "Charadrius hiaticula": {
+  "grupo": "Aves",
+  "es": "Chorlitejo grande",
+  "eu": null,
+  "en": "Common Ringed Plover"
+ },
+ "Turdus viscivorus": {
+  "grupo": "Aves",
+  "es": "Zorzal charlo",
+  "eu": "Garraztarro",
+  "en": "Mistle Thrush"
+ },
+ "Oenanthe oenanthe": {
+  "grupo": "Aves",
+  "es": "Collalba norteña",
+  "eu": "Ipurzuri arrunt",
+  "en": "Northern Wheatear"
+ },
+ "Larus michahellis": {
+  "grupo": "Aves",
+  "es": "Gaviota patiamarilla",
+  "eu": "Kaio hankahoria",
+  "en": "Yellow-legged Gull"
+ },
+ "Phoenicurus phoenicurus": {
+  "grupo": "Aves",
+  "es": "Colirrojo Real",
+  "eu": "Buztangorri argi",
+  "en": "Common Redstart"
+ },
+ "Branta leucopsis": {
+  "grupo": "Aves",
+  "es": "Barnacla cariblanca",
+  "eu": "Branta musuzuria",
+  "en": "Barnacle Goose"
+ },
+ "Motacilla cinerea": {
+  "grupo": "Aves",
+  "es": "Lavandera Cascadeña",
+  "eu": "Buztanikara hori",
+  "en": "Grey Wagtail"
+ },
+ "Columba oenas": {
+  "grupo": "Aves",
+  "es": "Paloma Zurita",
+  "eu": "Txoloma",
+  "en": "Stock Dove"
+ },
+ "Anthus trivialis": {
+  "grupo": "Aves",
+  "es": "Bisbita Arbóreo",
+  "eu": "Uda-txirta",
+  "en": "Tree Pipit"
+ },
+ "Gyps fulvus": {
+  "grupo": "Aves",
+  "es": "Buitre leonado",
+  "eu": "Sai Arrea",
+  "en": "Griffon Vulture"
+ },
+ "Cettia cetti": {
+  "grupo": "Aves",
+  "es": "Cetia ruiseñor",
+  "eu": "Errekatxindor",
+  "en": "Cetti's Warbler"
+ },
+ "Tringa nebularia": {
+  "grupo": "Aves",
+  "es": "Archibebe claro",
+  "eu": null,
+  "en": "Common Greenshank"
+ },
+ "Poecile palustris": {
+  "grupo": "Aves",
+  "es": "Carbonero palustre",
+  "eu": "Kaskabeltz txiki",
+  "en": "Marsh Tit"
+ },
+ "Mergus serrator": {
+  "grupo": "Aves",
+  "es": "Mergo copetón",
+  "eu": "Zerra ertain",
+  "en": "Red-breasted Merganser"
+ },
+ "Alopochen aegyptiaca": {
+  "grupo": "Aves",
+  "es": "Ganso del Nilo",
+  "eu": null,
+  "en": "Egyptian Goose"
+ },
+ "Tringa ochropus": {
+  "grupo": "Aves",
+  "es": "Andarríos grande",
+  "eu": "Kuliska ilun",
+  "en": "Green Sandpiper"
+ },
+ "Riparia riparia": {
+  "grupo": "Aves",
+  "es": "Golondrina ribereña",
+  "eu": "Uhalde-enara",
+  "en": "Sand Martin"
+ },
+ "Coccothraustes coccothraustes": {
+  "grupo": "Aves",
+  "es": "Picogordo",
+  "eu": "Mokolodi",
+  "en": "Hawfinch"
+ },
+ "Calidris pugnax": {
+  "grupo": "Aves",
+  "es": "Combatiente",
+  "eu": "Borrokalari",
+  "en": "Ruff"
+ },
+ "Lophophanes cristatus": {
+  "grupo": "Aves",
+  "es": "Herrerillo capuchino",
+  "eu": "Amilotx mottodun",
+  "en": "European Crested Tit"
+ },
+ "Poecile montanus": {
+  "grupo": "Aves",
+  "es": "Carbonero montano",
+  "eu": null,
+  "en": "Willow Tit"
+ },
+ "Dryocopus martius": {
+  "grupo": "Aves",
+  "es": "Picamaderos negro",
+  "eu": "Okil beltz",
+  "en": "Black Woodpecker"
+ },
+ "Muscicapa striata": {
+  "grupo": "Aves",
+  "es": "Papamoscas Gris",
+  "eu": "Euli-txori gris",
+  "en": "Spotted Flycatcher"
+ },
+ "Certhia familiaris": {
+  "grupo": "Aves",
+  "es": "Agateador euroasiático",
+  "eu": null,
+  "en": "Eurasian Treecreeper"
+ },
+ "Platalea leucorodia": {
+  "grupo": "Aves",
+  "es": "Espátula común",
+  "eu": "Mokozabal zuri",
+  "en": "Eurasian Spoonbill"
+ },
+ "Luscinia megarhynchos": {
+  "grupo": "Aves",
+  "es": "Ruisenõr Común",
+  "eu": "Urretxindor",
+  "en": "Common Nightingale"
+ },
+ "Falco peregrinus": {
+  "grupo": "Aves",
+  "es": "Halcón peregrino",
+  "eu": "Belatz handi",
+  "en": "Peregrine Falcon"
+ },
+ "Limosa limosa": {
+  "grupo": "Aves",
+  "es": "Aguja colinegra",
+  "eu": "Kuliska buztanbeltz",
+  "en": "Black-tailed Godwit"
+ },
+ "Lanius collurio": {
+  "grupo": "Aves",
+  "es": "Alcaudón dorsirrojo",
+  "eu": "Antzandobi arrunt",
+  "en": "Red-backed Shrike"
+ },
+ "Recurvirostra avosetta": {
+  "grupo": "Aves",
+  "es": "Avoceta",
+  "eu": "Abozeta",
+  "en": "Pied Avocet"
+ },
+ "Pluvialis apricaria": {
+  "grupo": "Aves",
+  "es": "Chorlito dorado común",
+  "eu": "Urre-txirri arrunt",
+  "en": "European Golden Plover"
+ },
+ "Circus cyaneus": {
+  "grupo": "Aves",
+  "es": "Gavilán rastrero",
+  "eu": "Mirotz zuri",
+  "en": "Hen Harrier"
+ },
+ "Milvus migrans": {
+  "grupo": "Aves",
+  "es": "Milano negro",
+  "eu": "Miru beltz",
+  "en": "Black Kite"
+ },
+ "Emberiza calandra": {
+  "grupo": "Aves",
+  "es": "Escribano triguero",
+  "eu": null,
+  "en": "Corn Bunting"
+ },
+ "Sturnus unicolor": {
+  "grupo": "Aves",
+  "es": "Estornino negro",
+  "eu": null,
+  "en": "Spotless Starling"
+ },
+ "Saxicola rubetra": {
+  "grupo": "Aves",
+  "es": "Tarabilla Norteña",
+  "eu": "Pitxartxar nabar",
+  "en": "Whinchat"
+ },
+ "Anas acuta": {
+  "grupo": "Aves",
+  "es": "Pato golondrino",
+  "eu": "Ahate buztanluze",
+  "en": "Northern Pintail"
+ },
+ "Pandion haliaetus": {
+  "grupo": "Aves",
+  "es": "Gavilán pescador",
+  "eu": "Arrano arrantzale",
+  "en": "Osprey"
+ },
+ "Tringa glareola": {
+  "grupo": "Aves",
+  "es": "Andarríos bastardo",
+  "eu": "Kuliska pikart",
+  "en": "Wood Sandpiper"
+ },
+ "Rallus aquaticus": {
+  "grupo": "Aves",
+  "es": "Rascón europeo",
+  "eu": "Uroilanda handi",
+  "en": "Water Rail"
+ },
+ "Strix aluco": {
+  "grupo": "Aves",
+  "es": "Cárabo común",
+  "eu": "Urubi arrunt",
+  "en": "Tawny Owl"
+ },
+ "Luscinia svecica": {
+  "grupo": "Aves",
+  "es": "Pechiazul",
+  "eu": "Papourdin",
+  "en": "Bluethroat"
+ },
+ "Lullula arborea": {
+  "grupo": "Aves",
+  "es": "Alondra totovía",
+  "eu": "Pirripio",
+  "en": "Woodlark"
+ },
+ "Melanitta nigra": {
+  "grupo": "Aves",
+  "es": "Negreta negra",
+  "eu": "Ahatebeltz arrunt",
+  "en": "Common Scoter"
+ },
+ "Regulus ignicapilla": {
+  "grupo": "Aves",
+  "es": "Reyezuelo listado",
+  "eu": null,
+  "en": "Common Firecrest"
+ },
+ "Bombycilla garrulus": {
+  "grupo": "Aves",
+  "es": "Ampelis Europeo",
+  "eu": "Buztanoria",
+  "en": "Bohemian Waxwing"
+ },
+ "Curruca melanocephala": {
+  "grupo": "Aves",
+  "es": "Curruca cabecinegra",
+  "eu": "Txinbo burubeltz",
+  "en": "Sardinian Warbler"
+ },
+ "Anser albifrons": {
+  "grupo": "Aves",
+  "es": "Ganso careto-mayor",
+  "eu": "Antzara muturzuria",
+  "en": "Greater White-fronted Goose"
+ },
+ "Loxia curvirostra": {
+  "grupo": "Aves",
+  "es": "Picotuerto rojo",
+  "eu": "Mokoker",
+  "en": "Red Crossbill"
+ },
+ "Arenaria interpres": {
+  "grupo": "Aves",
+  "es": "Vuelvepiedras rojizo",
+  "eu": "Harri-iraulari",
+  "en": "Ruddy Turnstone"
+ },
+ "Falco subbuteo": {
+  "grupo": "Aves",
+  "es": "Alcotán europeo",
+  "eu": null,
+  "en": "Eurasian Hobby"
+ },
+ "Thalasseus sandvicensis": {
+  "grupo": "Aves",
+  "es": "Charrán de Sandwich",
+  "eu": null,
+  "en": "Sandwich Tern"
+ },
+ "Upupa epops": {
+  "grupo": "Aves",
+  "es": "Abubilla",
+  "eu": "Argi-oilar",
+  "en": "Eurasian Hoopoe"
+ },
+ "Ichthyaetus melanocephalus": {
+  "grupo": "Aves",
+  "es": "Gaviota cabecinegra",
+  "eu": "Antxeta burubeltza",
+  "en": "Mediterranean Gull"
+ },
+ "Cisticola juncidis": {
+  "grupo": "Aves",
+  "es": "Buitrón",
+  "eu": null,
+  "en": "Zitting Cisticola"
+ },
+ "Pernis apivorus": {
+  "grupo": "Aves",
+  "es": "Abejero europeo",
+  "eu": null,
+  "en": "European Honey Buzzard"
+ },
+ "Dryobates minor": {
+  "grupo": "Aves",
+  "es": "Pico menor",
+  "eu": "Okil txiki",
+  "en": "Lesser Spotted Woodpecker"
+ },
+ "Mergellus albellus": {
+  "grupo": "Aves",
+  "es": "Serreta chica",
+  "eu": "Zerra txiki",
+  "en": "Smew"
+ },
+ "Galerida cristata": {
+  "grupo": "Aves",
+  "es": "Cogujada común",
+  "eu": "Kutturlio arrunt",
+  "en": "Crested Lark"
+ },
+ "Gavia stellata": {
+  "grupo": "Aves",
+  "es": "Colimbo chico",
+  "eu": "Aliota txiki",
+  "en": "Red-throated Diver"
+ },
+ "Morus bassanus": {
+  "grupo": "Aves",
+  "es": "Bobo norteño",
+  "eu": "Atlantikoko zanga",
+  "en": "Northern Gannet"
+ },
+ "Gavia arctica": {
+  "grupo": "Aves",
+  "es": "Colimbo ártico",
+  "eu": "Aliota arktiko",
+  "en": "Black-throated Diver"
+ },
+ "Scolopax rusticola": {
+  "grupo": "Aves",
+  "es": "Chocha perdiz",
+  "eu": "Oilagor",
+  "en": "Eurasian Woodcock"
+ },
+ "Lanius excubitor": {
+  "grupo": "Aves",
+  "es": "Alcaudón norteño",
+  "eu": null,
+  "en": "Great Grey Shrike"
+ },
+ "Cinclus cinclus": {
+  "grupo": "Aves",
+  "es": "Mirlo Acuático",
+  "eu": "Ur-zozo",
+  "en": "White-throated Dipper"
+ },
+ "Pluvialis squatarola": {
+  "grupo": "Aves",
+  "es": "Chorlo gris",
+  "eu": "Txirri gris",
+  "en": "Grey Plover"
+ },
+ "Branta bernicla": {
+  "grupo": "Aves",
+  "es": "Ganso de collar",
+  "eu": "Branta musubeltz",
+  "en": "Brent Goose"
+ },
+ "Buteo lagopus": {
+  "grupo": "Aves",
+  "es": "Aguililla ártica",
+  "eu": "Zapelatz galtzaduna",
+  "en": "Rough-legged Buzzard"
+ },
+ "Limosa lapponica": {
+  "grupo": "Aves",
+  "es": "Picopando cola barrada",
+  "eu": "Kuliska gorri",
+  "en": "Bar-tailed Godwit"
+ },
+ "Numenius phaeopus": {
+  "grupo": "Aves",
+  "es": "Zarapito trinador",
+  "eu": "Kurlinta bekaindun",
+  "en": "Whimbrel"
+ },
+ "Acrocephalus palustris": {
+  "grupo": "Aves",
+  "es": "Carricero Políglota",
+  "eu": null,
+  "en": "Marsh Warbler"
+ },
+ "Sterna paradisaea": {
+  "grupo": "Aves",
+  "es": "Charrán ártico",
+  "eu": "Ipar-txenada",
+  "en": "Arctic Tern"
+ },
+ "Oriolus oriolus": {
+  "grupo": "Aves",
+  "es": "Oropéndola",
+  "eu": "Urretxori",
+  "en": "Eurasian Golden Oriole"
+ },
+ "Psittacula krameri": {
+  "grupo": "Aves",
+  "es": "Cotorra de Kramer",
+  "eu": null,
+  "en": "Rose-ringed Parakeet"
+ },
+ "Spatula querquedula": {
+  "grupo": "Aves",
+  "es": "Cerceta carretona",
+  "eu": "Udako zertzeta",
+  "en": "Garganey"
+ },
+ "Athene noctua": {
+  "grupo": "Aves",
+  "es": "Mochuelo europeo",
+  "eu": "Mozolo arrunt",
+  "en": "Little Owl"
+ },
+ "Himantopus himantopus": {
+  "grupo": "Aves",
+  "es": "Cigüeñuela común",
+  "eu": null,
+  "en": "Black-winged Stilt"
+ },
+ "Streptopelia turtur": {
+  "grupo": "Aves",
+  "es": "Tórtola Común",
+  "eu": "Usapal",
+  "en": "European Turtle Dove"
+ },
+ "Perdix perdix": {
+  "grupo": "Aves",
+  "es": "Perdiz pardilla",
+  "eu": "Eper gris",
+  "en": "Grey Partridge"
+ },
+ "Melanitta fusca": {
+  "grupo": "Aves",
+  "es": "Negreta ala blanca",
+  "eu": "Ahatebeltz hegazuri",
+  "en": "Velvet Scoter"
+ },
+ "Tringa erythropus": {
+  "grupo": "Aves",
+  "es": "Archibebe oscuro",
+  "eu": "Bernagorri ilun",
+  "en": "Spotted Redshank"
+ },
+ "Anthus petrosus": {
+  "grupo": "Aves",
+  "es": "Bisbita costero",
+  "eu": null,
+  "en": "Eurasian Rock Pipit"
+ },
+ "Uria aalge": {
+  "grupo": "Aves",
+  "es": "Arao común",
+  "eu": null,
+  "en": "Common Murre"
+ },
+ "Emberiza cirlus": {
+  "grupo": "Aves",
+  "es": "Escribano soteño",
+  "eu": null,
+  "en": "Cirl Bunting"
+ },
+ "Clangula hyemalis": {
+  "grupo": "Aves",
+  "es": "Pato cola larga",
+  "eu": "Izotz-ahate",
+  "en": "Long-tailed Duck"
+ },
+ "Panurus biarmicus": {
+  "grupo": "Aves",
+  "es": "Bigotudo",
+  "eu": "Tximutx",
+  "en": "Bearded Reedling"
+ },
+ "Merops apiaster": {
+  "grupo": "Aves",
+  "es": "Abejaruco europeo",
+  "eu": "Erle-txori",
+  "en": "European Bee-eater"
+ },
+ "Luscinia luscinia": {
+  "grupo": "Aves",
+  "es": "Ruiseñor ruso",
+  "eu": null,
+  "en": "Thrush Nightingale"
+ },
+ "Hippolais icterina": {
+  "grupo": "Aves",
+  "es": "Zarcero Icterino",
+  "eu": "Sasi-txori horizta",
+  "en": "Icterine Warbler"
+ },
+ "Jynx torquilla": {
+  "grupo": "Aves",
+  "es": "Torcecuello",
+  "eu": null,
+  "en": "Eurasian Wryneck"
+ },
+ "Podiceps grisegena": {
+  "grupo": "Aves",
+  "es": "Somormujo cuellirrojo",
+  "eu": "Murgil lepagorri",
+  "en": "Red-necked Grebe"
+ },
+ "Calidris alba": {
+  "grupo": "Aves",
+  "es": "Playero blanco",
+  "eu": "Txirri zuri",
+  "en": "Sanderling"
+ },
+ "Botaurus stellaris": {
+  "grupo": "Aves",
+  "es": "Avetoro común",
+  "eu": "Txori zezen arrunt",
+  "en": "Eurasian Bittern"
+ },
+ "Coturnix coturnix": {
+  "grupo": "Aves",
+  "es": "Codorniz común",
+  "eu": "Galeper arrunt",
+  "en": "Common Quail"
+ },
+ "Alectoris rufa": {
+  "grupo": "Aves",
+  "es": "Perdiz roja",
+  "eu": "Eper gorri",
+  "en": "Red-legged Partridge"
+ },
+ "Podiceps auritus": {
+  "grupo": "Aves",
+  "es": "Zambullidor cornudo",
+  "eu": "Txilinporta urrebelarri",
+  "en": "Horned Grebe"
+ },
+ "Podiceps nigricollis": {
+  "grupo": "Aves",
+  "es": "Zambullidor orejudo",
+  "eu": "Txilinporta lepabeltz",
+  "en": "Black-necked Grebe"
+ },
+ "Alca torda": {
+  "grupo": "Aves",
+  "es": "Alca común",
+  "eu": "Pottorro arrunt",
+  "en": "Razorbill"
+ },
+ "Calidris canutus": {
+  "grupo": "Aves",
+  "es": "Playero canuto",
+  "eu": "Txirri lodi",
+  "en": "Red Knot"
+ },
+ "Falco columbarius": {
+  "grupo": "Aves",
+  "es": "Esmerejón",
+  "eu": "Belatz txiki",
+  "en": "Merlin"
+ },
+ "Anser brachyrhynchus": {
+  "grupo": "Aves",
+  "es": "Ansar Piquicorto",
+  "eu": "Antzara mokolaburra",
+  "en": "Pink-footed Goose"
+ },
+ "Hydrocoloeus minutus": {
+  "grupo": "Aves",
+  "es": "Gaviota enana",
+  "eu": "Antxeta txiki",
+  "en": "Little Gull"
+ },
+ "Asio otus": {
+  "grupo": "Aves",
+  "es": "Búho cara café",
+  "eu": "Hontz ertain",
+  "en": "Long-eared Owl"
+ },
+ "Rissa tridactyla": {
+  "grupo": "Aves",
+  "es": "Gaviota pata negra",
+  "eu": "Antxeta hankabeltz",
+  "en": "Black-legged Kittiwake"
+ },
+ "Circus pygargus": {
+  "grupo": "Aves",
+  "es": "Aguilucho cenizo",
+  "eu": "Arranokume",
+  "en": "Montagu's Harrier"
+ },
+ "Locustella naevia": {
+  "grupo": "Aves",
+  "es": "Buscarla Pintoja",
+  "eu": null,
+  "en": "Common Grasshopper Warbler"
+ },
+ "Hydroprogne caspia": {
+  "grupo": "Aves",
+  "es": "Charrán caspia",
+  "eu": null,
+  "en": "Caspian Tern"
+ },
+ "Cepphus grylle": {
+  "grupo": "Aves",
+  "es": "Arao aliblanco",
+  "eu": "Martin hegalzuri",
+  "en": "Black Guillemot"
+ },
+ "Ptyonoprogne rupestris": {
+  "grupo": "Aves",
+  "es": "Avión roquero",
+  "eu": "Haitz-enara",
+  "en": "Eurasian Crag Martin"
+ },
+ "Hieraaetus pennatus": {
+  "grupo": "Aves",
+  "es": "Aguililla Calzada",
+  "eu": null,
+  "en": "Booted Eagle"
+ },
+ "Hippolais polyglotta": {
+  "grupo": "Aves",
+  "es": "Zarcero Común",
+  "eu": "Sasi-txori arrunt",
+  "en": "Melodious Warbler"
+ },
+ "Lyrurus tetrix": {
+  "grupo": "Aves",
+  "es": "Gallo lira común",
+  "eu": "Lira-oilar",
+  "en": "Black Grouse"
+ },
+ "Acrocephalus arundinaceus": {
+  "grupo": "Aves",
+  "es": null,
+  "eu": null,
+  "en": null
+ },
+ "Aquila chrysaetos": {
+  "grupo": "Aves",
+  "es": "Águila real",
+  "eu": "Arrano beltz",
+  "en": "Golden Eagle"
+ },
+ "Phoenicopterus roseus": {
+  "grupo": "Aves",
+  "es": "Flamenco común",
+  "eu": null,
+  "en": "Greater Flamingo"
+ },
+ "Netta rufina": {
+  "grupo": "Aves",
+  "es": "Pato colorado",
+  "eu": "Ahate gorrizta",
+  "en": "Red-crested Pochard"
+ },
+ "Circaetus gallicus": {
+  "grupo": "Aves",
+  "es": "Culebrera Europea",
+  "eu": null,
+  "en": "Short-toed Snake Eagle"
+ },
+ "Calidris minuta": {
+  "grupo": "Aves",
+  "es": "Correlimos menudo",
+  "eu": "Txirri txiki",
+  "en": "Little Stint"
+ },
+ "Tyto alba": {
+  "grupo": "Aves",
+  "es": "Lechuza de campanario",
+  "eu": null,
+  "en": "Barn Owl"
+ },
+ "Calidris ferruginea": {
+  "grupo": "Aves",
+  "es": "Correlimos zarapitín",
+  "eu": null,
+  "en": "Curlew Sandpiper"
+ },
+ "Anthus spinoletta": {
+  "grupo": "Aves",
+  "es": "Bisbita Alpino",
+  "eu": "Mendi-txirta",
+  "en": "Water Pipit"
+ },
+ "Aythya marila": {
+  "grupo": "Aves",
+  "es": "Pato boludo-mayor",
+  "eu": "Murgilari handi",
+  "en": "Greater Scaup"
+ },
+ "Plectrophenax nivalis": {
+  "grupo": "Aves",
+  "es": "Escribano niva",
+  "eu": "Elur-berdantza",
+  "en": "Snow Bunting"
+ },
+ "Nucifraga caryocatactes": {
+  "grupo": "Aves",
+  "es": "Cascanueces",
+  "eu": "Intxaurjale",
+  "en": "Spotted Nutcracker"
+ },
+ "Carpodacus erythrinus": {
+  "grupo": "Aves",
+  "es": "Camachuelo Carminoso",
+  "eu": null,
+  "en": "Common Rosefinch"
+ },
+ "Chlidonias niger": {
+  "grupo": "Aves",
+  "es": "Charrán negro",
+  "eu": "Itas enara",
+  "en": "Black Tern"
+ },
+ "Sternula albifrons": {
+  "grupo": "Aves",
+  "es": "Charrancito común",
+  "eu": null,
+  "en": "Little Tern"
+ },
+ "Stercorarius parasiticus": {
+  "grupo": "Aves",
+  "es": "Salteador parásito",
+  "eu": "Marikoi isatslabur",
+  "en": "Parasitic Jaeger"
+ },
+ "Larus cachinnans": {
+  "grupo": "Aves",
+  "es": "Gaviota del Caspio",
+  "eu": "Kaio hankahori",
+  "en": "Caspian Gull"
+ },
+ "Ardea purpurea": {
+  "grupo": "Aves",
+  "es": "Garza imperial",
+  "eu": "Lertxun gorri",
+  "en": "Purple Heron"
+ },
+ "Linaria flavirostris": {
+  "grupo": "Aves",
+  "es": "Pardillo piquigualdo",
+  "eu": "Txoka mokohori",
+  "en": "Twite"
+ },
+ "Turdus torquatus": {
+  "grupo": "Aves",
+  "es": "Mirlo capiblanco",
+  "eu": "Zozo paparzuri",
+  "en": "Ring Ouzel"
+ },
+ "Plegadis falcinellus": {
+  "grupo": "Aves",
+  "es": "Morito común",
+  "eu": "Beltzarana",
+  "en": "Glossy Ibis"
+ },
+ "Fulmarus glacialis": {
+  "grupo": "Aves",
+  "es": "Fulmar boreal",
+  "eu": "Fulmarra",
+  "en": "Northern Fulmar"
+ },
+ "Crex crex": {
+  "grupo": "Aves",
+  "es": "Guión de codornices",
+  "eu": "Giloi",
+  "en": "Corn Crake"
+ },
+ "Calidris maritima": {
+  "grupo": "Aves",
+  "es": "Correlimos oscuro",
+  "eu": null,
+  "en": "Purple Sandpiper"
+ },
+ "Caprimulgus europaeus": {
+  "grupo": "Aves",
+  "es": "Chotacabras Gris",
+  "eu": "Zata arrunt",
+  "en": "European Nightjar"
+ },
+ "Aegolius funereus": {
+  "grupo": "Aves",
+  "es": "Mochuelo boreal",
+  "eu": null,
+  "en": "Boreal Owl"
+ },
+ "Dendrocoptes medius": {
+  "grupo": "Aves",
+  "es": "Pico mediano",
+  "eu": "Okil ertain",
+  "en": "Middle Spotted Woodpecker"
+ },
+ "Picus sharpei": {
+  "grupo": "Aves",
+  "es": "Carpintero verde ibérico",
+  "eu": "Okil berdea",
+  "en": "Iberian Green Woodpecker"
+ },
+ "Lanius senator": {
+  "grupo": "Aves",
+  "es": "Alcaudón común",
+  "eu": "Kankanote",
+  "en": "Woodchat Shrike"
+ },
+ "Picus canus": {
+  "grupo": "Aves",
+  "es": "Pito Cano",
+  "eu": null,
+  "en": "Grey-headed Woodpecker"
+ },
+ "Asio flammeus": {
+  "grupo": "Aves",
+  "es": "Búho cuerno corto",
+  "eu": "Zingira-hontz",
+  "en": "Short-eared Owl"
+ },
+ "Cygnus columbianus": {
+  "grupo": "Aves",
+  "es": "Cisne de tundra",
+  "eu": null,
+  "en": "Tundra Swan"
+ },
+ "Ciconia nigra": {
+  "grupo": "Aves",
+  "es": "Cigüeña negra",
+  "eu": "Amiamoko beltz",
+  "en": "Black Stork"
+ },
+ "Remiz pendulinus": {
+  "grupo": "Aves",
+  "es": "Pájaro Moscón",
+  "eu": "Dilindari",
+  "en": "Eurasian Penduline Tit"
+ },
+ "Calidris temminckii": {
+  "grupo": "Aves",
+  "es": "Correlimos de Temminck",
+  "eu": "Temminck txirria",
+  "en": "Temminck's Stint"
+ },
+ "Phylloscopus bonelli": {
+  "grupo": "Aves",
+  "es": "Mosquitero Papialbo",
+  "eu": "Txio lepazuri",
+  "en": "Western Bonelli's Warbler"
+ },
+ "Tetrao urogallus": {
+  "grupo": "Aves",
+  "es": "Urogallo común",
+  "eu": "Basoilar",
+  "en": "Western Capercaillie"
+ },
+ "Nycticorax nycticorax": {
+  "grupo": "Aves",
+  "es": "Garza Nocturna Coroninegra",
+  "eu": "Amiltxori arrunt",
+  "en": "Black-crowned Night Heron"
+ },
+ "Pyrrhocorax pyrrhocorax": {
+  "grupo": "Aves",
+  "es": "Chova piquirroja",
+  "eu": "Belatxinga mokogorri",
+  "en": "Red-billed Chough"
+ },
+ "Glaucidium passerinum": {
+  "grupo": "Aves",
+  "es": "Mochuelo Chico",
+  "eu": "Mozolo txiki",
+  "en": "Eurasian Pygmy Owl"
+ },
+ "Tadorna ferruginea": {
+  "grupo": "Aves",
+  "es": "Tarro canelo",
+  "eu": "Paita gorrizta",
+  "en": "Ruddy Shelduck"
+ },
+ "Passer hispaniolensis": {
+  "grupo": "Aves",
+  "es": "Gorrión Moruno",
+  "eu": "Txolarre ilun",
+  "en": "Spanish Sparrow"
+ },
+ "Lagopus lagopus": {
+  "grupo": "Aves",
+  "es": "Lagópodo común",
+  "eu": "Eskandinaviar lagopodo",
+  "en": "Willow Grouse"
+ },
+ "Lanius meridionalis": {
+  "grupo": "Aves",
+  "es": "Alcaudón real",
+  "eu": "Antzandobi handia",
+  "en": "Iberian Grey Shrike"
+ },
+ "Cyanopica cooki": {
+  "grupo": "Aves",
+  "es": "Rabilargo ibérico",
+  "eu": null,
+  "en": "Iberian Magpie"
+ },
+ "Aix galericulata": {
+  "grupo": "Aves",
+  "es": "Pato mandarín",
+  "eu": "Mandarin ahate",
+  "en": "Mandarin Duck"
+ },
+ "Emberiza cia": {
+  "grupo": "Aves",
+  "es": "Escribano montesino",
+  "eu": "Mendi-berdantza",
+  "en": "Rock Bunting"
+ },
+ "Ficedula albicollis": {
+  "grupo": "Aves",
+  "es": "Papamoscas Collarino",
+  "eu": null,
+  "en": "Collared Flycatcher"
+ },
+ "Gavia immer": {
+  "grupo": "Aves",
+  "es": "Colimbo grande",
+  "eu": "Aliota handi",
+  "en": "Great Northern Diver"
+ },
+ "Burhinus oedicnemus": {
+  "grupo": "Aves",
+  "es": "Alcaraván",
+  "eu": "Atalar",
+  "en": "Eurasian Stone-curlew"
+ },
+ "Bubo bubo": {
+  "grupo": "Aves",
+  "es": "Búho real",
+  "eu": "Hontz handi",
+  "en": "Eurasian Eagle-Owl"
+ },
+ "Galerida theklae": {
+  "grupo": "Aves",
+  "es": "Cogujada montesina",
+  "eu": "Kutturlio mokolabur",
+  "en": "Thekla Lark"
+ },
+ "Estrilda astrild": {
+  "grupo": "Aves",
+  "es": "Estrilda común",
+  "eu": null,
+  "en": "Common Waxbill"
+ },
+ "Lymnocryptes minimus": {
+  "grupo": "Aves",
+  "es": "Agachadiza chica",
+  "eu": "Istingor txiki",
+  "en": "Jack Snipe"
+ },
+ "Falco naumanni": {
+  "grupo": "Aves",
+  "es": "Cernícalo Primilla",
+  "eu": "Neumann belatz",
+  "en": "Lesser Kestrel"
+ },
+ "Locustella luscinioides": {
+  "grupo": "Aves",
+  "es": "Buscarla Unicolor",
+  "eu": "Benarriz gorrizta",
+  "en": "Savi's Warbler"
+ },
+ "Petronia petronia": {
+  "grupo": "Aves",
+  "es": "Gorrión Chillón",
+  "eu": "Harkaitz-txolarrea",
+  "en": "Rock Sparrow"
+ },
+ "Apus pallidus": {
+  "grupo": "Aves",
+  "es": "Vencejo Pálido",
+  "eu": null,
+  "en": "Pallid Swift"
+ },
+ "Tetrastes bonasia": {
+  "grupo": "Aves",
+  "es": "Grévol común",
+  "eu": "Larreoiloa",
+  "en": "Hazel Grouse"
+ },
+ "Chlidonias hybrida": {
+  "grupo": "Aves",
+  "es": "Fumarel cariblanco",
+  "eu": null,
+  "en": "Whiskered Tern"
+ },
+ "Tachymarptis melba": {
+  "grupo": "Aves",
+  "es": "Vencejo Alpino",
+  "eu": "Malkar-sorbeltz",
+  "en": "Alpine Swift"
+ },
+ "Myiopsitta monachus": {
+  "grupo": "Aves",
+  "es": "Cotorra argentina",
+  "eu": null,
+  "en": "Monk Parakeet"
+ },
+ "Strix uralensis": {
+  "grupo": "Aves",
+  "es": "Cárabo uralense",
+  "eu": "Uraletako urubi",
+  "en": "Ural Owl"
+ },
+ "Coracias garrulus": {
+  "grupo": "Aves",
+  "es": "Carraca europea",
+  "eu": null,
+  "en": "European Roller"
+ },
+ "Loxia pytyopsittacus": {
+  "grupo": "Aves",
+  "es": "Piquituerto Lorito",
+  "eu": null,
+  "en": "Parrot Crossbill"
+ },
+ "Picoides tridactylus": {
+  "grupo": "Aves",
+  "es": "Pico Tridáctilo",
+  "eu": null,
+  "en": "Eurasian Three-toed Woodpecker"
+ },
+ "Emberiza hortulana": {
+  "grupo": "Aves",
+  "es": "Escribano hortelano",
+  "eu": "Berdantza miarritz",
+  "en": "Ortolan Bunting"
+ },
+ "Anser serrirostris": {
+  "grupo": "Aves",
+  "es": null,
+  "eu": null,
+  "en": "Tundra bean goose"
+ },
+ "Anthus campestris": {
+  "grupo": "Aves",
+  "es": "Bisbita campestre",
+  "eu": "Landa-txirta",
+  "en": "Tawny Pipit"
+ },
+ "Monticola solitarius": {
+  "grupo": "Aves",
+  "es": "Roquero Solitario",
+  "eu": "Harkaitz-zozo urdin",
+  "en": "Blue Rock Thrush"
+ },
+ "Aegypius monachus": {
+  "grupo": "Aves",
+  "es": "Buitre Negro",
+  "eu": null,
+  "en": "Cinereous Vulture"
+ },
+ "Porphyrio porphyrio": {
+  "grupo": "Aves",
+  "es": "Calamón común",
+  "eu": null,
+  "en": "Purple Swamphen"
+ },
+ "Perisoreus infaustus": {
+  "grupo": "Aves",
+  "es": "Arrendajo siberiano",
+  "eu": "Perisoreus infaustus",
+  "en": "Siberian Jay"
+ },
+ "Ficedula parva": {
+  "grupo": "Aves",
+  "es": "Papamoscas Papirrojo",
+  "eu": null,
+  "en": "Red-breasted Flycatcher"
+ },
+ "Phalaropus lobatus": {
+  "grupo": "Aves",
+  "es": "Falaropo cuello rojo",
+  "eu": null,
+  "en": "Red-necked Phalarope"
+ },
+ "Calcarius lapponicus": {
+  "grupo": "Aves",
+  "es": "Escribano ártico",
+  "eu": "Ipar-berdantza",
+  "en": "Lapland Longspur"
+ },
+ "Passer italiae": {
+  "grupo": "Aves",
+  "es": "Gorrión italiano",
+  "eu": "Italiar txolarre",
+  "en": "Italian Sparrow"
+ },
+ "Saxicola torquatus": {
+  "grupo": "Aves",
+  "es": "Tarabilla Común",
+  "eu": null,
+  "en": "African Stonechat"
+ },
+ "Fratercula arctica": {
+  "grupo": "Aves",
+  "es": "Frailecillo atlántico",
+  "eu": "Lanperna musua",
+  "en": "Atlantic Puffin"
+ },
+ "Stercorarius skua": {
+  "grupo": "Aves",
+  "es": "Págalo grande",
+  "eu": "Marikaka handia",
+  "en": "Great Skua"
+ },
+ "Otus scops": {
+  "grupo": "Aves",
+  "es": "Autillo",
+  "eu": null,
+  "en": "Eurasian Scops Owl"
+ },
+ "Pinicola enucleator": {
+  "grupo": "Aves",
+  "es": "Camachuelo Picogrueso",
+  "eu": "Pinu-gailupa",
+  "en": "Pine Grosbeak"
+ },
+ "Melanocorypha calandra": {
+  "grupo": "Aves",
+  "es": "Calandria común",
+  "eu": null,
+  "en": "Calandra Lark"
+ },
+ "Anser fabalis": {
+  "grupo": "Aves",
+  "es": "Ansar Campestre",
+  "eu": "Antzara mokolaburra",
+  "en": "Bean Goose"
+ },
+ "Larus hyperboreus": {
+  "grupo": "Aves",
+  "es": "Gaviota blanca",
+  "eu": "Ipar kaioa",
+  "en": "Glaucous Gull"
+ },
+ "Phylloscopus inornatus": {
+  "grupo": "Aves",
+  "es": "Mosquitero Bilistado",
+  "eu": "Txio marrabiko",
+  "en": "Yellow-browed Warbler"
+ },
+ "Ichthyaetus audouinii": {
+  "grupo": "Aves",
+  "es": "Gaviota de Audouin",
+  "eu": "Audouin kaio",
+  "en": "Audouin's Gull"
+ },
+ "Elanus caeruleus": {
+  "grupo": "Aves",
+  "es": "Elanio azul",
+  "eu": "Elano urdin",
+  "en": "Black-winged Kite"
+ },
+ "Porzana porzana": {
+  "grupo": "Aves",
+  "es": "Polluela pintoja",
+  "eu": "Uroilanda pikart",
+  "en": "Spotted Crake"
+ },
+ "Calonectris diomedea": {
+  "grupo": "Aves",
+  "es": "Pardela cenicienta mediterránea",
+  "eu": "Gabia arrea",
+  "en": "Scopoli's Shearwater"
+ },
+ "Neophron percnopterus": {
+  "grupo": "Aves",
+  "es": "Alimoche",
+  "eu": "Sai zuri",
+  "en": "Egyptian Vulture"
+ },
+ "Ardeola ralloides": {
+  "grupo": "Aves",
+  "es": "Garcilla cangrejera",
+  "eu": "Lertxuntxo karramarrozalea",
+  "en": "Squacco Heron"
+ },
+ "Eremophila alpestris": {
+  "grupo": "Aves",
+  "es": "Alondra cornuda",
+  "eu": null,
+  "en": "Horned Lark"
+ },
+ "Microcarbo pygmaeus": {
+  "grupo": "Aves",
+  "es": "Cormorán pigmeo",
+  "eu": "Ubarroi txiki",
+  "en": "Pygmy Cormorant"
+ },
+ "Tetrax tetrax": {
+  "grupo": "Aves",
+  "es": "Sisón",
+  "eu": "Basoilo txiki",
+  "en": "Little Bustard"
+ },
+ "Aythya nyroca": {
+  "grupo": "Aves",
+  "es": "Porrón Pardo",
+  "eu": "Murgilari arre",
+  "en": "Ferruginous Duck"
+ },
+ "Cygnus atratus": {
+  "grupo": "Aves",
+  "es": "Cisne negro",
+  "eu": null,
+  "en": "Black Swan"
+ },
+ "Acrocephalus dumetorum": {
+  "grupo": "Aves",
+  "es": "Carricero de Blyth",
+  "eu": null,
+  "en": "Blyth's Reed Warbler"
+ },
+ "Chroicocephalus genei": {
+  "grupo": "Aves",
+  "es": "Gaviota picofina",
+  "eu": null,
+  "en": "Slender-billed Gull"
+ },
+ "Gelochelidon nilotica": {
+  "grupo": "Aves",
+  "es": "Charrán pico grueso",
+  "eu": "Txenada mokobeltz",
+  "en": "Gull-billed Tern"
+ },
+ "Surnia ulula": {
+  "grupo": "Aves",
+  "es": "Búho Gavilán",
+  "eu": "Hontz gabirai",
+  "en": "Northern Hawk-Owl"
+ },
+ "Pyrrhocorax graculus": {
+  "grupo": "Aves",
+  "es": "Chova piquigualda",
+  "eu": "Belatxinga mokohori",
+  "en": "Alpine Chough"
+ },
+ "Anser indicus": {
+  "grupo": "Aves",
+  "es": "Ánsar indio",
+  "eu": "Indiar antzara",
+  "en": "Bar-headed Goose"
+ },
+ "Lagopus muta": {
+  "grupo": "Aves",
+  "es": "Lagópodo alpino",
+  "eu": null,
+  "en": "Rock Ptarmigan"
+ },
+ "Falco vespertinus": {
+  "grupo": "Aves",
+  "es": "Cernícalo patirrojo",
+  "eu": "Belatz hankagorri",
+  "en": "Red-footed Falcon"
+ },
+ "Phylloscopus ibericus": {
+  "grupo": "Aves",
+  "es": "Mosquitero ibérico",
+  "eu": null,
+  "en": "Iberian Chiffchaff"
+ },
+ "Calandrella brachydactyla": {
+  "grupo": "Aves",
+  "es": "Terrera común",
+  "eu": "Txoriandere arrun",
+  "en": "Greater Short-toed Lark"
+ },
+ "Anthus cervinus": {
+  "grupo": "Aves",
+  "es": "Bisbita garganta roja",
+  "eu": null,
+  "en": "Red-throated Pipit"
+ },
+ "Emberiza rustica": {
+  "grupo": "Aves",
+  "es": "Escribano rústico",
+  "eu": "Baso-berdantza",
+  "en": "Rustic Bunting"
+ },
+ "Calidris falcinellus": {
+  "grupo": "Aves",
+  "es": "Correlimos falcinelo",
+  "eu": null,
+  "en": "Broad-billed Sandpiper"
+ },
+ "Circus macrourus": {
+  "grupo": "Aves",
+  "es": "Aguilucho Papialbo",
+  "eu": "Mirotz lepazuria",
+  "en": "Pallid Harrier"
+ },
+ "Puffinus puffinus": {
+  "grupo": "Aves",
+  "es": "Pardela pichoneta",
+  "eu": "Gabai arrunt",
+  "en": "Manx Shearwater"
+ },
+ "Larus glaucoides": {
+  "grupo": "Aves",
+  "es": "Gaviota groenlandesa",
+  "eu": "Kaio ega-zuri",
+  "en": "Iceland Gull"
+ },
+ "Gypaetus barbatus": {
+  "grupo": "Aves",
+  "es": "Quebrantahuesos",
+  "eu": null,
+  "en": "Bearded Vulture"
+ },
+ "Curruca iberiae": {
+  "grupo": "Aves",
+  "es": "Curruca carrasqueña occidental",
+  "eu": "Txinbo papargorrizta",
+  "en": "Western Subalpine Warbler"
+ },
+ "Locustella fluviatilis": {
+  "grupo": "Aves",
+  "es": "Buscarla Fluvial",
+  "eu": null,
+  "en": "River Warbler"
+ },
+ "Aquila fasciata": {
+  "grupo": "Aves",
+  "es": "Águila perdicera",
+  "eu": "Aztore-arrano",
+  "en": "Bonelli's Eagle"
+ },
+ "Branta ruficollis": {
+  "grupo": "Aves",
+  "es": "Barnacla cuelliroja",
+  "eu": "Branta lepagorri",
+  "en": "Red-breasted Goose"
+ },
+ "Alle alle": {
+  "grupo": "Aves",
+  "es": "Mérgulo atlántico",
+  "eu": "Pottorro txiki",
+  "en": "Little Auk"
+ },
+ "Anser erythropus": {
+  "grupo": "Aves",
+  "es": "Ánsar chico",
+  "eu": "Antzara nano",
+  "en": "Lesser White-fronted Goose"
+ },
+ "Oenanthe hispanica": {
+  "grupo": "Aves",
+  "es": "Collalba Rubia",
+  "eu": "Buztanzuri hori",
+  "en": "Black-eared Wheatear"
+ },
+ "Cairina moschata": {
+  "grupo": "Aves",
+  "es": "Pato criollo",
+  "eu": "Cairina moschata",
+  "en": "Muscovy Duck"
+ },
+ "Carduelis citrinella": {
+  "grupo": "Aves",
+  "es": "Verderón serrano",
+  "eu": "Mendi txirriskila",
+  "en": "Citril Finch"
+ },
+ "Otis tarda": {
+  "grupo": "Aves",
+  "es": "Avutarda",
+  "eu": "Basoilo handi",
+  "en": "Great Bustard"
+ },
+ "Dendrocopos leucotos": {
+  "grupo": "Aves",
+  "es": "Pico Dorsiblanco",
+  "eu": "Okil gibelnabar",
+  "en": "White-backed Woodpecker"
+ },
+ "Poecile cinctus": {
+  "grupo": "Aves",
+  "es": "Carbonero lapón",
+  "eu": null,
+  "en": "Gray-headed Chickadee"
+ },
+ "Hydrobates pelagicus": {
+  "grupo": "Aves",
+  "es": "Paíño europeo",
+  "eu": "Ekaitz txori txikia",
+  "en": "European Storm Petrel"
+ },
+ "Loxia leucoptera": {
+  "grupo": "Aves",
+  "es": "Piquituerto Franjeado",
+  "eu": null,
+  "en": "Two-barred Crossbill"
+ },
+ "Serinus canaria": {
+  "grupo": "Aves",
+  "es": "Canario",
+  "eu": null,
+  "en": "Atlantic Canary"
+ },
+ "Acrocephalus melanopogon": {
+  "grupo": "Aves",
+  "es": "Carricerín Real",
+  "eu": null,
+  "en": "Moustached Warbler"
+ },
+ "Prunella collaris": {
+  "grupo": "Aves",
+  "es": "Acentor Alpino",
+  "eu": "Mendi-tuntun",
+  "en": "Alpine Accentor"
+ },
+ "Stercorarius longicaudus": {
+  "grupo": "Aves",
+  "es": "Págalo rabero",
+  "eu": "Marikoi isatsluze",
+  "en": "Long-tailed Jaeger"
+ },
+ "Puffinus mauretanicus": {
+  "grupo": "Aves",
+  "es": "Pardela balear",
+  "eu": "Gabai balear",
+  "en": "Balearic Shearwater"
+ },
+ "Oxyura jamaicensis": {
+  "grupo": "Aves",
+  "es": "Pato tepalcate",
+  "eu": "Ahate herdoiltsua",
+  "en": "Ruddy Duck"
+ },
+ "Chlidonias leucopterus": {
+  "grupo": "Aves",
+  "es": "Fumarel aliblanco",
+  "eu": "Itsas enara hegalzuri",
+  "en": "White-winged Tern"
+ },
+ "Dendrocopos syriacus": {
+  "grupo": "Aves",
+  "es": "Pico Sirio",
+  "eu": null,
+  "en": "Syrian Woodpecker"
+ },
+ "Glareola pratincola": {
+  "grupo": "Aves",
+  "es": "Canastera",
+  "eu": "Pratinkola",
+  "en": "Collared Pratincole"
+ },
+ "Clamator glandarius": {
+  "grupo": "Aves",
+  "es": "Críalo",
+  "eu": "Kuku mottodun",
+  "en": "Great Spotted Cuckoo"
+ },
+ "Somateria spectabilis": {
+  "grupo": "Aves",
+  "es": "Eider real",
+  "eu": "Eider errege",
+  "en": "King Eider"
+ },
+ "Phalaropus fulicarius": {
+  "grupo": "Aves",
+  "es": "Falaropo pico grueso",
+  "eu": null,
+  "en": "Red Phalarope"
+ },
+ "Stercorarius pomarinus": {
+  "grupo": "Aves",
+  "es": "Salteador pomarino",
+  "eu": "Marikoi isatsbihur",
+  "en": "Pomarine Jaeger"
+ },
+ "Oxyura leucocephala": {
+  "grupo": "Aves",
+  "es": "Malvasía",
+  "eu": null,
+  "en": "White-headed Duck"
+ },
+ "Tringa stagnatilis": {
+  "grupo": "Aves",
+  "es": "Archibebe fino",
+  "eu": null,
+  "en": "Marsh Sandpiper"
+ },
+ "Phylloscopus trochiloides": {
+  "grupo": "Aves",
+  "es": "Mosquitero verdoso",
+  "eu": null,
+  "en": "Greenish Warbler"
+ },
+ "Calidris melanotos": {
+  "grupo": "Aves",
+  "es": "Playero pectoral",
+  "eu": "Txirri pektoral",
+  "en": "Pectoral Sandpiper"
+ },
+ "Motacilla citreola": {
+  "grupo": "Aves",
+  "es": "Lavandera Cetrina",
+  "eu": "Buztanikara zitrino",
+  "en": "Citrine Wagtail"
+ },
+ "Aquila adalberti": {
+  "grupo": "Aves",
+  "es": "Aguila Imperial Ibérica",
+  "eu": null,
+  "en": "Spanish Imperial Eagle"
+ },
+ "Gallinago media": {
+  "grupo": "Aves",
+  "es": "Agachadiza real",
+  "eu": "Istingor handi",
+  "en": "Great Snipe"
+ },
+ "Lanius minor": {
+  "grupo": "Aves",
+  "es": "Alcaudón chico",
+  "eu": null,
+  "en": "Lesser Grey Shrike"
+ },
+ "Tichodroma muraria": {
+  "grupo": "Aves",
+  "es": "Treparriscos",
+  "eu": null,
+  "en": "Wallcreeper"
+ },
+ "Iduna pallida": {
+  "grupo": "Aves",
+  "es": "Zarcero Pálido Oriental",
+  "eu": null,
+  "en": "Eastern Olivaceous Warbler"
+ },
+ "Aythya collaris": {
+  "grupo": "Aves",
+  "es": "Pato pico anillado",
+  "eu": "Murgilari lepokodun",
+  "en": "Ring-necked Duck"
+ },
+ "Oenanthe leucura": {
+  "grupo": "Aves",
+  "es": "Collalba Negra",
+  "eu": "Buztanzuri beltz",
+  "en": "Black Wheatear"
+ },
+ "Monticola saxatilis": {
+  "grupo": "Aves",
+  "es": "Roquero Rojo",
+  "eu": null,
+  "en": "Rufous-tailed Rock Thrush"
+ },
+ "Emberiza pusilla": {
+  "grupo": "Aves",
+  "es": "Escribano pigmeo",
+  "eu": "Berdantza txiki",
+  "en": "Little Bunting"
+ },
+ "Caprimulgus ruficollis": {
+  "grupo": "Aves",
+  "es": "Chotacabras Pardo",
+  "eu": "Zata lepagorri",
+  "en": "Red-necked Nightjar"
+ },
+ "Strix nebulosa": {
+  "grupo": "Aves",
+  "es": "Cárabo lapón",
+  "eu": null,
+  "en": "Great Grey Owl"
+ },
+ "Gavia adamsii": {
+  "grupo": "Aves",
+  "es": "Colimbo de Adams",
+  "eu": "Aliota mokozuri",
+  "en": "Yellow-billed Loon"
+ },
+ "Pelecanus crispus": {
+  "grupo": "Aves",
+  "es": "Pelícano Ceñudo",
+  "eu": "Pelikano ilebihurri",
+  "en": "Dalmatian Pelican"
+ },
+ "Threskiornis aethiopicus": {
+  "grupo": "Aves",
+  "es": "Ibis sagrado",
+  "eu": "Ibis sakratu",
+  "en": "African Sacred Ibis"
+ },
+ "Anser caerulescens": {
+  "grupo": "Aves",
+  "es": "Ánsar nival",
+  "eu": null,
+  "en": "Snow Goose"
+ },
+ "Pterocles alchata": {
+  "grupo": "Aves",
+  "es": "Ganga ibérica",
+  "eu": null,
+  "en": "Pin-tailed Sandgrouse"
+ },
+ "Buteo rufinus": {
+  "grupo": "Aves",
+  "es": "Busardo moro",
+  "eu": null,
+  "en": "Long-legged Buzzard"
+ },
+ "Cecropis daurica": {
+  "grupo": "Aves",
+  "es": "Golondrina dáurica",
+  "eu": null,
+  "en": "Red-rumped Swallow"
+ },
+ "Anthus richardi": {
+  "grupo": "Aves",
+  "es": "Bisbita de Richard",
+  "eu": null,
+  "en": "Richard's Pipit"
+ },
+ "Pastor roseus": {
+  "grupo": "Aves",
+  "es": "Estornino rosado",
+  "eu": null,
+  "en": "Rosy Starling"
+ },
+ "Marmaronetta angustirostris": {
+  "grupo": "Aves",
+  "es": "Cerceta pardilla",
+  "eu": null,
+  "en": "Marbled Duck"
+ },
+ "Fringilla moreletti": {
+  "grupo": "Aves",
+  "es": "Pinzón común de las Azores",
+  "eu": null,
+  "en": "Azores Chaffinch"
+ },
+ "Phylloscopus proregulus": {
+  "grupo": "Aves",
+  "es": "Mosquitero de Pallas",
+  "eu": "Txio erregetxo",
+  "en": "Pallas's Leaf Warbler"
+ },
+ "Pterocles orientalis": {
+  "grupo": "Aves",
+  "es": "Ganga ortega",
+  "eu": "Ganga azpibeltz",
+  "en": "Black-bellied Sandgrouse"
+ },
+ "Euplectes afer": {
+  "grupo": "Aves",
+  "es": "Napoleón tejedor",
+  "eu": null,
+  "en": "Yellow-crowned Bishop"
+ },
+ "Montifringilla nivalis": {
+  "grupo": "Aves",
+  "es": "Gorrión Alpino",
+  "eu": null,
+  "en": "White-winged Snowfinch"
+ },
+ "Polysticta stelleri": {
+  "grupo": "Aves",
+  "es": "Eider chico",
+  "eu": null,
+  "en": "Steller's Eider"
+ },
+ "Pelecanus onocrotalus": {
+  "grupo": "Aves",
+  "es": "Pelícano común",
+  "eu": "Pelikano arrunt",
+  "en": "Great White Pelican"
+ },
+ "Emberiza melanocephala": {
+  "grupo": "Aves",
+  "es": "Escribano cabecinegro",
+  "eu": "Berdantza burubeltz",
+  "en": "Black-headed Bunting"
+ },
+ "Branta hutchinsii": {
+  "grupo": "Aves",
+  "es": "Barnacla canadiense chica",
+  "eu": null,
+  "en": "Cackling Goose"
+ },
+ "Alectoris graeca": {
+  "grupo": "Aves",
+  "es": "Perdiz griega",
+  "eu": "Greziar eper",
+  "en": "Rock Partridge"
+ },
+ "Falco eleonorae": {
+  "grupo": "Aves",
+  "es": "Halcón de Eleonora",
+  "eu": "Eleonor belatza",
+  "en": "Eleonora's Falcon"
+ },
+ "Falco rusticolus": {
+  "grupo": "Aves",
+  "es": "Halcón gerifalte",
+  "eu": null,
+  "en": "Gyrfalcon"
+ },
+ "Acrocephalus paludicola": {
+  "grupo": "Aves",
+  "es": "Carricerín Cejudo",
+  "eu": "Ur-benarriz",
+  "en": "Aquatic Warbler"
+ },
+ "Aix sponsa": {
+  "grupo": "Aves",
+  "es": "Pato arcoiris",
+  "eu": null,
+  "en": "Wood Duck"
+ },
+ "Phoenicopterus ruber": {
+  "grupo": "Aves",
+  "es": "Flamenco americano",
+  "eu": null,
+  "en": "American Flamingo"
+ },
+ "Aquila heliaca": {
+  "grupo": "Aves",
+  "es": "Aguila Imperial Oriental",
+  "eu": null,
+  "en": "Eastern Imperial Eagle"
+ },
+ "Mareca americana": {
+  "grupo": "Aves",
+  "es": "Silbón americano",
+  "eu": "Amerikar ahate txistulari",
+  "en": "American Wigeon"
+ },
+ "Puffinus yelkouan": {
+  "grupo": "Aves",
+  "es": "Pardela mediterránea",
+  "eu": "Gabai mediterranearra",
+  "en": "Yelkouan Shearwater"
+ },
+ "Xema sabini": {
+  "grupo": "Aves",
+  "es": "Gaviota cola hendida",
+  "eu": null,
+  "en": "Sabine's Gull"
+ },
+ "Phylloscopus humei": {
+  "grupo": "Aves",
+  "es": "Mosquitero de Hume",
+  "eu": null,
+  "en": "Hume's Leaf Warbler"
+ },
+ "Anser cygnoides": {
+  "grupo": "Aves",
+  "es": "Ánsar cisnal",
+  "eu": null,
+  "en": "Swan Goose"
+ },
+ "Cyanopica cyanus": {
+  "grupo": "Aves",
+  "es": "Rabilargo asiático",
+  "eu": null,
+  "en": "Azure-winged Magpie"
+ },
+ "Ploceus melanocephalus": {
+  "grupo": "Aves",
+  "es": "Tejedor cabecinegro",
+  "eu": null,
+  "en": "Black-headed Weaver"
+ },
+ "Tarsiger cyanurus": {
+  "grupo": "Aves",
+  "es": "Ruiseñor Coliazul",
+  "eu": null,
+  "en": "Red-flanked Bluetail"
+ },
+ "Xenus cinereus": {
+  "grupo": "Aves",
+  "es": "Andarríos del Terek",
+  "eu": null,
+  "en": "Terek Sandpiper"
+ },
+ "Oenanthe isabellina": {
+  "grupo": "Aves",
+  "es": "Collalba Isabel",
+  "eu": null,
+  "en": "Isabelline Wheatear"
+ },
+ "Uria lomvia": {
+  "grupo": "Aves",
+  "es": "Arao de Brünnich",
+  "eu": "Ipar-pottorro",
+  "en": "Thick-billed Murre"
+ },
+ "Curruca cantillans": {
+  "grupo": "Aves",
+  "es": "Curruca carrasqueña oriental",
+  "eu": "Txinbo papargorrizta",
+  "en": "Eastern Subalpine Warbler"
+ },
+ "Histrionicus histrionicus": {
+  "grupo": "Aves",
+  "es": "Pato arlequín",
+  "eu": "Ahate arlekin",
+  "en": "Harlequin Duck"
+ },
+ "Phylloscopus fuscatus": {
+  "grupo": "Aves",
+  "es": "Chipe sombrío",
+  "eu": "Txio arre",
+  "en": "Dusky Warbler"
+ },
+ "Fulica cristata": {
+  "grupo": "Aves",
+  "es": "Focha cornuda",
+  "eu": null,
+  "en": "Red-knobbed Coot"
+ },
+ "Amandava amandava": {
+  "grupo": "Aves",
+  "es": "Amandava Roja",
+  "eu": null,
+  "en": "Red Avadavat"
+ },
+ "Tringa flavipes": {
+  "grupo": "Aves",
+  "es": "Patamarilla menor",
+  "eu": null,
+  "en": "Lesser Yellowlegs"
+ },
+ "Anthus berthelotii": {
+  "grupo": "Aves",
+  "es": "Bisbita Caminero",
+  "eu": null,
+  "en": "Berthelot's Pipit"
+ },
+ "Calidris subruficollis": {
+  "grupo": "Aves",
+  "es": "Correlimos canelo",
+  "eu": null,
+  "en": "Buff-breasted Sandpiper"
+ },
+ "Aythya affinis": {
+  "grupo": "Aves",
+  "es": "Pato boludo-menor",
+  "eu": "Murgilari txiki",
+  "en": "Lesser Scaup"
+ },
+ "Sterna dougallii": {
+  "grupo": "Aves",
+  "es": "Charrán rosado",
+  "eu": "Txenada gorrizta",
+  "en": "Roseate Tern"
+ },
+ "Larus delawarensis": {
+  "grupo": "Aves",
+  "es": "Gaviota Piquianillada",
+  "eu": "Delaware kaioa",
+  "en": "Ring-billed Gull"
+ },
+ "Psittacula eupatria": {
+  "grupo": "Aves",
+  "es": "Cotorra alejandrina",
+  "eu": null,
+  "en": "Alexandrine Parakeet"
+ },
+ "Aquila nipalensis": {
+  "grupo": "Aves",
+  "es": "Águila esteparia",
+  "eu": null,
+  "en": "Steppe Eagle"
+ },
+ "Melanitta perspicillata": {
+  "grupo": "Aves",
+  "es": "Negreta nuca blanca",
+  "eu": "Ahatebeltz kopetazuri",
+  "en": "Surf Scoter"
+ },
+ "Saxicola maurus": {
+  "grupo": "Aves",
+  "es": "Tarabilla Siberiana",
+  "eu": null,
+  "en": "Siberian Stonechat"
+ },
+ "Limnodromus scolopaceus": {
+  "grupo": "Aves",
+  "es": "Costurero pico largo",
+  "eu": null,
+  "en": "Long-billed Dowitcher"
+ },
+ "Leiothrix lutea": {
+  "grupo": "Aves",
+  "es": "Leiotrix Piquirrojo",
+  "eu": null,
+  "en": "Red-billed Leiothrix"
+ },
+ "Acridotheres cristatellus": {
+  "grupo": "Aves",
+  "es": "Miná crestado",
+  "eu": null,
+  "en": "Crested Myna"
+ },
+ "Oenanthe pleschanka": {
+  "grupo": "Aves",
+  "es": "Collalba Pía",
+  "eu": null,
+  "en": "Pied Wheatear"
+ },
+ "Oenanthe deserti": {
+  "grupo": "Aves",
+  "es": "Collalba Desértica",
+  "eu": null,
+  "en": "Desert Wheatear"
+ },
+ "Spilopelia senegalensis": {
+  "grupo": "Aves",
+  "es": "Tórtola senegalesa",
+  "eu": "Senegalgo usapal",
+  "en": "Laughing Dove"
+ },
+ "Iduna caligata": {
+  "grupo": "Aves",
+  "es": "Zarcero de Sykes",
+  "eu": null,
+  "en": "Booted Warbler"
+ },
+ "Bucephala albeola": {
+  "grupo": "Aves",
+  "es": "Pato monja",
+  "eu": null,
+  "en": "Bufflehead"
+ },
+ "Bubo scandiacus": {
+  "grupo": "Aves",
+  "es": "Búho nival",
+  "eu": null,
+  "en": "Snowy Owl"
+ },
+ "Sitta neumayer": {
+  "grupo": "Aves",
+  "es": "Trepador rupestre occidental",
+  "eu": null,
+  "en": "Western Rock Nuthatch"
+ },
+ "Spatula discors": {
+  "grupo": "Aves",
+  "es": "Cerceta aliazul",
+  "eu": "Zertzeta hegalurdin",
+  "en": "Blue-winged Teal"
+ },
+ "Anthus hodgsoni": {
+  "grupo": "Aves",
+  "es": "Bisbita de Hodgson",
+  "eu": null,
+  "en": "Olive-backed Pipit"
+ },
+ "Bucanetes githagineus": {
+  "grupo": "Aves",
+  "es": "Camachuelo Trompetero",
+  "eu": null,
+  "en": "Trumpeter Finch"
+ },
+ "Calidris fuscicollis": {
+  "grupo": "Aves",
+  "es": "Playero rabadilla blanca",
+  "eu": "Bonaparte txirri",
+  "en": "White-rumped Sandpiper"
+ },
+ "Bulweria bulwerii": {
+  "grupo": "Aves",
+  "es": "Petrel de Bulwer",
+  "eu": null,
+  "en": "Bulwer's Petrel"
+ },
+ "Phylloscopus borealis": {
+  "grupo": "Aves",
+  "es": "Mosquitero Boreal",
+  "eu": null,
+  "en": "Arctic Warbler"
+ },
+ "Pluvialis fulva": {
+  "grupo": "Aves",
+  "es": "Chorlo Dorado del Pacífico",
+  "eu": null,
+  "en": "Pacific Golden Plover"
+ },
+ "Turdus atrogularis": {
+  "grupo": "Aves",
+  "es": "Zorzal papinegro",
+  "eu": "Birigarro paparbeltz",
+  "en": "Black-throated Thrush"
+ },
+ "Geronticus eremita": {
+  "grupo": "Aves",
+  "es": "Ibis eremita",
+  "eu": "Ibis ermitau",
+  "en": "Northern Bald Ibis"
+ },
+ "Euodice malabarica": {
+  "grupo": "Aves",
+  "es": "Capuchino picoplata indio",
+  "eu": null,
+  "en": "Indian Silverbill"
+ },
+ "Lophodytes cucullatus": {
+  "grupo": "Aves",
+  "es": "Mergo cresta blanca",
+  "eu": null,
+  "en": "Hooded Merganser"
+ },
+ "Pavo cristatus": {
+  "grupo": "Aves",
+  "es": "Pavo real común",
+  "eu": "Pauma",
+  "en": "Indian Peafowl"
+ },
+ "Bucephala islandica": {
+  "grupo": "Aves",
+  "es": "Porrón islándico",
+  "eu": null,
+  "en": "Barrow's Goldeneye"
+ },
+ "Alectoris chukar": {
+  "grupo": "Aves",
+  "es": "Perdiz chukar",
+  "eu": "Turkiar eper",
+  "en": "Chukar"
+ },
+ "Poecile lugubris": {
+  "grupo": "Aves",
+  "es": "Carbonero lúgubre",
+  "eu": null,
+  "en": "Sombre Tit"
+ },
+ "Chersophilus duponti": {
+  "grupo": "Aves",
+  "es": "Alondra de Dupont",
+  "eu": "Portugalgo pirripio",
+  "en": "Dupont's Lark"
+ },
+ "Vanellus gregarius": {
+  "grupo": "Aves",
+  "es": "Avefría sociable",
+  "eu": null,
+  "en": "Sociable Lapwing"
+ },
+ "Ichthyaetus ichthyaetus": {
+  "grupo": "Aves",
+  "es": "Gavión cabecinegro",
+  "eu": null,
+  "en": "Pallas's Gull"
+ },
+ "Streptopelia orientalis": {
+  "grupo": "Aves",
+  "es": "Tórtola oriental",
+  "eu": "Ekialdeko usapal",
+  "en": "Oriental Turtle Dove"
+ },
+ "Pluvialis dominica": {
+  "grupo": "Aves",
+  "es": "Chorlo Dorado Americano",
+  "eu": null,
+  "en": "American Golden Plover"
+ },
+ "Pagophila eburnea": {
+  "grupo": "Aves",
+  "es": "Gaviota marfileña",
+  "eu": "Boli-kaio",
+  "en": "Ivory Gull"
+ },
+ "Emberiza leucocephalos": {
+  "grupo": "Aves",
+  "es": "Escribano cabeciblanco",
+  "eu": "Berdantza kas-kasuri",
+  "en": "Pine Bunting"
+ },
+ "Glareola nordmanni": {
+  "grupo": "Aves",
+  "es": null,
+  "eu": null,
+  "en": "Black-winged pratincole"
+ },
+ "Actitis macularius": {
+  "grupo": "Aves",
+  "es": "Andarríos maculado",
+  "eu": null,
+  "en": "Spotted Sandpiper"
+ },
+ "Iduna opaca": {
+  "grupo": "Aves",
+  "es": "Zarcero bereber",
+  "eu": null,
+  "en": "Western Olivaceous Warbler"
+ },
+ "Pyrrhula murina": {
+  "grupo": "Aves",
+  "es": "Camachuelo de las Azores",
+  "eu": null,
+  "en": "Azores Bullfinch"
+ },
+ "Anser rossii": {
+  "grupo": "Aves",
+  "es": "Ánsar de Ross",
+  "eu": null,
+  "en": "Ross's Goose"
+ },
+ "Gallus gallus": {
+  "grupo": "Aves",
+  "es": "Gallo bankiva",
+  "eu": null,
+  "en": "Red Junglefowl"
+ },
+ "Phylloscopus canariensis": {
+  "grupo": "Aves",
+  "es": "Mosquitero canario",
+  "eu": null,
+  "en": "Canary Islands Chiffchaff"
+ },
+ "Lanius nubicus": {
+  "grupo": "Aves",
+  "es": "Alcaudón núbico",
+  "eu": "Antzandobi mozorrotu",
+  "en": "Masked Shrike"
+ },
+ "Sibirionetta formosa": {
+  "grupo": "Aves",
+  "es": "Cerceta del Baikal",
+  "eu": null,
+  "en": "Baikal Teal"
+ },
+ "Vanellus spinosus": {
+  "grupo": "Aves",
+  "es": "Avefría espinosa",
+  "eu": "Hegabera ezproidun",
+  "en": "Spur-winged Lapwing"
+ },
+ "Chroicocephalus philadelphia": {
+  "grupo": "Aves",
+  "es": "Gaviota de Bonaparte",
+  "eu": null,
+  "en": "Bonaparte's Gull"
+ },
+ "Phoenicopterus chilensis": {
+  "grupo": "Aves",
+  "es": "Flamenco Chileno",
+  "eu": null,
+  "en": "Chilean Flamingo"
+ },
+ "Emberiza caesia": {
+  "grupo": "Aves",
+  "es": "Escribano ceniciento",
+  "eu": "Berdantza hauskara",
+  "en": "Cretzschmar's Bunting"
+ },
+ "Acrocephalus agricola": {
+  "grupo": "Aves",
+  "es": "Carricero Agrícola",
+  "eu": null,
+  "en": "Paddyfield Warbler"
+ },
+ "Sitta whiteheadi": {
+  "grupo": "Aves",
+  "es": "Trepador corso",
+  "eu": "Korsikar garrapo",
+  "en": "Corsican Nuthatch"
+ },
+ "Anthropoides virgo": {
+  "grupo": "Aves",
+  "es": "Grulla Damisela",
+  "eu": null,
+  "en": "Demoiselle Crane"
+ },
+ "Somateria fischeri": {
+  "grupo": "Aves",
+  "es": "Eider de Fischer",
+  "eu": null,
+  "en": "Spectacled Eider"
+ },
+ "Apus unicolor": {
+  "grupo": "Aves",
+  "es": "Vencejo Unicolor",
+  "eu": null,
+  "en": "Plain Swift"
+ },
+ "Apus caffer": {
+  "grupo": "Aves",
+  "es": "Vencejo Cafre",
+  "eu": null,
+  "en": "White-rumped Swift"
+ },
+ "Chloephaga picta": {
+  "grupo": "Aves",
+  "es": "Cauquén común",
+  "eu": null,
+  "en": "Upland Goose"
+ },
+ "Syrmaticus reevesii": {
+  "grupo": "Aves",
+  "es": "Faisán venerado",
+  "eu": null,
+  "en": "Reeves's Pheasant"
+ },
+ "Cyanistes teneriffae": {
+  "grupo": "Aves",
+  "es": "Herrerillo Africano",
+  "eu": null,
+  "en": "African Blue Tit"
+ },
+ "Prunella montanella": {
+  "grupo": "Aves",
+  "es": "Acentor Siberiano",
+  "eu": null,
+  "en": "Siberian Accentor"
+ },
+ "Melanitta americana": {
+  "grupo": "Aves",
+  "es": "Negrón americano",
+  "eu": null,
+  "en": "Black Scoter"
+ },
+ "Rhodostethia rosea": {
+  "grupo": "Aves",
+  "es": "Gaviota rosada",
+  "eu": null,
+  "en": "Ross's Gull"
+ },
+ "Vanellus leucurus": {
+  "grupo": "Aves",
+  "es": "Avefría coliblanca",
+  "eu": null,
+  "en": "White-tailed Lapwing"
+ },
+ "Alectoris barbara": {
+  "grupo": "Aves",
+  "es": "Perdiz moruna",
+  "eu": "Afrikar eper",
+  "en": "Barbary Partridge"
+ },
+ "Emberiza aureola": {
+  "grupo": "Aves",
+  "es": "Escribano aureolado",
+  "eu": "Berdantza papohori",
+  "en": "Yellow-breasted Bunting"
+ },
+ "Phylloscopus schwarzi": {
+  "grupo": "Aves",
+  "es": "Mosquitero de Schwarz",
+  "eu": "Txio mokolodi",
+  "en": "Radde's Warbler"
+ },
+ "Falco cherrug": {
+  "grupo": "Aves",
+  "es": "Halcón sacre",
+  "eu": null,
+  "en": "Saker Falcon"
+ },
+ "Calidris bairdii": {
+  "grupo": "Aves",
+  "es": "Playero de Baird",
+  "eu": null,
+  "en": "Baird's Sandpiper"
+ },
+ "Ficedula semitorquata": {
+  "grupo": "Aves",
+  "es": "Papamoscas Semicollarino",
+  "eu": null,
+  "en": "Semicollared Flycatcher"
+ },
+ "Callonetta leucophrys": {
+  "grupo": "Aves",
+  "es": "Pato acollarado",
+  "eu": null,
+  "en": "Ringed Teal"
+ },
+ "Cyanistes cyanus": {
+  "grupo": "Aves",
+  "es": "Herrerillo azul",
+  "eu": "Amilotx zuri",
+  "en": "Azure Tit"
+ },
+ "Calidris pusilla": {
+  "grupo": "Aves",
+  "es": "Playero semipalmeado",
+  "eu": null,
+  "en": "Semipalmated Sandpiper"
+ },
+ "Mareca falcata": {
+  "grupo": "Aves",
+  "es": "Cerceta de Alfanjes",
+  "eu": null,
+  "en": "Falcated Duck"
+ },
+ "Anthus godlewskii": {
+  "grupo": "Aves",
+  "es": "Bisbita estepario",
+  "eu": null,
+  "en": "Blyth's Pipit"
+ },
+ "Tringa melanoleuca": {
+  "grupo": "Aves",
+  "es": "Patamarilla mayor",
+  "eu": null,
+  "en": "Greater Yellowlegs"
+ },
+ "Serinus pusillus": {
+  "grupo": "Aves",
+  "es": "Serín frentirrojo",
+  "eu": null,
+  "en": "Red-fronted Serin"
+ },
+ "Anas rubripes": {
+  "grupo": "Aves",
+  "es": "Ánade sombrío",
+  "eu": "Ahate ilun",
+  "en": "American Black Duck"
+ },
+ "Charadrius semipalmatus": {
+  "grupo": "Aves",
+  "es": "Chorlo semipalmeado",
+  "eu": null,
+  "en": "Semipalmated Plover"
+ },
+ "Podilymbus podiceps": {
+  "grupo": "Aves",
+  "es": "Zambullidor Piquipinto",
+  "eu": "Txilinporta mokolodi",
+  "en": "Pied-billed Grebe"
+ },
+ "Merops persicus": {
+  "grupo": "Aves",
+  "es": "Abejaruco persa",
+  "eu": "Erle-txori papargorri",
+  "en": "Blue-cheeked Bee-eater"
+ },
+ "Chrysolophus pictus": {
+  "grupo": "Aves",
+  "es": "Faisán dorado",
+  "eu": null,
+  "en": "Golden Pheasant"
+ },
+ "Curruca subalpina": {
+  "grupo": "Aves",
+  "es": "Curruca subalpina",
+  "eu": null,
+  "en": "Moltoni's Warbler"
+ },
+ "Corvus splendens": {
+  "grupo": "Aves",
+  "es": "Cuervo indio",
+  "eu": "Indiar bele",
+  "en": "House Crow"
+ },
+ "Acridotheres tristis": {
+  "grupo": "Aves",
+  "es": "Miná común",
+  "eu": null,
+  "en": "Common Myna"
+ },
+ "Phalaropus tricolor": {
+  "grupo": "Aves",
+  "es": "Falaropo pico largo",
+  "eu": null,
+  "en": "Wilson's Phalarope"
+ },
+ "Apus affinis": {
+  "grupo": "Aves",
+  "es": "Vencejo moro",
+  "eu": null,
+  "en": "Little Swift"
+ },
+ "Gavia pacifica": {
+  "grupo": "Aves",
+  "es": "Colimbo del Pacífico",
+  "eu": null,
+  "en": "Pacific Loon"
+ },
+ "Carduelis corsicana": {
+  "grupo": "Aves",
+  "es": "Verderón corso",
+  "eu": "Korsikar txirriskila",
+  "en": "Corsican Finch"
+ },
+ "Hippolais olivetorum": {
+  "grupo": "Aves",
+  "es": "Zarcero Grande",
+  "eu": "Sasi-txori handi",
+  "en": "Olive-tree Warbler"
+ },
+ "Sitta krueperi": {
+  "grupo": "Aves",
+  "es": "Trepador de Krüper",
+  "eu": "Turkiar garrapo",
+  "en": "Krüper's Nuthatch"
+ },
+ "Locustella lanceolata": {
+  "grupo": "Aves",
+  "es": "Buscarla Lanceolada",
+  "eu": null,
+  "en": "Lanceolated Warbler"
+ },
+ "Thalasseus bengalensis": {
+  "grupo": "Aves",
+  "es": "Charrán bengalí",
+  "eu": null,
+  "en": "Lesser Crested Tern"
+ },
+ "Francolinus francolinus": {
+  "grupo": "Aves",
+  "es": "Francolín ventrinegro",
+  "eu": null,
+  "en": "Black Francolin"
+ },
+ "Lanius cristatus": {
+  "grupo": "Aves",
+  "es": "Alcaudón pardo",
+  "eu": null,
+  "en": "Brown Shrike"
+ },
+ "Melanitta stejnegeri": {
+  "grupo": "Aves",
+  "es": "Negrón siberiano",
+  "eu": null,
+  "en": "Stejneger's Scoter"
+ },
+ "Colinus virginianus": {
+  "grupo": "Aves",
+  "es": "Codorniz cotuí",
+  "eu": "Kolin",
+  "en": "Northern Bobwhite"
+ },
+ "Leucophaeus atricilla": {
+  "grupo": "Aves",
+  "es": "Gaviota Reidora",
+  "eu": null,
+  "en": "Laughing Gull"
+ },
+ "Emberiza cineracea": {
+  "grupo": "Aves",
+  "es": "Escribano cinéreo",
+  "eu": "Berdantza turkiar",
+  "en": "Cinereous Bunting"
+ },
+ "Lanius isabellinus": {
+  "grupo": "Aves",
+  "es": "Alcaudón isabel",
+  "eu": null,
+  "en": "Isabelline Shrike"
+ },
+ "Haemorhous mexicanus": {
+  "grupo": "Aves",
+  "es": "Camachuelo Mejicano",
+  "eu": null,
+  "en": "House Finch"
+ },
+ "Tetraogallus caucasicus": {
+  "grupo": "Aves",
+  "es": "Perdigallo caucasiano",
+  "eu": null,
+  "en": "Caucasian Snowcock"
+ },
+ "Fringilla teydea": {
+  "grupo": "Aves",
+  "es": "Pinzón Azul",
+  "eu": null,
+  "en": "Blue Chaffinch"
+ },
+ "Lyrurus mlokosiewiczi": {
+  "grupo": "Aves",
+  "es": "Gallo lira caucasiano",
+  "eu": null,
+  "en": "Caucasian Grouse"
+ },
+ "Nymphicus hollandicus": {
+  "grupo": "Aves",
+  "es": "Cacatúa ninfa",
+  "eu": null,
+  "en": "Cockatiel"
+ },
+ "Prunella atrogularis": {
+  "grupo": "Aves",
+  "es": "Acentor Gorginegro",
+  "eu": null,
+  "en": "Black-throated Accentor"
+ },
+ "Columba trocaz": {
+  "grupo": "Aves",
+  "es": "Paloma de Madeira",
+  "eu": null,
+  "en": "Trocaz Pigeon"
+ },
+ "Anas bahamensis": {
+  "grupo": "Aves",
+  "es": "Ánade gargantillo",
+  "eu": null,
+  "en": "White-cheeked Pintail"
+ },
+ "Loxia scotica": {
+  "grupo": "Aves",
+  "es": "Piquituerto Escocés",
+  "eu": "Eskoziar mokoker",
+  "en": "Scottish Crossbill"
+ },
+ "Lanius phoenicuroides": {
+  "grupo": "Aves",
+  "es": "Alcaudón colirrojo",
+  "eu": null,
+  "en": "Red-tailed Shrike"
+ },
+ "Zoothera aurea": {
+  "grupo": "Aves",
+  "es": "Zorzal dorado de Siberia",
+  "eu": null,
+  "en": "White's Thrush"
+ },
+ "Phylloscopus sindianus": {
+  "grupo": "Aves",
+  "es": "Mosquitero montano",
+  "eu": null,
+  "en": "Mountain Chiffchaff"
+ },
+ "Pelagodroma marina": {
+  "grupo": "Aves",
+  "es": "Paíño pechialbo",
+  "eu": "Ekaitz-txori musuzuri",
+  "en": "White-faced Storm Petrel"
+ },
+ "Calidris himantopus": {
+  "grupo": "Aves",
+  "es": "Playero zancón",
+  "eu": null,
+  "en": "Stilt Sandpiper"
+ },
+ "Melopsittacus undulatus": {
+  "grupo": "Aves",
+  "es": "Periquito común",
+  "eu": "Perikito",
+  "en": "Budgerigar"
+ },
+ "Larus armenicus": {
+  "grupo": "Aves",
+  "es": "Gaviota armenia",
+  "eu": null,
+  "en": "Armenian Gull"
+ },
+ "Puffinus assimilis": {
+  "grupo": "Aves",
+  "es": "Pardela semejante",
+  "eu": "Gabai txiki",
+  "en": "Little Shearwater"
+ },
+ "Phylloscopus nitidus": {
+  "grupo": "Aves",
+  "es": "Mosquitero del Cáucaso",
+  "eu": null,
+  "en": "Green Warbler"
+ },
+ "Emberiza bruniceps": {
+  "grupo": "Aves",
+  "es": "Escribano carirrojo",
+  "eu": "Berdantza musugorri",
+  "en": "Red-headed Bunting"
+ },
+ "Fringilla maderensis": {
+  "grupo": "Aves",
+  "es": "Pinzón vulgar de madeira",
+  "eu": null,
+  "en": "Madeira Chaffinch"
+ },
+ "Icterus galbula": {
+  "grupo": "Aves",
+  "es": "Bolsero de Baltimore",
+  "eu": null,
+  "en": "Baltimore Oriole"
+ },
+ "Onychoprion fuscatus": {
+  "grupo": "Aves",
+  "es": "Charrán sombrío",
+  "eu": null,
+  "en": "Sooty Tern"
+ },
+ "Meleagris gallopavo": {
+  "grupo": "Aves",
+  "es": "Guajolote norteño",
+  "eu": "Indioilar arrunt",
+  "en": "Wild Turkey"
+ },
+ "Motacilla tschutschensis": {
+  "grupo": "Aves",
+  "es": "Lavandera Amarilla",
+  "eu": null,
+  "en": "Eastern Yellow Wagtail"
+ },
+ "Falco biarmicus": {
+  "grupo": "Aves",
+  "es": "Halcón borní",
+  "eu": null,
+  "en": "Lanner Falcon"
+ },
+ "Mareca sibilatrix": {
+  "grupo": "Aves",
+  "es": "Silbón overo",
+  "eu": "Ahate Txistulari Txiletarra",
+  "en": "Chiloe Wigeon"
+ },
+ "Carpodacus rubicilla": {
+  "grupo": "Aves",
+  "es": "Camachuelo Grande",
+  "eu": null,
+  "en": "Great Rosefinch"
+ },
+ "Estrilda melpoda": {
+  "grupo": "Aves",
+  "es": "Estrilda carinaranja",
+  "eu": null,
+  "en": "Orange-cheeked Waxbill"
+ },
+ "Chrysolophus amherstiae": {
+  "grupo": "Aves",
+  "es": "Faisán de Lady Amherst",
+  "eu": null,
+  "en": "Lady Amherst's Pheasant"
+ },
+ "Turdus eunomus": {
+  "grupo": "Aves",
+  "es": "Zorzal eunomo",
+  "eu": null,
+  "en": "Dusky Thrush"
+ },
+ "Phylloscopus orientalis": {
+  "grupo": "Aves",
+  "es": "Mosquitero oriental",
+  "eu": null,
+  "en": "Eastern Bonelli's Warbler"
+ },
+ "Numenius minutus": {
+  "grupo": "Aves",
+  "es": "Zarapito chico",
+  "eu": null,
+  "en": "Little Curlew"
+ },
+ "Phoeniconaias minor": {
+  "grupo": "Aves",
+  "es": "Flamenco enano",
+  "eu": null,
+  "en": "Lesser Flamingo"
+ },
+ "Pterodroma feae": {
+  "grupo": "Aves",
+  "es": "Petrel gongón",
+  "eu": null,
+  "en": "Fea's Petrel"
+ },
+ "Gallinago delicata": {
+  "grupo": "Aves",
+  "es": "Agachadiza de Wilson",
+  "eu": null,
+  "en": "Wilson's Snipe"
+ },
+ "Emberiza spodocephala": {
+  "grupo": "Aves",
+  "es": "Escribano carinegro",
+  "eu": null,
+  "en": "Black-faced Bunting"
+ },
+ "Leucophaeus pipixcan": {
+  "grupo": "Aves",
+  "es": "Gaviota de Franklin",
+  "eu": "Franklin antxeta",
+  "en": "Franklin's Gull"
+ },
+ "Curruca balearica": {
+  "grupo": "Aves",
+  "es": "Curruca balear",
+  "eu": null,
+  "en": "Balearic Warbler"
+ },
+ "Emberiza chrysophrys": {
+  "grupo": "Aves",
+  "es": "Escribano cejigualdo",
+  "eu": "Berdantza bekainhori",
+  "en": "Yellow-browed Bunting"
+ },
+ "Callipepla californica": {
+  "grupo": "Aves",
+  "es": "Codorniz californiana",
+  "eu": "Kaliforniar galeper",
+  "en": "California Quail"
+ },
+ "Pycnonotus barbatus": {
+  "grupo": "Aves",
+  "es": "Bulbul naranjero",
+  "eu": null,
+  "en": "Common Bulbul"
+ },
+ "Cuculus saturatus": {
+  "grupo": "Aves",
+  "es": "Cuco oriental",
+  "eu": null,
+  "en": "Himalayan Cuckoo"
+ },
+ "Eudocimus ruber": {
+  "grupo": "Aves",
+  "es": "Corocoro rojo",
+  "eu": null,
+  "en": "Scarlet Ibis"
+ },
+ "Bucanetes mongolicus": {
+  "grupo": "Aves",
+  "es": "Camachuelo Mongol",
+  "eu": null,
+  "en": "Mongolian Finch"
+ },
+ "Turdus ruficollis": {
+  "grupo": "Aves",
+  "es": "Zorzal papirrojo",
+  "eu": null,
+  "en": "Red-throated Thrush"
+ },
+ "Emberiza pallasi": {
+  "grupo": "Aves",
+  "es": "Escribano de Pallas",
+  "eu": "Pallas berdantza",
+  "en": "Pallas's Bunting"
+ },
+ "Oenanthe finschii": {
+  "grupo": "Aves",
+  "es": "Collalba de Finsch",
+  "eu": null,
+  "en": "Finsch's Wheatear"
+ },
+ "Saxicola dacotiae": {
+  "grupo": "Aves",
+  "es": "Tarabilla canaria",
+  "eu": "Kanariar pitxartxar",
+  "en": "Canary Islands Stonechat"
+ },
+ "Thalasseus elegans": {
+  "grupo": "Aves",
+  "es": "Charrán elegante",
+  "eu": null,
+  "en": "Elegant Tern"
+ },
+ "Gallinago stenura": {
+  "grupo": "Aves",
+  "es": "Agachadiza colirrara",
+  "eu": null,
+  "en": "Pin-tailed Snipe"
+ },
+ "Phaethon aethereus": {
+  "grupo": "Aves",
+  "es": "Rabijunco pico rojo",
+  "eu": null,
+  "en": "Red-billed Tropicbird"
+ },
+ "Tetraogallus caspius": {
+  "grupo": "Aves",
+  "es": "Perdigallo del Caspio",
+  "eu": null,
+  "en": "Caspian Snowcock"
+ },
+ "Turnix sylvaticus": {
+  "grupo": "Aves",
+  "es": "Torillo andaluz",
+  "eu": null,
+  "en": "Common Buttonquail"
+ },
+ "Cursorius cursor": {
+  "grupo": "Aves",
+  "es": "Corredor sahariano",
+  "eu": "Corredor",
+  "en": "Cream-colored Courser"
+ },
+ "Oenanthe cypriaca": {
+  "grupo": "Aves",
+  "es": "Collalba chipriota",
+  "eu": null,
+  "en": "Cyprus Wheatear"
+ },
+ "Thalassarche melanophris": {
+  "grupo": "Aves",
+  "es": "Albatros ojeroso",
+  "eu": "Albatros bekaindun",
+  "en": "Black-browed Albatross"
+ },
+ "Dendrocygna bicolor": {
+  "grupo": "Aves",
+  "es": "Pijije canelo",
+  "eu": null,
+  "en": "Fulvous Whistling Duck"
+ },
+ "Oenanthe xanthoprymna": {
+  "grupo": "Aves",
+  "es": "Collalba Colirroja",
+  "eu": null,
+  "en": "Kurdistan Wheatear"
+ },
+ "Numida meleagris": {
+  "grupo": "Aves",
+  "es": "Pintada común",
+  "eu": "Pintada arrunt",
+  "en": "Helmeted Guineafowl"
+ },
+ "Calidris acuminata": {
+  "grupo": "Aves",
+  "es": "Correlimos acuminado",
+  "eu": null,
+  "en": "Sharp-tailed Sandpiper"
+ },
+ "Aythya valisineria": {
+  "grupo": "Aves",
+  "es": "Pato coacoxtle",
+  "eu": null,
+  "en": "Canvasback"
+ },
+ "Chenonetta jubata": {
+  "grupo": "Aves",
+  "es": "Pato de crin",
+  "eu": null,
+  "en": "Maned Duck"
+ },
+ "Junco hyemalis": {
+  "grupo": "Aves",
+  "es": "Junco ojo oscuro",
+  "eu": null,
+  "en": "Dark-eyed Junco"
+ },
+ "Pycnonotus jocosus": {
+  "grupo": "Aves",
+  "es": "Bulbul orfeo",
+  "eu": "Pycnonotus jocosus",
+  "en": "Red-whiskered Bulbul"
+ },
+ "Calidris minutilla": {
+  "grupo": "Aves",
+  "es": "Playero chichicuilote",
+  "eu": "Txirri nano",
+  "en": "Least Sandpiper"
+ },
+ "Regulus madeirensis": {
+  "grupo": "Aves",
+  "es": "Reyezuelo de Madeira",
+  "eu": null,
+  "en": "Madeira Firecrest"
+ },
+ "Larus smithsonianus": {
+  "grupo": "Aves",
+  "es": "Gaviota argéntea americana",
+  "eu": null,
+  "en": "American Herring Gull"
+ },
+ "Lonchura punctulata": {
+  "grupo": "Aves",
+  "es": "Capuchino Nutmeg",
+  "eu": null,
+  "en": "Scaly-breasted Munia"
+ },
+ "Anthus rubescens": {
+  "grupo": "Aves",
+  "es": "Bisbita de agua",
+  "eu": null,
+  "en": "American Pipit"
+ },
+ "Puffinus baroli": {
+  "grupo": "Aves",
+  "es": "Pardela chica macaronésica",
+  "eu": null,
+  "en": "Barolo Shearwater"
+ },
+ "Vireo olivaceus": {
+  "grupo": "Aves",
+  "es": "Vireo ojo rojo",
+  "eu": "Viri d'ull vermell",
+  "en": "Red-eyed Vireo"
+ },
+ "Glareola maldivarum": {
+  "grupo": "Aves",
+  "es": "Canastera oriental",
+  "eu": null,
+  "en": "Oriental Pratincole"
+ },
+ "Anser canagicus": {
+  "grupo": "Aves",
+  "es": "Ansar Emperador",
+  "eu": null,
+  "en": "Emperor Goose"
+ },
+ "Oceanites oceanicus": {
+  "grupo": "Aves",
+  "es": "Paíño de Wilson",
+  "eu": "Wilson ekaitz-txori",
+  "en": "Wilson's Storm Petrel"
+ },
+ "Chlamydotis undulata": {
+  "grupo": "Aves",
+  "es": "Avutarda hubara africana",
+  "eu": "Houbara basoilo",
+  "en": "Houbara Bustard"
+ },
+ "Vanellus cinereus": {
+  "grupo": "Aves",
+  "es": "Avefría ceniza",
+  "eu": null,
+  "en": "Grey-headed Lapwing"
+ },
+ "Calidris mauri": {
+  "grupo": "Aves",
+  "es": "Playero occidental",
+  "eu": null,
+  "en": "Western Sandpiper"
+ },
+ "Phylloscopus plumbeitarsus": {
+  "grupo": "Aves",
+  "es": "Mosquitero patigrís",
+  "eu": null,
+  "en": "Two-barred Warbler"
+ },
+ "Sula leucogaster": {
+  "grupo": "Aves",
+  "es": "Bobo café",
+  "eu": "Zanga ilun",
+  "en": "Brown Booby"
+ },
+ "Melanitta deglandi": {
+  "grupo": "Aves",
+  "es": "Negrón aliblanco",
+  "eu": "Melanitta deglandi",
+  "en": "White-winged Scoter"
+ },
+ "Sterna forsteri": {
+  "grupo": "Aves",
+  "es": "Charrán de Forster",
+  "eu": "Forster txenada",
+  "en": "Forster's Tern"
+ },
+ "Corvus albus": {
+  "grupo": "Aves",
+  "es": "Cuervo pío",
+  "eu": null,
+  "en": "Pied Crow"
+ },
+ "Zonotrichia albicollis": {
+  "grupo": "Aves",
+  "es": "Gorrión garganta blanca",
+  "eu": null,
+  "en": "White-throated Sparrow"
+ },
+ "Calidris ruficollis": {
+  "grupo": "Aves",
+  "es": "Correlimos cuellirrojo",
+  "eu": null,
+  "en": "Red-necked Stint"
+ },
+ "Egretta gularis": {
+  "grupo": "Aves",
+  "es": "Garceta dimorfa",
+  "eu": null,
+  "en": "Western Reef Heron"
+ },
+ "Columba bollii": {
+  "grupo": "Aves",
+  "es": "Paloma turqué",
+  "eu": null,
+  "en": "Bolle's Pigeon"
+ },
+ "Melospiza melodia": {
+  "grupo": "Aves",
+  "es": "Gorrión cantor",
+  "eu": null,
+  "en": "Song Sparrow"
+ },
+ "Columba junoniae": {
+  "grupo": "Aves",
+  "es": "Paloma rabiche",
+  "eu": null,
+  "en": "Laurel Pigeon"
+ },
+ "Tadorna cana": {
+  "grupo": "Aves",
+  "es": "Tarro sudafricano",
+  "eu": null,
+  "en": "South African Shelduck"
+ },
+ "Carpodacus sibiricus": {
+  "grupo": "Aves",
+  "es": "Camachuelo colilargo",
+  "eu": null,
+  "en": "Long-tailed Rosefinch"
+ },
+ "Calidris tenuirostris": {
+  "grupo": "Aves",
+  "es": "Correlimos grande",
+  "eu": null,
+  "en": "Great Knot"
+ },
+ "Butorides virescens": {
+  "grupo": "Aves",
+  "es": "Garcilla Verde",
+  "eu": "Koartzatxo berde",
+  "en": "Green Heron"
+ },
+ "Vidua macroura": {
+  "grupo": "Aves",
+  "es": "Viuda colicinta",
+  "eu": null,
+  "en": "Pin-tailed Whydah"
+ },
+ "Himantopus mexicanus": {
+  "grupo": "Aves",
+  "es": "Black-necked Stilt",
+  "eu": null,
+  "en": "Black-necked Stilt"
+ },
+ "Estrilda troglodytes": {
+  "grupo": "Aves",
+  "es": "Astrild de Lomo Negro",
+  "eu": null,
+  "en": "Black-rumped Waxbill"
+ },
+ "Cygnus melancoryphus": {
+  "grupo": "Aves",
+  "es": "Cisne cuellinegro",
+  "eu": null,
+  "en": "Black-necked Swan"
+ },
+ "Streptopelia roseogrisea": {
+  "grupo": "Aves",
+  "es": "Paloma de collar africana",
+  "eu": null,
+  "en": "African Collared Dove"
+ },
+ "Oenanthe leucopyga": {
+  "grupo": "Aves",
+  "es": "Collalba yebélica",
+  "eu": null,
+  "en": "White-crowned Wheatear"
+ },
+ "Turdus obscurus": {
+  "grupo": "Aves",
+  "es": "Zorzal rojigrís",
+  "eu": null,
+  "en": "Eyebrowed Thrush"
+ },
+ "Pelecanus rufescens": {
+  "grupo": "Aves",
+  "es": "Pelícano rosado",
+  "eu": null,
+  "en": "Pink-backed Pelican"
+ },
+ "Rhea americana": {
+  "grupo": "Aves",
+  "es": "Avestruz",
+  "eu": "Ñandu",
+  "en": "Greater Rhea"
+ },
+ "Bartramia longicauda": {
+  "grupo": "Aves",
+  "es": "Zarapito ganga",
+  "eu": null,
+  "en": "Upland Sandpiper"
+ },
+ "Phoenicurus erythrogastrus": {
+  "grupo": "Aves",
+  "es": "Colirrojo Siberiano",
+  "eu": null,
+  "en": "Güldenstädt's Redstart"
+ },
+ "Parabuteo unicinctus": {
+  "grupo": "Aves",
+  "es": "Aguililla rojinegra",
+  "eu": null,
+  "en": "Harris's Hawk"
+ },
+ "Calidris subminuta": {
+  "grupo": "Aves",
+  "es": "Correlimos dedilargo",
+  "eu": null,
+  "en": "Long-toed Stint"
+ },
+ "Poicephalus senegalus": {
+  "grupo": "Aves",
+  "es": "Lorito senegalés",
+  "eu": null,
+  "en": "Senegal Parrot"
+ },
+ "Agapornis fischeri": {
+  "grupo": "Aves",
+  "es": "Inseparable de Fischer",
+  "eu": null,
+  "en": "Fischer's Lovebird"
+ },
+ "Zenaida macroura": {
+  "grupo": "Aves",
+  "es": "Paloma huilota",
+  "eu": null,
+  "en": "Mourning Dove"
+ },
+ "Megaceryle alcyon": {
+  "grupo": "Aves",
+  "es": "Martín Pescador Norteño",
+  "eu": null,
+  "en": "Belted Kingfisher"
+ },
+ "Spatula cyanoptera": {
+  "grupo": "Aves",
+  "es": "Cerceta colorada",
+  "eu": null,
+  "en": "Cinnamon Teal"
+ },
+ "Porzana carolina": {
+  "grupo": "Aves",
+  "es": "Polluela sora",
+  "eu": null,
+  "en": "Sora"
+ },
+ "Limnodromus griseus": {
+  "grupo": "Aves",
+  "es": "Costurero pico corto",
+  "eu": null,
+  "en": "Short-billed Dowitcher"
+ },
+ "Setophaga striata": {
+  "grupo": "Aves",
+  "es": "Chipe gorra negra",
+  "eu": null,
+  "en": "Blackpoll Warbler"
+ },
+ "Taeniopygia guttata": {
+  "grupo": "Aves",
+  "es": "Diamante cebra de Timor",
+  "eu": null,
+  "en": "Zebra Finch"
+ },
+ "Eudocimus albus": {
+  "grupo": "Aves",
+  "es": "Corocoro blanco",
+  "eu": "Eudocimus albus",
+  "en": "American White Ibis"
+ },
+ "Turdus migratorius": {
+  "grupo": "Aves",
+  "es": "Mirlo primavera",
+  "eu": "Zozo papargorri",
+  "en": "American Robin"
+ },
+ "Fulica americana": {
+  "grupo": "Aves",
+  "es": "Gallareta americana",
+  "eu": null,
+  "en": "American Coot"
+ },
+ "Aythya americana": {
+  "grupo": "Aves",
+  "es": "Pato cabeza roja",
+  "eu": null,
+  "en": "Redhead"
+ },
+ "Spatula versicolor": {
+  "grupo": "Aves",
+  "es": "Cerceta capuchina",
+  "eu": null,
+  "en": "Silver Teal"
+ },
+ "Agapornis roseicollis": {
+  "grupo": "Aves",
+  "es": "Inseparable de Namibia",
+  "eu": null,
+  "en": "Rosy-faced Lovebird"
+ },
+ "Catharus ustulatus": {
+  "grupo": "Aves",
+  "es": "Zorzal de Swainson",
+  "eu": null,
+  "en": "Swainson's Thrush"
+ },
+ "Petrochelidon pyrrhonota": {
+  "grupo": "Aves",
+  "es": "Golondrina de Riscos",
+  "eu": null,
+  "en": "American Cliff Swallow"
+ },
+ "Ardea herodias": {
+  "grupo": "Aves",
+  "es": "Garza azulada",
+  "eu": null,
+  "en": "Great Blue Heron"
+ },
+ "Muscicapa sibirica": {
+  "grupo": "Aves",
+  "es": "Papamoscas siberiano",
+  "eu": null,
+  "en": "Dark-sided Flycatcher"
+ },
+ "Syrrhaptes paradoxus": {
+  "grupo": "Aves",
+  "es": "Ganga de Pallas",
+  "eu": "Pallas ganga",
+  "en": "Pallas's Sandgrouse"
+ },
+ "Calandrella cinerea": {
+  "grupo": "Aves",
+  "es": "Terrera capirotada",
+  "eu": null,
+  "en": "Red-capped Lark"
+ },
+ "Tringa solitaria": {
+  "grupo": "Aves",
+  "es": "Playero solitario",
+  "eu": null,
+  "en": "Solitary Sandpiper"
+ },
+ "Setophaga coronata": {
+  "grupo": "Aves",
+  "es": "Chipe coronado",
+  "eu": null,
+  "en": "Myrtle Warbler"
+ },
+ "Limosa haemastica": {
+  "grupo": "Aves",
+  "es": "Picopando ornamentado",
+  "eu": null,
+  "en": "Hudsonian Godwit"
+ },
+ "Lanius schach": {
+  "grupo": "Aves",
+  "es": "Alcaudón schach",
+  "eu": "Antzandobi burubeltz",
+  "en": "Long-tailed Shrike"
+ },
+ "Parkesia noveboracensis": {
+  "grupo": "Aves",
+  "es": "Reinita Acuática Norteña",
+  "eu": null,
+  "en": "Northern Waterthrush"
+ },
+ "Onychoprion anaethetus": {
+  "grupo": "Aves",
+  "es": "Charrán embridado",
+  "eu": null,
+  "en": "Bridled Tern"
+ },
+ "Geopelia cuneata": {
+  "grupo": "Aves",
+  "es": "Tortolita diamante",
+  "eu": null,
+  "en": "Diamond Dove"
+ },
+ "Passerina cyanea": {
+  "grupo": "Aves",
+  "es": "Colorín azul",
+  "eu": null,
+  "en": "Indigo Bunting"
+ },
+ "Larus glaucescens": {
+  "grupo": "Aves",
+  "es": "Gaviota ala glauca",
+  "eu": null,
+  "en": "Glaucous-winged Gull"
+ },
+ "Phylloscopus coronatus": {
+  "grupo": "Aves",
+  "es": "Mosquitero coronado",
+  "eu": null,
+  "en": "Eastern Crowned Warbler"
+ },
+ "Charadrius vociferus": {
+  "grupo": "Aves",
+  "es": "Chorlo tildío",
+  "eu": null,
+  "en": "Killdeer"
+ },
+ "Branta sandvicensis": {
+  "grupo": "Aves",
+  "es": "Barnacla Hawaiana",
+  "eu": null,
+  "en": "Hawaiian Goose"
+ },
+ "Melanocorypha bimaculata": {
+  "grupo": "Aves",
+  "es": "Calandria bimaculada",
+  "eu": null,
+  "en": "Bimaculated Lark"
+ },
+ "Netta peposaca": {
+  "grupo": "Aves",
+  "es": "Pato picazo",
+  "eu": null,
+  "en": "Rosy-billed Pochard"
+ },
+ "Dendrocygna viduata": {
+  "grupo": "Aves",
+  "es": "Suirirí cariblanco",
+  "eu": null,
+  "en": "White-faced Whistling Duck"
+ },
+ "Amazona oratrix": {
+  "grupo": "Aves",
+  "es": "Loro cabeza amarilla",
+  "eu": null,
+  "en": "Yellow-headed Amazon"
+ },
+ "Balearica regulorum": {
+  "grupo": "Aves",
+  "es": "Grulla coronada cuelligrís",
+  "eu": null,
+  "en": "Grey Crowned Crane"
+ },
+ "Otus cyprius": {
+  "grupo": "Aves",
+  "es": "Autillo chipriota",
+  "eu": null,
+  "en": "Cyprus Scops Owl"
+ },
+ "Mimus polyglottos": {
+  "grupo": "Aves",
+  "es": "Centzontle norteño",
+  "eu": null,
+  "en": "Northern Mockingbird"
+ },
+ "Anthus gustavi": {
+  "grupo": "Aves",
+  "es": "Bisbita del Pechora",
+  "eu": null,
+  "en": "Pechora Pipit"
+ },
+ "Vanellus indicus": {
+  "grupo": "Aves",
+  "es": "Avefría india",
+  "eu": null,
+  "en": "Red-wattled Lapwing"
+ },
+ "Apus pacificus": {
+  "grupo": "Aves",
+  "es": "Vencejo del Pacífico",
+  "eu": null,
+  "en": "Pacific Swift"
+ },
+ "Poecile atricapillus": {
+  "grupo": "Aves",
+  "es": "Carbonero cabecinegro",
+  "eu": null,
+  "en": "Black-capped Chickadee"
+ },
+ "Catharus minimus": {
+  "grupo": "Aves",
+  "es": "Zorzal cara gris",
+  "eu": null,
+  "en": "Grey-cheeked Thrush"
+ },
+ "Iduna rama": {
+  "grupo": "Aves",
+  "es": "Zarcero de Sykes",
+  "eu": null,
+  "en": "Sykes's Warbler"
+ },
+ "Pycnonotus cafer": {
+  "grupo": "Aves",
+  "es": "Bulbul cafre",
+  "eu": null,
+  "en": "Red-vented Bulbul"
+ },
+ "Plegadis ridgwayi": {
+  "grupo": "Aves",
+  "es": "Morito de la puna",
+  "eu": null,
+  "en": "Puna Ibis"
+ },
+ "Hippolais languida": {
+  "grupo": "Aves",
+  "es": "Zarcero lánguido",
+  "eu": null,
+  "en": "Upcher's Warbler"
+ },
+ "Grus japonensis": {
+  "grupo": "Aves",
+  "es": "Grulla de Manchuria",
+  "eu": null,
+  "en": "Red-crowned Crane"
+ },
+ "Spizelloides arborea": {
+  "grupo": "Aves",
+  "es": "Chingolo arbóreo",
+  "eu": null,
+  "en": "American Tree Sparrow"
+ },
+ "Botaurus lentiginosus": {
+  "grupo": "Aves",
+  "es": "Avetoro lentiginoso",
+  "eu": null,
+  "en": "American Bittern"
+ },
+ "Haliaeetus leucocephalus": {
+  "grupo": "Aves",
+  "es": "Águila cabeza blanca",
+  "eu": "Arrano buruzuri",
+  "en": "Bald Eagle"
+ },
+ "Anas flavirostris": {
+  "grupo": "Aves",
+  "es": "Cerceta barcina",
+  "eu": null,
+  "en": "Yellow-billed Teal"
+ },
+ "Egretta thula": {
+  "grupo": "Aves",
+  "es": "Garceta nívea",
+  "eu": "Elur-koartzatxo",
+  "en": "Snowy Egret"
+ },
+ "Geothlypis trichas": {
+  "grupo": "Aves",
+  "es": "Mascarita común",
+  "eu": null,
+  "en": "Common Yellowthroat"
+ },
+ "Saxicola stejnegeri": {
+  "grupo": "Aves",
+  "es": "Tarabilla de Stejneger",
+  "eu": null,
+  "en": "Stejneger's Stonechat"
+ },
+ "Chaetura pelagica": {
+  "grupo": "Aves",
+  "es": "Vencejo de chimenea",
+  "eu": null,
+  "en": "Chimney Swift"
+ },
+ "Turdus naumanni": {
+  "grupo": "Aves",
+  "es": "Zorzal de Naumann",
+  "eu": null,
+  "en": "Naumann's Thrush"
+ },
+ "Bostrychia hagedash": {
+  "grupo": "Aves",
+  "es": "Ibis hadada",
+  "eu": null,
+  "en": "Hadada Ibis"
+ },
+ "Phoenicurus moussieri": {
+  "grupo": "Aves",
+  "es": "Colirrojo diademado",
+  "eu": null,
+  "en": "Moussier's Redstart"
+ },
+ "Mniotilta varia": {
+  "grupo": "Aves",
+  "es": "Chipe trepador",
+  "eu": null,
+  "en": "Black-and-white Warbler"
+ },
+ "Synthliboramphus antiquus": {
+  "grupo": "Aves",
+  "es": "Mérgulo antiguo",
+  "eu": null,
+  "en": "Ancient Murrelet"
+ },
+ "Dendrocygna autumnalis": {
+  "grupo": "Aves",
+  "es": "Pijije ala blanca",
+  "eu": null,
+  "en": "Black-bellied Whistling Duck"
+ },
+ "Pheucticus ludovicianus": {
+  "grupo": "Aves",
+  "es": "Picogordo pecho rosa",
+  "eu": null,
+  "en": "Rose-breasted Grosbeak"
+ },
+ "Coccyzus americanus": {
+  "grupo": "Aves",
+  "es": "Cuclillo pico amarillo",
+  "eu": "Kuku mokohori",
+  "en": "Yellow-billed Cuckoo"
+ },
+ "Haliaeetus pelagicus": {
+  "grupo": "Aves",
+  "es": "Pigargo de Steller",
+  "eu": null,
+  "en": "Steller's Sea Eagle"
+ },
+ "Nyctanassa violacea": {
+  "grupo": "Aves",
+  "es": "Martinete coronado",
+  "eu": null,
+  "en": "Yellow-crowned Night Heron"
+ },
+ "Cyanochen cyanoptera": {
+  "grupo": "Aves",
+  "es": "Ganso aliazul",
+  "eu": null,
+  "en": "Blue-winged Goose"
+ },
+ "Larus dominicanus": {
+  "grupo": "Aves",
+  "es": "Gaviota dominicana",
+  "eu": null,
+  "en": "Kelp Gull"
+ },
+ "Pernis ptilorhynchus": {
+  "grupo": "Aves",
+  "es": "Abejero oriental",
+  "eu": null,
+  "en": "Crested Honey Buzzard"
+ },
+ "Platycercus eximius": {
+  "grupo": "Aves",
+  "es": "Perico multicolor",
+  "eu": null,
+  "en": "Eastern Rosella"
+ },
+ "Setophaga petechia": {
+  "grupo": "Aves",
+  "es": "Chipe amarillo",
+  "eu": null,
+  "en": "Yellow Warbler"
+ },
+ "Dolichonyx oryzivorus": {
+  "grupo": "Aves",
+  "es": "Tordo arrocero",
+  "eu": "Dolichonyx oryzivorus",
+  "en": "Bobolink"
+ },
+ "Emberiza buchanani": {
+  "grupo": "Aves",
+  "es": "Escribano cabecigrís",
+  "eu": null,
+  "en": "Grey-necked Bunting"
+ },
+ "Emberiza sahari": {
+  "grupo": "Aves",
+  "es": "Escribano sahariano",
+  "eu": null,
+  "en": "House Bunting"
+ },
+ "Stercorarius maccormicki": {
+  "grupo": "Aves",
+  "es": "Salteador del Polo Sur",
+  "eu": "Marikoi antartiko",
+  "en": "South Polar Skua"
+ },
+ "Chordeiles minor": {
+  "grupo": "Aves",
+  "es": "Chotacabras zumbón",
+  "eu": null,
+  "en": "Common Nighthawk"
+ },
+ "Ficedula albicilla": {
+  "grupo": "Aves",
+  "es": "Papamoscas de la taiga",
+  "eu": null,
+  "en": "Taiga Flycatcher"
+ },
+ "Falco sparverius": {
+  "grupo": "Aves",
+  "es": "Cernícalo americano",
+  "eu": null,
+  "en": "American Kestrel"
+ },
+ "Zonotrichia leucophrys": {
+  "grupo": "Aves",
+  "es": "Gorrión corona blanca",
+  "eu": null,
+  "en": "White-crowned Sparrow"
+ },
+ "Sula sula": {
+  "grupo": "Aves",
+  "es": "Bobo pata roja",
+  "eu": "Zanga hankagorri",
+  "en": "Red-footed Booby"
+ },
+ "Spatula hottentota": {
+  "grupo": "Aves",
+  "es": "Cerceta hotentote",
+  "eu": null,
+  "en": "Blue-billed Teal"
+ },
+ "Cuculus optatus": {
+  "grupo": "Aves",
+  "es": "Cuco de Horsfield",
+  "eu": null,
+  "en": "Oriental Cuckoo"
+ },
+ "Psittacus erithacus": {
+  "grupo": "Aves",
+  "es": "Loro yaco",
+  "eu": null,
+  "en": "Grey Parrot"
+ },
+ "Cereopsis novaehollandiae": {
+  "grupo": "Aves",
+  "es": "Ganso cenizo",
+  "eu": null,
+  "en": "Cape Barren Goose"
+ },
+ "Ara ararauna": {
+  "grupo": "Aves",
+  "es": "Guacamayo azuliamarillo",
+  "eu": null,
+  "en": "Blue-and-yellow Macaw"
+ },
+ "Setophaga americana": {
+  "grupo": "Aves",
+  "es": "Parula norteña",
+  "eu": null,
+  "en": "Northern Parula"
+ },
+ "Melanocorypha yeltoniensis": {
+  "grupo": "Aves",
+  "es": "Calandria negra",
+  "eu": null,
+  "en": "Black Lark"
+ },
+ "Anas undulata": {
+  "grupo": "Aves",
+  "es": "Ánade picolimón",
+  "eu": null,
+  "en": "Yellow-billed Duck"
+ },
+ "Coscoroba coscoroba": {
+  "grupo": "Aves",
+  "es": "Cisne coscoroba",
+  "eu": null,
+  "en": "Coscoroba Swan"
+ },
+ "Merops nubicus": {
+  "grupo": "Aves",
+  "es": "Abejaruco carmesí norteño",
+  "eu": null,
+  "en": "Northern Carmine Bee-eater"
+ },
+ "Anas capensis": {
+  "grupo": "Aves",
+  "es": "Cerceta de El Cabo",
+  "eu": null,
+  "en": "Cape Teal"
+ },
+ "Agapornis personatus": {
+  "grupo": "Aves",
+  "es": "Inseparable cabecinegro",
+  "eu": null,
+  "en": "Yellow-collared Lovebird"
+ },
+ "Pterodroma madeira": {
+  "grupo": "Aves",
+  "es": "Petrel Freira",
+  "eu": "Madeirako petrel",
+  "en": "Zino's Petrel"
+ },
+ "Anas castanea": {
+  "grupo": "Aves",
+  "es": "Cerceta castaña",
+  "eu": null,
+  "en": "Chestnut Teal"
+ },
+ "Sitta canadensis": {
+  "grupo": "Aves",
+  "es": "Sita canadiense",
+  "eu": null,
+  "en": "Red-breasted Nuthatch"
+ },
+ "Irania gutturalis": {
+  "grupo": "Aves",
+  "es": "Petirrojo de Irán",
+  "eu": null,
+  "en": "White-throated Robin"
+ },
+ "Dacelo novaeguineae": {
+  "grupo": "Aves",
+  "es": "Cucaburra común",
+  "eu": null,
+  "en": "Laughing Kookaburra"
+ },
+ "Platycercus elegans": {
+  "grupo": "Aves",
+  "es": "Perico elegante",
+  "eu": null,
+  "en": "Crimson Rosella"
+ },
+ "Quiscalus lugubris": {
+  "grupo": "Aves",
+  "es": "Zanate caribeño",
+  "eu": null,
+  "en": "Carib Grackle"
+ },
+ "Tadorna tadornoides": {
+  "grupo": "Aves",
+  "es": "Tarro australiano",
+  "eu": null,
+  "en": "Australian Shelduck"
+ },
+ "Tringa brevipes": {
+  "grupo": "Aves",
+  "es": "Playero siberiano",
+  "eu": null,
+  "en": "Grey-tailed Tattler"
+ },
+ "Cecropis semirufa": {
+  "grupo": "Aves",
+  "es": "Golondrina pechirrufa",
+  "eu": null,
+  "en": "Red-breasted Swallow"
+ },
+ "Sternula antillarum": {
+  "grupo": "Aves",
+  "es": "Charrancito americano",
+  "eu": null,
+  "en": "Least Tern"
+ },
+ "Vanellus miles": {
+  "grupo": "Aves",
+  "es": "Avefría militar norteña",
+  "eu": null,
+  "en": "Masked Lapwing"
+ },
+ "Numenius tenuirostris": {
+  "grupo": "Aves",
+  "es": "Zarapito Fino",
+  "eu": "Kurlinta mokomehe",
+  "en": "Slender-billed Curlew"
+ },
+ "Phasianus versicolor": {
+  "grupo": "Aves",
+  "es": "Faisán verde",
+  "eu": "Faisai berde",
+  "en": "Green Pheasant"
+ },
+ "Pycnonotus leucotis": {
+  "grupo": "Aves",
+  "es": "Bulbul orejiblanco",
+  "eu": null,
+  "en": "White-eared Bulbul"
+ },
+ "Piranga olivacea": {
+  "grupo": "Aves",
+  "es": "Tángara escarlata",
+  "eu": null,
+  "en": "Scarlet Tanager"
+ },
+ "Anas poecilorhyncha": {
+  "grupo": "Aves",
+  "es": "Ánade picopinto indio",
+  "eu": null,
+  "en": "Indian Spot-billed Duck"
+ },
+ "Setophaga magnolia": {
+  "grupo": "Aves",
+  "es": "Chipe de magnolia",
+  "eu": null,
+  "en": "Magnolia Warbler"
+ },
+ "Rana temporaria": {
+  "grupo": "Amphibia",
+  "es": "Rana Bermeja",
+  "eu": "Baso-igel gorri",
+  "en": "Common Frog"
+ },
+ "Bufo bufo": {
+  "grupo": "Amphibia",
+  "es": "Sapo europeo",
+  "eu": "Apo arrunt",
+  "en": "Common Toad"
+ },
+ "Lissotriton vulgaris": {
+  "grupo": "Amphibia",
+  "es": "Tritón Común",
+  "eu": null,
+  "en": "Smooth Newt"
+ },
+ "Epidalea calamita": {
+  "grupo": "Amphibia",
+  "es": "Sapo Corredor",
+  "eu": null,
+  "en": "Natterjack"
+ },
+ "Hyla arborea": {
+  "grupo": "Amphibia",
+  "es": "Ranita de San Antón",
+  "eu": "Zuhaitz-igel arrunt",
+  "en": "Common Tree Frog"
+ },
+ "Bombina variegata": {
+  "grupo": "Amphibia",
+  "es": "Sapillo de vientre amarillo",
+  "eu": null,
+  "en": "Yellow-bellied Toad"
+ },
+ "Rana dalmatina": {
+  "grupo": "Amphibia",
+  "es": "Rana ágil",
+  "eu": null,
+  "en": "Agile frog"
+ },
+ "Alytes obstetricans": {
+  "grupo": "Amphibia",
+  "es": "Sapo Partero Común",
+  "eu": "Txantxiku arrunta",
+  "en": "Common Midwife Toad"
+ },
+ "Pelophylax lessonae": {
+  "grupo": "Amphibia",
+  "es": "Rana verde centroeuropea",
+  "eu": null,
+  "en": "Pool Frog"
+ },
+ "Rana arvalis": {
+  "grupo": "Amphibia",
+  "es": "Rana de Páramo",
+  "eu": null,
+  "en": "Moor Frog"
+ },
+ "Pelophylax ridibundus": {
+  "grupo": "Amphibia",
+  "es": null,
+  "eu": null,
+  "en": "Marsh Frog"
+ },
+ "Hyla meridionalis": {
+  "grupo": "Amphibia",
+  "es": "Ranita merdional",
+  "eu": "Hegoaldeko zuhaitz-igel",
+  "en": "Stripeless Tree Frog"
+ },
+ "Pelophylax perezi": {
+  "grupo": "Amphibia",
+  "es": "Rana Común",
+  "eu": null,
+  "en": "Iberian Water Frog"
+ },
+ "Bufo spinosus": {
+  "grupo": "Amphibia",
+  "es": "Sapo común",
+  "eu": "Apo arrunt iberiarra",
+  "en": "Western Common Toad"
+ },
+ "Bufotes viridis": {
+  "grupo": "Amphibia",
+  "es": "Sapo Verde",
+  "eu": null,
+  "en": "Green Toad"
+ },
+ "Pelodytes punctatus": {
+  "grupo": "Amphibia",
+  "es": "Sapillo moteado",
+  "eu": null,
+  "en": "Parsley Frog"
+ },
+ "Pelobates fuscus": {
+  "grupo": "Amphibia",
+  "es": "Sapo de Espuelas Pardo",
+  "eu": null,
+  "en": "Common Spadefoot"
+ },
+ "Bombina bombina": {
+  "grupo": "Amphibia",
+  "es": "Sapillo de vientre de fuego",
+  "eu": null,
+  "en": "Fire-bellied Toad"
+ },
+ "Lithobates catesbeianus": {
+  "grupo": "Amphibia",
+  "es": null,
+  "eu": null,
+  "en": "American Bullfrog"
+ },
+ "Pelobates cultripes": {
+  "grupo": "Amphibia",
+  "es": "Sapo de Espuelas",
+  "eu": null,
+  "en": "Western Spadefoot"
+ },
+ "Hyla orientalis": {
+  "grupo": "Amphibia",
+  "es": "Ranita oriental",
+  "eu": null,
+  "en": "Caucasian Treefrog"
+ },
+ "Alytes cisternasii": {
+  "grupo": "Amphibia",
+  "es": "Sapo Partero Ibérico",
+  "eu": null,
+  "en": "Iberian Midwife Toad"
+ },
+ "Xenopus laevis": {
+  "grupo": "Amphibia",
+  "es": "Rana-de garras africana",
+  "eu": null,
+  "en": "African Clawed Frog"
+ },
+ "Hyla molleri": {
+  "grupo": "Amphibia",
+  "es": "Ranita de San Antón",
+  "eu": null,
+  "en": "Iberian Tree Frog"
+ },
+ "Hyla intermedia": {
+  "grupo": "Amphibia",
+  "es": "Ranita italiana",
+  "eu": null,
+  "en": "Italian Tree Frog"
+ },
+ "Rana latastei": {
+  "grupo": "Amphibia",
+  "es": "Rana de Lastaste",
+  "eu": null,
+  "en": "Italian Agile Frog"
+ },
+ "Rana italica": {
+  "grupo": "Amphibia",
+  "es": "Rana italiana",
+  "eu": null,
+  "en": "Italian Stream Frog"
+ },
+ "Pelodytes ibericus": {
+  "grupo": "Amphibia",
+  "es": "Sapillo Moteado Ibérico",
+  "eu": null,
+  "en": "Iberian Parsley Frog"
+ },
+ "Hyla sarda": {
+  "grupo": "Amphibia",
+  "es": "Ranita sarda",
+  "eu": null,
+  "en": "Tyrrhenian Tree Frog"
+ },
+ "Pelobates vespertinus": {
+  "grupo": "Amphibia",
+  "es": "Sapo de espuelas ruso",
+  "eu": null,
+  "en": "Pallas' Spadefoot Toad"
+ },
+ "Rana macrocnemis": {
+  "grupo": "Amphibia",
+  "es": null,
+  "eu": null,
+  "en": "Banded Frog"
+ },
+ "Pelophylax kurtmuelleri": {
+  "grupo": "Amphibia",
+  "es": null,
+  "eu": null,
+  "en": "Balkan Frog"
+ },
+ "Alytes almogavarii": {
+  "grupo": "Amphibia",
+  "es": "Sapo partero almogávar",
+  "eu": null,
+  "en": "Catalonian Midwife Toad"
+ },
+ "Alytes dickhilleni": {
+  "grupo": "Amphibia",
+  "es": "Sapo Partero Bético",
+  "eu": null,
+  "en": "Betic Midwife Toad"
+ },
+ "Pelophylax bedriagae": {
+  "grupo": "Amphibia",
+  "es": null,
+  "eu": null,
+  "en": "Bedriaga's Frog"
+ },
+ "Pelophylax cretensis": {
+  "grupo": "Amphibia",
+  "es": null,
+  "eu": null,
+  "en": "Cretan Frog"
+ },
+ "Pelodytes atlanticus": {
+  "grupo": "Amphibia",
+  "es": "Sapillo moteado occidental",
+  "eu": null,
+  "en": "Lusitanian Parsley Frog"
+ },
+ "Pelophylax saharicus": {
+  "grupo": "Amphibia",
+  "es": "Rana Verde Norteafricana",
+  "eu": null,
+  "en": "Sahara Frog"
+ },
+ "Alytes muletensis": {
+  "grupo": "Amphibia",
+  "es": "Ferreret",
+  "eu": null,
+  "en": "Majorca Midwife Toad"
+ },
+ "Capreolus capreolus": {
+  "grupo": "Mammalia",
+  "es": "Corzo",
+  "eu": "Orkatz",
+  "en": "European Roe"
+ },
+ "Vulpes vulpes": {
+  "grupo": "Mammalia",
+  "es": "Zorro",
+  "eu": "Azeri arrunt",
+  "en": "Red Fox"
+ },
+ "Ondatra zibethicus": {
+  "grupo": "Mammalia",
+  "es": "Rata almizclera",
+  "eu": "Arratoi musketadun",
+  "en": "Common Muskrat"
+ },
+ "Lepus europaeus": {
+  "grupo": "Mammalia",
+  "es": "Liebre Europea",
+  "eu": "Erbi arrunt",
+  "en": "European Hare"
+ },
+ "Sus scrofa": {
+  "grupo": "Mammalia",
+  "es": "Jabalí",
+  "eu": "Basurde",
+  "en": "Wild Boar"
+ },
+ "Sciurus vulgaris": {
+  "grupo": "Mammalia",
+  "es": "Ardilla Roja de Eurasia",
+  "eu": "Katagorri arrunt",
+  "en": "Eurasian Red Squirrel"
+ },
+ "Erinaceus europaeus": {
+  "grupo": "Mammalia",
+  "es": "Erizo Europeo Occidental",
+  "eu": "Triku arrunt",
+  "en": "West European Hedgehog"
+ },
+ "Cervus elaphus": {
+  "grupo": "Mammalia",
+  "es": "Ciervo Rojo",
+  "eu": "Orein arrunt",
+  "en": "Red Deer"
+ },
+ "Oryctolagus cuniculus": {
+  "grupo": "Mammalia",
+  "es": "Conejo",
+  "eu": "Etxe-untxi",
+  "en": "European Rabbit"
+ },
+ "Meles meles": {
+  "grupo": "Mammalia",
+  "es": "Tejón",
+  "eu": null,
+  "en": "Eurasian Badger"
+ },
+ "Rupicapra rupicapra": {
+  "grupo": "Mammalia",
+  "es": "Gamuza",
+  "eu": "Sarrio",
+  "en": "Alpine Chamois"
+ },
+ "Castor fiber": {
+  "grupo": "Mammalia",
+  "es": "Castor europeo",
+  "eu": "Europar kastore",
+  "en": "Eurasian Beaver"
+ },
+ "Talpa europaea": {
+  "grupo": "Mammalia",
+  "es": "Topo Europeo",
+  "eu": "Sator arrunt",
+  "en": "European Mole"
+ },
+ "Sciurus carolinensis": {
+  "grupo": "Mammalia",
+  "es": "Ardilla de las Carolinas",
+  "eu": null,
+  "en": "Eastern Gray Squirrel"
+ },
+ "Lutra lutra": {
+  "grupo": "Mammalia",
+  "es": "Nutria",
+  "eu": "Igaraba arrunt",
+  "en": "European Otter"
+ },
+ "Halichoerus grypus": {
+  "grupo": "Mammalia",
+  "es": "Foca gris",
+  "eu": "Itsas txakur gris",
+  "en": "Gray Seal"
+ },
+ "Phoca vitulina": {
+  "grupo": "Mammalia",
+  "es": "Foca común",
+  "eu": null,
+  "en": "Harbor Seal"
+ },
+ "Rattus norvegicus": {
+  "grupo": "Mammalia",
+  "es": "Rata de Noruega",
+  "eu": "Arratoi arrunt",
+  "en": "Brown Rat"
+ },
+ "Martes foina": {
+  "grupo": "Mammalia",
+  "es": "Garduña",
+  "eu": "Lepazuri",
+  "en": "Beech Marten"
+ },
+ "Apodemus sylvaticus": {
+  "grupo": "Mammalia",
+  "es": "Ratón De Campo",
+  "eu": null,
+  "en": "Long-tailed Field Mouse"
+ },
+ "Eptesicus serotinus": {
+  "grupo": "Mammalia",
+  "es": "Murciélago de huerta",
+  "eu": null,
+  "en": "Common Serotine"
+ },
+ "Dama dama": {
+  "grupo": "Mammalia",
+  "es": "Gamo",
+  "eu": "Adarzabal",
+  "en": "Fallow Deer"
+ },
+ "Capra ibex": {
+  "grupo": "Mammalia",
+  "es": "Íbice de los Alpes",
+  "eu": "Alpetar basahuntz",
+  "en": "Alpine Ibex"
+ },
+ "Myocastor coypus": {
+  "grupo": "Mammalia",
+  "es": "Coipú",
+  "eu": "Koipu",
+  "en": "Coypu"
+ },
+ "Marmota marmota": {
+  "grupo": "Mammalia",
+  "es": "Marmota Alpina",
+  "eu": "Marmota alpetar",
+  "en": "Alpine Marmot"
+ },
+ "Ovis aries": {
+  "grupo": "Mammalia",
+  "es": "Oveja",
+  "eu": "Ardi",
+  "en": "Red Sheep"
+ },
+ "Sorex araneus": {
+  "grupo": "Mammalia",
+  "es": "Musaraña Colicuadrada",
+  "eu": null,
+  "en": "Common Shrew"
+ },
+ "Martes martes": {
+  "grupo": "Mammalia",
+  "es": "Marta",
+  "eu": "Lepahori",
+  "en": "European Pine Marten"
+ },
+ "Arvicola amphibius": {
+  "grupo": "Mammalia",
+  "es": "Rata topera",
+  "eu": null,
+  "en": "Eurasian Water Vole"
+ },
+ "Mustela erminea": {
+  "grupo": "Mammalia",
+  "es": "Armiño",
+  "eu": "Erbinude zuri",
+  "en": "Ermine"
+ },
+ "Canis lupus": {
+  "grupo": "Mammalia",
+  "es": "Lobo gris",
+  "eu": "Otso",
+  "en": "Wolf"
+ },
+ "Mustela putorius": {
+  "grupo": "Mammalia",
+  "es": "Turón",
+  "eu": null,
+  "en": "European Polecat"
+ },
+ "Alces alces": {
+  "grupo": "Mammalia",
+  "es": "Alce",
+  "eu": "Altze",
+  "en": "Moose"
+ },
+ "Lemmus lemmus": {
+  "grupo": "Mammalia",
+  "es": "Leming de Tundra",
+  "eu": "Leming arrunt",
+  "en": "Norway Lemming"
+ },
+ "Muscardinus avellanarius": {
+  "grupo": "Mammalia",
+  "es": "Muscardino",
+  "eu": null,
+  "en": "Hazel Dormouse"
+ },
+ "Pteromys volans": {
+  "grupo": "Mammalia",
+  "es": "Ardilla Voladora Europea",
+  "eu": "Europar katagorri hegalari",
+  "en": "Siberian Flying Squirrel"
+ },
+ "Lynx lynx": {
+  "grupo": "Mammalia",
+  "es": "Lince",
+  "eu": "Ipar-katamotz",
+  "en": "Eurasian Lynx"
+ },
+ "Mustela nivalis": {
+  "grupo": "Mammalia",
+  "es": "Comadreja",
+  "eu": "Erbinude",
+  "en": "Least Weasel"
+ },
+ "Felis catus": {
+  "grupo": "Mammalia",
+  "es": "Gato",
+  "eu": "Katu",
+  "en": "Domestic Cat"
+ },
+ "Microtus arvalis": {
+  "grupo": "Mammalia",
+  "es": "Topillo Campesino",
+  "eu": null,
+  "en": "Common Vole"
+ },
+ "Crocidura russula": {
+  "grupo": "Mammalia",
+  "es": "Musaraña Gris",
+  "eu": null,
+  "en": "Greater White-toothed Shrew"
+ },
+ "Microtus agrestis": {
+  "grupo": "Mammalia",
+  "es": "Topillo Agreste",
+  "eu": null,
+  "en": "Field Vole"
+ },
+ "Mus musculus": {
+  "grupo": "Mammalia",
+  "es": "Ratón Casero",
+  "eu": "Sagu arrunt",
+  "en": "House Mouse"
+ },
+ "Sorex minutus": {
+  "grupo": "Mammalia",
+  "es": "Musaraña Enana",
+  "eu": null,
+  "en": "Eurasian Pygmy Shrew"
+ },
+ "Felis silvestris": {
+  "grupo": "Mammalia",
+  "es": "Gato montés",
+  "eu": "Basakatua",
+  "en": "Wildcat"
+ },
+ "Rangifer tarandus": {
+  "grupo": "Mammalia",
+  "es": "Reno",
+  "eu": "Elur-orein",
+  "en": "Reindeer"
+ },
+ "Tursiops truncatus": {
+  "grupo": "Mammalia",
+  "es": "Delfín tonina",
+  "eu": "Izurde handia",
+  "en": "Bottlenose Dolphin"
+ },
+ "Bos taurus": {
+  "grupo": "Mammalia",
+  "es": "Ganado vacuno",
+  "eu": "Betizu",
+  "en": "Aurochs"
+ },
+ "Procyon lotor": {
+  "grupo": "Mammalia",
+  "es": "Mapache",
+  "eu": "Mapatxe",
+  "en": "Raccoon"
+ },
+ "Gulo gulo": {
+  "grupo": "Mammalia",
+  "es": "Glotón",
+  "eu": null,
+  "en": "Wolverine"
+ },
+ "Muntiacus reevesi": {
+  "grupo": "Mammalia",
+  "es": "Muntjac chino",
+  "eu": null,
+  "en": "Reeves' Muntjac"
+ },
+ "Ursus arctos": {
+  "grupo": "Mammalia",
+  "es": "Oso pardo",
+  "eu": "Hartz arre",
+  "en": "Brown Bear"
+ },
+ "Eptesicus nilssonii": {
+  "grupo": "Mammalia",
+  "es": "Murciélago de huerta norteño",
+  "eu": null,
+  "en": "Northern Bat"
+ },
+ "Glis glis": {
+  "grupo": "Mammalia",
+  "es": "Lirón Gris",
+  "eu": null,
+  "en": "Fat Dormouse"
+ },
+ "Eliomys quercinus": {
+  "grupo": "Mammalia",
+  "es": "Lirón Careto",
+  "eu": null,
+  "en": "Garden Dormouse"
+ },
+ "Neomys fodiens": {
+  "grupo": "Mammalia",
+  "es": "Musgaño Patiblanco",
+  "eu": null,
+  "en": "Eurasian Water Shrew"
+ },
+ "Nyctereutes procyonoides": {
+  "grupo": "Mammalia",
+  "es": "Perro Mapache",
+  "eu": null,
+  "en": "Raccoon Dog"
+ },
+ "Equus caballus": {
+  "grupo": "Mammalia",
+  "es": "Caballo",
+  "eu": null,
+  "en": "Horse"
+ },
+ "Vulpes lagopus": {
+  "grupo": "Mammalia",
+  "es": "Zorra del Ártico",
+  "eu": "Azeri artiko",
+  "en": "Arctic Fox"
+ },
+ "Megaptera novaeangliae": {
+  "grupo": "Mammalia",
+  "es": "Ballena jorobada",
+  "eu": "Xibarta",
+  "en": "Humpback Whale"
+ },
+ "Odocoileus virginianus": {
+  "grupo": "Mammalia",
+  "es": "Venado cola blanca",
+  "eu": null,
+  "en": "White-tailed Deer"
+ },
+ "Microtus subterraneus": {
+  "grupo": "Mammalia",
+  "es": "Topillo Europeo",
+  "eu": null,
+  "en": "Common Pine Vole"
+ },
+ "Marmota bobak": {
+  "grupo": "Mammalia",
+  "es": "Marmota de las estepas",
+  "eu": null,
+  "en": "Bobak Marmot"
+ },
+ "Erinaceus roumanicus": {
+  "grupo": "Mammalia",
+  "es": "Erizo de los Balcanes",
+  "eu": null,
+  "en": "Northern White-Breasted Hedgehog"
+ },
+ "Cervus nippon": {
+  "grupo": "Mammalia",
+  "es": "Ciervo Sika",
+  "eu": null,
+  "en": "Sika Deer"
+ },
+ "Ovibos moschatus": {
+  "grupo": "Mammalia",
+  "es": "Buey almizclado",
+  "eu": "Idi musketadun",
+  "en": "Muskox"
+ },
+ "Physeter macrocephalus": {
+  "grupo": "Mammalia",
+  "es": "Cachalote gigante",
+  "eu": "Katxalotea",
+  "en": "Sperm Whale"
+ },
+ "Capra hircus": {
+  "grupo": "Mammalia",
+  "es": "Cabra",
+  "eu": "Ahuntz",
+  "en": "Goat"
+ },
+ "Ammotragus lervia": {
+  "grupo": "Mammalia",
+  "es": "Arruí",
+  "eu": null,
+  "en": "Barbary Sheep"
+ },
+ "Spermophilus citellus": {
+  "grupo": "Mammalia",
+  "es": "Ardilla Terrestre",
+  "eu": null,
+  "en": "European Ground Squirrel"
+ },
+ "Crocidura leucodon": {
+  "grupo": "Mammalia",
+  "es": "Musaraña Bicolor",
+  "eu": null,
+  "en": "Bicolored Shrew"
+ },
+ "Balaenoptera physalus": {
+  "grupo": "Mammalia",
+  "es": "Ballena de aleta",
+  "eu": "Zere arrunt",
+  "en": "Fin Whale"
+ },
+ "Pusa hispida": {
+  "grupo": "Mammalia",
+  "es": "Foca anillada",
+  "eu": null,
+  "en": "Ringed Seal"
+ },
+ "Bison bonasus": {
+  "grupo": "Mammalia",
+  "es": "Bisonte europeo",
+  "eu": null,
+  "en": "European Bison"
+ },
+ "Orcinus orca": {
+  "grupo": "Mammalia",
+  "es": "Orca común",
+  "eu": "Ezpalarta",
+  "en": "Killer Whale"
+ },
+ "Odobenus rosmarus": {
+  "grupo": "Mammalia",
+  "es": "Morsa",
+  "eu": "Mortsa",
+  "en": "Walrus"
+ },
+ "Homo sapiens": {
+  "grupo": "Mammalia",
+  "es": "Hombre",
+  "eu": "Gizaki",
+  "en": "Human"
+ },
+ "Delphinapterus leucas": {
+  "grupo": "Mammalia",
+  "es": "Ballena blanca",
+  "eu": "Bale txuri",
+  "en": "Beluga"
+ },
+ "Canis aureus": {
+  "grupo": "Mammalia",
+  "es": "Chacal",
+  "eu": null,
+  "en": "Golden Jackal"
+ },
+ "Equus asinus": {
+  "grupo": "Mammalia",
+  "es": "Asno",
+  "eu": "Asto",
+  "en": "Ass"
+ },
+ "Pagophilus groenlandicus": {
+  "grupo": "Mammalia",
+  "es": "Foca arpa",
+  "eu": null,
+  "en": "Harp Seal"
+ },
+ "Ursus maritimus": {
+  "grupo": "Mammalia",
+  "es": "Oso polar",
+  "eu": "Hartz polar",
+  "en": "Polar Bear"
+ },
+ "Hydropotes inermis": {
+  "grupo": "Mammalia",
+  "es": "Ciervo acuático",
+  "eu": null,
+  "en": "Chinese Water Deer"
+ },
+ "Sylvilagus floridanus": {
+  "grupo": "Mammalia",
+  "es": "Conejo Castellano",
+  "eu": null,
+  "en": "Eastern Cottontail"
+ },
+ "Atlantoxerus getulus": {
+  "grupo": "Mammalia",
+  "es": "Ardilla Moruna",
+  "eu": null,
+  "en": "Barbary Ground Squirrel"
+ },
+ "Hystrix cristata": {
+  "grupo": "Mammalia",
+  "es": "Puercoespín",
+  "eu": null,
+  "en": "Crested Porcupine"
+ },
+ "Ovis ammon": {
+  "grupo": "Mammalia",
+  "es": "Argalí",
+  "eu": null,
+  "en": "Argali"
+ },
+ "Bubalus bubalis": {
+  "grupo": "Mammalia",
+  "es": "Bufalo arni",
+  "eu": "Asiar bufalo",
+  "en": "Water Buffalo"
+ },
+ "Erignathus barbatus": {
+  "grupo": "Mammalia",
+  "es": "Foca barbuda",
+  "eu": null,
+  "en": "Bearded Seal"
+ },
+ "Macaca sylvanus": {
+  "grupo": "Mammalia",
+  "es": "Mona de Berbería",
+  "eu": "Berberia makakoa",
+  "en": "Barbary Macaque"
+ },
+ "Callosciurus erythraeus": {
+  "grupo": "Mammalia",
+  "es": "Ardilla de Pallas",
+  "eu": null,
+  "en": "Pallas's Squirrel"
+ },
+ "Spermophilus suslicus": {
+  "grupo": "Mammalia",
+  "es": "Ardilla Terrestre Moteada",
+  "eu": null,
+  "en": "Speckled Ground Squirrel"
+ },
+ "Hippopotamus amphibius": {
+  "grupo": "Mammalia",
+  "es": "Hipopótamo Anfibio",
+  "eu": null,
+  "en": "Common Hippopotamus"
+ },
+ "Panthera leo": {
+  "grupo": "Mammalia",
+  "es": "León",
+  "eu": "Lehoi",
+  "en": "Lion"
+ },
+ "Capreolus pygargus": {
+  "grupo": "Mammalia",
+  "es": "Corzo Siberiano",
+  "eu": null,
+  "en": "Siberian Roe"
+ },
+ "Sciurus anomalus": {
+  "grupo": "Mammalia",
+  "es": "Ardilla caucásica",
+  "eu": null,
+  "en": "Caucasian Squirrel"
+ },
+ "Castor canadensis": {
+  "grupo": "Mammalia",
+  "es": "Castor Americano",
+  "eu": "Kanadar kastore",
+  "en": "American Beaver"
+ },
+ "Hemiechinus auritus": {
+  "grupo": "Mammalia",
+  "es": "Erizo Orejudo",
+  "eu": null,
+  "en": "Long-eared Hedgehog"
+ },
+ "Capra caucasica": {
+  "grupo": "Mammalia",
+  "es": "Tur occidental",
+  "eu": null,
+  "en": "Tur"
+ },
+ "Crocuta crocuta": {
+  "grupo": "Mammalia",
+  "es": "Hiena Moteada",
+  "eu": null,
+  "en": "Spotted Hyena"
+ },
+ "Nanger dama": {
+  "grupo": "Mammalia",
+  "es": "Gacela Dama",
+  "eu": null,
+  "en": "Dama Gazelle"
+ },
+ "Panthera pardus": {
+  "grupo": "Mammalia",
+  "es": "Leopardo",
+  "eu": "Lehoinabar",
+  "en": "Leopard"
+ },
+ "Saiga tatarica": {
+  "grupo": "Mammalia",
+  "es": "Antilope Saiga",
+  "eu": null,
+  "en": "Steppe Saiga"
+ },
+ "Panthera tigris": {
+  "grupo": "Mammalia",
+  "es": "Tigre",
+  "eu": null,
+  "en": "Tiger"
+ },
+ "Dolichotis patagonum": {
+  "grupo": "Mammalia",
+  "es": "Mara o Liebre Patagónica",
+  "eu": null,
+  "en": "Patagonian Mara"
+ },
+ "Suncus murinus": {
+  "grupo": "Mammalia",
+  "es": "Musaraña Casera",
+  "eu": null,
+  "en": "Asian House Shrew"
+ },
+ "Tamiasciurus hudsonicus": {
+  "grupo": "Mammalia",
+  "es": "Ardilla roja americana",
+  "eu": null,
+  "en": "Red Squirrel"
+ },
+ "Balaena mysticetus": {
+  "grupo": "Mammalia",
+  "es": "Ballena boreal",
+  "eu": "Groenlandiar balea",
+  "en": "Bowhead"
+ },
+ "Spermophilus musicus": {
+  "grupo": "Mammalia",
+  "es": null,
+  "eu": null,
+  "en": "Caucasian Mountain Ground Squirrel"
+ },
+ "Vulpes corsac": {
+  "grupo": "Mammalia",
+  "es": "Zorro Corsac",
+  "eu": null,
+  "en": "Corsac Fox"
+ },
+ "Pararge aegeria": {
+  "grupo": "Insecta",
+  "es": "Maculada",
+  "eu": null,
+  "en": "Speckled Wood"
+ },
+ "Vanessa atalanta": {
+  "grupo": "Insecta",
+  "es": "Numerada",
+  "eu": "Almirante gorri",
+  "en": "Red Admiral"
+ },
+ "Vanessa cardui": {
+  "grupo": "Insecta",
+  "es": "Cardera",
+  "eu": "Kardu-vanesa",
+  "en": "Painted Lady"
+ },
+ "Bombus pascuorum": {
+  "grupo": "Insecta",
+  "es": "Abejorro de campo",
+  "eu": null,
+  "en": "Common Carder Bee"
+ },
+ "Apis mellifera": {
+  "grupo": "Insecta",
+  "es": "Abeja doméstica europea",
+  "eu": null,
+  "en": "Western Honey Bee"
+ },
+ "Bombus terrestris": {
+  "grupo": "Insecta",
+  "es": "Abejorro común",
+  "eu": null,
+  "en": "Buff-tailed Humble-bee"
+ },
+ "Tettigonia viridissima": {
+  "grupo": "Insecta",
+  "es": "Saltamontes Verde Común europeo",
+  "eu": "Oti berde",
+  "en": "Great Green Bush Cricket"
+ },
+ "Vespa velutina": {
+  "grupo": "Insecta",
+  "es": "Avispa Asiática",
+  "eu": "Asiako Liztorra",
+  "en": "Asian Hornet"
+ },
+ "Pseudochorthippus parallelus": {
+  "grupo": "Insecta",
+  "es": "Saltamontes de los Prados",
+  "eu": null,
+  "en": "Meadow Grasshopper"
+ },
+ "Episyrphus balteatus": {
+  "grupo": "Insecta",
+  "es": "Mosca cernidora",
+  "eu": null,
+  "en": "Marmalade Hoverfly"
+ },
+ "Bombus lapidarius": {
+  "grupo": "Insecta",
+  "es": "Abejorro de Cola Roja",
+  "eu": null,
+  "en": "Large Red-tailed Humble-bee"
+ },
+ "Vespa crabro": {
+  "grupo": "Insecta",
+  "es": "Avispón europeo",
+  "eu": null,
+  "en": "European Hornet"
+ },
+ "Chorthippus biguttulus": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Bow-winged grasshopper"
+ },
+ "Pholidoptera griseoaptera": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Dark Bush Cricket"
+ },
+ "Chorthippus brunneus": {
+  "grupo": "Insecta",
+  "es": "Saltamontes de Campo Común",
+  "eu": null,
+  "en": "Common Field Grasshopper"
+ },
+ "Bombus pratorum": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Early Bumble Bee"
+ },
+ "Gryllus campestris": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Field Cricket"
+ },
+ "Roeseliana roeselii": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Roesel's Bush Cricket"
+ },
+ "Eristalis pertinax": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Tapered Drone Fly"
+ },
+ "Leptophyes punctatissima": {
+  "grupo": "Insecta",
+  "es": "Saltamontes Verde punteado",
+  "eu": null,
+  "en": "Speckled Bush Cricket"
+ },
+ "Oedipoda caerulescens": {
+  "grupo": "Insecta",
+  "es": "Saltamontes de alas azules",
+  "eu": null,
+  "en": "Blue-winged grasshopper"
+ },
+ "Myathropa florea": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Batman Hoverfly"
+ },
+ "Nemobius sylvestris": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Wood Cricket"
+ },
+ "Omocestus viridulus": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Common Green Grasshopper"
+ },
+ "Conocephalus fuscus": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Long-Winged Conehead"
+ },
+ "Leptoglossus occidentalis": {
+  "grupo": "Insecta",
+  "es": "Chinche americana del pino",
+  "eu": null,
+  "en": "Pine Seed Bug"
+ },
+ "Cetonia aurata": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Rose Chafer"
+ },
+ "Gomphocerippus rufus": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Rufous Grasshopper"
+ },
+ "Stethophyma grossum": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Large Marsh Grasshopper"
+ },
+ "Halyomorpha halys": {
+  "grupo": "Insecta",
+  "es": "Chinche marmolada asiática",
+  "eu": "Zimitz kirasdun marroia",
+  "en": "Brown Marmorated Stink Bug"
+ },
+ "Osmia bicornis": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Red Mason Bee"
+ },
+ "Mantis religiosa": {
+  "grupo": "Insecta",
+  "es": "Mantis Religiosa",
+  "eu": "Marisorgin",
+  "en": "Praying Mantis"
+ },
+ "Nezara viridula": {
+  "grupo": "Insecta",
+  "es": "Chinche verde",
+  "eu": null,
+  "en": "Southern green stink bug"
+ },
+ "Lymantria dispar": {
+  "grupo": "Insecta",
+  "es": "Lagarta peluda del los encinares",
+  "eu": null,
+  "en": "Gypsy Moth"
+ },
+ "Pseudoips prasinana": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Green Silver-Lines"
+ },
+ "Rutpela maculata": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": null
+ },
+ "Lasiocampa quercus": {
+  "grupo": "Insecta",
+  "es": "Bómbix del Roble",
+  "eu": null,
+  "en": "Oak Eggar"
+ },
+ "Bombylius major": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Bee Fly"
+ },
+ "Chrysochraon dispar": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Gold Grasshopper"
+ },
+ "Eupeodes corollae": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Migrant Hover Fly"
+ },
+ "Stenobothrus lineatus": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Stripe-Winged Grasshopper"
+ },
+ "Decticus verrucivorus": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Wart-biter"
+ },
+ "Stictoleptura rubra": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": null
+ },
+ "Platycleis albopunctata": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Grey Bush Cricket"
+ },
+ "Clytus arietis": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Wasp Beetle"
+ },
+ "Cercopis vulnerata": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Froghopper"
+ },
+ "Smerinthus ocellata": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Eyed Hawk-Moth"
+ },
+ "Osmia cornuta": {
+  "grupo": "Insecta",
+  "es": "Abeja europea de huerto",
+  "eu": null,
+  "en": "White-faced Mason Bee"
+ },
+ "Stenurella melanura": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": null
+ },
+ "Chorthippus dorsatus": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Steppe grasshopper"
+ },
+ "Myrmeleotettix maculatus": {
+  "grupo": "Insecta",
+  "es": "Saltamontes Moteado",
+  "eu": null,
+  "en": "Mottled grasshopper"
+ },
+ "Meconema meridionale": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Southern Oak Bush-cricket"
+ },
+ "Anoplotrupes stercorosus": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": null
+ },
+ "Omocestus rufipes": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Woodland Grasshopper"
+ },
+ "Lilioceris lilii": {
+  "grupo": "Insecta",
+  "es": "Escarabajo de las hojas",
+  "eu": null,
+  "en": "Lily Beetle"
+ },
+ "Chorthippus albomarginatus": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Lesser marsh grasshopper"
+ },
+ "Phaneroptera falcata": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Sickle-bearing Bush-cricket"
+ },
+ "Euthystira brachyptera": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Small Gold Grasshopper"
+ },
+ "Acanthosoma haemorrhoidale": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Hawthorn Shieldbug"
+ },
+ "Euproctis chrysorrhoea": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Brown-tail"
+ },
+ "Xylocopa violacea": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Violet Carpenter Bee"
+ },
+ "Tettigonia cantans": {
+  "grupo": "Insecta",
+  "es": "Esperanza verde de arbustos",
+  "eu": null,
+  "en": "Upland Green Bush-cricket"
+ },
+ "Ruspolia nitidula": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Large Conehead"
+ },
+ "Merodon equestris": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Greater Bulb-Fly"
+ },
+ "Anthophora plumipes": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Hairy Footed Flower Bee"
+ },
+ "Stauroderus scalaris": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Ladder Grasshopper"
+ },
+ "Meconema thalassinum": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Drumming Katydid"
+ },
+ "Eristalis intricaria": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Furry Dronefly"
+ },
+ "Kleidocerys resedae": {
+  "grupo": "Insecta",
+  "es": "Chinche del abedul",
+  "eu": null,
+  "en": "Birch Catkin Bug"
+ },
+ "Calliptamus italicus": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": null
+ },
+ "Leptura quadrifasciata": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": null
+ },
+ "Conocephalus dorsalis": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Short-winged Conehead"
+ },
+ "Metrioptera brachyptera": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Bog Bush Cricket"
+ },
+ "Phaneroptera nana": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Southern Sickle-bearing Bush-cricket"
+ },
+ "Vespula germanica": {
+  "grupo": "Insecta",
+  "es": "Avispa chaqueta amarilla germánica",
+  "eu": null,
+  "en": "German Wasp"
+ },
+ "Cicindela hybrida": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Northern Dune Tiger Beetle"
+ },
+ "Euchorthippus declivus": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Common Straw Grasshopper"
+ },
+ "Oecanthus pellucens": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Tree Cricket"
+ },
+ "Bicolorana bicolor": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Bicolour Meadow Bush-cricket"
+ },
+ "Chorthippus mollis": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Lesser field grasshopper"
+ },
+ "Aromia moschata": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Musk Beetle"
+ },
+ "Pteronemobius heydenii": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": null
+ },
+ "Nicrophorus vespilloides": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": null
+ },
+ "Decticus albifrons": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Mediterranean Wart-biter"
+ },
+ "Psophus stridulus": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Rattle Grasshopper"
+ },
+ "Cerambyx cerdo": {
+  "grupo": "Insecta",
+  "es": "Gran capricornio de las encinas",
+  "eu": null,
+  "en": "Great Capricorn Beetle"
+ },
+ "Cerambyx scopolii": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": null
+ },
+ "Cicada orni": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": null
+ },
+ "Trypocopris vernalis": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Spring Dumbledor"
+ },
+ "Euchorthippus elegantulus": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Elegant Straw Grasshopper"
+ },
+ "Tessellana tessellata": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Brown-spotted Bush-cricket"
+ },
+ "Barbitistes serricauda": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Saw-tailed Bush-cricket"
+ },
+ "Acherontia atropos": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Death's-head Hawk-moth"
+ },
+ "Locusta migratoria": {
+  "grupo": "Insecta",
+  "es": "Langosta migratoria",
+  "eu": "Oti migratzaile",
+  "en": "Migratory Locust"
+ },
+ "Osmia bicolor": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Red-tailed Mason Bee"
+ },
+ "Stictocephala bisonia": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "American buffalo treehopper"
+ },
+ "Danaus plexippus": {
+  "grupo": "Insecta",
+  "es": "Mariposa Monarca",
+  "eu": null,
+  "en": "Monarch"
+ },
+ "Anthidium punctatum": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Punctate Wool-carder Bee"
+ },
+ "Lucilia sericata": {
+  "grupo": "Insecta",
+  "es": "Mosca verde metálica",
+  "eu": null,
+  "en": "Sheep-strike Greenbottle"
+ },
+ "Leiopus nebulosus": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": null
+ },
+ "Morimus asper": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": null
+ },
+ "Acheta domesticus": {
+  "grupo": "Insecta",
+  "es": "Grillo asiático doméstico",
+  "eu": "Etxe-kilker",
+  "en": "House cricket"
+ },
+ "Leptophyes albovittata": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Striped Bush-cricket"
+ },
+ "Polysarcus denticauda": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Large Saw-tailed Bush-cricket"
+ },
+ "Lamia textor": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Pine Sawyer"
+ },
+ "Polyphylla fullo": {
+  "grupo": "Insecta",
+  "es": "Escarabajo Batanero",
+  "eu": null,
+  "en": "Pine Chafer"
+ },
+ "Hierodula transcaucasica": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Transcaucasian Giant Mantis"
+ },
+ "Monochamus galloprovincialis": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Pine Sawyer"
+ },
+ "Acrida ungarica": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Common Cone-headed Grasshopper"
+ },
+ "Gryllus bimaculatus": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Two-spotted Cricket"
+ },
+ "Copris lunaris": {
+  "grupo": "Insecta",
+  "es": "Unicornio Lunar",
+  "eu": null,
+  "en": "Horned Dung Beetle"
+ },
+ "Anthidium oblongatum": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Oblong Wool-carder Bee"
+ },
+ "Lyristes plebejus": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": null
+ },
+ "Oberea oculata": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Eyed Longhorn Beetle"
+ },
+ "Sceliphron caementarium": {
+  "grupo": "Insecta",
+  "es": "Avispa de barro de patas amarillas",
+  "eu": null,
+  "en": "Pèlopèe"
+ },
+ "Ephippiger terrestris": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Alpine Saddle Bush-cricket"
+ },
+ "Uromenus rugosicollis": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Rough Saddle Bush-cricket"
+ },
+ "Cicadetta montana": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "New Forest Cicada"
+ },
+ "Lilioceris merdigera": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Onion Beetle"
+ },
+ "Xestobium rufovillosum": {
+  "grupo": "Insecta",
+  "es": "Escarabajo del reloj de la muerte",
+  "eu": null,
+  "en": "Death watch beetle"
+ },
+ "Eupholidoptera chabrieri": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Chabrier's Marbled Bush-cricket"
+ },
+ "Simulium ornatum": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": null
+ },
+ "Dociostaurus jagoi": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": null
+ },
+ "Anthophora bimaculata": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Green-eyed Flower Bee"
+ },
+ "Lapposyrphus lapponicus": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Common Loopwing Aphideater"
+ },
+ "Pholidoptera femorata": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Large Dark bush-cricket"
+ },
+ "Hermetia illucens": {
+  "grupo": "Insecta",
+  "es": "Mosca soldado negra",
+  "eu": null,
+  "en": "Black soldier fly"
+ },
+ "Periplaneta americana": {
+  "grupo": "Insecta",
+  "es": "Cucaracha americana",
+  "eu": null,
+  "en": "American cockroach"
+ },
+ "Tibicina haematodes": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": null
+ },
+ "Zeuneriana marmorata": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Adriatic Marbled Bush-cricket"
+ },
+ "Eupholidoptera schmidti": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Schmidt's Marbled Bush-cricket"
+ },
+ "Barbitistes fischeri": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Southern Saw-tailed Bush-cricket"
+ },
+ "Chorthippus eisentrauti": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Eisentraut's Bow-winged Grasshopper"
+ },
+ "Sepiana sepium": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Sepia Bush-cricket"
+ },
+ "Ectemnius cephalotes": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Sphecid wasp"
+ },
+ "Barbitistes obtusus": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Alpine Saw Bush-cricket"
+ },
+ "Melanogryllus desertus": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Desert Cricket"
+ },
+ "Platycleis intermedia": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Intermediate Grey Bush-cricket"
+ },
+ "Agapanthia dahlii": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": null
+ },
+ "Stenobothrus rubicundulus": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Wing-buzzing Grasshopper"
+ },
+ "Tettigettalna argentata": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": null
+ },
+ "Platycleis grisea": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": null
+ },
+ "Chorthippus binotatus": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Two-marked grasshopper"
+ },
+ "Isophya pyrenaea": {
+  "grupo": "Insecta",
+  "es": null,
+  "eu": null,
+  "en": "Pyrenean Plump Bush-cricket"
+ }
+}

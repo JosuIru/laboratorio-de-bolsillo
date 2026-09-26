@@ -1,0 +1,992 @@
+{
+ "Accelerating_and_revving_and_vroom": {
+  "es": "Aceleración de motor",
+  "eu": "Motorraren azelerazioa",
+  "en": "Accelerating and revving and vroom"
+ },
+ "Accordion": {
+  "es": "Acordeón",
+  "eu": "Akordeoia",
+  "en": "Accordion"
+ },
+ "Acoustic_guitar": {
+  "es": "Guitarra acústica",
+  "eu": "Gitarra akustikoa",
+  "en": "Acoustic guitar"
+ },
+ "Aircraft": {
+  "es": "Aeronave",
+  "eu": "Aireontzia",
+  "en": "Aircraft"
+ },
+ "Alarm": {
+  "es": "Alarma",
+  "eu": "Alarma",
+  "en": "Alarm"
+ },
+ "Animal": {
+  "es": "Animal",
+  "eu": "Animalia",
+  "en": "Animal"
+ },
+ "Applause": {
+  "es": "Aplausos",
+  "eu": "Txaloak",
+  "en": "Applause"
+ },
+ "Bark": {
+  "es": "Ladrido",
+  "eu": "Zaunka",
+  "en": "Bark"
+ },
+ "Bass_drum": {
+  "es": "Bombo",
+  "eu": "Bonboa",
+  "en": "Bass drum"
+ },
+ "Bass_guitar": {
+  "es": "Bajo eléctrico",
+  "eu": "Baxu elektrikoa",
+  "en": "Bass guitar"
+ },
+ "Bathtub_(filling_or_washing)": {
+  "es": "Bañera (llenado o lavado)",
+  "eu": "Bainuontzia (betetzen edo garbitzen)",
+  "en": "Bathtub (filling or washing)"
+ },
+ "Bell": {
+  "es": "Campana",
+  "eu": "Kanpaia",
+  "en": "Bell"
+ },
+ "Bicycle": {
+  "es": "Bicicleta",
+  "eu": "Bizikleta",
+  "en": "Bicycle"
+ },
+ "Bicycle_bell": {
+  "es": "Timbre de bicicleta",
+  "eu": "Bizikletaren txirrina",
+  "en": "Bicycle bell"
+ },
+ "Boat_and_Water_vehicle": {
+  "es": "Barco o embarcación",
+  "eu": "Itsasontzia edo ontzia",
+  "en": "Boat and Water vehicle"
+ },
+ "Boiling": {
+  "es": "Ebullición",
+  "eu": "Irakitea",
+  "en": "Boiling"
+ },
+ "Boom": {
+  "es": "Estruendo",
+  "eu": "Danbada",
+  "en": "Boom"
+ },
+ "Bowed_string_instrument": {
+  "es": "Instrumento de cuerda frotada",
+  "eu": "Arkuzko hari-instrumentua",
+  "en": "Bowed string instrument"
+ },
+ "Brass_instrument": {
+  "es": "Instrumento de viento metal",
+  "eu": "Metalezko haize-instrumentua",
+  "en": "Brass instrument"
+ },
+ "Breathing": {
+  "es": "Respiración",
+  "eu": "Arnasketa",
+  "en": "Breathing"
+ },
+ "Burping_and_eructation": {
+  "es": "Eructo",
+  "eu": "Korroka",
+  "en": "Burping and eructation"
+ },
+ "Bus": {
+  "es": "Autobús",
+  "eu": "Autobusa",
+  "en": "Bus"
+ },
+ "Buzz": {
+  "es": "Zumbido",
+  "eu": "Burrunba",
+  "en": "Buzz"
+ },
+ "Camera": {
+  "es": "Cámara",
+  "eu": "Kamera",
+  "en": "Camera"
+ },
+ "Car": {
+  "es": "Coche",
+  "eu": "Autoa",
+  "en": "Car"
+ },
+ "Car_passing_by": {
+  "es": "Coche que pasa",
+  "eu": "Pasatzen ari den autoa",
+  "en": "Car passing by"
+ },
+ "Cat": {
+  "es": "Gato",
+  "eu": "Katua",
+  "en": "Cat"
+ },
+ "Chatter": {
+  "es": "Parloteo",
+  "eu": "Berriketa",
+  "en": "Chatter"
+ },
+ "Cheering": {
+  "es": "Vítores",
+  "eu": "Animo-oihuak",
+  "en": "Cheering"
+ },
+ "Chewing_and_mastication": {
+  "es": "Masticación",
+  "eu": "Murtxikatzea",
+  "en": "Chewing and mastication"
+ },
+ "Chicken_and_rooster": {
+  "es": "Gallina y gallo",
+  "eu": "Oiloa eta oilarra",
+  "en": "Chicken and rooster"
+ },
+ "Child_speech_and_kid_speaking": {
+  "es": "Habla infantil",
+  "eu": "Haurren hizketa",
+  "en": "Child speech and kid speaking"
+ },
+ "Chime": {
+  "es": "Campanillas",
+  "eu": "Kanpaitxoak",
+  "en": "Chime"
+ },
+ "Chink_and_clink": {
+  "es": "Tintineo",
+  "eu": "Klin-klin hotsa",
+  "en": "Chink and clink"
+ },
+ "Chirp_and_tweet": {
+  "es": "Gorjeo y piar",
+  "eu": "Txorrotxioa",
+  "en": "Chirp and tweet"
+ },
+ "Chuckle_and_chortle": {
+  "es": "Risa contenida",
+  "eu": "Barre ito",
+  "en": "Chuckle and chortle"
+ },
+ "Church_bell": {
+  "es": "Campana de iglesia",
+  "eu": "Elizako kanpaia",
+  "en": "Church bell"
+ },
+ "Clapping": {
+  "es": "Palmas",
+  "eu": "Txalo egitea",
+  "en": "Clapping"
+ },
+ "Clock": {
+  "es": "Reloj",
+  "eu": "Erlojua",
+  "en": "Clock"
+ },
+ "Coin_(dropping)": {
+  "es": "Moneda (cayendo)",
+  "eu": "Txanpona (erortzen)",
+  "en": "Coin (dropping)"
+ },
+ "Computer_keyboard": {
+  "es": "Teclado de ordenador",
+  "eu": "Ordenagailuaren teklatua",
+  "en": "Computer keyboard"
+ },
+ "Conversation": {
+  "es": "Conversación",
+  "eu": "Elkarrizketa",
+  "en": "Conversation"
+ },
+ "Cough": {
+  "es": "Tos",
+  "eu": "Eztula",
+  "en": "Cough"
+ },
+ "Cowbell": {
+  "es": "Cencerro",
+  "eu": "Zintzarria",
+  "en": "Cowbell"
+ },
+ "Crack": {
+  "es": "Chasquido",
+  "eu": "Kraska",
+  "en": "Crack"
+ },
+ "Crackle": {
+  "es": "Chisporroteo",
+  "eu": "Kriskitina",
+  "en": "Crackle"
+ },
+ "Crash_cymbal": {
+  "es": "Platillo crash",
+  "eu": "Crash platera",
+  "en": "Crash cymbal"
+ },
+ "Cricket": {
+  "es": "Grillo",
+  "eu": "Kilkerra",
+  "en": "Cricket"
+ },
+ "Crow": {
+  "es": "Cuervo o corneja",
+  "eu": "Belea",
+  "en": "Crow"
+ },
+ "Crowd": {
+  "es": "Multitud",
+  "eu": "Jendetza",
+  "en": "Crowd"
+ },
+ "Crumpling_and_crinkling": {
+  "es": "Arrugar papel o plástico",
+  "eu": "Papera edo plastikoa zimurtzea",
+  "en": "Crumpling and crinkling"
+ },
+ "Crushing": {
+  "es": "Aplastamiento",
+  "eu": "Birrintzea",
+  "en": "Crushing"
+ },
+ "Crying_and_sobbing": {
+  "es": "Llanto",
+  "eu": "Negarra",
+  "en": "Crying and sobbing"
+ },
+ "Cupboard_open_or_close": {
+  "es": "Armario (abrir o cerrar)",
+  "eu": "Armairua (ireki edo itxi)",
+  "en": "Cupboard open or close"
+ },
+ "Cutlery_and_silverware": {
+  "es": "Cubiertos",
+  "eu": "Mahai-tresnak",
+  "en": "Cutlery and silverware"
+ },
+ "Cymbal": {
+  "es": "Platillo",
+  "eu": "Platera",
+  "en": "Cymbal"
+ },
+ "Dishes_and_pots_and_pans": {
+  "es": "Platos, ollas y sartenes",
+  "eu": "Platerak, lapikoak eta zartaginak",
+  "en": "Dishes and pots and pans"
+ },
+ "Dog": {
+  "es": "Perro",
+  "eu": "Txakurra",
+  "en": "Dog"
+ },
+ "Domestic_animals_and_pets": {
+  "es": "Animales domésticos y mascotas",
+  "eu": "Etxeko animaliak eta maskotak",
+  "en": "Domestic animals and pets"
+ },
+ "Domestic_sounds_and_home_sounds": {
+  "es": "Sonidos domésticos",
+  "eu": "Etxeko soinuak",
+  "en": "Domestic sounds and home sounds"
+ },
+ "Door": {
+  "es": "Puerta",
+  "eu": "Atea",
+  "en": "Door"
+ },
+ "Doorbell": {
+  "es": "Timbre de la puerta",
+  "eu": "Ateko txirrina",
+  "en": "Doorbell"
+ },
+ "Drawer_open_or_close": {
+  "es": "Cajón (abrir o cerrar)",
+  "eu": "Tiradera (ireki edo itxi)",
+  "en": "Drawer open or close"
+ },
+ "Drill": {
+  "es": "Taladro",
+  "eu": "Zulagailua",
+  "en": "Drill"
+ },
+ "Drip": {
+  "es": "Goteo",
+  "eu": "Tantaka",
+  "en": "Drip"
+ },
+ "Drum": {
+  "es": "Tambor",
+  "eu": "Danborra",
+  "en": "Drum"
+ },
+ "Drum_kit": {
+  "es": "Batería",
+  "eu": "Bateria",
+  "en": "Drum kit"
+ },
+ "Electric_guitar": {
+  "es": "Guitarra eléctrica",
+  "eu": "Gitarra elektrikoa",
+  "en": "Electric guitar"
+ },
+ "Engine": {
+  "es": "Motor",
+  "eu": "Motorra",
+  "en": "Engine"
+ },
+ "Engine_starting": {
+  "es": "Arranque de motor",
+  "eu": "Motorra abiatzea",
+  "en": "Engine starting"
+ },
+ "Explosion": {
+  "es": "Explosión",
+  "eu": "Leherketa",
+  "en": "Explosion"
+ },
+ "Fart": {
+  "es": "Pedo",
+  "eu": "Puzkerra",
+  "en": "Fart"
+ },
+ "Female_singing": {
+  "es": "Canto de mujer",
+  "eu": "Emakumea kantuan",
+  "en": "Female singing"
+ },
+ "Female_speech_and_woman_speaking": {
+  "es": "Habla de mujer",
+  "eu": "Emakumea hizketan",
+  "en": "Female speech and woman speaking"
+ },
+ "Fill_(with_liquid)": {
+  "es": "Llenado (de líquido)",
+  "eu": "Betetzea (likidoz)",
+  "en": "Fill (with liquid)"
+ },
+ "Finger_snapping": {
+  "es": "Chasquido de dedos",
+  "eu": "Hatz-kliska",
+  "en": "Finger snapping"
+ },
+ "Fire": {
+  "es": "Fuego",
+  "eu": "Sua",
+  "en": "Fire"
+ },
+ "Fireworks": {
+  "es": "Fuegos artificiales",
+  "eu": "Su artifizialak",
+  "en": "Fireworks"
+ },
+ "Fixed-wing_aircraft_and_airplane": {
+  "es": "Avión",
+  "eu": "Hegazkina",
+  "en": "Fixed-wing aircraft and airplane"
+ },
+ "Fowl": {
+  "es": "Aves de corral",
+  "eu": "Etxeko hegaztiak",
+  "en": "Fowl"
+ },
+ "Frog": {
+  "es": "Rana",
+  "eu": "Igela",
+  "en": "Frog"
+ },
+ "Frying_(food)": {
+  "es": "Fritura",
+  "eu": "Frijitzea",
+  "en": "Frying (food)"
+ },
+ "Gasp": {
+  "es": "Jadeo",
+  "eu": "Arnasestua",
+  "en": "Gasp"
+ },
+ "Giggle": {
+  "es": "Risita",
+  "eu": "Barretxoa",
+  "en": "Giggle"
+ },
+ "Glass": {
+  "es": "Vidrio",
+  "eu": "Beira",
+  "en": "Glass"
+ },
+ "Glockenspiel": {
+  "es": "Glockenspiel",
+  "eu": "Glockenspiela",
+  "en": "Glockenspiel"
+ },
+ "Gong": {
+  "es": "Gong",
+  "eu": "Gonga",
+  "en": "Gong"
+ },
+ "Growling": {
+  "es": "Gruñido",
+  "eu": "Marruma",
+  "en": "Growling"
+ },
+ "Guitar": {
+  "es": "Guitarra",
+  "eu": "Gitarra",
+  "en": "Guitar"
+ },
+ "Gull_and_seagull": {
+  "es": "Gaviota",
+  "eu": "Kaioa",
+  "en": "Gull and seagull"
+ },
+ "Gunshot_and_gunfire": {
+  "es": "Disparo",
+  "eu": "Tiroa",
+  "en": "Gunshot and gunfire"
+ },
+ "Gurgling": {
+  "es": "Gorgoteo",
+  "eu": "Gorgoraka",
+  "en": "Gurgling"
+ },
+ "Hammer": {
+  "es": "Martillo",
+  "eu": "Mailua",
+  "en": "Hammer"
+ },
+ "Hands": {
+  "es": "Manos",
+  "eu": "Eskuak",
+  "en": "Hands"
+ },
+ "Harmonica": {
+  "es": "Armónica",
+  "eu": "Armonika",
+  "en": "Harmonica"
+ },
+ "Harp": {
+  "es": "Arpa",
+  "eu": "Harpa",
+  "en": "Harp"
+ },
+ "Hi-hat": {
+  "es": "Charles (hi-hat)",
+  "eu": "Hi-hat platera",
+  "en": "Hi-hat"
+ },
+ "Hiss": {
+  "es": "Siseo",
+  "eu": "Zizkada",
+  "en": "Hiss"
+ },
+ "Human_group_actions": {
+  "es": "Acciones de grupos de personas",
+  "eu": "Giza taldeen ekintzak",
+  "en": "Human group actions"
+ },
+ "Human_voice": {
+  "es": "Voz humana",
+  "eu": "Giza ahotsa",
+  "en": "Human voice"
+ },
+ "Idling": {
+  "es": "Motor al ralentí",
+  "eu": "Motorra geldi-martxan",
+  "en": "Idling"
+ },
+ "Insect": {
+  "es": "Insecto",
+  "eu": "Intsektua",
+  "en": "Insect"
+ },
+ "Keyboard_(musical)": {
+  "es": "Teclado (musical)",
+  "eu": "Teklatua (musikala)",
+  "en": "Keyboard (musical)"
+ },
+ "Keys_jangling": {
+  "es": "Llaves tintineando",
+  "eu": "Giltzak txilinka",
+  "en": "Keys jangling"
+ },
+ "Knock": {
+  "es": "Golpes en la puerta",
+  "eu": "Ate-kolpeak",
+  "en": "Knock"
+ },
+ "Laughter": {
+  "es": "Risa",
+  "eu": "Barrea",
+  "en": "Laughter"
+ },
+ "Liquid": {
+  "es": "Líquido",
+  "eu": "Likidoa",
+  "en": "Liquid"
+ },
+ "Livestock_and_farm_animals_and_working_animals": {
+  "es": "Ganado y animales de granja",
+  "eu": "Abereak eta baserriko animaliak",
+  "en": "Livestock and farm animals and working animals"
+ },
+ "Male_singing": {
+  "es": "Canto de hombre",
+  "eu": "Gizona kantuan",
+  "en": "Male singing"
+ },
+ "Male_speech_and_man_speaking": {
+  "es": "Habla de hombre",
+  "eu": "Gizona hizketan",
+  "en": "Male speech and man speaking"
+ },
+ "Mallet_percussion": {
+  "es": "Percusión de láminas",
+  "eu": "Xafla-perkusioa",
+  "en": "Mallet percussion"
+ },
+ "Marimba_and_xylophone": {
+  "es": "Marimba y xilófono",
+  "eu": "Marinba eta xilofonoa",
+  "en": "Marimba and xylophone"
+ },
+ "Mechanical_fan": {
+  "es": "Ventilador",
+  "eu": "Haizagailua",
+  "en": "Mechanical fan"
+ },
+ "Mechanisms": {
+  "es": "Mecanismos",
+  "eu": "Mekanismoak",
+  "en": "Mechanisms"
+ },
+ "Meow": {
+  "es": "Maullido",
+  "eu": "Miaua",
+  "en": "Meow"
+ },
+ "Microwave_oven": {
+  "es": "Microondas",
+  "eu": "Mikrouhin-labea",
+  "en": "Microwave oven"
+ },
+ "Motor_vehicle_(road)": {
+  "es": "Vehículo de motor (carretera)",
+  "eu": "Ibilgailu motorduna (errepidea)",
+  "en": "Motor vehicle (road)"
+ },
+ "Motorcycle": {
+  "es": "Motocicleta",
+  "eu": "Motozikleta",
+  "en": "Motorcycle"
+ },
+ "Music": {
+  "es": "Música",
+  "eu": "Musika",
+  "en": "Music"
+ },
+ "Musical_instrument": {
+  "es": "Instrumento musical",
+  "eu": "Musika-tresna",
+  "en": "Musical instrument"
+ },
+ "Ocean": {
+  "es": "Mar",
+  "eu": "Itsasoa",
+  "en": "Ocean"
+ },
+ "Organ": {
+  "es": "Órgano",
+  "eu": "Organoa",
+  "en": "Organ"
+ },
+ "Packing_tape_and_duct_tape": {
+  "es": "Cinta adhesiva",
+  "eu": "Zinta itsasgarria",
+  "en": "Packing tape and duct tape"
+ },
+ "Percussion": {
+  "es": "Percusión",
+  "eu": "Perkusioa",
+  "en": "Percussion"
+ },
+ "Piano": {
+  "es": "Piano",
+  "eu": "Pianoa",
+  "en": "Piano"
+ },
+ "Plucked_string_instrument": {
+  "es": "Instrumento de cuerda pulsada",
+  "eu": "Hatzez jotzeko hari-instrumentua",
+  "en": "Plucked string instrument"
+ },
+ "Pour": {
+  "es": "Verter líquido",
+  "eu": "Likidoa isurtzea",
+  "en": "Pour"
+ },
+ "Power_tool": {
+  "es": "Herramienta eléctrica",
+  "eu": "Tresna elektrikoa",
+  "en": "Power tool"
+ },
+ "Printer": {
+  "es": "Impresora",
+  "eu": "Inprimagailua",
+  "en": "Printer"
+ },
+ "Purr": {
+  "es": "Ronroneo",
+  "eu": "Urrumaka",
+  "en": "Purr"
+ },
+ "Race_car_and_auto_racing": {
+  "es": "Coches de carreras",
+  "eu": "Lasterketa-autoak",
+  "en": "Race car and auto racing"
+ },
+ "Rail_transport": {
+  "es": "Transporte ferroviario",
+  "eu": "Trenbide-garraioa",
+  "en": "Rail transport"
+ },
+ "Rain": {
+  "es": "Lluvia",
+  "eu": "Euria",
+  "en": "Rain"
+ },
+ "Raindrop": {
+  "es": "Gotas de lluvia",
+  "eu": "Euri-tantak",
+  "en": "Raindrop"
+ },
+ "Ratchet_and_pawl": {
+  "es": "Carraca (trinquete)",
+  "eu": "Karraka (trinketea)",
+  "en": "Ratchet and pawl"
+ },
+ "Rattle": {
+  "es": "Traqueteo",
+  "eu": "Kalaka",
+  "en": "Rattle"
+ },
+ "Rattle_(instrument)": {
+  "es": "Sonajero (instrumento)",
+  "eu": "Txintxarria (instrumentua)",
+  "en": "Rattle (instrument)"
+ },
+ "Respiratory_sounds": {
+  "es": "Sonidos respiratorios",
+  "eu": "Arnas-soinuak",
+  "en": "Respiratory sounds"
+ },
+ "Ringtone": {
+  "es": "Tono de llamada",
+  "eu": "Dei-tonua",
+  "en": "Ringtone"
+ },
+ "Run": {
+  "es": "Carrera (pasos rápidos)",
+  "eu": "Korrika (pauso azkarrak)",
+  "en": "Run"
+ },
+ "Sawing": {
+  "es": "Serrar",
+  "eu": "Zerratzea",
+  "en": "Sawing"
+ },
+ "Scissors": {
+  "es": "Tijeras",
+  "eu": "Artaziak",
+  "en": "Scissors"
+ },
+ "Scratching_(performance_technique)": {
+  "es": "Scratch (técnica de DJ)",
+  "eu": "Scratch (DJ teknika)",
+  "en": "Scratching (performance technique)"
+ },
+ "Screaming": {
+  "es": "Gritos",
+  "eu": "Garrasiak",
+  "en": "Screaming"
+ },
+ "Screech": {
+  "es": "Chirrido",
+  "eu": "Karraska",
+  "en": "Screech"
+ },
+ "Shatter": {
+  "es": "Rotura de cristal",
+  "eu": "Beira apurtzea",
+  "en": "Shatter"
+ },
+ "Shout": {
+  "es": "Grito",
+  "eu": "Oihua",
+  "en": "Shout"
+ },
+ "Sigh": {
+  "es": "Suspiro",
+  "eu": "Hasperena",
+  "en": "Sigh"
+ },
+ "Singing": {
+  "es": "Canto",
+  "eu": "Kantua",
+  "en": "Singing"
+ },
+ "Sink_(filling_or_washing)": {
+  "es": "Fregadero (llenado o lavado)",
+  "eu": "Harraska (betetzen edo garbitzen)",
+  "en": "Sink (filling or washing)"
+ },
+ "Siren": {
+  "es": "Sirena",
+  "eu": "Sirena",
+  "en": "Siren"
+ },
+ "Skateboard": {
+  "es": "Monopatín",
+  "eu": "Skate-ohola",
+  "en": "Skateboard"
+ },
+ "Slam": {
+  "es": "Portazo",
+  "eu": "Danbatekoa",
+  "en": "Slam"
+ },
+ "Sliding_door": {
+  "es": "Puerta corredera",
+  "eu": "Ate lerragarria",
+  "en": "Sliding door"
+ },
+ "Snare_drum": {
+  "es": "Caja (tambor)",
+  "eu": "Kaxa (danborra)",
+  "en": "Snare drum"
+ },
+ "Sneeze": {
+  "es": "Estornudo",
+  "eu": "Doministikua",
+  "en": "Sneeze"
+ },
+ "Speech": {
+  "es": "Habla",
+  "eu": "Hizketa",
+  "en": "Speech"
+ },
+ "Speech_synthesizer": {
+  "es": "Voz sintética",
+  "eu": "Ahots sintetikoa",
+  "en": "Speech synthesizer"
+ },
+ "Splash_and_splatter": {
+  "es": "Salpicadura",
+  "eu": "Zipriztina",
+  "en": "Splash and splatter"
+ },
+ "Squeak": {
+  "es": "Chirrido agudo",
+  "eu": "Kirrinka",
+  "en": "Squeak"
+ },
+ "Stream": {
+  "es": "Arroyo",
+  "eu": "Erreka",
+  "en": "Stream"
+ },
+ "Strum": {
+  "es": "Rasgueo",
+  "eu": "Rasgeoa",
+  "en": "Strum"
+ },
+ "Subway_and_metro_and_underground": {
+  "es": "Metro",
+  "eu": "Metroa",
+  "en": "Subway and metro and underground"
+ },
+ "Tabla": {
+  "es": "Tabla",
+  "eu": "Tabla",
+  "en": "Tabla"
+ },
+ "Tambourine": {
+  "es": "Pandereta",
+  "eu": "Panderoa",
+  "en": "Tambourine"
+ },
+ "Tap": {
+  "es": "Golpecito",
+  "eu": "Kolpe arina",
+  "en": "Tap"
+ },
+ "Tearing": {
+  "es": "Desgarro",
+  "eu": "Urratzea",
+  "en": "Tearing"
+ },
+ "Telephone": {
+  "es": "Teléfono",
+  "eu": "Telefonoa",
+  "en": "Telephone"
+ },
+ "Thump_and_thud": {
+  "es": "Golpe sordo",
+  "eu": "Kolpe gorra",
+  "en": "Thump and thud"
+ },
+ "Thunder": {
+  "es": "Trueno",
+  "eu": "Trumoia",
+  "en": "Thunder"
+ },
+ "Thunderstorm": {
+  "es": "Tormenta",
+  "eu": "Ekaitza",
+  "en": "Thunderstorm"
+ },
+ "Tick": {
+  "es": "Tic",
+  "eu": "Tik",
+  "en": "Tick"
+ },
+ "Tick-tock": {
+  "es": "Tictac",
+  "eu": "Tik-tak",
+  "en": "Tick-tock"
+ },
+ "Toilet_flush": {
+  "es": "Cisterna del váter",
+  "eu": "Komuneko zisterna",
+  "en": "Toilet flush"
+ },
+ "Tools": {
+  "es": "Herramientas",
+  "eu": "Tresnak",
+  "en": "Tools"
+ },
+ "Traffic_noise_and_roadway_noise": {
+  "es": "Ruido de tráfico",
+  "eu": "Trafiko-zarata",
+  "en": "Traffic noise and roadway noise"
+ },
+ "Train": {
+  "es": "Tren",
+  "eu": "Trena",
+  "en": "Train"
+ },
+ "Trickle_and_dribble": {
+  "es": "Hilillo de agua",
+  "eu": "Ur-jario mehea",
+  "en": "Trickle and dribble"
+ },
+ "Truck": {
+  "es": "Camión",
+  "eu": "Kamioia",
+  "en": "Truck"
+ },
+ "Trumpet": {
+  "es": "Trompeta",
+  "eu": "Tronpeta",
+  "en": "Trumpet"
+ },
+ "Typewriter": {
+  "es": "Máquina de escribir",
+  "eu": "Idazmakina",
+  "en": "Typewriter"
+ },
+ "Typing": {
+  "es": "Tecleo",
+  "eu": "Teklatzea",
+  "en": "Typing"
+ },
+ "Vehicle": {
+  "es": "Vehículo",
+  "eu": "Ibilgailua",
+  "en": "Vehicle"
+ },
+ "Vehicle_horn_and_car_horn_and_honking": {
+  "es": "Claxon",
+  "eu": "Klaxona",
+  "en": "Vehicle horn and car horn and honking"
+ },
+ "Walk_and_footsteps": {
+  "es": "Pasos",
+  "eu": "Oinotsak",
+  "en": "Walk and footsteps"
+ },
+ "Water": {
+  "es": "Agua",
+  "eu": "Ura",
+  "en": "Water"
+ },
+ "Water_tap_and_faucet": {
+  "es": "Grifo",
+  "eu": "Txorrota",
+  "en": "Water tap and faucet"
+ },
+ "Waves_and_surf": {
+  "es": "Olas",
+  "eu": "Olatuak",
+  "en": "Waves and surf"
+ },
+ "Whispering": {
+  "es": "Susurro",
+  "eu": "Xuxurla",
+  "en": "Whispering"
+ },
+ "Whoosh_and_swoosh_and_swish": {
+  "es": "Zumbido de paso (fiuu)",
+  "eu": "Haize-zirrinta",
+  "en": "Whoosh and swoosh and swish"
+ },
+ "Wild_animals": {
+  "es": "Animales salvajes",
+  "eu": "Animalia basatiak",
+  "en": "Wild animals"
+ },
+ "Wind": {
+  "es": "Viento",
+  "eu": "Haizea",
+  "en": "Wind"
+ },
+ "Wind_chime": {
+  "es": "Campanillas de viento",
+  "eu": "Haize-kanpaitxoak",
+  "en": "Wind chime"
+ },
+ "Wind_instrument_and_woodwind_instrument": {
+  "es": "Instrumento de viento",
+  "eu": "Haize-instrumentua",
+  "en": "Wind instrument and woodwind instrument"
+ },
+ "Wood": {
+  "es": "Madera",
+  "eu": "Egurra",
+  "en": "Wood"
+ },
+ "Writing": {
+  "es": "Escritura",
+  "eu": "Idazketa",
+  "en": "Writing"
+ },
+ "Yell": {
+  "es": "Chillido",
+  "eu": "Deiadarra",
+  "en": "Yell"
+ },
+ "Zipper_(clothing)": {
+  "es": "Cremallera",
+  "eu": "Kremailera",
+  "en": "Zipper (clothing)"
+ }
+}
