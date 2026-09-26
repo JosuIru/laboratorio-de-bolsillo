@@ -1,0 +1,81 @@
+{
+  "name": "Auzoko zarataren erregistroa",
+  "description": "Utzi mugikorra gau osoan zarata erregistratzen: minutuko maila, gertaera gogaikarriak eta partekatzeko txostena.",
+  "privacyTitle": "Ez da audiorik grabatzen",
+  "privacy": "Soinua mugikorrean aztertzen da eta berehala baztertzen da: mailak (dB) bakarrik kalkulatzen eta gordetzen dira. Erregistro honetatik ezin da elkarrizketarik entzun.",
+  "keepAwake": "Pantaila piztuta geratzen da erregistratzen ari den bitartean: konektatu kargagailua. Aplikaziotik irteten bazara, mugikorra blokeatzen baduzu edo beste pantaila bat irekitzen baduzu, erregistroa gelditu egiten da.",
+  "placePlaceholder": "Lekua (adib. logela, leihoa itxita)",
+  "start": "Hasi erregistratzen",
+  "startNew": "Hasi saio berri bat",
+  "stop": "Gelditu",
+  "starting": "Mikrofonoa irekitzen…",
+  "interrupted": "Erregistroa gelditu egin da aplikazioa aurrealdean egoteari utzi diolako. Ordura arteko datuak gordeta daude.",
+  "disclaimer": "Mugikor baten mikrofonoarekin egindako gutxi gorabeherako neurketa: ez du ordezten soinu-maila neurgailu homologatu batekin egindako neurketa.",
+  "calibration": {
+    "active": "Mailak dB(A)-tan, espektro-analizatzailearen kalibrazioarekin ({{offset}} dB-ko desplazamendua). Hala ere, gutxi gorabeherakoak dira.",
+    "missing": "Kalibratu gabe: mailak erlatiboak dira (dBFS, A haztapenarekin) eta uneak elkarren artean alderatzeko bakarrik balio dute. dB(A) izateko, kalibratu maila soinu-maila neurgailu batekin espektro-analizatzailean.",
+    "goCalibrate": "Kalibratu espektro-analizatzailean"
+  },
+  "summary": {
+    "now": "Orain",
+    "elapsed": "Erregistratutako denbora",
+    "leq": "Leq (maila baliokidea)",
+    "maximum": "Maximoa",
+    "level10": "L10 (nabarmentzen diren zaratak)",
+    "level90": "L90 (hondoko zarata)",
+    "explanation": "Leq aldiaren batez besteko energetikoa da (zarata ozen eta labur batek asko pisatzen du). Maximoa 0,15 s inguruko leihoena da. L10 eta L90 denboraren % 10ean eta % 90ean gainditzen diren mailak dira."
+  },
+  "chart": {
+    "title": "Minutuko Leq",
+    "accessibility": "Minutu bakoitzeko maila baliokidearen grafikoa, atalasearen marrarekin",
+    "waiting": "Grafikoa gutxienez bi minutu erregistratuta daudenean agertuko da."
+  },
+  "episodes": {
+    "title": "Zarata-gertaerak",
+    "threshold": "Atalasea",
+    "minimumDuration": "Gertaeraren gutxieneko iraupena",
+    "explanation": "Gertaera bat segundo bakoitzeko mailak atalasea gutxienez iraupen horretan gainditzen duen tartea da (2 s arteko isiluneek ez dute eteten). Atalasea neurtu ondoren alda dezakezu.",
+    "none": "Ez dago atalasetik gorako gertaerarik.",
+    "count": "Gertaerak: {{count}} (berrienak lehenengo)",
+    "maximumValue": "gehienez {{level}}",
+    "start": "Hasiera",
+    "duration": "Iraupena",
+    "maximum": "Maximoa"
+  },
+  "share": {
+    "title": "Gorde eta partekatu",
+    "csv": "Minutuko CSVa",
+    "report": "Txostena",
+    "dialogTitle": "Partekatu zarataren erregistroa"
+  },
+  "fields": {
+    "episodeCount": "Gertaerak",
+    "duration": "Iraupena",
+    "place": "Lekua",
+    "isCalibrated": "Kalibratuta",
+    "calibrationOffset": "Kalibrazio-desplazamendua",
+    "threshold": "Gertaeraren atalasea",
+    "minimumDuration": "Gertaeraren gutxieneko iraupena",
+    "sessionStart": "Saioaren hasiera",
+    "minuteLevels": "Minutuko Leq"
+  },
+  "report": {
+    "title": "Zarata-txostena",
+    "place": "Lekua",
+    "placeUnknown": "(adierazi gabe)",
+    "disclaimer": "Telefono mugikor baten mikrofonoarekin Poltsikoko Laborategia aplikazioaz egindako gutxi gorabeherako neurketa. Ez du ordezten langile tekniko egiaztatuek soinu-maila neurgailu homologatu batekin egindako neurketa.",
+    "calibrated": "Mailak dB(A)-tan, erabiltzaileak erreferentziako soinu-maila neurgailu batekin kalibratuta.",
+    "uncalibrated": "Kalibratu gabe: mailak mikrofonoaren maximoarekiko erlatiboak dira (dBFS, A haztapenarekin) eta erregistro honetako uneak alderatzeko bakarrik balio dute.",
+    "method": "A haztapena espektrotik kalkulatuta. Leq: batez besteko energetikoa. Maximoa: 0,15 s inguruko leihoak. L10 eta L90: denboraren % 10ean eta % 90ean gainditutako mailak, 1 s-ko balioen gainean. Ez da audiorik grabatu.",
+    "summary": "Laburpena",
+    "start": "Hasiera",
+    "end": "Amaiera",
+    "duration": "Erregistratutako denbora",
+    "episodeCriterion": "Gertaeraren irizpidea",
+    "episodeCriterionValue": "{{threshold}} baino gehiago, gutxienez {{duration}} iraunda",
+    "chart": "Minutuko Leq (marra etena: atalasea)",
+    "episodes": "Gertaerak",
+    "minutes": "Minutuz minutuko xehetasuna",
+    "minute": "Minutua"
+  }
+}

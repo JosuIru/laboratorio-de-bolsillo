@@ -1,0 +1,81 @@
+{
+  "name": "Registro de ruido vecinal",
+  "description": "Deja el móvil registrando el ruido toda la noche: nivel por minuto, episodios molestos e informe para compartir.",
+  "privacyTitle": "No se graba audio",
+  "privacy": "El sonido se analiza en el móvil y se descarta al instante: solo se calculan y guardan niveles (dB). Nadie podrá oír conversaciones a partir de este registro.",
+  "keepAwake": "La pantalla se queda encendida mientras registra: enchufa el cargador. Si sales de la app, bloqueas el móvil o abres otra pantalla, el registro se detiene.",
+  "placePlaceholder": "Lugar (p. ej. dormitorio, ventana cerrada)",
+  "start": "Empezar a registrar",
+  "startNew": "Empezar una sesión nueva",
+  "stop": "Detener",
+  "starting": "Abriendo el micrófono…",
+  "interrupted": "El registro se detuvo porque la app dejó de estar en primer plano. Los datos hasta ese momento se conservan.",
+  "disclaimer": "Medida orientativa hecha con el micrófono de un móvil: no sustituye a una medición con un sonómetro homologado.",
+  "calibration": {
+    "active": "Niveles en dB(A) con la calibración del analizador de espectro (desplazamiento {{offset}} dB). Aun así, son aproximados.",
+    "missing": "Sin calibrar: los niveles son relativos (dBFS con ponderación A) y solo sirven para comparar momentos entre sí. Para tener dB(A), calibra el nivel con un sonómetro en el analizador de espectro.",
+    "goCalibrate": "Calibrar en el analizador de espectro"
+  },
+  "summary": {
+    "now": "Ahora",
+    "elapsed": "Tiempo registrado",
+    "leq": "Leq (nivel equivalente)",
+    "maximum": "Máximo",
+    "level10": "L10 (ruidos que destacan)",
+    "level90": "L90 (ruido de fondo)",
+    "explanation": "Leq es la media energética del periodo (un ruido fuerte y breve pesa mucho). El máximo es el de ventanas de unos 0,15 s. L10 y L90 son los niveles superados el 10 % y el 90 % del tiempo."
+  },
+  "chart": {
+    "title": "Leq por minuto",
+    "accessibility": "Gráfica del nivel equivalente de cada minuto, con la línea del umbral",
+    "waiting": "La gráfica aparece cuando haya al menos dos minutos registrados."
+  },
+  "episodes": {
+    "title": "Episodios de ruido",
+    "threshold": "Umbral",
+    "minimumDuration": "Duración mínima del episodio",
+    "explanation": "Un episodio es un tramo en que el nivel de cada segundo supera el umbral durante al menos esa duración (silencios de hasta 2 s no lo cortan). Puedes cambiar el umbral después de medir.",
+    "none": "No hay episodios por encima del umbral.",
+    "count": "Episodios: {{count}} (los más recientes primero)",
+    "maximumValue": "máx. {{level}}",
+    "start": "Inicio",
+    "duration": "Duración",
+    "maximum": "Máximo"
+  },
+  "share": {
+    "title": "Guardar y compartir",
+    "csv": "CSV por minuto",
+    "report": "Informe",
+    "dialogTitle": "Compartir el registro de ruido"
+  },
+  "fields": {
+    "episodeCount": "Episodios",
+    "duration": "Duración",
+    "place": "Lugar",
+    "isCalibrated": "Calibrado",
+    "calibrationOffset": "Desplazamiento de calibración",
+    "threshold": "Umbral de episodio",
+    "minimumDuration": "Duración mínima de episodio",
+    "sessionStart": "Inicio de la sesión",
+    "minuteLevels": "Leq por minuto"
+  },
+  "report": {
+    "title": "Informe de ruido",
+    "place": "Lugar",
+    "placeUnknown": "(sin indicar)",
+    "disclaimer": "Medida orientativa hecha con el micrófono de un teléfono móvil con la app Laboratorio de Bolsillo. No sustituye a una medición realizada con un sonómetro homologado por personal técnico acreditado.",
+    "calibrated": "Niveles en dB(A), calibrados por el usuario contra un sonómetro de referencia.",
+    "uncalibrated": "Sin calibrar: los niveles son relativos al máximo del micrófono (dBFS con ponderación A) y solo permiten comparar momentos de este mismo registro.",
+    "method": "Ponderación A calculada desde el espectro. Leq: media energética. Máximo: ventanas de unos 0,15 s. L10 y L90: niveles superados el 10 % y el 90 % del tiempo, sobre valores de 1 s. No se grabó audio.",
+    "summary": "Resumen",
+    "start": "Inicio",
+    "end": "Fin",
+    "duration": "Tiempo registrado",
+    "episodeCriterion": "Criterio de episodio",
+    "episodeCriterionValue": "más de {{threshold}} durante al menos {{duration}}",
+    "chart": "Leq por minuto (línea discontinua: umbral)",
+    "episodes": "Episodios",
+    "minutes": "Detalle por minuto",
+    "minute": "Minuto"
+  }
+}
