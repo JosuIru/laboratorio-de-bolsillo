@@ -149,5 +149,16 @@
     "sourceCode": "Ikusi iturburu-kodea",
     "shareApp": "Partekatu aplikazioa",
     "shareMessage": "Poltsikoko Laborategia gomendatzen dizut: mugikorra zientzia-laborategi bihurtzen du. Deskargatu doan hemen: {{url}}"
+  },
+  "fullScreenCamera": {
+    "enter": "Ikusi kamera pantaila osoan",
+    "exit": "Irten pantaila osotik",
+    "panelHandle": "Kontrol-panela",
+    "panelHandleHint": "Ukitu ezarpenak erakusteko edo ezkutatzeko, edo irristatu gora edo behera.",
+    "panelStates": {
+      "hidden": "ezkutatuta",
+      "peek": "ekintza nagusiak",
+      "open": "zabalik"
+    }
   }
 }

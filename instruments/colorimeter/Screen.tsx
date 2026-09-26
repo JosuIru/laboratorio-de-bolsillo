@@ -1,12 +1,14 @@
-import { useMemo, useRef, useState } from 'react';
+import { type RefObject, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type GestureResponderEvent, Pressable, StyleSheet, View } from 'react-native';
 import { Camera, type CameraRef } from 'react-native-vision-camera';
 
+import { useCameraPointsInView } from '@/core/camera/useCameraPointsInView';
 import type { InstrumentScreenProps } from '@/core/instruments/types';
 import { isExpectedCameraInterruption } from '@/core/sensors/cameraErrors';
 import { useIsCameraAllowed } from '@/core/sensors/useIsCameraAllowed';
-import { AppButton, BodyText, Card, ScreenContainer } from '@/ui/components';
+import { AppButton, BodyText, Card } from '@/ui/components';
+import { CameraOverlayButton, CameraOverlayText, CameraScreenLayout } from '@/ui/FullScreenCamera';
 import { useThemePalette } from '@/ui/theme';
 
 import { evaluateColorimeterFrame, type UserColorScale } from './colorimeterEngine';
@@ -16,14 +18,8 @@ import { loadColorScales, saveColorScales } from './scaleStorage';
 import type { ColorimeterMeasurementValues } from './schema';
 import { type CameraPoint, useColorimeterFrames } from './useColorimeterFrames';
 
-const previewHeight = 340;
 /** Por encima de este ΔE00 la muestra no se parece a ningún color de la escala. */
 const poorScaleMatchDeltaE = 10;
-
-interface PlacedMarker {
-  viewPoint: { x: number; y: number };
-  cameraPoint: CameraPoint;
-}
 
 export function ColorimeterScreen({
   calibrationParameters,
@@ -36,7 +32,11 @@ export function ColorimeterScreen({
   const referenceCard = calibrationParameters?.card ?? defaultReferenceCard;
   const markerCount = 1 + referenceCard.patches.length;
 
-  const [placedMarkers, setPlacedMarkers] = useState<(PlacedMarker | null)[]>(() => new Array(markerCount).fill(null));
+  // Los marcadores se guardan en coordenadas de cámara (no en píxeles de la vista): así no se
+  // descolocan cuando la vista previa cambia de tamaño (p. ej. al pasar a pantalla completa).
+  const [markerCameraPoints, setMarkerCameraPoints] = useState<(CameraPoint | null)[]>(() =>
+    new Array(markerCount).fill(null),
+  );
   const [activeMarkerIndex, setActiveMarkerIndex] = useState(0);
   const [isTorchOn, setIsTorchOn] = useState(false);
   const [scales, setScales] = useState<UserColorScale[]>(loadColorScales);
@@ -48,12 +48,11 @@ export function ColorimeterScreen({
   const [markersCardKey, setMarkersCardKey] = useState(referenceCard);
   if (markersCardKey !== referenceCard) {
     setMarkersCardKey(referenceCard);
-    setPlacedMarkers(new Array(markerCount).fill(null));
+    setMarkerCameraPoints(new Array(markerCount).fill(null));
     setActiveMarkerIndex(0);
   }
 
-  const regionCenters = useMemo(() => placedMarkers.map((marker) => marker?.cameraPoint ?? null), [placedMarkers]);
-  const { frameOutput, latestRegions: averagedRegions, resetAverage } = useColorimeterFrames(regionCenters);
+  const { frameOutput, latestRegions: averagedRegions, resetAverage } = useColorimeterFrames(markerCameraPoints);
   const selectedScale = scales.find((scale) => scale.id === selectedScaleId) ?? null;
   const colorimeterReading = useMemo(() => {
     const sampleRegion = averagedRegions?.[0];
@@ -71,12 +70,14 @@ export function ColorimeterScreen({
     } catch {
       return;
     }
-    setPlacedMarkers((previousMarkers) =>
-      previousMarkers.map((marker, markerIndex) => (markerIndex === activeMarkerIndex ? { viewPoint, cameraPoint } : marker)),
+    setMarkerCameraPoints((previousCameraPoints) =>
+      previousCameraPoints.map((markerCameraPoint, markerIndex) =>
+        markerIndex === activeMarkerIndex ? cameraPoint : markerCameraPoint,
+      ),
     );
     resetAverage();
     // Pasa al siguiente marcador sin colocar, para colocar la tarjeta de una vez.
-    const nextUnplacedIndex = placedMarkers.findIndex(
+    const nextUnplacedIndex = markerCameraPoints.findIndex(
       (marker, markerIndex) => marker === null && markerIndex !== activeMarkerIndex,
     );
     if (nextUnplacedIndex >= 0) setActiveMarkerIndex(nextUnplacedIndex);
@@ -135,161 +136,241 @@ export function ColorimeterScreen({
   ];
   const markerColors = [themePalette.onAccent, ...referenceCard.patches.map((patch) => patch.hexColor)];
   const scaleMatch = colorimeterReading?.scaleMatch;
+  const placeMarkerHint = t('placeMarkerHint', { marker: markerLabels[activeMarkerIndex] });
+
+  function toggleTorch() {
+    setIsTorchOn((wasTorchOn) => !wasTorchOn);
+  }
+
+  function clearMarkers() {
+    setMarkerCameraPoints(new Array(markerCount).fill(null));
+    setActiveMarkerIndex(0);
+    resetAverage();
+  }
+
+  // Piezas que se reparten de forma distinta en el modo normal y en pantalla completa.
+  const markerChips = (
+    <View style={styles.chipRow}>
+      {markerLabels.map((markerLabel, markerIndex) => {
+        const isActiveMarker = markerIndex === activeMarkerIndex;
+        return (
+          <Pressable
+            key={markerIndex}
+            accessibilityRole="radio"
+            accessibilityState={{ selected: isActiveMarker }}
+            onPress={() => setActiveMarkerIndex(markerIndex)}
+            style={[styles.chip, { borderColor: isActiveMarker ? themePalette.accent : themePalette.border }]}>
+            {markerIndex > 0 ? (
+              <View style={[styles.chipSwatch, { backgroundColor: markerColors[markerIndex] }]} />
+            ) : null}
+            <BodyText tone={isActiveMarker ? 'accent' : markerCameraPoints[markerIndex] ? 'primary' : 'secondary'}>
+              {`${markerIndex === 0 ? 'M' : markerIndex} · ${markerLabel}`}
+            </BodyText>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+  const clearMarkersButton = <AppButton label={t('clearMarkers')} onPress={clearMarkers} variant="secondary" />;
+  const saveButton = (
+    <AppButton
+      label={t('core:common.save')}
+      onPress={() => void handleSave()}
+      isBusy={isSaving}
+      isDisabled={!colorimeterReading}
+    />
+  );
+  const statusText = statusMessage ? <BodyText tone="secondary">{statusMessage}</BodyText> : null;
+  const resultCard = (
+    <Card>
+      {!colorimeterReading ? (
+        <BodyText tone="secondary">{t('placeSampleFirst')}</BodyText>
+      ) : (
+        <>
+          <View style={styles.swatchRow}>
+            <Swatch label={t('rawColor')} hexColor={colorimeterReading.rawSampleHex} />
+            <Swatch label={t('correctedColor')} hexColor={colorimeterReading.correctedSampleHex} />
+          </View>
+          <BodyText style={styles.labText}>
+            {`L* ${colorimeterReading.sampleLab.lightness.toFixed(1)}   a* ${colorimeterReading.sampleLab.greenRed.toFixed(1)}   b* ${colorimeterReading.sampleLab.blueYellow.toFixed(1)}`}
+          </BodyText>
+          <BodyText tone="secondary">
+            {colorimeterReading.correction
+              ? colorimeterReading.correction.meanValidationDeltaE !== null
+                ? t('correctionSummary', {
+                    patchCount: colorimeterReading.usedPatchCount,
+                    model: t(`correctionModel.${colorimeterReading.correction.model}`),
+                    residual: colorimeterReading.correction.meanValidationDeltaE.toFixed(1),
+                  })
+                : t('correctionSummaryUnvalidated', {
+                    patchCount: colorimeterReading.usedPatchCount,
+                    model: t(`correctionModel.${colorimeterReading.correction.model}`),
+                  })
+              : t('noCorrection')}
+          </BodyText>
+          {colorimeterReading.correction?.isReducedToWhiteBalance ? (
+            <BodyText tone="danger">{t('reducedToWhiteBalance')}</BodyText>
+          ) : null}
+          {!colorimeterReading.isSampleUniform ? <BodyText tone="danger">{t('nonUniformSample')}</BodyText> : null}
+          {selectedScale && scaleMatch ? (
+            <View style={styles.scaleResult}>
+              <BodyText style={styles.estimatedValue}>
+                {`≈ ${scaleMatch.interpolatedValue.toFixed(2)} ${selectedScale.unit}`}
+              </BodyText>
+              <BodyText tone="secondary">
+                {t('nearestEntry', {
+                  label: scaleMatch.nearestEntry.label,
+                  deltaE: scaleMatch.nearestDeltaE.toFixed(1),
+                })}
+              </BodyText>
+              {scaleMatch.interpolationDeltaE > poorScaleMatchDeltaE ? (
+                <BodyText tone="danger">{t('poorScaleMatch')}</BodyText>
+              ) : null}
+            </View>
+          ) : null}
+        </>
+      )}
+    </Card>
+  );
+  const scaleEditor = (
+    <ScaleEditor
+      scales={scales}
+      selectedScaleId={selectedScaleId}
+      currentSampleHex={colorimeterReading?.correctedSampleHex ?? null}
+      onScalesChange={handleScalesChange}
+      onSelectScale={setSelectedScaleId}
+    />
+  );
+  const privacyNote = (
+    <BodyText tone="secondary" style={styles.privacyNote}>
+      {t('privacy')}
+    </BodyText>
+  );
+
+  // Lectura flotante en pantalla completa: el color corregido y el valor de la escala (o L*a*b*).
+  const fullScreenReadout = (
+    <>
+      <CameraOverlayText style={styles.readoutHint}>{placeMarkerHint}</CameraOverlayText>
+      {colorimeterReading ? (
+        <View style={styles.readoutRow}>
+          <View style={[styles.readoutSwatch, { backgroundColor: colorimeterReading.correctedSampleHex }]} />
+          <CameraOverlayText style={styles.readoutValue}>
+            {selectedScale && scaleMatch
+              ? `≈ ${scaleMatch.interpolatedValue.toFixed(2)} ${selectedScale.unit}`
+              : `L* ${colorimeterReading.sampleLab.lightness.toFixed(1)}  a* ${colorimeterReading.sampleLab.greenRed.toFixed(1)}  b* ${colorimeterReading.sampleLab.blueYellow.toFixed(1)}`}
+          </CameraOverlayText>
+        </View>
+      ) : null}
+    </>
+  );
 
   return (
-    <ScreenContainer>
-      <View style={[styles.previewContainer, { borderColor: themePalette.border }]}>
-        <Camera
-          ref={cameraRef}
-          style={StyleSheet.absoluteFill}
-          device="back"
-          isActive={isCameraAllowed}
-          outputs={[frameOutput]}
-          torchMode={isTorchOn ? 'on' : 'off'}
-          resizeMode="cover"
-          onError={(cameraError) => {
-            if (!isExpectedCameraInterruption(cameraError)) {
-              setStatusMessage(t('core:common.error', { message: cameraError.message }));
-            }
-          }}
-        />
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t('placeMarkerHint', { marker: markerLabels[activeMarkerIndex] })}
-          style={StyleSheet.absoluteFill}
-          onPress={handlePreviewPress}>
-          {placedMarkers.map((marker, markerIndex) =>
-            marker ? (
-              <View
-                key={markerIndex}
-                pointerEvents="none"
-                style={[
-                  styles.marker,
-                  {
-                    left: marker.viewPoint.x - markerRadius,
-                    top: marker.viewPoint.y - markerRadius,
-                    borderColor: markerIndex === 0 ? '#FFFFFF' : markerColors[markerIndex],
-                    borderWidth: markerIndex === activeMarkerIndex ? 4 : 2,
-                  },
-                ]}>
-                <BodyText style={styles.markerLabel}>{markerIndex === 0 ? 'M' : String(markerIndex)}</BodyText>
-              </View>
-            ) : null,
-          )}
-        </Pressable>
-      </View>
-
-      <BodyText tone="secondary">{t('placeMarkerHint', { marker: markerLabels[activeMarkerIndex] })}</BodyText>
-      <View style={styles.chipRow}>
-        {markerLabels.map((markerLabel, markerIndex) => {
-          const isActiveMarker = markerIndex === activeMarkerIndex;
-          return (
-            <Pressable
-              key={markerIndex}
-              accessibilityRole="radio"
-              accessibilityState={{ selected: isActiveMarker }}
-              onPress={() => setActiveMarkerIndex(markerIndex)}
-              style={[styles.chip, { borderColor: isActiveMarker ? themePalette.accent : themePalette.border }]}>
-              {markerIndex > 0 ? (
-                <View style={[styles.chipSwatch, { backgroundColor: markerColors[markerIndex] }]} />
-              ) : null}
-              <BodyText tone={isActiveMarker ? 'accent' : placedMarkers[markerIndex] ? 'primary' : 'secondary'}>
-                {`${markerIndex === 0 ? 'M' : markerIndex} · ${markerLabel}`}
-              </BodyText>
-            </Pressable>
-          );
-        })}
-      </View>
+    <CameraScreenLayout
+      title={t('name')}
+      renderPreview={({ previewWidth, previewHeight }) => (
+        <>
+          <Camera
+            ref={cameraRef}
+            style={StyleSheet.absoluteFill}
+            device="back"
+            isActive={isCameraAllowed}
+            outputs={[frameOutput]}
+            torchMode={isTorchOn ? 'on' : 'off'}
+            resizeMode="cover"
+            onError={(cameraError) => {
+              if (!isExpectedCameraInterruption(cameraError)) {
+                setStatusMessage(t('core:common.error', { message: cameraError.message }));
+              }
+            }}
+          />
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={placeMarkerHint}
+            style={StyleSheet.absoluteFill}
+            onPress={handlePreviewPress}>
+            <MarkerOverlay
+              cameraRef={cameraRef}
+              markerCameraPoints={markerCameraPoints}
+              markerColors={markerColors}
+              activeMarkerIndex={activeMarkerIndex}
+              previewWidth={previewWidth}
+              previewHeight={previewHeight}
+            />
+          </Pressable>
+        </>
+      )}
+      topActions={<CameraOverlayButton label={t('torch')} isSelected={isTorchOn} onPress={toggleTorch} />}
+      readout={fullScreenReadout}
+      primaryActions={
+        <>
+          <View style={styles.buttonCell}>{clearMarkersButton}</View>
+          <View style={styles.buttonCell}>{saveButton}</View>
+        </>
+      }
+      panelContent={
+        <>
+          {markerChips}
+          {statusText}
+          {resultCard}
+          {scaleEditor}
+          {privacyNote}
+        </>
+      }>
+      <BodyText tone="secondary">{placeMarkerHint}</BodyText>
+      {markerChips}
       <View style={styles.buttonRow}>
         <View style={styles.buttonCell}>
-          <AppButton
-            label={isTorchOn ? t('torchOff') : t('torchOn')}
-            onPress={() => setIsTorchOn((wasTorchOn) => !wasTorchOn)}
-            variant="secondary"
-          />
+          <AppButton label={isTorchOn ? t('torchOff') : t('torchOn')} onPress={toggleTorch} variant="secondary" />
         </View>
-        <View style={styles.buttonCell}>
-          <AppButton
-            label={t('clearMarkers')}
-            onPress={() => {
-              setPlacedMarkers(new Array(markerCount).fill(null));
-              setActiveMarkerIndex(0);
-              resetAverage();
-            }}
-            variant="secondary"
-          />
-        </View>
+        <View style={styles.buttonCell}>{clearMarkersButton}</View>
       </View>
+      {resultCard}
+      {saveButton}
+      {statusText}
+      {scaleEditor}
+      {privacyNote}
+    </CameraScreenLayout>
+  );
+}
 
-      <Card>
-        {!colorimeterReading ? (
-          <BodyText tone="secondary">{t('placeSampleFirst')}</BodyText>
-        ) : (
-          <>
-            <View style={styles.swatchRow}>
-              <Swatch label={t('rawColor')} hexColor={colorimeterReading.rawSampleHex} />
-              <Swatch label={t('correctedColor')} hexColor={colorimeterReading.correctedSampleHex} />
-            </View>
-            <BodyText style={styles.labText}>
-              {`L* ${colorimeterReading.sampleLab.lightness.toFixed(1)}   a* ${colorimeterReading.sampleLab.greenRed.toFixed(1)}   b* ${colorimeterReading.sampleLab.blueYellow.toFixed(1)}`}
-            </BodyText>
-            <BodyText tone="secondary">
-              {colorimeterReading.correction
-                ? colorimeterReading.correction.meanValidationDeltaE !== null
-                  ? t('correctionSummary', {
-                      patchCount: colorimeterReading.usedPatchCount,
-                      model: t(`correctionModel.${colorimeterReading.correction.model}`),
-                      residual: colorimeterReading.correction.meanValidationDeltaE.toFixed(1),
-                    })
-                  : t('correctionSummaryUnvalidated', {
-                      patchCount: colorimeterReading.usedPatchCount,
-                      model: t(`correctionModel.${colorimeterReading.correction.model}`),
-                    })
-                : t('noCorrection')}
-            </BodyText>
-            {colorimeterReading.correction?.isReducedToWhiteBalance ? (
-              <BodyText tone="danger">{t('reducedToWhiteBalance')}</BodyText>
-            ) : null}
-            {!colorimeterReading.isSampleUniform ? <BodyText tone="danger">{t('nonUniformSample')}</BodyText> : null}
-            {selectedScale && scaleMatch ? (
-              <View style={styles.scaleResult}>
-                <BodyText style={styles.estimatedValue}>
-                  {`≈ ${scaleMatch.interpolatedValue.toFixed(2)} ${selectedScale.unit}`}
-                </BodyText>
-                <BodyText tone="secondary">
-                  {t('nearestEntry', {
-                    label: scaleMatch.nearestEntry.label,
-                    deltaE: scaleMatch.nearestDeltaE.toFixed(1),
-                  })}
-                </BodyText>
-                {scaleMatch.interpolationDeltaE > poorScaleMatchDeltaE ? (
-                  <BodyText tone="danger">{t('poorScaleMatch')}</BodyText>
-                ) : null}
-              </View>
-            ) : null}
-          </>
-        )}
-      </Card>
-
-      <AppButton
-        label={t('core:common.save')}
-        onPress={() => void handleSave()}
-        isBusy={isSaving}
-        isDisabled={!colorimeterReading}
-      />
-      {statusMessage ? <BodyText tone="secondary">{statusMessage}</BodyText> : null}
-
-      <ScaleEditor
-        scales={scales}
-        selectedScaleId={selectedScaleId}
-        currentSampleHex={colorimeterReading?.correctedSampleHex ?? null}
-        onScalesChange={handleScalesChange}
-        onSelectScale={setSelectedScaleId}
-      />
-      <BodyText tone="secondary" style={styles.privacyNote}>
-        {t('privacy')}
-      </BodyText>
-    </ScreenContainer>
+/** Marcadores sobre la vista previa, situados a partir de sus coordenadas de cámara. */
+function MarkerOverlay({
+  cameraRef,
+  markerCameraPoints,
+  markerColors,
+  activeMarkerIndex,
+  previewWidth,
+  previewHeight,
+}: {
+  cameraRef: RefObject<CameraRef | null>;
+  markerCameraPoints: readonly (CameraPoint | null)[];
+  markerColors: readonly string[];
+  activeMarkerIndex: number;
+  previewWidth: number;
+  previewHeight: number;
+}) {
+  const markerViewPoints = useCameraPointsInView(cameraRef, markerCameraPoints, previewWidth, previewHeight);
+  return (
+    <>
+      {markerViewPoints.map((markerViewPoint, markerIndex) =>
+        markerViewPoint ? (
+          <View
+            key={markerIndex}
+            pointerEvents="none"
+            style={[
+              styles.marker,
+              {
+                left: markerViewPoint.x - markerRadius,
+                top: markerViewPoint.y - markerRadius,
+                borderColor: markerIndex === 0 ? '#FFFFFF' : markerColors[markerIndex],
+                borderWidth: markerIndex === activeMarkerIndex ? 4 : 2,
+              },
+            ]}>
+            <BodyText style={styles.markerLabel}>{markerIndex === 0 ? 'M' : String(markerIndex)}</BodyText>
+          </View>
+        ) : null,
+      )}
+    </>
   );
 }
 
@@ -307,13 +388,6 @@ function Swatch({ label, hexColor }: { label: string; hexColor: string }) {
 const markerRadius = 16;
 
 const styles = StyleSheet.create({
-  previewContainer: {
-    height: previewHeight,
-    borderRadius: 12,
-    overflow: 'hidden',
-    borderWidth: StyleSheet.hairlineWidth,
-    backgroundColor: '#000000',
-  },
   marker: {
     position: 'absolute',
     width: markerRadius * 2,
@@ -345,4 +419,8 @@ const styles = StyleSheet.create({
   scaleResult: { gap: 4, marginTop: 4 },
   estimatedValue: { fontSize: 24, fontWeight: '700' },
   privacyNote: { fontSize: 13 },
+  readoutHint: { fontSize: 13, lineHeight: 18 },
+  readoutRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  readoutSwatch: { width: 28, height: 28, borderRadius: 6, borderWidth: 1, borderColor: '#FFFFFF' },
+  readoutValue: { fontSize: 20, lineHeight: 26, fontWeight: '700', fontVariant: ['tabular-nums'] },
 });
