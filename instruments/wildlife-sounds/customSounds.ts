@@ -16,20 +16,21 @@ import {
 // --- Parámetros ---
 
 /**
- * Similitud mínima por defecto. Los embeddings de Perch salen de una capa tras activaciones y
- * promedios, así que casi todos sus valores son positivos: dos sonidos cualesquiera ya dan
- * cosenos de 0,5-0,7, y el mismo sonido repetido en el mismo sitio suele pasar de 0,9. 0,85 deja
- * margen para variaciones (distancia, otro ladrido) sin aceptar cualquier ruido parecido. Es un
- * valor a ojo, sin calibrar con datos: por eso hay un control de sensibilidad.
+ * Similitud mínima por defecto, medida con embeddings reales de Perch 2.0 (fp16) sobre 7
+ * grabaciones de especies distintas, 4 trozos de 5 s de cada una (scripts/fauna-model):
+ * - trozos de la misma grabación: coseno de 0,33 a 0,98 (mediana 0,77);
+ * - grabaciones distintas: de −0,05 a 0,34 (mediana 0,09); ruido de fondo, hasta 0,27.
+ * 0,5 queda por encima de todo lo distinto y acepta la mayoría de repeticiones del mismo sonido.
+ * Con más datos reales habrá que afinarlo: por eso hay un control de sensibilidad.
  */
-export const defaultSimilarityThreshold = 0.85;
+export const defaultSimilarityThreshold = 0.5;
 
 export type CustomSoundSensitivity = 'strict' | 'normal' | 'sensitive';
 
 export const similarityThresholdBySensitivity: Record<CustomSoundSensitivity, number> = {
-  strict: 0.9,
+  strict: 0.6,
   normal: defaultSimilarityThreshold,
-  sensitive: 0.8,
+  sensitive: 0.4,
 };
 
 /**

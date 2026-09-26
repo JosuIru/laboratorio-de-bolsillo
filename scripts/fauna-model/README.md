@@ -76,3 +76,22 @@ Con LiteRT en el portátil, sobre 7 grabaciones reales (mirlo, petirrojo, pinzó
 carbonero, sapo común y grillo campestre), la clase correcta sale **la primera en 6 de 7**.
 `validate.py` también muestra la diferencia máxima de logits frente al modelo completo en las
 mismas clases. Es un resultado orientativo: pocas grabaciones y todas bastante limpias.
+
+## Filtro por lugar y época (`fauna-occurrence-europa-1.json`)
+
+1. `python build_occurrence.py`: consulta GBIF (unas 1700 peticiones, ~3 min) y guarda `cell_counts.json`
+   (registros de cada especie del modelo en celdas de 2° sobre Europa) y `monthly_activity.json`
+   (actividad relativa por mes en Europa, 100 = el mes con más registros).
+2. `python select_occurrence.py 0.001`: una especie cuenta como presente en una celda si reúne al
+   menos el 0,1 % de los registros de la celda (y 5 como mínimo); luego se suman las celdas
+   vecinas. Con 0,0002 o 0,0005 entraban ejemplares perdidos y de zoológicos (flamencos en Oslo).
+   Con 0,001: el flamenco sale en Doñana, Madrid y Atenas y no en Bilbao ni en Escandinavia; el
+   pito real ibérico, la ranita de Pérez y el sisón solo en la península.
+3. Subir el JSON a la release `modelo-fauna-europa-1` (`gh release upload … --clobber`).
+
+## Umbral de «Tus sonidos»
+
+`python embedding_similarity.py` mide el coseno entre embeddings reales (4 trozos de cada una de
+las 7 grabaciones de prueba): misma grabación 0,33-0,98 (mediana 0,77), grabaciones distintas
+−0,05-0,34 (mediana 0,09), ruido de fondo hasta 0,27. De ahí el umbral de 0,5 en
+`instruments/wildlife-sounds/customSounds.ts`.

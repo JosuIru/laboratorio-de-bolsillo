@@ -32,14 +32,19 @@ function createSeededRandom(seed: number): () => number {
  * Embeddings sintéticos parecidos a los de Perch: todos positivos y con una parte común grande
  * (por eso dos sonidos distintos ya se parecen bastante), más un perfil propio de cada clase.
  */
+/**
+ * Embeddings sintéticos con la distribución medida en Perch 2.0 real: centrados (sonidos distintos
+ * dan coseno ≈ 0) y, dentro de una clase, un ruido tal que dos muestras dan ≈ 0,75 (mediana real
+ * de 0,77 entre trozos de la misma grabación).
+ */
 function createSyntheticWorld(seed: number) {
   const random = createSeededRandom(seed);
-  const sharedProfile = Float32Array.from({ length: embeddingDimensions }, () => random());
-  const createClassProfile = () => Float32Array.from({ length: embeddingDimensions }, () => (random() < 0.15 ? random() * 3 : 0));
-  const sampleFrom = (classProfile: Float32Array, noiseAmplitude = 0.25) =>
+  const centeredValue = () => random() * 2 - 1;
+  const createClassProfile = () => Float32Array.from({ length: embeddingDimensions }, centeredValue);
+  const sampleFrom = (classProfile: Float32Array, noiseAmplitude = 0.58) =>
     Float32Array.from(
       { length: embeddingDimensions },
-      (_, valueIndex) => sharedProfile[valueIndex]! * 0.6 + classProfile[valueIndex]! + random() * noiseAmplitude,
+      (_, valueIndex) => classProfile[valueIndex]! + centeredValue() * noiseAmplitude,
     );
   return { createClassProfile, sampleFrom };
 }
@@ -101,7 +106,7 @@ describe('matchCustomClasses con vectores sintéticos', () => {
     }
   });
 
-  it('un sonido que no es de ninguna clase no coincide, aunque comparta la parte común', () => {
+  it('un sonido que no es de ninguna clase no coincide', () => {
     const unrelatedResult = matchCustomClasses(sampleFrom(createClassProfile()), preparedClasses);
     expect(unrelatedResult.classMatches.every((classMatch) => !classMatch.isMatch)).toBe(true);
     expect(unrelatedResult.classMatches[0]!.similarity).toBeLessThan(defaultSimilarityThreshold);
@@ -111,16 +116,22 @@ describe('matchCustomClasses con vectores sintéticos', () => {
   it('el umbral controla la sensibilidad', () => {
     const dogSample = sampleFrom(dogProfile);
     expect(matchCustomClasses(dogSample, preparedClasses, 0.999).classMatches[0]!.isMatch).toBe(false);
-    expect(matchCustomClasses(dogSample, preparedClasses, 0.5).classMatches.every((classMatch) => classMatch.isMatch)).toBe(true);
+    // Con un umbral bajísimo (por debajo de la similitud entre sonidos distintos) todo coincide.
+    expect(matchCustomClasses(dogSample, preparedClasses, -1).classMatches.every((classMatch) => classMatch.isMatch)).toBe(true);
   });
 
   it('los ejemplos de fondo descartan coincidencias que se parecen más al fondo', () => {
-    const noisyDogProfile = dogProfile.map((profileValue) => profileValue * 0.3);
+    // El fondo de la casa tiene su propio perfil; el perro, lejos, apenas se oye encima de él.
+    const houseBackgroundProfile = createClassProfile();
+    const faintDogInBackground = houseBackgroundProfile.map(
+      (backgroundValue, valueIndex) => backgroundValue + 0.5 * dogProfile[valueIndex]!,
+    );
     const backgroundExamples = [0, 1, 2].map((exampleIndex) =>
-      exampleFrom(100 + exampleIndex, backgroundClass.id, sampleFrom(noisyDogProfile)),
+      exampleFrom(100 + exampleIndex, backgroundClass.id, sampleFrom(houseBackgroundProfile)),
     );
     const withBackground = prepareCustomClasses([dogClass, doorClass, backgroundClass], [...examples, ...backgroundExamples]);
-    const faintDogResult = matchCustomClasses(sampleFrom(noisyDogProfile), withBackground, 0.5);
+    // Umbral bajo, para que el perro débil lo supere y sea el fondo el que lo descarte.
+    const faintDogResult = matchCustomClasses(sampleFrom(faintDogInBackground), withBackground, 0.1);
     const dogMatch = faintDogResult.classMatches.find((classMatch) => classMatch.name === 'Mi perro')!;
     expect(faintDogResult.backgroundSimilarity).not.toBeNull();
     expect(dogMatch.isMatch).toBe(false);
