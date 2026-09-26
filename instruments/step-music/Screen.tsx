@@ -152,10 +152,7 @@ export function StepMusicScreen({ saveMeasurement }: InstrumentScreenProps<StepM
             {cadenceEstimate ? t('stepsPerMinute') : t('waitingSteps')}
           </BodyText>
           {paceComparison ? (
-            <BodyText
-              tone={paceComparison === 'on-pace' ? 'accent' : 'primary'}
-              style={[styles.centeredText, styles.paceText]}
-            >
+            <BodyText tone={paceComparison === 'on-pace' ? 'accent' : 'primary'} style={styles.paceText}>
               {t(`pace.${paceComparison}`)}
             </BodyText>
           ) : null}

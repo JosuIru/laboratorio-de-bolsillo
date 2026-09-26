@@ -120,7 +120,8 @@ export function advanceLock(
     knockTimesSeconds.push(knockTimeSeconds);
   }
   const lastKnockSeconds = knockTimesSeconds[knockTimesSeconds.length - 1];
-  const isSeriesFinished = lastKnockSeconds !== undefined && lockReading.nowSeconds - lastKnockSeconds >= knockSettleSeconds;
+  const isSeriesFinished =
+    lastKnockSeconds !== undefined && lockReading.nowSeconds - lastKnockSeconds >= knockSettleSeconds;
   if (!isSeriesFinished) return { ...lockProgress, knockTimesSeconds };
   if (knockTimesSeconds.length === lockDefinition.knockCount) {
     return { ...lockProgress, knockTimesSeconds: [], isOpen: true, lastWrongKnockCount: null };
@@ -131,7 +132,8 @@ export function advanceLock(
 /** Fracción de la cerradura completada, para la barra de progreso. */
 export function lockCompletion(lockDefinition: LockDefinition, lockProgress: LockProgress): number {
   if (lockProgress.isOpen) return 1;
-  if (lockDefinition.kind === 'knocks') return Math.min(1, lockProgress.knockTimesSeconds.length / lockDefinition.knockCount);
+  if (lockDefinition.kind === 'knocks')
+    return Math.min(1, lockProgress.knockTimesSeconds.length / lockDefinition.knockCount);
   return Math.min(1, lockProgress.heldSeconds / requiredHoldSecondsByKind[lockDefinition.kind]);
 }
 
@@ -153,7 +155,8 @@ export function createKnockDetector({
     /** Nivel de la trama en dBFS y su instante; devuelve true si es un golpe. */
     push(levelDecibels: number, timeSeconds: number): boolean {
       const sortedLevels = [...recentLevels].sort((leftLevel, rightLevel) => leftLevel - rightLevel);
-      const backgroundLevel = sortedLevels.length > 0 ? sortedLevels[Math.floor(sortedLevels.length / 2)]! : levelDecibels;
+      const backgroundLevel =
+        sortedLevels.length > 0 ? sortedLevels[Math.floor(sortedLevels.length / 2)]! : levelDecibels;
       recentLevels.push(levelDecibels);
       if (recentLevels.length > backgroundFrames) recentLevels.shift();
       const isKnock =
@@ -176,11 +179,16 @@ function parseLockDefinition(candidateLock: unknown): LockDefinition[] {
   const lockFields = candidateLock as Record<string, unknown>;
   switch (lockFields.kind) {
     case 'note':
-      return typeof lockFields.noteIndex === 'number' && Number.isInteger(lockFields.noteIndex) && lockFields.noteIndex >= 0 && lockFields.noteIndex < 12
+      return typeof lockFields.noteIndex === 'number' &&
+        Number.isInteger(lockFields.noteIndex) &&
+        lockFields.noteIndex >= 0 &&
+        lockFields.noteIndex < 12
         ? [{ kind: 'note', noteIndex: lockFields.noteIndex as NoteIndex }]
         : [];
     case 'pose':
-      return phonePoses.includes(lockFields.pose as PhonePose) ? [{ kind: 'pose', pose: lockFields.pose as PhonePose }] : [];
+      return phonePoses.includes(lockFields.pose as PhonePose)
+        ? [{ kind: 'pose', pose: lockFields.pose as PhonePose }]
+        : [];
     case 'magnet':
       return [{ kind: 'magnet' }];
     case 'knocks':
@@ -204,7 +212,8 @@ export function parseStoredPuzzles(storedText: string | null): EscapePuzzle[] {
     return parsedValue.flatMap((candidatePuzzle): EscapePuzzle[] => {
       if (typeof candidatePuzzle !== 'object' || candidatePuzzle === null) return [];
       const { id, name, locks, secret } = candidatePuzzle as Record<string, unknown>;
-      if (typeof id !== 'string' || typeof name !== 'string' || typeof secret !== 'string' || !Array.isArray(locks)) return [];
+      if (typeof id !== 'string' || typeof name !== 'string' || typeof secret !== 'string' || !Array.isArray(locks))
+        return [];
       const validLocks = locks.flatMap(parseLockDefinition);
       return validLocks.length > 0 ? [{ id, name, secret, locks: validLocks }] : [];
     });

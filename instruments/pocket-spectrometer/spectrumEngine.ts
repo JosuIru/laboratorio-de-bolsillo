@@ -74,9 +74,15 @@ export function sampleProfileAlongLine(
 }
 
 /** Media exponencial de perfiles sucesivos: estabiliza el espectro sin congelarlo. */
-export function blendProfiles(previousProfile: Float64Array | null, newProfile: Float64Array, newWeight: number): Float64Array {
+export function blendProfiles(
+  previousProfile: Float64Array | null,
+  newProfile: Float64Array,
+  newWeight: number,
+): Float64Array {
   if (!previousProfile || previousProfile.length !== newProfile.length) return Float64Array.from(newProfile);
-  return previousProfile.map((previousValue, sampleIndex) => previousValue + newWeight * (newProfile[sampleIndex]! - previousValue));
+  return previousProfile.map(
+    (previousValue, sampleIndex) => previousValue + newWeight * (newProfile[sampleIndex]! - previousValue),
+  );
 }
 
 // ── Picos ───────────────────────────────────────────────────────────────────────────────────
@@ -118,8 +124,12 @@ export function findSpectrumPeaks(
   }
   // De mayor a menor, descartando los que caen demasiado cerca de uno ya elegido.
   const chosenPeaks: SpectrumPeak[] = [];
-  for (const candidatePeak of [...candidatePeaks].sort((leftPeak, rightPeak) => rightPeak.intensity - leftPeak.intensity)) {
-    if (chosenPeaks.every((chosenPeak) => Math.abs(chosenPeak.position - candidatePeak.position) >= minimumSeparation)) {
+  for (const candidatePeak of [...candidatePeaks].sort(
+    (leftPeak, rightPeak) => rightPeak.intensity - leftPeak.intensity,
+  )) {
+    if (
+      chosenPeaks.every((chosenPeak) => Math.abs(chosenPeak.position - candidatePeak.position) >= minimumSeparation)
+    ) {
       chosenPeaks.push(candidatePeak);
     }
     if (chosenPeaks.length >= maximumPeakCount) break;
@@ -145,12 +155,15 @@ export interface WavelengthCalibration {
 export function isCalibrationUsable(calibration: WavelengthCalibration | null): calibration is WavelengthCalibration {
   if (!calibration) return false;
   const [firstPoint, secondPoint] = calibration.points;
-  return Math.abs(secondPoint.position - firstPoint.position) >= 5 && firstPoint.wavelengthNm !== secondPoint.wavelengthNm;
+  return (
+    Math.abs(secondPoint.position - firstPoint.position) >= 5 && firstPoint.wavelengthNm !== secondPoint.wavelengthNm
+  );
 }
 
 export function positionToWavelengthNm(calibration: WavelengthCalibration, position: number): number {
   const [firstPoint, secondPoint] = calibration.points;
-  const nanometersPerSample = (secondPoint.wavelengthNm - firstPoint.wavelengthNm) / (secondPoint.position - firstPoint.position);
+  const nanometersPerSample =
+    (secondPoint.wavelengthNm - firstPoint.wavelengthNm) / (secondPoint.position - firstPoint.position);
   return firstPoint.wavelengthNm + (position - firstPoint.position) * nanometersPerSample;
 }
 
@@ -159,7 +172,9 @@ export function wavelengthToDisplayColor(wavelengthNm: number): string {
   let red = 0;
   let green = 0;
   let blue = 0;
-  if (wavelengthNm >= 380 && wavelengthNm < 440) {
+  // Fuera de lo visible (ultravioleta o infrarrojo) no hay color.
+  if (wavelengthNm < 380 || wavelengthNm > 780) return '#000000';
+  if (wavelengthNm < 440) {
     red = (440 - wavelengthNm) / 60;
     blue = 1;
   } else if (wavelengthNm < 490) {

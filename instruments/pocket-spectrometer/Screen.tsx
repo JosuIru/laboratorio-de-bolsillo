@@ -34,6 +34,11 @@ export const pocketSpectrometerInstrumentId = 'pocket-spectrometer';
 
 const previewHeight = 260;
 const calibrationStorageKey = 'pocket-spectrometer.calibration';
+
+/** Hora actual; solo se llama desde manejadores de eventos y temporizadores, nunca al pintar. */
+function currentTimeMilliseconds(): number {
+  return Date.now();
+}
 /** La línea guía cruza la vista del 5 % al 95 % del ancho. */
 const guideMarginFraction = 0.05;
 const guideStepFraction = 0.04;
@@ -57,7 +62,9 @@ function loadCalibration(): StoredCalibration | null {
   }
 }
 
-export function PocketSpectrometerScreen({ saveMeasurement }: InstrumentScreenProps<PocketSpectrometerMeasurementValues>) {
+export function PocketSpectrometerScreen({
+  saveMeasurement,
+}: InstrumentScreenProps<PocketSpectrometerMeasurementValues>) {
   const { t } = useTranslation(pocketSpectrometerInstrumentId);
   const themePalette = useThemePalette();
   const cameraRef = useRef<CameraRef>(null);
@@ -110,7 +117,9 @@ export function PocketSpectrometerScreen({ saveMeasurement }: InstrumentScreenPr
   }
 
   function moveGuide(direction: -1 | 1) {
-    setGuideFraction((previousFraction) => Math.min(0.9, Math.max(0.1, previousFraction + direction * guideStepFraction)));
+    setGuideFraction((previousFraction) =>
+      Math.min(0.9, Math.max(0.1, previousFraction + direction * guideStepFraction)),
+    );
   }
 
   function handlePeakPressForCalibration(peakPosition: number) {
@@ -125,7 +134,7 @@ export function PocketSpectrometerScreen({ saveMeasurement }: InstrumentScreenPr
         { position: updatedPositions[0]!, wavelengthNm: fluorescentReferenceLines[0].wavelengthNm },
         { position: updatedPositions[1]!, wavelengthNm: fluorescentReferenceLines[1].wavelengthNm },
       ],
-      calibratedAt: Date.now(),
+      calibratedAt: currentTimeMilliseconds(),
       guideFraction,
     };
     setPendingCalibrationPositions(null);
@@ -275,12 +284,20 @@ export function PocketSpectrometerScreen({ saveMeasurement }: InstrumentScreenPr
               accessibilityRole="button"
               disabled={pendingCalibrationPositions === null}
               onPress={() => handlePeakPressForCalibration(spectrumPeak.position)}
-              style={[styles.chip, { borderColor: pendingCalibrationPositions !== null ? themePalette.accent : themePalette.border }]}>
+              style={[
+                styles.chip,
+                { borderColor: pendingCalibrationPositions !== null ? themePalette.accent : themePalette.border },
+              ]}
+            >
               {isCalibrationCurrent && calibration ? (
                 <View
                   style={[
                     styles.peakSwatch,
-                    { backgroundColor: wavelengthToDisplayColor(positionToWavelengthNm(calibration, spectrumPeak.position)) },
+                    {
+                      backgroundColor: wavelengthToDisplayColor(
+                        positionToWavelengthNm(calibration, spectrumPeak.position),
+                      ),
+                    },
                   ]}
                 />
               ) : null}

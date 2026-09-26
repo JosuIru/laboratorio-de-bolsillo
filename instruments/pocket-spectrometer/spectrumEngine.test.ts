@@ -65,7 +65,12 @@ describe('calibración', () => {
   });
 
   it('rechaza calibraciones con los dos puntos casi juntos o corruptas', () => {
-    expect(isCalibrationUsable({ ...mercuryCalibration, points: [mercuryCalibration.points[0], { position: 42, wavelengthNm: 546.1 }] })).toBe(false);
+    expect(
+      isCalibrationUsable({
+        ...mercuryCalibration,
+        points: [mercuryCalibration.points[0], { position: 42, wavelengthNm: 546.1 }],
+      }),
+    ).toBe(false);
     expect(parseStoredCalibration(JSON.stringify(mercuryCalibration))).toEqual(mercuryCalibration);
     expect(parseStoredCalibration('{"points":[1,2]}')).toBeNull();
     expect(parseStoredCalibration('roto')).toBeNull();

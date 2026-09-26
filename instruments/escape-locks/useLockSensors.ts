@@ -28,10 +28,12 @@ export function useLockSensors(lockDefinition: LockDefinition | null, isActive: 
   });
   const pendingKnockTimesRef = useRef<number[]>([]);
   const [pitchStabilizer] = useState(() => createPitchStabilizer());
-  const [knockDetector, setKnockDetector] = useState(() => createKnockDetector());
-  const magneticBaselineRef = useRef<{ sum: { x: number; y: number; z: number }; count: number; startSeconds: number } | null>(
-    null,
-  );
+  const knockDetectorRef = useRef(createKnockDetector());
+  const magneticBaselineRef = useRef<{
+    sum: { x: number; y: number; z: number };
+    count: number;
+    startSeconds: number;
+  } | null>(null);
 
   // Cada cerradura empieza con las lecturas limpias (y su propio campo de referencia).
   useEffect(() => {
@@ -39,7 +41,7 @@ export function useLockSensors(lockDefinition: LockDefinition | null, isActive: 
     pendingKnockTimesRef.current = [];
     magneticBaselineRef.current = null;
     pitchStabilizer.reset();
-    setKnockDetector(createKnockDetector());
+    knockDetectorRef.current = createKnockDetector();
   }, [lockDefinition, isActive, pitchStabilizer]);
 
   const microphoneStatus = useMicrophoneSpectrum({
@@ -51,7 +53,7 @@ export function useLockSensors(lockDefinition: LockDefinition | null, isActive: 
       let squaredSum = 0;
       for (const sampleValue of timeDomainSamples) squaredSum += sampleValue * sampleValue;
       const levelDecibels = 10 * Math.log10(Math.max(1e-12, squaredSum / timeDomainSamples.length));
-      if (lockDefinition?.kind === 'knocks' && knockDetector.push(levelDecibels, nowSeconds)) {
+      if (lockDefinition?.kind === 'knocks' && knockDetectorRef.current.push(levelDecibels, nowSeconds)) {
         pendingKnockTimesRef.current.push(nowSeconds);
       }
       if (lockDefinition?.kind === 'note') {
