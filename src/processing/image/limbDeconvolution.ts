@@ -18,6 +18,10 @@
  *       - parada por discrepancia: se para cuando el residuo cuadrático medio baja al nivel del
  *         ruido (seguir solo ajustaría el ruido);
  *       - variación total opcional (Dey et al., 2006): se divide por 1 − λ·div(∇u/|∇u|).
+ *  4. Anillo del limbo: RL deja en el borde del disco una oscilación de Gibbs (un anillo claro,
+ *     +19 % sobre el interior en las fotos reales frente al +8,5 % de la original). En una
+ *     banda de ±4σ alrededor del limbo se limita cada píxel a los extremos locales de la imagen
+ *     observada (`suppressLimbRinging`); el interior no se toca.
  *
  * Módulo puro: sin React ni React Native.
  */
@@ -225,20 +229,128 @@ export function deconvolveRichardsonLucy(
   };
 }
 
+// ---------------------------------------------------------------------------------------------
+// Anillo en el limbo (Gibbs)
+// ---------------------------------------------------------------------------------------------
+
+export interface LimbRingingSuppressionOptions {
+  /** Semiancho de la banda del limbo en la que se actúa, en σ de la PSF. */
+  bandHalfWidthSigmas: number;
+  /** Hasta esta distancia al limbo (en σ) se limita del todo; de ahí al final de la banda, en coseno. */
+  fullClampHalfWidthSigmas: number;
+  /** Radio de la ventana de mínimos y máximos locales de la imagen observada, en σ de la PSF. */
+  windowRadiusSigmas: number;
+}
+
+export const defaultLimbRingingSuppressionOptions: LimbRingingSuppressionOptions = {
+  bandHalfWidthSigmas: 4,
+  fullClampHalfWidthSigmas: 2,
+  windowRadiusSigmas: 2,
+};
+
+/** Máximo (o mínimo) en una ventana cuadrada de radio dado, separable y con los bordes recortados. */
+function windowExtremum(image: GrayImage, windowRadius: number, isMaximum: boolean): Float32Array {
+  const { width, height, values } = image;
+  const pick = isMaximum ? Math.max : Math.min;
+  const horizontalPass = new Float32Array(width * height);
+  for (let rowIndex = 0; rowIndex < height; rowIndex++) {
+    for (let columnIndex = 0; columnIndex < width; columnIndex++) {
+      let extremum = values[rowIndex * width + columnIndex]!;
+      const firstColumn = Math.max(0, columnIndex - windowRadius);
+      const lastColumn = Math.min(width - 1, columnIndex + windowRadius);
+      for (let sourceColumn = firstColumn; sourceColumn <= lastColumn; sourceColumn++) {
+        extremum = pick(extremum, values[rowIndex * width + sourceColumn]!);
+      }
+      horizontalPass[rowIndex * width + columnIndex] = extremum;
+    }
+  }
+  const outputValues = new Float32Array(width * height);
+  for (let rowIndex = 0; rowIndex < height; rowIndex++) {
+    const firstRow = Math.max(0, rowIndex - windowRadius);
+    const lastRow = Math.min(height - 1, rowIndex + windowRadius);
+    for (let columnIndex = 0; columnIndex < width; columnIndex++) {
+      let extremum = horizontalPass[rowIndex * width + columnIndex]!;
+      for (let sourceRow = firstRow; sourceRow <= lastRow; sourceRow++) {
+        extremum = pick(extremum, horizontalPass[sourceRow * width + columnIndex]!);
+      }
+      outputValues[rowIndex * width + columnIndex] = extremum;
+    }
+  }
+  return outputValues;
+}
+
+/**
+ * Quita el anillo brillante (y el surco oscuro por fuera) que Richardson–Lucy deja en el limbo.
+ *
+ * El limbo es un escalón enorme (del cielo a la superficie): como toda deconvolución, RL lo
+ * «sobrecorrige» y deja una oscilación de Gibbs, un anillo un ~10 % más brillante que el
+ * interior (medido en fotos reales del moto g57). En la banda del limbo, cada píxel se limita al
+ * intervalo [mínimo, máximo] de la imagen OBSERVADA en una ventana de ~2σ: un borde nítido de
+ * verdad nunca es más brillante que la superficie de al lado, y la observada ya contiene ese
+ * brillo. Hasta 2σ del limbo se limita del todo; de 2σ a 4σ, con un peso en coseno para que no
+ * se note el borde de la banda. Más adentro (donde está el detalle que interesa) no se toca nada.
+ */
+export function suppressLimbRinging(
+  deconvolved: GrayImage,
+  observed: GrayImage,
+  diskCircle: Circle,
+  psfSigmaPixels: number,
+  partialOptions: Partial<LimbRingingSuppressionOptions> = {},
+): GrayImage {
+  const options = { ...defaultLimbRingingSuppressionOptions, ...partialOptions };
+  const { width, height } = deconvolved;
+  const bandHalfWidth = Math.max(2, options.bandHalfWidthSigmas * psfSigmaPixels);
+  const fullClampHalfWidth = Math.min(bandHalfWidth - 1, options.fullClampHalfWidthSigmas * psfSigmaPixels);
+  const windowRadius = Math.max(1, Math.ceil(options.windowRadiusSigmas * psfSigmaPixels));
+  const localMaximum = windowExtremum(observed, windowRadius, true);
+  const localMinimum = windowExtremum(observed, windowRadius, false);
+  const outputValues = deconvolved.values.slice();
+  for (let rowIndex = 0; rowIndex < height; rowIndex++) {
+    for (let columnIndex = 0; columnIndex < width; columnIndex++) {
+      const distanceFromLimb = Math.abs(Math.hypot(columnIndex - diskCircle.centerX, rowIndex - diskCircle.centerY) - diskCircle.radius);
+      if (distanceFromLimb >= bandHalfWidth) continue;
+      const pixelIndex = rowIndex * width + columnIndex;
+      const deconvolvedValue = deconvolved.values[pixelIndex]!;
+      const clampedValue = Math.min(localMaximum[pixelIndex]!, Math.max(localMinimum[pixelIndex]!, deconvolvedValue));
+      const bandWeight =
+        distanceFromLimb <= fullClampHalfWidth
+          ? 1
+          : 0.5 * (1 + Math.cos((Math.PI * (distanceFromLimb - fullClampHalfWidth)) / (bandHalfWidth - fullClampHalfWidth)));
+      outputValues[pixelIndex] = deconvolvedValue + bandWeight * (clampedValue - deconvolvedValue);
+    }
+  }
+  return { width, height, values: outputValues };
+}
+
 export interface LimbDeconvolutionResult extends RichardsonLucyResult {
   pointSpreadFunction: LimbPointSpreadFunction;
 }
 
-/** Todo en uno: mide la PSF en el limbo y deconvoluciona con ella. `null` si no hay limbo. */
+/**
+ * Todo en uno: mide la PSF en el limbo, deconvoluciona con ella y quita el anillo del limbo
+ * (`suppressRinging: false` para verlo). `null` si no hay limbo.
+ */
 export function deconvolveWithLimbPsf(
   image: GrayImage,
   richardsonLucyOptions: Partial<RichardsonLucyOptions> = {},
   diskCircle?: Circle | null,
+  ringingOptions: Partial<LimbRingingSuppressionOptions> & { suppressRinging?: boolean } = {},
 ): LimbDeconvolutionResult | null {
   const pointSpreadFunction = estimateLimbPointSpreadFunction(image, diskCircle);
   if (!pointSpreadFunction) return null;
+  const richardsonLucyResult = deconvolveRichardsonLucy(image, pointSpreadFunction.sigmaPixels, richardsonLucyOptions);
+  const { suppressRinging = true, ...suppressionOptions } = ringingOptions;
   return {
-    ...deconvolveRichardsonLucy(image, pointSpreadFunction.sigmaPixels, richardsonLucyOptions),
+    ...richardsonLucyResult,
+    image: suppressRinging
+      ? suppressLimbRinging(
+          richardsonLucyResult.image,
+          image,
+          pointSpreadFunction.diskCircle,
+          pointSpreadFunction.sigmaPixels,
+          suppressionOptions,
+        )
+      : richardsonLucyResult.image,
     pointSpreadFunction,
   };
 }
