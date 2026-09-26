@@ -1,7 +1,7 @@
 import * as Location from 'expo-location';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, StyleSheet, Switch, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Switch, View } from 'react-native';
 
 import type { InstrumentScreenProps } from '@/core/instruments/types';
 import { type GeoLocation, getLocationForMeasurement } from '@/core/sensors/adapters/location';
@@ -19,6 +19,8 @@ import {
   type LoggingDecision,
   possibleMinimumScore,
   probableMinimumScore,
+  relativeMarginScore,
+  selectDisplayedResults,
   topScoringClasses,
 } from './classification';
 import {
@@ -41,6 +43,7 @@ import {
 import { DetectionLogPanel } from './DetectionLogPanel';
 import {
   type DetectionRecord,
+  type DetectionVerdict,
   encodeFloat16LittleEndian,
   formatDetectionsCsv,
   formatDetectionsJsonLines,
@@ -55,6 +58,7 @@ import {
   listAllDetections,
   listRecentDetections,
   readDetectionStatistics,
+  setDetectionVerdict,
 } from './detectionStore';
 import {
   addWindowToSession,
@@ -74,6 +78,7 @@ import {
   offSeasonPenalty,
   outOfAreaPenalty,
   plausibilityPenalty,
+  type OutOfAreaHandling,
   rankClassesWithPenalties,
   type SpeciesPlausibility,
 } from './occurrenceFilter';
@@ -171,6 +176,9 @@ export function WildlifeSoundsScreen({ saveMeasurement }: InstrumentScreenProps<
 
   // --- Filtro por lugar y época ---
   const [isOccurrenceFilterEnabled, setIsOccurrenceFilterEnabled] = useState(true);
+  /** «Solo especies de mi zona»: las especies sin registros en la celda se excluyen en vez de penalizarse. */
+  const [isOnlyLocalSpecies, setIsOnlyLocalSpecies] = useState(true);
+  const outOfAreaHandling: OutOfAreaHandling = isOnlyLocalSpecies ? 'exclude' : 'penalize';
   const [filterLocation, setFilterLocation] = useState<RoundedLocation | null>(null);
   const [currentMonthIndex] = useState(() => new Date().getMonth());
   const { occurrenceState, retryOccurrenceDownload } = useOccurrenceData(installedModel?.manifest ?? null);
@@ -186,10 +194,16 @@ export function WildlifeSoundsScreen({ saveMeasurement }: InstrumentScreenProps<
   const classPenalties: ClassPenalties | null = useMemo(
     () =>
       isFilterApplied && occurrenceData && occurrenceContext && manifest
-        ? computeClassPenalties(occurrenceData, occurrenceContext, manifest.classes)
+        ? computeClassPenalties(occurrenceData, occurrenceContext, manifest.classes, outOfAreaHandling)
         : null,
-    [isFilterApplied, occurrenceData, occurrenceContext, manifest],
+    [isFilterApplied, occurrenceData, occurrenceContext, manifest, outOfAreaHandling],
   );
+  // Mientras se preparan los datos o se espera la ubicación no se avisa de que falta el filtro.
+  const isZoneFilterPending =
+    isOccurrenceFilterEnabled &&
+    isLocationEnabled &&
+    (occurrenceState.status === 'loading' || (occurrenceState.status === 'ready' && !occurrenceContext));
+  const [isShowingDoubtfulCandidates, setIsShowingDoubtfulCandidates] = useState(false);
 
   // --- Tus sonidos ---
   const {
@@ -523,6 +537,18 @@ export function WildlifeSoundsScreen({ saveMeasurement }: InstrumentScreenProps<
     }
   }
 
+  function handleSetVerdict(detectionId: number, userVerdict: DetectionVerdict | null) {
+    // Se marca ya en pantalla; la base de datos y las estadísticas se ponen al día después.
+    setRecentDetections((previousDetections) =>
+      previousDetections.map((detectionRecord) =>
+        detectionRecord.id === detectionId ? { ...detectionRecord, userVerdict } : detectionRecord,
+      ),
+    );
+    void setDetectionVerdict(detectionId, userVerdict)
+      .then(refreshLog)
+      .catch((updateError: unknown) => setStatusMessage(t('core:common.error', { message: String(updateError) })));
+  }
+
   function handleDeleteLogPress() {
     Alert.alert(t('log.deleteTitle'), t('log.deleteMessage', { count: logStatistics?.detectionCount ?? 0 }), [
       { text: t('core:common.cancel'), style: 'cancel' },
@@ -627,6 +653,15 @@ export function WildlifeSoundsScreen({ saveMeasurement }: InstrumentScreenProps<
     if (!occurrenceContext) return { text: t('filter.waitingLocation'), tone: 'secondary' };
     if (occurrenceContext.status === 'outside-grid') return { text: t('filter.outsideGrid'), tone: 'secondary' };
     if (occurrenceContext.status === 'no-cell-data') return { text: t('filter.noCellData'), tone: 'secondary' };
+    if (outOfAreaHandling === 'exclude') {
+      return {
+        text: t('filter.activeExclude', {
+          excluded: classPenalties?.excludedClassCount ?? 0,
+          penalized: classPenalties?.penalizedClassCount ?? 0,
+        }),
+        tone: 'accent',
+      };
+    }
     return { text: t('filter.active', { count: classPenalties?.penalizedClassCount ?? 0 }), tone: 'accent' };
   }
 
@@ -648,11 +683,29 @@ export function WildlifeSoundsScreen({ saveMeasurement }: InstrumentScreenProps<
     downloadProgress && downloadProgress.totalBytes > 0 ? downloadProgress.bytesWritten / downloadProgress.totalBytes : 0;
   const latestWindow = latestAnalysis?.analyzedWindow ?? null;
   const filterStatus = occurrenceFilterStatus();
+  const displayedResults =
+    latestAnalysis && manifest ? selectDisplayedResults(latestAnalysis.topClasses, manifest.classes) : null;
   const customMatching = latestAnalysis?.customMatching ?? null;
   const matchedCustomClasses = customMatching?.classMatches.filter((classMatch) => classMatch.isMatch) ?? [];
   const closestCustomClass = customMatching?.classMatches[0] ?? null;
   const sessionTimelineEnd =
     sessionEndTimestamp ?? latestWindow?.windowEndTimestamp ?? sessionSummary?.sessionStartTimestamp ?? 0;
+
+  function renderClassResultRow(rankedClass: AdjustedRankedClass) {
+    const soundClass = manifest?.classes[rankedClass.classIndex];
+    return soundClass ? (
+      <ClassResultRow
+        key={rankedClass.classIndex}
+        soundClass={soundClass}
+        score={rankedClass.score}
+        displayName={displayNameFor(soundClass, appLocale)}
+        confidenceText={t(`results.confidence.${confidenceLevelFor(rankedClass.score)}`)}
+        scoreText={t('results.score', { score: rankedClass.score.toFixed(1) })}
+        soundKindText={t('results.soundKind')}
+        plausibilityText={plausibilityMarkText(rankedClass)}
+      />
+    ) : null;
+  }
 
   function tabLabel(tab: ScreenTab): string {
     if (tab === 'session' && isSessionListening && sessionDetections.length > 0) return `${t('tabs.session')} ●`;
@@ -761,6 +814,17 @@ export function WildlifeSoundsScreen({ saveMeasurement }: InstrumentScreenProps<
                 trackColor={{ true: themePalette.accent, false: themePalette.border }}
               />
             </View>
+            {isOccurrenceFilterEnabled ? (
+              <View style={styles.switchRow}>
+                <BodyText style={styles.switchLabel}>{t('filter.onlyLocal')}</BodyText>
+                <Switch
+                  value={isOnlyLocalSpecies}
+                  onValueChange={setIsOnlyLocalSpecies}
+                  accessibilityLabel={t('filter.onlyLocal')}
+                  trackColor={{ true: themePalette.accent, false: themePalette.border }}
+                />
+              </View>
+            ) : null}
             <BodyText tone={filterStatus.tone} style={styles.smallText}>
               {filterStatus.text}
             </BodyText>
@@ -771,6 +835,33 @@ export function WildlifeSoundsScreen({ saveMeasurement }: InstrumentScreenProps<
               <AppButton label={t('filter.retry')} variant="secondary" onPress={retryOccurrenceDownload} />
             ) : null}
           </Card>
+
+          {classifier && !isFilterApplied && !isZoneFilterPending ? (
+            <Card>
+              <BodyText tone="danger" style={styles.emphasis}>
+                {t('zoneWarning.title')}
+              </BodyText>
+              <BodyText tone="secondary">{t('zoneWarning.text')}</BodyText>
+              <BodyText tone="secondary" style={styles.smallText}>
+                {filterStatus.text}
+              </BodyText>
+              {!isLocationEnabled ? (
+                <AppButton
+                  label={t('zoneWarning.enableLocation')}
+                  variant="secondary"
+                  onPress={() => void handleLocationToggle(true)}
+                />
+              ) : !isOccurrenceFilterEnabled ? (
+                <AppButton
+                  label={t('zoneWarning.enableFilter')}
+                  variant="secondary"
+                  onPress={() => setIsOccurrenceFilterEnabled(true)}
+                />
+              ) : occurrenceState.status === 'unavailable' ? (
+                <AppButton label={t('filter.retry')} variant="secondary" onPress={retryOccurrenceDownload} />
+              ) : null}
+            </Card>
+          ) : null}
 
           {classifier ? (
             <>
@@ -840,21 +931,46 @@ export function WildlifeSoundsScreen({ saveMeasurement }: InstrumentScreenProps<
                       <BodyText tone="danger">{t('results.humanVoice')}</BodyText>
                     ) : (
                       <>
-                        {latestAnalysis.topClasses.map((rankedClass) => {
-                          const soundClass = manifest.classes[rankedClass.classIndex];
-                          return soundClass ? (
-                            <ClassResultRow
-                              key={rankedClass.classIndex}
-                              soundClass={soundClass}
-                              score={rankedClass.score}
-                              displayName={displayNameFor(soundClass, appLocale)}
-                              confidenceText={t(`results.confidence.${confidenceLevelFor(rankedClass.score)}`)}
-                              scoreText={t('results.score', { score: rankedClass.score.toFixed(1) })}
-                              soundKindText={t('results.soundKind')}
-                              plausibilityText={plausibilityMarkText(rankedClass)}
-                            />
-                          ) : null;
-                        })}
+                        {displayedResults?.shownSpecies.map(renderClassResultRow)}
+                        {displayedResults && displayedResults.shownSpecies.length === 0 ? (
+                          <BodyText style={styles.emphasis}>{t('results.notClear')}</BodyText>
+                        ) : null}
+                        {displayedResults && displayedResults.alsoHeardSounds.length > 0 ? (
+                          <BodyText tone="secondary">
+                            {t('results.alsoHeard', {
+                              sounds: displayedResults.alsoHeardSounds
+                                .map((rankedClass) => {
+                                  const soundClass = manifest.classes[rankedClass.classIndex];
+                                  return soundClass ? displayNameFor(soundClass, appLocale) : '';
+                                })
+                                .filter((soundName) => soundName !== '')
+                                .join(', '),
+                            })}
+                          </BodyText>
+                        ) : null}
+                        {displayedResults && displayedResults.doubtfulSpecies.length > 0 ? (
+                          <>
+                            <Pressable
+                              accessibilityRole="button"
+                              accessibilityState={{ expanded: isShowingDoubtfulCandidates }}
+                              onPress={() => setIsShowingDoubtfulCandidates((wasShowing) => !wasShowing)}
+                              hitSlop={6}>
+                              <BodyText tone="accent" style={styles.smallText}>
+                                {t(isShowingDoubtfulCandidates ? 'results.hideDoubtful' : 'results.showDoubtful', {
+                                  count: displayedResults.doubtfulSpecies.length,
+                                })}
+                              </BodyText>
+                            </Pressable>
+                            {isShowingDoubtfulCandidates ? (
+                              <View style={styles.doubtfulList}>
+                                <BodyText tone="secondary" style={styles.smallText}>
+                                  {t('results.doubtfulHelp', { possible: possibleMinimumScore, margin: relativeMarginScore })}
+                                </BodyText>
+                                {displayedResults.doubtfulSpecies.map(renderClassResultRow)}
+                              </View>
+                            ) : null}
+                          </>
+                        ) : null}
                         {latestAnalysis.loggingDecision.kind === 'log' && !isEnrollmentOnly ? (
                           <BodyText tone="accent">{t('results.logged')}</BodyText>
                         ) : null}
@@ -879,7 +995,8 @@ export function WildlifeSoundsScreen({ saveMeasurement }: InstrumentScreenProps<
                 </>
               )}
               <BodyText tone="secondary" style={styles.smallText}>
-                {t('results.scoreHelp', { possible: possibleMinimumScore, probable: probableMinimumScore })}
+                {t('results.scoreHelp', { possible: possibleMinimumScore, probable: probableMinimumScore })}{' '}
+                {t('results.selectionHelp', { margin: relativeMarginScore })}
               </BodyText>
               {latestWindow && latestAnalysis?.loggingDecision.kind !== 'human-voice' ? (
                 <>
@@ -962,6 +1079,7 @@ export function WildlifeSoundsScreen({ saveMeasurement }: InstrumentScreenProps<
           commonNameForLabel={commonNameForLabel}
           onExport={(exportKind) => void handleExport(exportKind)}
           onDelete={handleDeleteLogPress}
+          onSetVerdict={handleSetVerdict}
         />
       ) : null}
 
@@ -1044,6 +1162,7 @@ const styles = StyleSheet.create({
   barTrack: { height: 6, borderRadius: 3, overflow: 'hidden' },
   barFill: { height: 6, borderRadius: 3 },
   resultRow: { gap: 2, paddingVertical: 4 },
+  doubtfulList: { opacity: 0.75 },
   resultHeader: { flexDirection: 'row', alignItems: 'baseline', gap: 8 },
   resultName: { flex: 1, fontWeight: '600' },
   resultScore: { fontSize: 13, fontVariant: ['tabular-nums'] },

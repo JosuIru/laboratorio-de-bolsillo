@@ -63,10 +63,16 @@
     "customTitle": "Tus sonidos",
     "similarity": "similitud {{similarity}}",
     "customNone": "Ninguno reconocido (el más parecido: {{name}}, {{similarity}}).",
-    "customBeatenByBackground": "{{name}} ({{similarity}}) se parece todavía más al fondo grabado: no se da por reconocido."
+    "customBeatenByBackground": "{{name}} ({{similarity}}) se parece todavía más al fondo grabado: no se da por reconocido.",
+    "notClear": "No se reconoce con claridad ninguna especie.",
+    "alsoHeard": "También se oye: {{sounds}}.",
+    "showDoubtful": "Ver candidatas dudosas ({{count}})",
+    "hideDoubtful": "Ocultar las candidatas dudosas",
+    "doubtfulHelp": "Tienen menos de {{possible}} puntos o quedan a {{margin}} puntos o más de la primera: lo más probable es que no estén.",
+    "selectionHelp": "Como resultado solo se muestran las especies que llegan a «posible» y quedan a menos de {{margin}} puntos de la primera."
   },
   "log": {
-    "explanation": "Se apunta cada trozo en el que una especie llega a «posible» o se reconoce uno de tus sonidos: hora, especies con su puntuación del modelo, versión del modelo y el embedding (1536 números que resumen el sonido, útiles para entrenar o comparar con IA). No se guarda audio.",
+    "explanation": "Se apunta cada trozo en el que una especie se muestra como resultado (llega a «posible» y, si el filtro está activo, es de tu zona) o se reconoce uno de tus sonidos: hora, especies con su puntuación del modelo, versión del modelo y el embedding (1536 números que resumen el sonido, útiles para entrenar o comparar con IA). No se guarda audio.",
     "useLocation": "Guardar la ubicación aproximada",
     "useLocationHelp": "Redondeada a 0,01° (≈1 km). Se guarda con cada detección y sirve para el filtro por lugar.",
     "locationDenied": "Sin permiso de ubicación: las detecciones se guardan sin coordenadas.",
@@ -79,7 +85,13 @@
     "delete": "Borrar el registro",
     "deleteTitle": "¿Borrar el registro?",
     "deleteMessage": "Se borrarán {{count}} detecciones. No se puede deshacer.",
-    "saveError": "No se ha podido guardar la detección: {{message}}"
+    "saveError": "No se ha podido guardar la detección: {{message}}",
+    "verdictHelp": "Marca con ✓ o ✗ si la detección era correcta: se exporta con el registro y sirve para ajustar los umbrales.",
+    "verdictStatistics": "revisadas: {{correct}} ✓, {{incorrect}} ✗",
+    "verdict": {
+      "correct": "Marcar como correcta",
+      "incorrect": "Marcar como incorrecta"
+    }
   },
   "session": {
     "summary": "{{windows}} trozos analizados · {{logged}} apuntados · {{voice}} descartados por voz humana",
@@ -107,7 +119,7 @@
   "filter": {
     "title": "Ubicación y filtro por lugar y época",
     "enable": "Filtrar por lugar y época",
-    "help": "Resta {{areaPenalty}} puntos a las especies sin registros por tu zona y {{seasonPenalty}} a las que casi no se oyen este mes, y reordena los resultados. No quita ninguna. Los sonidos generales no se filtran.",
+    "help": "Con «Solo especies de mi zona», las especies sin registros por tu zona no se muestran; sin él, se les restan {{areaPenalty}} puntos. A las que casi no se oyen este mes se les restan {{seasonPenalty}}, y los resultados se reordenan. Los sonidos generales no se filtran.",
     "off": "Filtro desactivado.",
     "needsLocation": "Para filtrar hace falta la ubicación aproximada: sin ella, el filtro no se aplica.",
     "needsModel": "El filtro se descarga con el modelo.",
@@ -121,7 +133,9 @@
     "active_other": "Filtro activo: {{count}} especies penalizadas aquí y este mes.",
     "markUnlikelyHere": "improbable aquí",
     "markOffSeason": "rara en esta época",
-    "modelScore": "modelo: {{score}}"
+    "modelScore": "modelo: {{score}}",
+    "onlyLocal": "Solo especies de mi zona",
+    "activeExclude": "Filtro activo: {{excluded}} especies descartadas por no ser de tu zona y {{penalized}} penalizadas por ser raras este mes."
   },
   "sessionList": {
     "notStarted": "Empieza a escuchar para ver aquí la lista de la sesión y su línea de tiempo.",
@@ -178,5 +192,11 @@
     "rejectedVoice": "Se ha oído voz humana: el ejemplo no se ha guardado. Prueba otra vez sin hablar.",
     "saved": "Ejemplo guardado en «{{name}}».",
     "savedQuiet": "Ejemplo guardado en «{{name}}», pero apenas se oía nada: quizá convenga repetirlo más cerca."
+  },
+  "zoneWarning": {
+    "title": "Sin filtro por zona",
+    "text": "Pueden aparecer especies que no viven por aquí: es la causa principal de resultados extraños. Con la ubicación aproximada, solo se muestran las especies registradas en tu zona.",
+    "enableLocation": "Activar la ubicación",
+    "enableFilter": "Activar el filtro"
   }
 }

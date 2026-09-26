@@ -4,20 +4,34 @@ import type { SoundClass } from './modelManifest';
 
 /**
  * Filtro por lugar y época: con los registros de presencia de cada especie en una rejilla de
- * Europa y su actividad por meses (fauna-occurrence-*.json, en la release del modelo), baja la
- * puntuación de las especies que no se han visto por la zona o que casi no se oyen en este mes.
- * No quita ninguna: solo las penaliza, y el top se reordena con las puntuaciones corregidas.
- * Los sonidos generales (lluvia, perros, coches…) no se tocan. Sin React ni ficheros.
+ * Europa y su actividad por meses (fauna-occurrence-*.json, en la release del modelo), trata
+ * aparte las especies que no se han visto por la zona o que casi no se oyen en este mes:
+ * - Fuera de la zona: con «Solo especies de mi zona» (lo normal) se excluyen del todo; si no,
+ *   se penalizan con `outOfAreaPenalty`.
+ * - Fuera de temporada: siempre se penalizan con `offSeasonPenalty` (una migradora temprana es
+ *   posible; una especie que no vive aquí, mucho menos).
+ * El top se reordena con las puntuaciones corregidas. Los sonidos generales (lluvia, perros,
+ * coches…) no se tocan. Sin React ni ficheros.
  */
 
 // --- Penalizaciones (en unidades de logit, las mismas que la puntuación) ---
 
 /**
- * Especie sin registros en la celda ni en sus vecinas. 4 puntos bastan para que un «probable»
- * justo (10) baje a «dudoso» (6), pero una detección muy clara (≥ 11) sigue llegando a
- * «posible»: una especie rara o de paso no desaparece del todo.
+ * Especie sin registros en la celda ni en sus vecinas, cuando no se excluye. Antes era 4, pero
+ * con 4 una confusión del modelo de 11-12 (frecuentes con especies parecidas) seguía llegando a
+ * «posible», y eso era buena parte de las «especies extrañas». Con 6, solo una detección muy
+ * clara (≥ 13, como los aciertos nítidos de las pruebas) llega a «posible»: una especie rara o
+ * de paso no desaparece del todo, pero hace falta que el modelo esté muy seguro.
  */
-export const outOfAreaPenalty = 4;
+export const outOfAreaPenalty = 6;
+/**
+ * «Penalización» de una especie excluida: con infinito, su puntuación corregida deja de ser
+ * finita y la ordenación la salta (no aparece ni entre las dudosas).
+ */
+export const excludedSpeciesPenalty = Number.POSITIVE_INFINITY;
+
+/** Qué hacer con las especies sin registros en la zona. */
+export type OutOfAreaHandling = 'exclude' | 'penalize';
 /** Especie de la zona, pero en un mes en el que apenas se registra (migradoras, invernantes). */
 export const offSeasonPenalty = 2;
 /**
@@ -184,7 +198,11 @@ export function speciesPlausibility(
   return { isUnlikelyHere, isOffSeason };
 }
 
-export function plausibilityPenalty(plausibility: SpeciesPlausibility): number {
+export function plausibilityPenalty(
+  plausibility: SpeciesPlausibility,
+  outOfAreaHandling: OutOfAreaHandling = 'penalize',
+): number {
+  if (plausibility.isUnlikelyHere && outOfAreaHandling === 'exclude') return excludedSpeciesPenalty;
   return (plausibility.isUnlikelyHere ? outOfAreaPenalty : 0) + (plausibility.isOffSeason ? offSeasonPenalty : 0);
 }
 
@@ -192,6 +210,9 @@ export function plausibilityPenalty(plausibility: SpeciesPlausibility): number {
 export interface ClassPenalties {
   penaltyByClassIndex: Float32Array;
   plausibilityByClassIndex: Map<number, SpeciesPlausibility>;
+  /** Especies excluidas por no ser de la zona (solo con `outOfAreaHandling = 'exclude'`). */
+  excludedClassCount: number;
+  /** Especies penalizadas, sin contar las excluidas. */
   penalizedClassCount: number;
 }
 
@@ -203,18 +224,26 @@ export function computeClassPenalties(
   occurrenceData: OccurrenceData,
   occurrenceContext: OccurrenceContext,
   classes: readonly SoundClass[],
+  outOfAreaHandling: OutOfAreaHandling = 'penalize',
 ): ClassPenalties {
   const penaltyByClassIndex = new Float32Array(classes.length);
   const plausibilityByClassIndex = new Map<number, SpeciesPlausibility>();
+  let excludedClassCount = 0;
   classes.forEach((soundClass, classIndex) => {
     if (soundClass.kind !== 'species') return;
     const plausibility = speciesPlausibility(occurrenceData, occurrenceContext, soundClass.label);
-    const penalty = plausibilityPenalty(plausibility);
+    const penalty = plausibilityPenalty(plausibility, outOfAreaHandling);
     if (penalty === 0) return;
+    if (penalty === excludedSpeciesPenalty) excludedClassCount++;
     penaltyByClassIndex[classIndex] = penalty;
     plausibilityByClassIndex.set(classIndex, plausibility);
   });
-  return { penaltyByClassIndex, plausibilityByClassIndex, penalizedClassCount: plausibilityByClassIndex.size };
+  return {
+    penaltyByClassIndex,
+    plausibilityByClassIndex,
+    excludedClassCount,
+    penalizedClassCount: plausibilityByClassIndex.size - excludedClassCount,
+  };
 }
 
 /** Clase del top con la puntuación corregida (`score`) y la del modelo (`rawScore`). */
@@ -225,8 +254,8 @@ export interface AdjustedRankedClass extends RankedClass {
 }
 
 /**
- * Las `resultCount` mejores clases tras restar las penalizaciones. Con `classPenalties = null`
- * (filtro apagado) es igual que ordenar por la puntuación del modelo.
+ * Las `resultCount` mejores clases tras restar las penalizaciones (las excluidas no aparecen).
+ * Con `classPenalties = null` (filtro apagado) es igual que ordenar por la puntuación del modelo.
  */
 export function rankClassesWithPenalties(
   logits: ArrayLike<number>,

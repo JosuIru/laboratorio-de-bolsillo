@@ -63,10 +63,16 @@
     "customTitle": "Zure soinuak",
     "similarity": "antzekotasuna: {{similarity}}",
     "customNone": "Ez da bat ere ezagutu (antzekoena: {{name}}, {{similarity}}).",
-    "customBeatenByBackground": "{{name}} ({{similarity}}): grabatutako hondoaren antz handiagoa du; ez da ezagututzat ematen."
+    "customBeatenByBackground": "{{name}} ({{similarity}}): grabatutako hondoaren antz handiagoa du; ez da ezagututzat ematen.",
+    "notClear": "Ez da espezierik argi ezagutzen.",
+    "alsoHeard": "Hau ere entzuten da: {{sounds}}.",
+    "showDoubtful": "Ikusi zalantzazko hautagaiak ({{count}})",
+    "hideDoubtful": "Ezkutatu zalantzazko hautagaiak",
+    "doubtfulHelp": "{{possible}} puntu baino gutxiago dituzte, edo lehenengotik {{margin}} puntura edo urrunago daude: seguruenik ez dira.",
+    "selectionHelp": "Emaitza gisa, «posiblea» mailara iristen diren eta lehenengotik {{margin}} puntu baino gutxiagora dauden espezieak bakarrik erakusten dira."
   },
   "log": {
-    "explanation": "Espezie batek «posiblea» maila lortzen duen edo zure soinuetako bat ezagutzen den zati bakoitza idazten da: ordua, espezieak ereduaren puntuazioarekin, ereduaren bertsioa eta embeddinga (soinua laburtzen duten 1536 zenbaki, AArekin entrenatzeko edo alderatzeko baliagarriak). Ez da audiorik gordetzen.",
+    "explanation": "Espezie bat emaitza gisa erakusten den (hau da, «posiblea» mailara iristen den eta, iragazkia aktibo badago, zure ingurukoa den) edo zure soinuetako bat ezagutzen den zati bakoitza idazten da: ordua, espezieak ereduaren puntuazioarekin, ereduaren bertsioa eta embeddinga (soinua laburtzen duten 1536 zenbaki, AArekin entrenatzeko edo alderatzeko baliagarriak). Ez da audiorik gordetzen.",
     "useLocation": "Gorde gutxi gorabeherako kokapena",
     "useLocationHelp": "0,01 gradura biribilduta (≈1 km). Detekzio bakoitzarekin gordetzen da, eta tokiaren araberako iragazkirako balio du.",
     "locationDenied": "Kokapen-baimenik ez dago: detekzioak koordenaturik gabe gordetzen dira.",
@@ -79,7 +85,13 @@
     "delete": "Ezabatu erregistroa",
     "deleteTitle": "Erregistroa ezabatu?",
     "deleteMessage": "{{count}} detekzio ezabatuko dira. Ezin da desegin.",
-    "saveError": "Ezin izan da detekzioa gorde: {{message}}"
+    "saveError": "Ezin izan da detekzioa gorde: {{message}}",
+    "verdictHelp": "Markatu ✓ edo ✗ detekzioa zuzena zen ala ez: erregistroarekin batera esportatzen da, eta atalaseak doitzeko balio du.",
+    "verdictStatistics": "berrikusita: {{correct}} ✓, {{incorrect}} ✗",
+    "verdict": {
+      "correct": "Markatu zuzen gisa",
+      "incorrect": "Markatu oker gisa"
+    }
   },
   "session": {
     "summary": "{{windows}} zati aztertuta · {{logged}} idatzita · {{voice}} baztertuta giza ahotsagatik",
@@ -107,7 +119,7 @@
   "filter": {
     "title": "Kokapena eta tokiaren eta garaiaren araberako iragazkia",
     "enable": "Iragazi tokiaren eta garaiaren arabera",
-    "help": "{{areaPenalty}} puntu kentzen dizkie zure inguruan erregistrorik ez duten espezieei, eta {{seasonPenalty}} hilabete honetan ia entzuten ez direnei, eta emaitzak berriro ordenatzen ditu. Ez du bat ere kentzen. Soinu orokorrak ez dira iragazten.",
+    "help": "«Nire inguruko espezieak bakarrik» aktibatuta, zure inguruan erregistrorik ez duten espezieak ez dira erakusten; hura gabe, {{areaPenalty}} puntu kentzen zaizkie. Hilabete honetan ia entzuten ez direnei {{seasonPenalty}} puntu kentzen zaizkie, eta emaitzak berriro ordenatzen dira. Soinu orokorrak ez dira iragazten.",
     "off": "Iragazkia desaktibatuta dago.",
     "needsLocation": "Iragazteko, gutxi gorabeherako kokapena behar da: hura gabe, iragazkia ez da aplikatzen.",
     "needsModel": "Iragazkia ereduarekin batera deskargatzen da.",
@@ -121,7 +133,9 @@
     "active_other": "Iragazkia aktibo dago: {{count}} espezie zigortuta hemen eta hilabete honetan.",
     "markUnlikelyHere": "nekez hemen",
     "markOffSeason": "arraroa garai honetan",
-    "modelScore": "eredua: {{score}}"
+    "modelScore": "eredua: {{score}}",
+    "onlyLocal": "Nire inguruko espezieak bakarrik",
+    "activeExclude": "Iragazkia aktibo dago: {{excluded}} espezie baztertuta zure ingurukoak ez direlako, eta {{penalized}} zigortuta hilabete honetan arraroak direlako."
   },
   "sessionList": {
     "notStarted": "Hasi entzuten saioaren zerrenda eta denbora-lerroa hemen ikusteko.",
@@ -178,5 +192,11 @@
     "rejectedVoice": "Giza ahotsa entzun da: adibidea ez da gorde. Saiatu berriro hitz egin gabe.",
     "saved": "Adibidea «{{name}}» klasean gorde da.",
     "savedQuiet": "Adibidea «{{name}}» klasean gorde da, baina ia ez zen ezer entzuten: agian hobe da hurbilago errepikatzea."
+  },
+  "zoneWarning": {
+    "title": "Inguruaren araberako iragazkirik gabe",
+    "text": "Hemen bizi ez diren espezieak ager daitezke: horixe da emaitza arraroen arrazoi nagusia. Gutxi gorabeherako kokapenarekin, zure inguruan erregistratutako espezieak bakarrik erakusten dira.",
+    "enableLocation": "Aktibatu kokapena",
+    "enableFilter": "Aktibatu iragazkia"
   }
 }

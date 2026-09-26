@@ -1,4 +1,4 @@
-import { possibleMinimumScore, type RankedClass } from './classification';
+import { type RankedClass, selectDisplayedResults } from './classification';
 import type { SoundClass } from './modelManifest';
 
 /**
@@ -34,8 +34,9 @@ export function appendSessionDetections(
 }
 
 /**
- * Detecciones de una ventana: las especies del top que llegan a «posible» (con la puntuación ya
- * corregida por el filtro de lugar y época) y las clases propias reconocidas. Las ventanas con
+ * Detecciones de una ventana: las especies que se muestran como resultado (umbral «posible» y
+ * margen relativo, con la puntuación ya corregida por el filtro de zona; ver
+ * `selectDisplayedResults`) y las clases propias reconocidas. Las ventanas con
  * voz humana no cuentan (se pasan `humanVoice = true`).
  */
 export function sessionDetectionsForWindow(
@@ -47,9 +48,8 @@ export function sessionDetectionsForWindow(
 ): SessionDetection[] {
   if (hasHumanVoice) return [];
   const windowDetections: SessionDetection[] = [];
-  for (const rankedClass of topClasses) {
-    const soundClass = classes[rankedClass.classIndex];
-    if (soundClass?.kind !== 'species' || rankedClass.score < possibleMinimumScore) continue;
+  for (const rankedClass of selectDisplayedResults(topClasses, classes).shownSpecies) {
+    const soundClass = classes[rankedClass.classIndex]!;
     windowDetections.push({ label: soundClass.label, isCustomClass: false, timestamp: windowEndTimestamp, score: rankedClass.score });
   }
   for (const customMatch of matchedCustomClassNames) {

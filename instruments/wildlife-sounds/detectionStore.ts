@@ -1,6 +1,12 @@
 import { openDatabaseAsync, type SQLiteDatabase } from 'expo-sqlite';
 
-import { type DetectionRecord, type DetectionRow, type NewDetectionRecord, rowToDetectionRecord } from './detectionLog';
+import {
+  type DetectionRecord,
+  type DetectionRow,
+  type DetectionVerdict,
+  type NewDetectionRecord,
+  rowToDetectionRecord,
+} from './detectionLog';
 
 /**
  * Base de datos propia del instrumento (la del núcleo solo guarda mediciones y calibraciones y
@@ -42,6 +48,10 @@ const schemaStatements: readonly string[] = [
     embedding BLOB NOT NULL
   );
   CREATE INDEX IF NOT EXISTS custom_sound_examples_by_class ON custom_sound_examples (class_id);
+  `,
+  // 3: revisión del usuario de cada detección ('correct', 'incorrect' o NULL si no la ha revisado).
+  `
+  ALTER TABLE detections ADD COLUMN user_verdict TEXT;
   `,
 ];
 
@@ -92,21 +102,38 @@ export async function insertDetection(newRecord: NewDetectionRecord): Promise<vo
   );
 }
 
+/** Marca una detección como correcta o incorrecta; `null` quita la marca. */
+export async function setDetectionVerdict(detectionId: number, userVerdict: DetectionVerdict | null): Promise<void> {
+  const database = await getDetectionDatabase();
+  await database.runAsync('UPDATE detections SET user_verdict = ? WHERE id = ?', [userVerdict, detectionId]);
+}
+
 export interface DetectionStatistics {
   detectionCount: number;
   distinctSpeciesCount: number;
+  correctCount: number;
+  incorrectCount: number;
 }
 
 export async function readDetectionStatistics(): Promise<DetectionStatistics> {
   const database = await getDetectionDatabase();
-  const statisticsRow = await database.getFirstAsync<{ detection_count: number; distinct_species_count: number }>(
+  const statisticsRow = await database.getFirstAsync<{
+    detection_count: number;
+    distinct_species_count: number;
+    correct_count: number | null;
+    incorrect_count: number | null;
+  }>(
     `SELECT COUNT(*) AS detection_count,
-            COUNT(DISTINCT CASE WHEN is_custom_class = 0 THEN species_label END) AS distinct_species_count
+            COUNT(DISTINCT CASE WHEN is_custom_class = 0 THEN species_label END) AS distinct_species_count,
+            SUM(CASE WHEN user_verdict = 'correct' THEN 1 ELSE 0 END) AS correct_count,
+            SUM(CASE WHEN user_verdict = 'incorrect' THEN 1 ELSE 0 END) AS incorrect_count
        FROM detections`,
   );
   return {
     detectionCount: statisticsRow?.detection_count ?? 0,
     distinctSpeciesCount: statisticsRow?.distinct_species_count ?? 0,
+    correctCount: statisticsRow?.correct_count ?? 0,
+    incorrectCount: statisticsRow?.incorrect_count ?? 0,
   };
 }
 
