@@ -1,7 +1,7 @@
 import { type RefObject, useEffect } from 'react';
 import { type AudioBuffer, AudioContext } from 'react-native-audio-api';
 
-import { useIsAppActive } from '@/core/useIsAppActive';
+import { useIsScreenActive } from '@/core/useIsScreenActive';
 
 import { synthesizeHat, synthesizeKick, synthesizeNote, synthesizeSnare } from './drumSynth';
 import { generateBar, type GrooveEvent, sixteenthSeconds, stepsPerBar } from './grooveGenerator';
@@ -37,8 +37,8 @@ export function useGroovePlayer({
   grooveSettingsRef: RefObject<GrooveSettings>;
   seed: number;
 }) {
-  const isAppActive = useIsAppActive();
-  const shouldPlay = isPlaying && isAppActive;
+  const isScreenActive = useIsScreenActive();
+  const shouldPlay = isPlaying && isScreenActive;
 
   useEffect(() => {
     if (!shouldPlay) return;
