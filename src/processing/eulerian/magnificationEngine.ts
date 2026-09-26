@@ -82,6 +82,11 @@ export interface MagnificationEngine {
   estimateFrequency(): DominantFrequencyEstimate | null;
   /** Segundos de historia válida para la medida y los que pide la ventana. */
   measurementProgress(): { storedSeconds: number; windowSeconds: number };
+  /**
+   * Vacía la ventana de medida (p. ej. si el móvil se ha movido) sin tocar la vista amplificada:
+   * se vuelve a esperar a que el filtro se asiente antes de guardar valores.
+   */
+  restartMeasurementWindow(): void;
   reset(): void;
 }
 
@@ -93,6 +98,8 @@ export function createMagnificationEngine(initialSettings: MagnificationSettings
   let filterCreationTimeSeconds = 0;
   let regionHistory: RegionHistory | null = null;
   let isBandAboveFrameRate = false;
+  /** El próximo fotograma cuenta como el de creación del filtro (transitorio del movimiento). */
+  let isMeasurementRestartPending = false;
 
   function ensureFilter(gridFrame: GridFrame, framesPerSecond: number, currentTimeSeconds: number) {
     const valueCount = gridFrame.levelWidth * gridFrame.levelHeight * gridFrame.levelChannelCount;
@@ -154,6 +161,12 @@ export function createMagnificationEngine(initialSettings: MagnificationSettings
       }
 
       filterPixelFrame(bandpassFilter, gridFrame.levelPixels, filteredLevel);
+
+      if (isMeasurementRestartPending) {
+        isMeasurementRestartPending = false;
+        filterCreationTimeSeconds = currentTimeSeconds;
+        if (regionHistory) clearRegionHistory(regionHistory);
+      }
 
       if (currentTimeSeconds - filterCreationTimeSeconds >= filterSettlingSeconds) {
         const measuredChannelIndex = gridFrame.levelChannelCount === 3 ? 1 : 0;
@@ -241,7 +254,13 @@ export function createMagnificationEngine(initialSettings: MagnificationSettings
       };
     },
 
+    restartMeasurementWindow() {
+      isMeasurementRestartPending = true;
+      if (regionHistory) clearRegionHistory(regionHistory);
+    },
+
     reset() {
+      isMeasurementRestartPending = false;
       frameClock.reset();
       bandpassFilter = null;
       filteredLevel = null;

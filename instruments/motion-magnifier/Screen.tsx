@@ -139,7 +139,7 @@ export function MotionMagnifierScreen({
   const cameraDevice = useCameraDevice(cameraPosition);
   const isCameraAllowed = useIsCameraAllowed();
   const hasGyroscope = sensorAvailability.gyroscope.status === 'available';
-  const { isSteadyForDisplay } = useDeviceSteadiness(isCameraAllowed, hasGyroscope);
+  const { isDeviceSteady, isSteadyForDisplay } = useDeviceSteadiness(isCameraAllowed, hasGyroscope);
 
   const [bandId, setBandId] = useState<MagnificationBandId>('pulse');
   const [vibrationLowCutoffHz, setVibrationLowCutoffHz] = useState(
@@ -203,6 +203,10 @@ export function MotionMagnifierScreen({
 
   const [imageStore] = useState(createDisplayedImageStore);
   const viewModeRef = useRef<ViewMode>(viewMode);
+  const screenModeRef = useRef<ScreenMode>(screenMode);
+  useEffect(() => {
+    screenModeRef.current = screenMode;
+  }, [screenMode]);
   useEffect(() => {
     viewModeRef.current = viewMode;
     if (viewMode === 'camera') imageStore.publish(null);
@@ -212,6 +216,10 @@ export function MotionMagnifierScreen({
   const handleGridFrame = useCallback(
     (gridFrame: DeliveredGridFrame) => {
       const currentViewMode = viewModeRef.current;
+      // Si el móvil se mueve, la ventana de medida queda contaminada: se empieza de nuevo.
+      if (screenModeRef.current === 'measure' && !isDeviceSteady()) {
+        magnificationEngine.restartMeasurementWindow();
+      }
       const processedFrame = magnificationEngine.processFrame(gridFrame, {
         wantsAmplifiedImage: currentViewMode === 'amplified',
         wantsOverlay: currentViewMode === 'overlay',
@@ -253,7 +261,7 @@ export function MotionMagnifierScreen({
           : { frameWidth: gridFrame.frameWidth, frameHeight: gridFrame.frameHeight },
       );
     },
-    [magnificationEngine, imageStore],
+    [magnificationEngine, imageStore, isDeviceSteady],
   );
 
   const frameOutput = useMagnifierFrames(bandPreset.pyramidReductionCount, bandPreset.amplifiedSignal, handleGridFrame);
@@ -330,7 +338,7 @@ export function MotionMagnifierScreen({
     : null;
 
   async function handleSave() {
-    if (!latestEstimate || estimatedRate === null) return;
+    if (!latestEstimate || estimatedRate === null || !isDeviceSteady()) return;
     setIsSaving(true);
     setStatusMessage(null);
     try {
@@ -532,6 +540,7 @@ export function MotionMagnifierScreen({
       {screenMode === 'measure' ? (
         <>
           <BodyText tone="secondary">{t(`measureHints.${bandId}`)}</BodyText>
+          {!isSteadyForDisplay ? <BodyText tone="danger">{t('measurementRestartedByMovement')}</BodyText> : null}
           <Card style={styles.centeredCard}>
             <BodyText tone="secondary">{t(`measuredQuantity.${bandId}`)}</BodyText>
             <BodyText style={styles.rateValue}>
@@ -571,7 +580,7 @@ export function MotionMagnifierScreen({
             label={t('core:common.save')}
             onPress={() => void handleSave()}
             isBusy={isSaving}
-            isDisabled={!latestEstimate}
+            isDisabled={!latestEstimate || !isSteadyForDisplay}
           />
         </>
       ) : null}

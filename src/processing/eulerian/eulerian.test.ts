@@ -411,6 +411,41 @@ describe('motor de amplificación', () => {
     expect(magnificationEngine.measurementProgress().storedSeconds).toBeCloseTo(preset.measurementWindowSeconds, 0);
   });
 
+  it('al reiniciar la ventana de medida la vacía y espera a que el filtro se asiente', () => {
+    const preset = magnificationBandPresets.pulse;
+    const magnificationEngine = createMagnificationEngine({
+      lowCutoffHz: preset.defaultLowCutoffHz,
+      highCutoffHz: preset.defaultHighCutoffHz,
+      amplifiedSignal: preset.amplifiedSignal,
+      amplificationFactor: 50,
+      maximumAddedLevels: preset.maximumAddedLevels,
+      measurementWindowSeconds: preset.measurementWindowSeconds,
+      pixelCombination: preset.pixelCombination,
+    });
+    const generateNoise = createNoiseGenerator(5);
+    const outputRequest = { wantsAmplifiedImage: false, wantsOverlay: false };
+    let frameIndex = 0;
+    for (; frameIndex < 30 * 20; frameIndex++) {
+      magnificationEngine.processFrame(createSyntheticPulseFrame(frameIndex, generateNoise), outputRequest);
+    }
+    expect(magnificationEngine.estimateFrequency()).not.toBeNull();
+
+    magnificationEngine.restartMeasurementWindow();
+    expect(magnificationEngine.measurementProgress().storedSeconds).toBe(0);
+    expect(magnificationEngine.estimateFrequency()).toBeNull();
+    // Durante el asentamiento (2 s) no se guarda nada, aunque la vista siga funcionando.
+    for (const lastFrameIndex = frameIndex + 30; frameIndex < lastFrameIndex; frameIndex++) {
+      expect(
+        magnificationEngine.processFrame(createSyntheticPulseFrame(frameIndex, generateNoise), outputRequest).status,
+      ).toBe('running');
+    }
+    expect(magnificationEngine.measurementProgress().storedSeconds).toBe(0);
+    for (const lastFrameIndex = frameIndex + 30 * 20; frameIndex < lastFrameIndex; frameIndex++) {
+      magnificationEngine.processFrame(createSyntheticPulseFrame(frameIndex, generateNoise), outputRequest);
+    }
+    expect(magnificationEngine.estimateFrequency()!.frequencyHz * 60).toBeCloseTo(72, -1);
+  });
+
   it('avisa si la banda no cabe con la cadencia de la cámara', () => {
     const magnificationEngine = createMagnificationEngine({
       lowCutoffHz: 14,
