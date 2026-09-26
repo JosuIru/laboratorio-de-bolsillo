@@ -1,4 +1,6 @@
 import {
+  magneticDeclinationFromHeadings,
+  trueToMagneticAzimuth,
   cameraPointingFromAxes,
   computePointingGuidance,
   type DeviceVector,
@@ -130,5 +132,24 @@ describe('suavizado', () => {
   it('se acerca a la nueva muestra según el factor', () => {
     expect(smoothVector(null, { x: 1, y: 2, z: 3 }, 0.2)).toEqual({ x: 1, y: 2, z: 3 });
     expect(smoothVector({ x: 0, y: 0, z: 0 }, { x: 10, y: -10, z: 5 }, 0.2)).toEqual({ x: 2, y: -2, z: 1 });
+  });
+});
+
+describe('declinación magnética', () => {
+  it('sale de la diferencia entre el rumbo geográfico y el magnético', () => {
+    expect(magneticDeclinationFromHeadings(12, 2)).toBeCloseTo(10);
+    expect(magneticDeclinationFromHeadings(355, 5)).toBeCloseTo(-10);
+    expect(magneticDeclinationFromHeadings(5, 355)).toBeCloseTo(10);
+  });
+
+  it('sin rumbo geográfico no hay declinación', () => {
+    expect(magneticDeclinationFromHeadings(-1, 30)).toBeNull();
+  });
+
+  it('pasa el acimut geográfico a magnético', () => {
+    // Declinación de 10° al este: la Luna al sur geográfico (180°) está a 170° en la brújula.
+    expect(trueToMagneticAzimuth(180, 10)).toBeCloseTo(170);
+    expect(trueToMagneticAzimuth(5, 10)).toBeCloseTo(355);
+    expect(trueToMagneticAzimuth(355, -10)).toBeCloseTo(5);
   });
 });

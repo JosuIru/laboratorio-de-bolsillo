@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react';
+import * as Location from 'expo-location';
+import { useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 
 import { accelerometerSource, magnetometerSource } from '@/core/sensors/adapters/motionAndEnvironment';
@@ -8,8 +9,10 @@ import type { HorizontalPosition } from '@/processing/astronomy/moonEphemeris';
 import {
   computePointingGuidance,
   type DeviceVector,
+  magneticDeclinationFromHeadings,
   type PointingGuidance,
   smoothVector,
+  trueToMagneticAzimuth,
   worldAxesFromSensors,
 } from '@/processing/astronomy/pointingGuide';
 
@@ -29,6 +32,29 @@ export function useMoonPointingGuide(moonPosition: HorizontalPosition | undefine
   const lastGuidanceUpdateTime = useRef(0);
   const [pointingGuidance, setPointingGuidance] = useState<PointingGuidance | null>(null);
   const isGuideActive = isActive && moonPosition !== undefined;
+  /** Diferencia entre el norte geográfico y el magnético aquí; 0 hasta que el sistema la dé. */
+  const magneticDeclinationDegrees = useRef(0);
+
+  // La brújula del móvil mide desde el norte magnético y las efemérides dan el acimut desde el
+  // geográfico. El sistema calcula la declinación del lugar (necesita permiso de ubicación).
+  useEffect(() => {
+    if (!isGuideActive) return;
+    let headingSubscription: Location.LocationSubscription | null = null;
+    let isEffectActive = true;
+    Location.watchHeadingAsync((heading) => {
+      const declinationDegrees = magneticDeclinationFromHeadings(heading.trueHeading, heading.magHeading);
+      if (declinationDegrees !== null) magneticDeclinationDegrees.current = declinationDegrees;
+    })
+      .then((subscription) => {
+        if (isEffectActive) headingSubscription = subscription;
+        else subscription.remove();
+      })
+      .catch(() => undefined);
+    return () => {
+      isEffectActive = false;
+      headingSubscription?.remove();
+    };
+  }, [isGuideActive]);
 
   function updateGuidance() {
     const currentTime = Date.now();
@@ -37,7 +63,8 @@ export function useMoonPointingGuide(moonPosition: HorizontalPosition | undefine
     const worldAxes = worldAxesFromSensors(smoothedAcceleration.current, smoothedMagneticField.current);
     if (!worldAxes) return;
     lastGuidanceUpdateTime.current = currentTime;
-    setPointingGuidance(computePointingGuidance(worldAxes, moonPosition.azimuthDegrees, moonPosition.altitudeDegrees));
+    const moonMagneticAzimuthDegrees = trueToMagneticAzimuth(moonPosition.azimuthDegrees, magneticDeclinationDegrees.current);
+    setPointingGuidance(computePointingGuidance(worldAxes, moonMagneticAzimuthDegrees, moonPosition.altitudeDegrees));
   }
 
   useSensorSubscription(

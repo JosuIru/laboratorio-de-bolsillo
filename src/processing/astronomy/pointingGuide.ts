@@ -119,3 +119,23 @@ export function smoothVector(previous: DeviceVector | null, sample: DeviceVector
     z: previous.z + smoothingFactor * (sample.z - previous.z),
   };
 }
+
+/**
+ * Declinación magnética (grados, positiva si el norte magnético está al este del geográfico) a
+ * partir de un rumbo del sistema que da los dos nortes. `null` si falta el geográfico (el
+ * sistema da −1 sin permiso de ubicación).
+ */
+export function magneticDeclinationFromHeadings(trueHeadingDegrees: number, magneticHeadingDegrees: number): number | null {
+  if (!Number.isFinite(trueHeadingDegrees) || trueHeadingDegrees < 0 || !Number.isFinite(magneticHeadingDegrees)) return null;
+  const declinationDegrees = (((trueHeadingDegrees - magneticHeadingDegrees) % 360) + 540) % 360 - 180;
+  return declinationDegrees;
+}
+
+/**
+ * Pasa un acimut geográfico (el de las efemérides) a magnético (el de la brújula del móvil).
+ * En España la diferencia es de ~1°, pero en otros lugares llega a 10-20°.
+ */
+export function trueToMagneticAzimuth(trueAzimuthDegrees: number, magneticDeclinationDegrees: number): number {
+  const magneticAzimuthDegrees = (trueAzimuthDegrees - magneticDeclinationDegrees) % 360;
+  return magneticAzimuthDegrees < 0 ? magneticAzimuthDegrees + 360 : magneticAzimuthDegrees;
+}
