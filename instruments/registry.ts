@@ -5,6 +5,7 @@ import { beerWineColorInstrument } from './beer-wine-color';
 import { colorHuntInstrument } from './color-hunt';
 import { colorimeterInstrument } from './colorimeter';
 import { dataSonificationInstrument } from './data-sonification';
+import { earTrainerInstrument } from './ear-trainer';
 import { exampleLevelInstrument } from './example-level';
 import { gnssSkyInstrument } from './gnss-sky';
 import { machineDiagnosisInstrument } from './machine-diagnosis';
@@ -82,6 +83,7 @@ export const instrumentSections: readonly InstrumentSection[] = [
     instruments: [
       colorHuntInstrument,
       singTheNoteInstrument,
+      earTrainerInstrument,
       rhythmInstrument,
       phoneModemInstrument,
       soundLocatorInstrument,

@@ -1,0 +1,90 @@
+{
+  "name": "Entrenatu belarria",
+  "description": "Entzuten zaituzten belarri-ariketak: abestu tarteak eta eskalak (maiorra, minorra, pentatonikoa, hijaz, frigiarra, doriarra) eta aplikazioak esaten dizu asmatu duzun.",
+  "howTo": {
+    "title": "Nola dabil",
+    "intervals": "Nota bat entzuten da. Abestu eskatutako tartera gorago dagoen nota eta eutsi {{seconds}} s. Hamar tarte saio bakoitzean.",
+    "scales": "Tonika entzuten da. Abestu eskala gorantz, notaz nota, bakoitzari {{seconds}} s eutsiz; aplikazioa bera pasatzen da hurrengora."
+  },
+  "exercise": {
+    "title": "Ariketa",
+    "intervals": "Tarteak",
+    "scales": "Eskalak"
+  },
+  "scale": {
+    "title": "Eskala",
+    "major": "Maiorra",
+    "natural-minor": "Minor naturala",
+    "major-pentatonic": "Pentatonikoa",
+    "hijaz": "Hijaz (arabiarra)",
+    "phrygian": "Frigiarra",
+    "dorian": "Doriarra"
+  },
+  "root": {
+    "title": "Tonika"
+  },
+  "difficulty": {
+    "title": "Maila",
+    "easy": "Erraza",
+    "medium": "Ertaina",
+    "hard": "Zaila"
+  },
+  "interval": {
+    "minor-second": "bigarren minorra",
+    "major-second": "bigarren maiorra",
+    "minor-third": "hirugarren minorra",
+    "major-third": "hirugarren maiorra",
+    "perfect-fourth": "laugarren justua",
+    "tritone": "tritonoa",
+    "perfect-fifth": "bosgarren justua",
+    "minor-sixth": "seigarren minorra",
+    "major-sixth": "seigarren maiorra",
+    "minor-seventh": "zazpigarren minorra",
+    "major-seventh": "zazpigarren maiorra"
+  },
+  "prompt": {
+    "interval": "{{interval}} bat",
+    "degree": "{{degree}}. maila"
+  },
+  "fromNote": "{{note}}-ren gainetik",
+  "scaleFrom": "Eskala {{note}}-tik",
+  "stepOf": "{{step}} / {{total}}",
+  "stage": {
+    "listen": "Entzun…",
+    "sing": "Abestu!",
+    "hit": "Ondo! {{note}} zen",
+    "missed": "{{note}} zen"
+  },
+  "anyOctave": "Edozein zortzikotan balio du.",
+  "start": "Hasi",
+  "again": "Berriro",
+  "stop": "Gelditu",
+  "hits": "{{total}}tik {{hits}}",
+  "meanError": "Batez besteko desbideratzea asmatzean: {{cents}} zentimo",
+  "toPractice": "Praktikatzeko: {{steps}}",
+  "microphoneError": "Ezin da mikrofonoa erabili: {{message}}",
+  "privacy": "Soinua mugikorrean aztertzen da eta ez da grabatzen. Hijaz tenperamentu berdinean dago: benetako afinazioak 12 notatan sartzen ez diren tarteak ditu.",
+  "notes": {
+    "0": "Do",
+    "1": "Do♯",
+    "2": "Re",
+    "3": "Re♯",
+    "4": "Mi",
+    "5": "Fa",
+    "6": "Fa♯",
+    "7": "Sol",
+    "8": "Sol♯",
+    "9": "La",
+    "10": "La♯",
+    "11": "Si"
+  },
+  "fields": {
+    "exercise": "Ariketa",
+    "hitCount": "Asmatutakoak",
+    "stepCount": "Urratsak",
+    "totalPoints": "Puntuak",
+    "meanAbsoluteCentsError": "Batez besteko desbideratzea",
+    "missedTargets": "Huts egindako notak",
+    "difficulty": "Maila"
+  }
+}

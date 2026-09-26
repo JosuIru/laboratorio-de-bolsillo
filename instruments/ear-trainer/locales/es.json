@@ -1,0 +1,90 @@
+{
+  "name": "Entrena el oído",
+  "description": "Ejercicios de oído que te escuchan: canta intervalos y escalas (mayor, menor, pentatónica, hiyaz, frigia, dórica) y la app te dice si aciertas.",
+  "howTo": {
+    "title": "Cómo funciona",
+    "intervals": "Suena una nota. Canta la nota que está al intervalo pedido por encima y aguántala {{seconds}} s. Diez intervalos por sesión.",
+    "scales": "Suena la tónica. Canta la escala subiendo, nota a nota, aguantando cada una {{seconds}} s; la app pasa sola a la siguiente."
+  },
+  "exercise": {
+    "title": "Ejercicio",
+    "intervals": "Intervalos",
+    "scales": "Escalas"
+  },
+  "scale": {
+    "title": "Escala",
+    "major": "Mayor",
+    "natural-minor": "Menor natural",
+    "major-pentatonic": "Pentatónica",
+    "hijaz": "Hiyaz (árabe)",
+    "phrygian": "Frigia",
+    "dorian": "Dórica"
+  },
+  "root": {
+    "title": "Tónica"
+  },
+  "difficulty": {
+    "title": "Nivel",
+    "easy": "Fácil",
+    "medium": "Medio",
+    "hard": "Difícil"
+  },
+  "interval": {
+    "minor-second": "segunda menor",
+    "major-second": "segunda mayor",
+    "minor-third": "tercera menor",
+    "major-third": "tercera mayor",
+    "perfect-fourth": "cuarta justa",
+    "tritone": "tritono",
+    "perfect-fifth": "quinta justa",
+    "minor-sixth": "sexta menor",
+    "major-sixth": "sexta mayor",
+    "minor-seventh": "séptima menor",
+    "major-seventh": "séptima mayor"
+  },
+  "prompt": {
+    "interval": "Una {{interval}}",
+    "degree": "Grado {{degree}}"
+  },
+  "fromNote": "por encima de {{note}}",
+  "scaleFrom": "Escala desde {{note}}",
+  "stepOf": "{{step}} de {{total}}",
+  "stage": {
+    "listen": "Escucha…",
+    "sing": "¡Canta!",
+    "hit": "¡Bien! Era {{note}}",
+    "missed": "Era {{note}}"
+  },
+  "anyOctave": "Vale en cualquier octava.",
+  "start": "Empezar",
+  "again": "Otra vez",
+  "stop": "Parar",
+  "hits": "{{hits}} de {{total}}",
+  "meanError": "Desviación media al acertar: {{cents}} centésimas",
+  "toPractice": "Para practicar: {{steps}}",
+  "microphoneError": "No se puede usar el micrófono: {{message}}",
+  "privacy": "El sonido se analiza en el móvil y no se graba. El hiyaz va en temperamento igual: su afinación real tiene intervalos que no caben en 12 notas.",
+  "notes": {
+    "0": "Do",
+    "1": "Do♯",
+    "2": "Re",
+    "3": "Re♯",
+    "4": "Mi",
+    "5": "Fa",
+    "6": "Fa♯",
+    "7": "Sol",
+    "8": "Sol♯",
+    "9": "La",
+    "10": "La♯",
+    "11": "Si"
+  },
+  "fields": {
+    "exercise": "Ejercicio",
+    "hitCount": "Aciertos",
+    "stepCount": "Pasos",
+    "totalPoints": "Puntos",
+    "meanAbsoluteCentsError": "Desviación media",
+    "missedTargets": "Notas falladas",
+    "difficulty": "Nivel"
+  }
+}
