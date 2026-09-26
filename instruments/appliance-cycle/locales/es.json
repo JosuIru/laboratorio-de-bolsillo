@@ -1,0 +1,56 @@
+{
+  "name": "Fin de lavadora",
+  "description": "Pon el móvil encima de la lavadora, la secadora o el lavavajillas y te avisa con una alarma cuando termina el ciclo.",
+  "instructions": "Apoya el móvil plano encima de la máquina, lejos del borde, y pulsa «Vigilar» antes de ponerla en marcha: los primeros segundos mide el ruido de fondo con la máquina parada.",
+  "keepOpenWarning": "Deja la app abierta en esta pantalla: la pantalla se queda encendida para seguir midiendo. Si sales de la app, cambias de pantalla o la apagas, deja de vigilar y la alarma no sonará. Enchufa el móvil al cargador.",
+  "status": {
+    "idle": "Sin vigilar",
+    "measuringBackground": "Midiendo el ruido de fondo…",
+    "measuringBackgroundDetail": "No toques la máquina ni el móvil. Faltan {{seconds}} s.",
+    "waitingForStart": "Esperando a que arranque",
+    "waitingForStartDetail": "Ya puedes poner la máquina en marcha.",
+    "running": "En marcha",
+    "runningDetail": "Lleva {{duration}} en marcha.",
+    "pausedDetail": "Lleva {{quiet}} quieta. Si llega a {{limit}} así, se dará por terminada.",
+    "finished": "¡Ciclo terminado!",
+    "finishedDetail": "Ha durado {{duration}} (inicio: {{start}}, fin: {{end}})."
+  },
+  "interrupted": "Se dejó de vigilar porque la app pasó a segundo plano o cambiaste de pantalla.",
+  "highBackground": "El ruido de fondo es alto. Si la máquina ya estaba en marcha, pulsa «Ya está en marcha».",
+  "alreadyRunningNote": "Empezaste a vigilar con la máquina en marcha: la duración cuenta desde entonces.",
+  "levelChart": "Nivel de vibración de toda la sesión en decibelios (0 dB = 1 m/s²). La otra línea es el umbral.",
+  "legend": {
+    "level": "Vibración",
+    "threshold": "Umbral"
+  },
+  "now": "ahora",
+  "sensitivity": {
+    "title": "Sensibilidad",
+    "hint": "Alta para lavavajillas y máquinas suaves; baja si la máquina está en un sitio con mucha vibración.",
+    "high": "Alta",
+    "medium": "Media",
+    "low": "Baja"
+  },
+  "quietMinutes": {
+    "title": "Minutos quieta para darla por terminada",
+    "hint": "Las lavadoras paran a mitad de ciclo (remojo, desagüe): si te avisa antes de tiempo, sube este valor.",
+    "option": "{{count}} min"
+  },
+  "watch": "Vigilar",
+  "alreadyRunning": "Ya está en marcha",
+  "stopWatching": "Dejar de vigilar",
+  "stopAlarm": "Parar la alarma",
+  "watchAgain": "Vigilar otro ciclo",
+  "fields": {
+    "cycleDuration": "Duración del ciclo",
+    "startTime": "Inicio",
+    "endTime": "Fin",
+    "meanLevel": "Nivel medio en marcha",
+    "peakLevel": "Nivel máximo",
+    "threshold": "Umbral",
+    "backgroundLevel": "Ruido de fondo",
+    "quietMinutes": "Minutos quieta para terminar",
+    "startAssumed": "Empezó a vigilar con la máquina en marcha",
+    "currentLevel": "Vibración ahora"
+  }
+}

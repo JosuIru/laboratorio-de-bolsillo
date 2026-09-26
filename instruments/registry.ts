@@ -1,5 +1,6 @@
 import type { AnyInstrumentDefinition, InstrumentSection } from '@/core/instruments/types';
 
+import { applianceCycleInstrument } from './appliance-cycle';
 import { audioSpectrumInstrument } from './audio-spectrum';
 import { beerWineColorInstrument } from './beer-wine-color';
 import { colorHuntInstrument } from './color-hunt';
@@ -51,6 +52,7 @@ export const instrumentSections: readonly InstrumentSection[] = [
       metalDetectorInstrument,
       mainsFrequencyInstrument,
       machineDiagnosisInstrument,
+      applianceCycleInstrument,
       propellerBalancerInstrument,
       tachometerInstrument,
       superzoomInstrument,
