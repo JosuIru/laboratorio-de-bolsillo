@@ -62,7 +62,7 @@ export function confidenceBarFraction(score: number): number {
 
 /** Idiomas de los nombres comunes, en el orden en que se prueban para cada idioma de la app. */
 const nameLanguageOrderByLocale: Record<string, readonly ('es' | 'eu' | 'en')[]> = {
-  es: ['es', 'eu', 'en'],
+  es: ['es', 'en', 'eu'],
   eu: ['eu', 'es', 'en'],
 };
 
