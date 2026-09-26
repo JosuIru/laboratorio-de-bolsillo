@@ -149,5 +149,16 @@
     "sourceCode": "Ver el código fuente",
     "shareApp": "Compartir la app",
     "shareMessage": "Te recomiendo Laboratorio de Bolsillo: convierte el móvil en un laboratorio de ciencia. Descárgala gratis aquí: {{url}}"
+  },
+  "fullScreenCamera": {
+    "enter": "Ver la cámara a pantalla completa",
+    "exit": "Salir de la pantalla completa",
+    "panelHandle": "Panel de controles",
+    "panelHandleHint": "Toca para mostrar u ocultar los ajustes, o desliza hacia arriba o hacia abajo.",
+    "panelStates": {
+      "hidden": "oculto",
+      "peek": "acciones principales",
+      "open": "abierto"
+    }
   }
 }
