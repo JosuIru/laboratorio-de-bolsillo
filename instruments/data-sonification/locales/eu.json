@@ -1,0 +1,58 @@
+{
+  "name": "Datuen sonifikazioa",
+  "description": "Entzun sentsoreak: inklinazioa, bibrazioa, biraketa, eremu magnetikoa edo argia, melodia edo theremin bihurtuta.",
+  "intro": "Aukeratu zer entzun nahi duzun eta sakatu «Jo». Mugitu mugikorra, hurbildu iman batera edo estali argia eta entzun nola aldatzen den.",
+  "source": {
+    "title": "Zer entzuten da",
+    "tilt": "Inklinazioa",
+    "vibration": "Bibrazioa",
+    "rotation": "Biraketa",
+    "magnetic": "Eremu magnetikoa",
+    "light": "Argia"
+  },
+  "sourceHint": {
+    "tilt": "Etzanda (baxua) zutik egotera (altua).",
+    "vibration": "Kolpeak, pausoak edo makina bat: zenbat eta gehiago bibratu, orduan eta altuago. Eskala logaritmikoa, belarriak bezala.",
+    "rotation": "Biratu mugikorra: zenbat eta azkarrago, orduan eta altuago.",
+    "magnetic": "Hasierako eremuarekiko aldea: hurbildu iman batera edo burdinazko zerbaitera.",
+    "light": "Iluntasunetik (baxua) eguzkira (altua). Eskala logaritmikoa."
+  },
+  "sourceUnavailable": "Mugikor honek ez du sentsore hori.",
+  "mode": {
+    "title": "Nola entzuten da",
+    "melody": "Melodia",
+    "theremin": "Theremina"
+  },
+  "scale": {
+    "title": "Eskala",
+    "major-pentatonic": "Pentatoniko maiorra",
+    "minor-pentatonic": "Pentatoniko minorra",
+    "major": "Maiorra",
+    "chromatic": "Kromatikoa"
+  },
+  "play": "Jo",
+  "stop": "Gelditu",
+  "waiting": "Sentsorearen zain…",
+  "notes": {
+    "0": "Do",
+    "1": "Do♯",
+    "2": "Re",
+    "3": "Re♯",
+    "4": "Mi",
+    "5": "Fa",
+    "6": "Fa♯",
+    "7": "Sol",
+    "8": "Sol♯",
+    "9": "La",
+    "10": "La♯",
+    "11": "Si"
+  },
+  "fields": {
+    "source": "Iturria",
+    "sourceValue": "Balioa",
+    "sourceUnit": "Unitatea",
+    "normalizedValue": "Posizioa tartean",
+    "mode": "Modua",
+    "scale": "Eskala"
+  }
+}
