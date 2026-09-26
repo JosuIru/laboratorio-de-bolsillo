@@ -26,6 +26,8 @@
     "sampleRate": "Laginketa-maiztasuna",
     "duration": "Iraupena",
     "spectrumResolution": "Espektroaren bereizmena",
-    "spectrum": "Espektroa"
+    "spectrum": "Espektroa",
+    "seriesDuration": "CSVak hartzen duen denbora",
+    "seriesTruncated": "CSV moztua (15 min baino gehiagoko saioa)"
   }
 }

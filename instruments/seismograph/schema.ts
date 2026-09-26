@@ -11,6 +11,10 @@ export interface SeismographMeasurementValues {
   spectrumResolutionHz: number;
   /** Amplitud por bin, de 0 Hz a Nyquist (la serie cruda completa va como adjunto CSV). */
   spectrumAmplitudes: number[];
+  /** Tiempo que cubre el CSV adjunto (de la primera a la última muestra, pausas incluidas). */
+  seriesDurationSeconds?: number;
+  /** La sesión pasó del máximo que se guarda: el CSV solo tiene su principio. */
+  isSeriesTruncated?: boolean;
 }
 
 export const seismographSchema = defineMeasurementSchema<SeismographMeasurementValues>(1, [
@@ -23,4 +27,6 @@ export const seismographSchema = defineMeasurementSchema<SeismographMeasurementV
   { key: 'durationSeconds', labelKey: 'fields.duration', type: 'number', unit: 's' },
   { key: 'spectrumResolutionHz', labelKey: 'fields.spectrumResolution', type: 'number', unit: 'Hz' },
   { key: 'spectrumAmplitudes', labelKey: 'fields.spectrum', type: 'numberArray', unit: 'm/s²' },
+  { key: 'seriesDurationSeconds', labelKey: 'fields.seriesDuration', type: 'number', unit: 's', optional: true },
+  { key: 'isSeriesTruncated', labelKey: 'fields.seriesTruncated', type: 'boolean', optional: true },
 ]);

@@ -41,6 +41,7 @@ export function SeismographScreen({ saveMeasurement }: InstrumentScreenProps<Sei
     sessionRmsDynamicAcceleration,
     vibrationAnalysis,
     readLatest,
+    sessionSeries,
     reset,
   } = useAccelerationRecorder({ isRunning, eventThreshold });
   const hasSessionData = recordingDurationSeconds > 0;
@@ -61,14 +62,15 @@ export function SeismographScreen({ saveMeasurement }: InstrumentScreenProps<Sei
     try {
       const seriesFile = new File(Paths.cache, `seismograph-${Date.now()}.csv`);
       seriesFile.create({ overwrite: true });
+      // La serie de toda la sesión, no solo los últimos segundos: así cuadra con el pico y los eventos.
+      const sessionSamples = sessionSeries.read();
       seriesFile.write(
-        formatAccelerationSeriesCsv(
-          readLatest(history.timestamps),
-          readLatest(history.rawX),
-          readLatest(history.rawY),
-          readLatest(history.rawZ),
-        ),
+        formatAccelerationSeriesCsv(sessionSamples.timestampsSeconds, sessionSamples.x, sessionSamples.y, sessionSamples.z),
       );
+      const seriesDurationSeconds =
+        sessionSamples.timestampsSeconds.length > 1
+          ? sessionSamples.timestampsSeconds.at(-1)! - sessionSamples.timestampsSeconds[0]!
+          : 0;
       await saveMeasurement({
         values: {
           sampleRateHz: vibrationAnalysis.sampleRateHz,
@@ -83,6 +85,8 @@ export function SeismographScreen({ saveMeasurement }: InstrumentScreenProps<Sei
           sensitivityThreshold: eventThreshold,
           spectrumResolutionHz: vibrationAnalysis.binResolutionHz,
           spectrumAmplitudes: Array.from(vibrationAnalysis.spectrumAmplitudes),
+          seriesDurationSeconds: Math.round(seriesDurationSeconds * 10) / 10,
+          ...(sessionSeries.isTruncated ? { isSeriesTruncated: true } : {}),
         },
         attachments: [
           {
@@ -90,7 +94,7 @@ export function SeismographScreen({ saveMeasurement }: InstrumentScreenProps<Sei
             sourceUri: seriesFile.uri,
             fileName: 'aceleracion.csv',
             mimeType: 'text/csv',
-            metadata: { sampleRateHz: vibrationAnalysis.sampleRateHz, sampleCount: history.timestamps.storedCount },
+            metadata: { sampleRateHz: vibrationAnalysis.sampleRateHz, sampleCount: sessionSamples.timestampsSeconds.length },
           },
         ],
       });

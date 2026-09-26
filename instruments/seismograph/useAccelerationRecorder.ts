@@ -22,8 +22,15 @@ import {
 
 import { createVibrationAnalyzer, type VibrationAnalysis } from '@/processing/dsp/vibrationAnalysis';
 
-/** Capacidad del historial: ~20 s a 200 Hz. */
+import { createSessionSeriesLog } from './sessionSeries';
+
+/** Capacidad del historial para las trazas y el espectro: ~20 s a 200 Hz. */
 const historyCapacity = 4096;
+/**
+ * Máximo de la serie completa que se guarda en el CSV: 15 min a 250 Hz (unos 9 MB de texto).
+ * Una sesión más larga guarda sus primeros 15 min, y se indica en la medición.
+ */
+const maximumSessionSampleCount = 15 * 60 * 250;
 /** Pedimos la máxima frecuencia; el sistema entrega lo que el sensor permite (100-500 Hz). */
 const requestedRateHz = 250;
 /** Frecuencia de corte del paso alto que quita la gravedad en las trazas. */
@@ -102,8 +109,10 @@ export function useAccelerationRecorder({ isRunning, eventThreshold }: { isRunni
   const gravityFilters = useRef<GravityFilters>(createGravityFilters(100));
   const eventDetector = useRef(createSeismographEventDetector(eventThreshold));
   const eventCount = useRef(0);
-  const recordingStartTimestamp = useRef<number | null>(null);
   const latestTimestamp = useRef<number | null>(null);
+  /** Segundos grabando de verdad: sin las pausas ni el tiempo en segundo plano. */
+  const activeRecordingSeconds = useRef(0);
+  const [sessionSeries] = useState(() => createSessionSeriesLog(maximumSessionSampleCount));
   /**
    * Pico y valor eficaz del módulo de la aceleración dinámica en toda la sesión (desde el
    * último «Reiniciar»), para que lo guardado cubra el mismo tiempo que la duración y los
@@ -121,9 +130,9 @@ export function useAccelerationRecorder({ isRunning, eventThreshold }: { isRunni
   useSensorSubscription(
     accelerometerSource,
     ({ timestampSeconds, value }) => {
-      recordingStartTimestamp.current ??= timestampSeconds;
       const previousTimestamp = latestTimestamp.current;
       latestTimestamp.current = timestampSeconds;
+      sessionSeries.push(timestampSeconds, value.x, value.y, value.z);
       pushToRingBuffer(history.timestamps, timestampSeconds);
       pushToRingBuffer(history.rawX, value.x);
       pushToRingBuffer(history.rawY, value.y);
@@ -132,6 +141,7 @@ export function useAccelerationRecorder({ isRunning, eventThreshold }: { isRunni
       // El paso alto se ceba con la primera muestra (al empezar, tras reiniciar, tras una pausa o
       // al rediseñarlo): si arrancara en cero, la gravedad entraría como un escalón y daría un pico falso.
       const hasLongGap = previousTimestamp !== null && timestampSeconds - previousTimestamp > maximumGapSeconds;
+      if (previousTimestamp !== null && !hasLongGap) activeRecordingSeconds.current += timestampSeconds - previousTimestamp;
       const { coefficients, axisStates } = gravityFilters.current;
       if (!gravityFilters.current.isPrimed || hasLongGap) {
         primeBiquadState(coefficients, axisStates[0], value.x);
@@ -169,10 +179,7 @@ export function useAccelerationRecorder({ isRunning, eventThreshold }: { isRunni
           return {
             revision: previousSnapshot.revision + 1,
             eventCount: eventCount.current,
-            durationSeconds:
-              recordingStartTimestamp.current !== null && latestTimestamp.current !== null
-                ? latestTimestamp.current - recordingStartTimestamp.current
-                : 0,
+            durationSeconds: activeRecordingSeconds.current,
             sessionPeakDynamicAcceleration: statistics.peakDynamicAcceleration,
             sessionRmsDynamicAcceleration:
               statistics.sampleCount > 0 ? Math.sqrt(statistics.sumOfSquares / statistics.sampleCount) : 0,
@@ -216,12 +223,13 @@ export function useAccelerationRecorder({ isRunning, eventThreshold }: { isRunni
     gravityFilters.current = createGravityFilters(gravityFilters.current.sampleRateHz);
     eventDetector.current.reset();
     eventCount.current = 0;
-    recordingStartTimestamp.current = null;
     latestTimestamp.current = null;
+    activeRecordingSeconds.current = 0;
+    sessionSeries.reset();
     sessionStatistics.current = { peakDynamicAcceleration: 0, sumOfSquares: 0, sampleCount: 0 };
     setVibrationAnalysis(null);
     setDisplaySnapshot((previousSnapshot) => ({ ...emptyDisplaySnapshot, revision: previousSnapshot.revision + 1 }));
-  }, [history]);
+  }, [history, sessionSeries]);
 
   /** Copia ordenada de las últimas `sampleCount` muestras de un buffer. */
   const readLatest = useCallback((ringBuffer: RingBuffer, sampleCount = ringBuffer.storedCount) => {
@@ -239,6 +247,7 @@ export function useAccelerationRecorder({ isRunning, eventThreshold }: { isRunni
     sessionRmsDynamicAcceleration: displaySnapshot.sessionRmsDynamicAcceleration,
     vibrationAnalysis,
     readLatest,
+    sessionSeries,
     reset,
   };
 }

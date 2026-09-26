@@ -26,6 +26,8 @@
     "sampleRate": "Frecuencia de muestreo",
     "duration": "Duración",
     "spectrumResolution": "Resolución del espectro",
-    "spectrum": "Espectro"
+    "spectrum": "Espectro",
+    "seriesDuration": "Tiempo que cubre el CSV",
+    "seriesTruncated": "CSV recortado (sesión de más de 15 min)"
   }
 }
