@@ -17,13 +17,23 @@ export const useSensorAvailabilityStore = create<SensorAvailabilityState>()((set
   async refreshAvailability() {
     if (getState().isRefreshing) return;
     setState({ isRefreshing: true });
-    const availabilityList = await Promise.all(
-      allSensorKinds.map((sensorKind) => sensorControllers[sensorKind].checkAvailability()),
-    );
-    const availabilityBySensor = Object.fromEntries(
-      availabilityList.map((availability) => [availability.sensorKind, availability]),
-    ) as SensorAvailabilityMap;
-    setState({ availabilityBySensor, isRefreshing: false });
+    try {
+      // Un sensor cuya comprobación falla se da por no disponible: así el inicio no se queda
+      // cargando para siempre por culpa de uno solo.
+      const availabilityList = await Promise.all(
+        allSensorKinds.map((sensorKind) =>
+          sensorControllers[sensorKind]
+            .checkAvailability()
+            .catch((): SensorAvailability => ({ sensorKind, status: 'unavailable' })),
+        ),
+      );
+      const availabilityBySensor = Object.fromEntries(
+        availabilityList.map((availability) => [availability.sensorKind, availability]),
+      ) as SensorAvailabilityMap;
+      setState({ availabilityBySensor });
+    } finally {
+      setState({ isRefreshing: false });
+    }
   },
 
   async requestSensorPermission(sensorKind) {

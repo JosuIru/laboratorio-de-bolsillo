@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { useIsAppActive } from '@/core/useIsAppActive';
+import { useIsScreenActive } from '@/core/useIsScreenActive';
 import {
   type OpticalModemConfiguration,
   opticalLightLevelAt,
@@ -18,10 +18,10 @@ const progressUpdateSeconds = 0.25;
  * Hace parpadear la luz según los chips de una trama. El reloj es absoluto (no se acumulan
  * retrasos): en cada fotograma de pantalla se calcula qué chip toca y solo se avisa cuando la
  * luz cambia. `onLightLevelChange` recibe 1 (encender) o 0 (apagar); la pantalla lo pinta y la
- * linterna lo manda a la cámara. La luz se apaga al acabar, al cancelar o al salir de la app.
+ * linterna lo manda a la cámara. La luz se apaga al acabar, al cancelar, al salir de la app o si otra pantalla la tapa.
  */
 export function useOpticalTransmitter(onLightLevelChange: (lightLevel: number) => void) {
-  const isAppActive = useIsAppActive();
+  const isScreenActive = useIsScreenActive();
   const [transmissionState, setTransmissionState] = useState<OpticalTransmissionState>({ status: 'idle' });
   const [lightLevel, setLightLevel] = useState(0);
   const animationFrameRef = useRef<number | null>(null);
@@ -39,8 +39,8 @@ export function useOpticalTransmitter(onLightLevelChange: (lightLevel: number) =
   }, []);
 
   useEffect(() => {
-    if (!isAppActive && animationFrameRef.current !== null) stopTransmission();
-  }, [isAppActive, stopTransmission]);
+    if (!isScreenActive && animationFrameRef.current !== null) stopTransmission();
+  }, [isScreenActive, stopTransmission]);
   useEffect(
     () => () => {
       if (animationFrameRef.current !== null) {

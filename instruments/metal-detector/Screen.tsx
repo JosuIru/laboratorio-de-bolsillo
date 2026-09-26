@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Switch, View } from 'react-native';
 
 import type { InstrumentScreenProps } from '@/core/instruments/types';
+import { useIsScreenActive } from '@/core/useIsScreenActive';
 import { detectorThresholdsBySensitivity, type DetectorSensitivity } from '@/processing/magnetics/magneticField';
 import { SignalChart } from '@/ui/charts/SignalChart';
 import { AppButton, BodyText, Card, LoadingState, ScreenContainer } from '@/ui/components';
@@ -31,8 +32,10 @@ export function MetalDetectorScreen({
   const [isVibrationEnabled, setIsVibrationEnabled] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  // El magnetómetro y el repintado a 20 fps se paran si Historial o Calibrar tapan la pantalla.
+  const isScreenActive = useIsScreenActive();
   const { snapshot, zero } = useMagneticField({
-    isRunning: true,
+    isRunning: isScreenActive,
     sensitivity,
     isVibrationEnabled,
   });

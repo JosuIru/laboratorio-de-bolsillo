@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { type GestureResponderEvent, type LayoutChangeEvent, Pressable, StyleSheet, View } from 'react-native';
 import { Camera, type CameraRef, type MeteringMode, useCameraDevice } from 'react-native-vision-camera';
 
+import { useKeepScreenOnWhile } from '@/core/useKeepScreenOnWhile';
 import { useDeviceSteadiness } from '@/core/camera/useDeviceSteadiness';
 import type { InstrumentScreenProps } from '@/core/instruments/types';
 import { isExpectedCameraInterruption } from '@/core/sensors/cameraErrors';
@@ -154,6 +155,8 @@ export function MotionMagnifierScreen({
   });
   const [viewMode, setViewMode] = useState<ViewMode>('amplified');
   const [screenMode, setScreenMode] = useState<ScreenMode>('view');
+  // La ventana de medida dura hasta 30 s: si la pantalla se apagara, la cámara se cerraría.
+  useKeepScreenOnWhile(screenMode === 'measure', 'motion-magnifier');
   const [previewWidth, setPreviewWidth] = useState(0);
   const [frameDimensions, setFrameDimensions] = useState<{ frameWidth: number; frameHeight: number } | null>(null);
   const [engineStatusState, setEngineStatusState] = useState<{

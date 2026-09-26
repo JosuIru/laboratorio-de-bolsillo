@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { useKeepScreenOnWhile } from '@/core/useKeepScreenOnWhile';
 import type { InstrumentScreenProps } from '@/core/instruments/types';
 import { AppButton, BodyText, Card, ScreenContainer, SectionTitle } from '@/ui/components';
 import { useThemePalette } from '@/ui/theme';
@@ -24,6 +25,8 @@ export function StepMusicScreen({ saveMeasurement }: InstrumentScreenProps<StepM
   const [mode, setMode] = useState<MusicMode>('follow');
   const [targetCadence, setTargetCadence] = useState<number>(170);
   const [isPlaying, setIsPlaying] = useState(false);
+  // Se usa con el móvil en el bolsillo: si la pantalla se apagara, la música se pararía.
+  useKeepScreenOnWhile(isPlaying, 'step-music');
   const [seed, setSeed] = useState(1);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const cadenceEstimate = useStepCadence(isPlaying);

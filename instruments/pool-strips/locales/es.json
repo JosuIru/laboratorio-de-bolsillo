@@ -36,7 +36,8 @@
     "seconds": "{{seconds}} s",
     "start": "He mojado la tira: empezar",
     "cancel": "Cancelar la cuenta atrás",
-    "remaining": "Lee dentro de {{seconds}} s"
+    "remaining": "Lee dentro de {{seconds}} s",
+    "noReading": "Ha terminado la cuenta atrás, pero no se veía la tira dentro de la guía: no se ha fijado ninguna lectura."
   },
   "reading": {
     "title": "Resultados",
@@ -50,12 +51,14 @@
     "defaultScale": "escala orientativa",
     "calibratedScale": "escala calibrada",
     "nonUniform": "La almohadilla no se ve uniforme: evita reflejos y sombras y céntrala en su casilla.",
-    "orientativeNotice": "Las escalas orientativas son aproximadas y cada marca usa colores distintos: para medir de verdad, calibra las escalas con la carta de tu bote."
+    "orientativeNotice": "Las escalas orientativas son aproximadas y cada marca usa colores distintos: para medir de verdad, calibra las escalas con la carta de tu bote.",
+    "unreliableAdvice": "El color no encaja con la escala: no te fíes de este valor ni lo corrijas todavía. Recoloca la guía sobre la tira o calibra la escala con la carta del bote."
   },
   "status": {
     "low": "Bajo",
     "ideal": "Bien",
-    "high": "Alto"
+    "high": "Alto",
+    "uncertain": "?"
   },
   "confidence": {
     "good": "se parece a la escala",

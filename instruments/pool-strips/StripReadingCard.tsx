@@ -57,8 +57,15 @@ function PadResultRow({ padReading }: { padReading: StripPadReading }) {
   const rangeFormatter = new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 2 });
   const parameterName = t(`quantities.${parameter.quantity}`);
   const valueText = `≈ ${numberFormatter.format(padReading.estimatedValue)}${parameter.unit ? ` ${parameter.unit}` : ''}`;
-  const statusColor = padReading.rangeStatus === 'ideal' ? themePalette.success : themePalette.danger;
-  const statusText = t(`status.${padReading.rangeStatus}`);
+  // Si el color no se parece a la escala, el valor no es fiable: ni «bien» ni «alto», ni consejo
+  // químico (podría recomendar tratar el agua por una lectura errónea).
+  const isReliable = padReading.confidence !== 'poor';
+  const statusColor = !isReliable
+    ? themePalette.textSecondary
+    : padReading.rangeStatus === 'ideal'
+      ? themePalette.success
+      : themePalette.danger;
+  const statusText = isReliable ? t(`status.${padReading.rangeStatus}`) : t('status.uncertain');
   const rangeText = t('reading.idealRange', {
     range: `${formatIdealRange(parameter.idealRange, (rangeValue) => rangeFormatter.format(rangeValue))}${
       parameter.unit ? ` ${parameter.unit}` : ''
@@ -92,7 +99,9 @@ function PadResultRow({ padReading }: { padReading: StripPadReading }) {
         <BodyText tone="secondary">{rangeText}</BodyText>
         <BodyText tone={padReading.confidence === 'poor' ? 'danger' : 'secondary'}>{`${confidenceText} · ${scaleText}`}</BodyText>
         {!padReading.colorReading.isSampleUniform ? <BodyText tone="danger">{t('reading.nonUniform')}</BodyText> : null}
-        {padReading.rangeStatus !== 'ideal' ? (
+        {!isReliable ? (
+          <BodyText tone="danger">{t('reading.unreliableAdvice')}</BodyText>
+        ) : padReading.rangeStatus !== 'ideal' ? (
           <BodyText tone="secondary">{t(`advice.${padReading.parameterId}.${padReading.rangeStatus}`)}</BodyText>
         ) : null}
       </View>

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
+import { useKeepScreenOnWhile } from '@/core/useKeepScreenOnWhile';
 import type { InstrumentScreenProps } from '@/core/instruments/types';
 import type { NoteIndex } from '@/processing/dsp/musicalNotes';
 import { AppButton, BodyText, Card, ScreenContainer, SectionTitle } from '@/ui/components';
@@ -39,6 +40,8 @@ export function TraditionalTunerScreen({ saveMeasurement }: InstrumentScreenProp
   const themePalette = useThemePalette();
   const [tunerSettings, setTunerSettings] = useState<TunerSettings>(loadTunerSettings);
   const [isListening, setIsListening] = useState(true);
+  // Se afina con las manos ocupadas: la pantalla no debe apagarse mientras escucha.
+  useKeepScreenOnWhile(isListening, 'traditional-tuner');
   const [newTuningName, setNewTuningName] = useState('');
   /** Grado de la tabla propia donde guardar la nota; null = el más cercano en temperamento igual. */
   const [chosenDegree, setChosenDegree] = useState<number | null>(null);

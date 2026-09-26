@@ -36,7 +36,8 @@
     "seconds": "{{seconds}} s",
     "start": "Busti dut zerrenda: hasi",
     "cancel": "Utzi atzerako kontaketa",
-    "remaining": "Irakurri {{seconds}} s barru"
+    "remaining": "Irakurri {{seconds}} s barru",
+    "noReading": "Atzerako kontaketa amaitu da, baina zerrenda ez zegoen gidaren barruan: ez da irakurketarik finkatu."
   },
   "reading": {
     "title": "Emaitzak",
@@ -50,12 +51,14 @@
     "defaultScale": "eskala orientagarria",
     "calibratedScale": "eskala kalibratua",
     "nonUniform": "Laukitxoa ez da uniforme ikusten: saihestu islak eta itzalak, eta zentratu bere gelaxkan.",
-    "orientativeNotice": "Eskala orientagarriak gutxi gorabeherakoak dira, eta marka bakoitzak kolore desberdinak erabiltzen ditu: benetan neurtzeko, kalibratu eskalak zure potoko txartelarekin."
+    "orientativeNotice": "Eskala orientagarriak gutxi gorabeherakoak dira, eta marka bakoitzak kolore desberdinak erabiltzen ditu: benetan neurtzeko, kalibratu eskalak zure potoko txartelarekin.",
+    "unreliableAdvice": "Kolorea ez dator bat eskalarekin: ez fidatu balio honetaz eta ez zuzendu oraindik. Kokatu berriro gida zerrendaren gainean edo kalibratu eskala potoaren kartarekin."
   },
   "status": {
     "low": "Baxua",
     "ideal": "Ondo",
-    "high": "Altua"
+    "high": "Altua",
+    "uncertain": "?"
   },
   "confidence": {
     "good": "eskalaren antzekoa da",

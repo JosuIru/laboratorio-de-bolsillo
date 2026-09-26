@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Animated, Pressable, StyleSheet, View } from 'react-native';
 
+import { useKeepScreenOnWhile } from '@/core/useKeepScreenOnWhile';
 import type { InstrumentScreenProps } from '@/core/instruments/types';
 import { AppButton, BodyText, Card, ScreenContainer } from '@/ui/components';
 import { useThemePalette } from '@/ui/theme';
@@ -77,6 +78,7 @@ export function MetronomeScreen(_screenProps: InstrumentScreenProps<MetronomeMea
   const [tapTimesSeconds, setTapTimesSeconds] = useState<number[]>([]);
   const { metronomeState, start, stop } = useMetronome(beatsPerMinute, beatsPerBar);
   const isPlaying = metronomeState.phase === 'playing';
+  useKeepScreenOnWhile(isPlaying, 'metronome');
 
   function handleTap() {
     const updatedTapTimesSeconds = appendTap(tapTimesSeconds, performance.now() / 1000);

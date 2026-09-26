@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { type GestureResponderEvent, type LayoutChangeEvent, Pressable, StyleSheet, Vibration, View } from 'react-native';
 import { Camera, type CameraRef } from 'react-native-vision-camera';
 
+import { useKeepScreenOnWhile } from '@/core/useKeepScreenOnWhile';
 import { useResolvedCalibration } from '@/core/calibration/useResolvedCalibration';
 import type { InstrumentScreenProps } from '@/core/instruments/types';
 import { isExpectedCameraInterruption } from '@/core/sensors/cameraErrors';
@@ -99,6 +100,8 @@ export function PoolStripsScreen({ saveMeasurement }: InstrumentScreenProps<Pool
   const [frozenReading, setFrozenReading] = useState<FrozenReading | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  /** La cuenta atrás terminó sin la tira dentro de la guía: no se pudo fijar la lectura. */
+  const [isCountdownReadingMissed, setIsCountdownReadingMissed] = useState(false);
 
   // Si cambia la tarjeta (otra calibración del colorímetro), los parches colocados ya no valen.
   const [markersCardKey, setMarkersCardKey] = useState(referenceCard);
@@ -151,8 +154,14 @@ export function PoolStripsScreen({ saveMeasurement }: InstrumentScreenProps<Pool
     Vibration.vibrate(countdownFinishedVibrationMilliseconds);
     // Los colores siguen cambiando después del tiempo indicado: se fija la lectura de ese momento.
     // Se guarda la duración con la que arrancó la cuenta atrás, no la que esté elegida ahora.
-    if (liveStripReading) setFrozenReading({ stripReading: liveStripReading, secondsAfterDip: countdownDurationSeconds });
+    if (liveStripReading) {
+      setFrozenReading({ stripReading: liveStripReading, secondsAfterDip: countdownDurationSeconds });
+    } else {
+      setIsCountdownReadingMissed(true);
+    }
   });
+  // La espera tras mojar la tira dura hasta minutos: la pantalla no debe apagarse entretanto.
+  useKeepScreenOnWhile(countdown.isRunning, 'pool-strips');
   const secondsSinceDip = () => (countdown.dipTime !== null ? (Date.now() - countdown.dipTime) / 1000 : null);
   const displayedReading = frozenReading?.stripReading ?? liveStripReading;
 
@@ -458,10 +467,14 @@ export function PoolStripsScreen({ saveMeasurement }: InstrumentScreenProps<Pool
                 variant="secondary"
                 onPress={() => {
                   setFrozenReading(null);
+                  setIsCountdownReadingMissed(false);
                   countdown.start(readingDelaySeconds);
                 }}
               />
             )}
+            {isCountdownReadingMissed && !countdown.isRunning ? (
+              <BodyText tone="danger">{t('timer.noReading')}</BodyText>
+            ) : null}
           </Card>
 
           <StripReadingCard

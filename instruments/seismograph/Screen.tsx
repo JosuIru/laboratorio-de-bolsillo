@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { useKeepScreenOnWhile } from '@/core/useKeepScreenOnWhile';
 import type { InstrumentScreenProps } from '@/core/instruments/types';
 import { SignalChart } from '@/ui/charts/SignalChart';
 import { AppButton, BodyText, Card, ScreenContainer } from '@/ui/components';
@@ -25,6 +26,7 @@ export function SeismographScreen({ saveMeasurement }: InstrumentScreenProps<Sei
   const { t } = useTranslation(seismographInstrumentId);
   const themePalette = useThemePalette();
   const [isRunning, setIsRunning] = useState(true);
+  useKeepScreenOnWhile(isRunning, 'seismograph');
   const [sensitivityLevel, setSensitivityLevel] = useState<SensitivityLevel>('medium');
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);

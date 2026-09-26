@@ -1,8 +1,8 @@
-import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Linking, Platform, Pressable, StyleSheet, Switch, View } from 'react-native';
 
+import { useKeepScreenOnWhile } from '@/core/useKeepScreenOnWhile';
 import type { InstrumentScreenProps } from '@/core/instruments/types';
 import type { FollowingCriteria, FollowingLevel } from '@/processing/bluetooth/followingHeuristic';
 import { compareHeatTrend, heatToLevel, type HeatLevel, isSignalLost, rssiToHeat } from '@/processing/bluetooth/proximity';
@@ -98,14 +98,7 @@ export function TrackerHunterScreen({ saveMeasurement }: InstrumentScreenProps<T
 
   // Si la pantalla se apagara, la app pasaría a segundo plano y el escaneo se pararía.
   const isScreenNeededOn = phase === 'scanning';
-  useEffect(() => {
-    if (!isScreenNeededOn) return;
-    const keepAwakeTag = 'tracker-hunter';
-    activateKeepAwakeAsync(keepAwakeTag).catch(() => undefined);
-    return () => {
-      deactivateKeepAwake(keepAwakeTag).catch(() => undefined);
-    };
-  }, [isScreenNeededOn]);
+  useKeepScreenOnWhile(isScreenNeededOn, 'tracker-hunter');
 
   if (phase === 'unsupported') {
     return (
