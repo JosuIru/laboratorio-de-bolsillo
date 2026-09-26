@@ -21,6 +21,10 @@ export interface MoonMeasurementValues {
   sharpeningAmount?: number;
   /** Foto tomada a través del ocular de unos prismáticos o un telescopio. */
   throughOptics?: boolean;
+  /** Técnica: 'photoBurst', 'luckyImaging', 'driftSuperResolution' o 'earthshine'. */
+  captureTechnique?: string;
+  /** Luz cenicienta: relación entre la exposición larga y la corta. */
+  exposureRatio?: number;
 }
 
 export const moonSchema = defineMeasurementSchema<MoonMeasurementValues>(1, [
@@ -46,4 +50,6 @@ export const moonSchema = defineMeasurementSchema<MoonMeasurementValues>(1, [
   { key: 'iso', labelKey: 'fields.iso', type: 'number', optional: true },
   { key: 'sharpeningAmount', labelKey: 'fields.sharpeningAmount', type: 'number', optional: true },
   { key: 'throughOptics', labelKey: 'fields.throughOptics', type: 'boolean', optional: true },
+  { key: 'captureTechnique', labelKey: 'fields.captureTechnique', type: 'string', optional: true },
+  { key: 'exposureRatio', labelKey: 'fields.exposureRatio', type: 'number', unit: '×', optional: true },
 ]);

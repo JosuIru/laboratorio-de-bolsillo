@@ -1,6 +1,6 @@
 {
   "name": "Ilargia",
-  "description": "Ilargiaren fasea, kokapena eta distantzia, eta argazki garbiak argazki segida bat pilatuz, prismatikoen edo teleskopioaren bidez ere bai.",
+  "description": "Ilargiaren fasea, kokapena eta distantzia; argazki garbiak segidak pilatuz (prismatikoen edo teleskopioaren bidez ere bai), superbereizmena tripodearekin, Lurraren argia eta itsaso eta kraterren izenak.",
   "phase": {
     "newMoon": "Ilberria",
     "waxingCrescent": "Ilgora",
@@ -85,7 +85,9 @@
     "sharpeningAmount": "Nabarmentzea",
     "exposureMilliseconds": "Esposizio-denbora",
     "iso": "ISO",
-    "throughOptics": "Prismatikoen edo teleskopioaren bidez"
+    "throughOptics": "Prismatikoen edo teleskopioaren bidez",
+    "captureTechnique": "Teknika",
+    "exposureRatio": "Esposizioen arteko erlazioa"
   },
   "exposureTimeLabel": "Esposizioa {{duration}} · ISO {{iso}}",
   "automaticLunarExposure": "Esposizioa Ilargiaren gainean berez doitua: ahalik eta argiena, erre gabe.",
@@ -93,8 +95,10 @@
   "useAutomaticLunarExposure": "Automatikoa",
   "captureModeTitle": "Nola ateratzen diozun argazkia",
   "captureModes": {
-    "nakedEye": "Mugikorrarekin bakarrik",
-    "telescope": "Prismatikoen edo teleskopioaren bidez"
+    "telescope": "Prismatikoak edo teleskopioa",
+    "normal": "Arrunta",
+    "tripod": "Tripodearekin (minutu 1)",
+    "earthshine": "Lurraren argia"
   },
   "nakedEyeLimitation": "Mugikorraren kamerarekin bakarrik fasea eta itsasoak ikusten dira, baina ez kraterrak: Ilargiak hamarnaka pixel gutxi batzuk hartzen ditu eta 3 mm baino irekiera txikiagoko lente batek ezin ditu xehetasun finagoak bereizi (difrakzioa). Kraterrak ikusteko, jarri mugikorra prismatiko edo teleskopio baten okularrean eta aukeratu modu hori.",
   "telescopeIntro": "Bermatu mugikorraren kamera okularrean eta zentratu okularreko argi-zirkulua zirkulu horiaren barruan. Argazki gehiago pilatzen dira eta xehetasuna gehiago nabarmentzen da.",
@@ -104,5 +108,94 @@
   "burstFailed": "Ezin izan dira argazkiak atera: {{message}}",
   "burstTimings": "Segida: {{count}} argazki {{captureSeconds}} s-tan; irakurri eta mozteko, {{decodeSeconds}} s.",
   "openFullSize": "Ikusi benetako tamainan",
-  "telescopeTips": "• Fokatu lehenik teleskopioa edo prismatikoak begiarekin begiratuz; gero hurbildu mugikorra.\n• Erabili handipen txikieneko okularra: Ilargi osoak zirkuluan sartu behar du.\n• Utzi mugikorraren zooma ×1ean eta bermatu kamera okularraren erdian, begia jarriko zenukeen distantzian. Okularrerako mugikor-egokigailu batek asko laguntzen du.\n• Teleskopioak tripode edo muntura sendo batean egon behar du; ez ukitu mugikorra segidan zehar (atzera-kontaketa dago).\n• Okularretik Ilargia askoz handiagoa da: hasi esposizio laburrarekin eta utzi berez doitzen, edo jaitsi gehiegizko esposizioaren abisua ikusten baduzu.\n• Irudia halo batekin edo ertzak ilunduta ateratzen bada, hurbildu edo urrundu pixka bat mugikorra okularretik."
+  "telescopeTips": "• Fokatu lehenik teleskopioa edo prismatikoak begiarekin begiratuz; gero hurbildu mugikorra.\n• Erabili handipen txikieneko okularra: Ilargi osoak zirkuluan sartu behar du.\n• Utzi mugikorraren zooma ×1ean eta bermatu kamera okularraren erdian, begia jarriko zenukeen distantzian. Okularrerako mugikor-egokigailu batek asko laguntzen du.\n• Teleskopioak tripode edo muntura sendo batean egon behar du; ez ukitu mugikorra segidan zehar (atzera-kontaketa dago).\n• Okularretik Ilargia askoz handiagoa da: hasi esposizio laburrarekin eta utzi berez doitzen, edo jaitsi gehiegizko esposizioaren abisua ikusten baduzu.\n• Irudia halo batekin edo ertzak ilunduta ateratzen bada, hurbildu edo urrundu pixka bat mugikorra okularretik.",
+  "tripodIntro": "Jarri mugikorra tripode batean (edo bermatu ondo) Ilargiari begira, eta ez ukitu minutu batez. Lurraren errotazioak pixel baten hamarren batzuk mugitzen du Ilargia segundoko: argazki bakoitzak beste posizio batean jasotzen du, eta guztiek batera bereizmen bikoitzeko irudia ematen dute (deribaren bidezko superbereizmena). Beti eremu bera mozten da, Ilargiak mugitzeko tokia utzita.",
+  "earthshineIntro": "Ilgora edo ilbehera mehe batean, itzalpeko zatia ahul ikusten da, Lurrak islatzen duen argiak argiztatuta (Lurraren argia); eguzkitan dagoen zatia baino mila aldiz ahulagoa da. Bi segida ateratzen dira, bata laburra (argiztatutako zatia erre gabe) eta bestea 200 aldiz luzeagoa arte (itzalpeko zatia), eta bateratu egiten dira. Tripodea behar da, eta esposizio-denbora finkatzen uzten duen mugikorra.",
+  "telescopeMethodTitle": "Zer hartu",
+  "telescopeMethods": {
+    "photoBurst": "Argazki segida (bereizmen osoa)",
+    "luckyFrames": "Fotograma asko (garbienak aukeratuta)"
+  },
+  "luckyIntro": "Bideoko 150 fotograma inguru grabatzen dira segundo gutxitan, eta garbienen laurdena pilatzen da: airearen turbulentziak batzuk ia perfektu uzten ditu. Fotograma bakoitza Ilargiaren inguruan mozten da unean bertan (irudi osoa gorde gabe), eta zatika lerrokatzen da, turbulentziak zati bakoitza bere erara deformatzen duelako.",
+  "earthshineWrongPhase": "Orain Ilargia % {{percent}} argiztatuta dago: Lurraren argia ondo ikusten da % 30etik behera, ilberria baino egun batzuk lehenago edo geroago.",
+  "earthshineNeedsManualExposure": "Zure mugikorrak ez du esposizio-denbora finkatzen uzten: hori gabe ezin dira Lurraren argiaren bi segidak atera.",
+  "processingTime": "Prozesatzea: {{seconds}} s.",
+  "luckyExplanation": "{{recorded}} fotogrametatik {{stacked}} garbienak pilatu dira, osotara eta {{points}} puntutan lerrokatuta (turbulentziak zati bakoitza bere erara deformatzen du), balio arraroak baztertzen dituen batez besteko moztu batekin. Irudiak {{side}} px ditu aldeko.",
+  "luckyDownsampled": "Ilargia handia zen fotograman: pixel bakoitzak {{factor}}×{{factor}} pixelen batez bestekoa du, memoria eta denbora aurrezteko.",
+  "luckyTimings": "Grabazioa: {{count}} fotograma {{captureSeconds}} s-tan (segundoko {{framesPerSecond}}); pilatzea: {{processSeconds}} s.",
+  "driftProgress": "Ez ukitu mugikorra… {{elapsed}} s / {{total}} s · {{photos}} argazki",
+  "tooFewDriftPhotos": "{{count}} argazki baliagarri baino ez dira lortu, eta gehiago behar dira. Egiaztatu Ilargia irudiaren barruan dagoela eta saiatu berriro.",
+  "driftExplanation": "Eremu bereko {{photos}} argazkietatik {{used}} bateratu dira bi aldiz finagoa den sare batean. Ilargia {{span}} px mugitu da hartzean.",
+  "driftSpeed": "Neurtutako deriba: {{speed}} px/s.",
+  "driftTooSmall": "Ilargia ia ez da mugitu: deribarik gabe ez dago superbereizmenik. Utzi mugikorra geldi minutu osoan.",
+  "driftTimings": "Hartzea: {{count}} argazki {{captureSeconds}} s-tan; prozesatzea: {{processSeconds}} s.",
+  "singlePhotoEnlarged": "Argazki bat, handituta",
+  "driftResultLabel": "Superbereizmena ({{count}} argazki)",
+  "earthshineShortStage": "Segida laburra ({{duration}})… ez ukitu mugikorra",
+  "earthshineLongStage": "Segida luzea ({{duration}})… ez ukitu mugikorra",
+  "captureStopped": "Hartzea geldituta.",
+  "earthshineExplanation": "{{shortDuration}}-ko {{shortCount}} argazki eta {{longDuration}}-ko {{longCount}} (×{{ratio}} erlazioa), diskoaren erdiaren arabera lerrokatuta eta bateratuta: esposizio luzeak itzalpeko zatia ateratzen du eta laburrak argiztatutakoa gordetzen du. Tonu-kurba logaritmiko batek biak batera erakusten ditu.",
+  "earthshineRatioMeasured": "Esposizioen arteko erlazioa argazkietan bertan neurtu da.",
+  "earthshineRatioNominal": "Ezin izan da esposizioen arteko erlazioa argazkietan neurtu: kamerak emandakoa erabiltzen da.",
+  "earthshineRatioLimited": "Mugikorraren esposizio-mugek ez dute ×100eko erlaziorik ematen: itzalpeko zatiak zarata gehiago izango du.",
+  "earthshineShortLabel": "Esposizio laburra",
+  "earthshineResultLabel": "Lurraren argia (bateratuta)",
+  "captureDrift": "Atera argazkiak {{seconds}} s-z",
+  "captureEarthshine": "Atera bi segidak eta bateratu",
+  "captureLuckyFrames": "Grabatu {{count}} fotograma eta pilatu",
+  "recordingProgress": "Grabatzen… {{recorded}} / {{target}} fotograma",
+  "processingProgress": "Prozesatzen… segundo batzuk behar izan ditzake.",
+  "waveletSharpeningTitle": "Xehetasunen nabarmentzea (uhinxkak)",
+  "tripodTips": "• Tripodea (edo euskarri oso sendo bat) ezinbestekoa da: zerbaitek mugikorra mugitzen badu, mugitutako argazkiak baztertu egiten dira.\n• Igo zooma Ilargia handi ikusi arte, baina utzi tokia inguruan: minutu batean ia diametro erdia mugitzen da.\n• Itxaron esposizioa doitu arte hasi aurretik, eta ez ukitu pantaila gero (atzera-kontaketa dago).\n• Ilargia zenbat eta gehiago mugitu, orduan eta posizio desberdin gehiago: ia mugitzen ez bada, ez dago irabazirik.",
+  "earthshineTips": "• Onena, ilberria baino 2-5 egun lehenago edo geroago: Eguzkia sartu eta gutxira edo egunsentia baino lehen, zerua ilun dagoela.\n• Tripodea ezinbestekoa da: esposizio luzeak segundo-hamarren batzuk irauten ditu.\n• Utzi esposizioa argiztatutako zatiaren gainean doitzen hasi aurretik: hori da segida laburrarena.\n• Urrun faroletatik: zeruko argia Lurraren argiarekin nahasten da.",
+  "atlas": {
+    "showNames": "Erakutsi izenak",
+    "imageLabel": "Emaitza, itsaso eta kraterren izenekin",
+    "tooSmall": "Ilargia txikiegia da izenak jartzeko: hurbildu zoomarekin edo teleskopio batekin.",
+    "diskNotFound": "Ez dut diskoaren ertza aurkitu irudian: ezin ditut izenak kokatu.",
+    "legendMaria": "Itsasoak",
+    "legendCraters": "Kraterrak",
+    "legendLandingSites": "Apolo misioen ilargiratzeak",
+    "unlitExplanation": "Izen ahulduak Ilargiaren gaueko aldean daude orain.",
+    "approximateOrientation": "Zure kokapenik gabe, orientazioa gutxi gorabeherakoa da: badakigu Ilargia ipar zerutiarrarekiko nola dagoen biratuta, baina ez horizontearekiko. Aktibatu kokapena (goian) izenak ondo kokatzeko.",
+    "rotationTitle": "Irudia biratuta ateratzen da (optikagatik):",
+    "mirror": "Ispilua",
+    "rotationHint": "Teleskopio batek edo lente bakar batek irudia buruz behera jartzen du (180°); prismatikoek ez. Diagonal batekin, gainera, ispiluan ateratzen da. Izenak argazkiarekin bat ez badatoz, probatu beste biraketa bat."
+  },
+  "glassesGuide": {
+    "show": "Gida: teleskopioa presbiziako betaurrekoekin",
+    "hide": "Ezkutatu teleskopioaren gida",
+    "title": "Teleskopioa presbiziako betaurreko-lente batekin",
+    "safetyTitle": "⚠️ INOIZ ez zuzendu Eguzkira",
+    "safetyBody": "Ez hodiarekin, ez lente soltearekin. Lente batek Eguzkiaren argia puntu batean biltzen du, eta paperra, azala eta begiak berehala erretzen ditu. Ez utzi lentea edo hodia eguzkitan (leiho batean, autoan): sua har dezake. Haurrak badaude, heldu batek munta eta zuzendu dezala.",
+    "intro": "Kartoizko «teleskopio» bat, Ilargiaren irudia paperezko pantaila batean sortzen duena; mugikorrak pantaila horri ateratzen dio argazkia.",
+    "materials": {
+      "title": "Materialak",
+      "body": "• Presbiziako betaurrekoen (irakurtzekoen) lente bat, +1etik +2 dioptriara: betaurreko merke batzuk balio dute; lente bakarra erabiltzen da.\n• Kartoizko bi hodi, bata bestearen barruan sartzen direnak (sukaldeko paperarenak, posterrak bidaltzekoak edo kartulina bilduta), kalkuluak ematen duen luzerakoak.\n• Paper begetala (edo labeko papera, edo plastikozko poltsa zuri eta mehe bat) pantaila gisa.\n• Kartulina beltza, zinta itsasgarria eta guraizeak.\n• Tripode bat edo hodia bermatzeko zerbait sendoa."
+    },
+    "focalLength": {
+      "title": "1. Kalkulatu foku-distantzia",
+      "body": "Foku-distantzia dioptrien alderantzizkoa da: f = 1 / dioptriak (metrotan).\n• +1,0: 100 cm-ko foku-distantzia, ≈ 100 cm-ko hodia, ≈ 9 mm-ko Ilargia paperean.\n• +1,5: 67 cm-ko foku-distantzia, ≈ 67 cm-ko hodia, ≈ 6 mm-ko Ilargia.\n• +2,0: 50 cm-ko foku-distantzia, ≈ 50 cm-ko hodia, ≈ 4,6 mm-ko Ilargia.\nIlargiaren irudiak f × 0,0091 neurtzen du (Ilargiak 0,52° hartzen ditu zeruan). Graduazio txikiagoarekin Ilargia handiagoa ateratzen da, baina hodia luzeagoa da."
+    },
+    "assembly": {
+      "title": "2. Muntatu hodia",
+      "body": "1. Itsatsi lentea hodi lodiaren mutur batean eta estali ertza kartulina beltzez.\n2. Jarri lentearen aurrean diafragma bat: kartulinazko disko bat, erdian 15-20 mm-ko zulo batekin. Argia galtzen da, baina irudia askoz garbiagoa ateratzen da.\n3. Estali hodi mehearen mutur bat paper begetalarekin, ondo tenkatuta: hori da pantaila.\n4. Sartu hodi mehea lodiaren barruan, pantaila barrurantz: irristatuz fokatzen da.\n5. Lentetik paperera dagoen distantziak ±5 cm inguru aldatu ahal izan behar du foku-distantziaren inguruan."
+    },
+    "focusing": {
+      "title": "3. Fokatu",
+      "body": "1. Egunez, zuzendu urruneko eraikin edo zuhaitz batera (100 m baino urrunago, eta inoiz ez Eguzkirantz) eta irristatu hodia paperean irudia garbi ikusi arte. Markatu posizio hori arkatzez: Ilargia ia leku berean fokatzen da.\n2. Gauez, bermatu hodia eta zuzendu Ilargira: lerrokatuta egongo da paperean disko distiratsu bat ikusten duzunean. Errazagoa da lehenik hodiaren gainetik begiratuz zuzentzen baduzu.\n3. Doitu diskoaren ertza ahalik eta finen ikusi arte."
+    },
+    "photographing": {
+      "title": "4. Atera argazkia pantailari mugikorrarekin",
+      "body": "1. Begiratu pantailari atzetik, hodiaren kanpotik. Irudia 180° biratuta ateratzen da: emaitzan izenak erakustean, aukeratu 180°.\n2. Egin itzalki bat beste hodi zati batekin edo kartulina beltzarekin paperaren eta mugikorraren artean, kaleko argirik sar ez dadin.\n3. Jarri mugikorra paperetik 8-12 cm-ra, erdian. Mugikorrak makro modua badu, erabili.\n4. Pantaila honetan: ukitu irudia paperean fokatzeko, utzi esposizioa doitzen eta atera segida bat. Tripodea ezinbestekoa da: Ilargiak hodiaren eremua minutu pare batean zeharkatzen du eta berriro zuzendu behar da.\nPaperetik 10 cm-ra, 9 mm-ko irudiak 290 pixel inguruko diametroa hartzen du argazkian; ezer gabe ateratako Ilargiak, berriz, ~27 pixel."
+    },
+    "resolution": {
+      "title": "5. Zer ikus daitekeen",
+      "body": "• Difrakzioagatik, 20 mm-ko zulo batekin xehetasun finena 7″ ingurukoa da (13 km inguru Ilargian).\n• Praktikan, lente soil baten aberrazio kromatikoak agintzen du (kolore bakoitza distantzia desberdinean fokatzen da): lausoa 40-60″-koa da +1eko lentearekin, eta bikoitza +2koarekin. Horregatik laguntzen du diafragmak.\n• Itsasoak, krater handiak (Koperniko, Tycho eta bere izpiak, Clavius, Platon) eta terminatzailearen erliebea ikusten dira: benetako teleskopio batek baino 20 aldiz xehetasun gutxiago, baina mugikorrak bakarrik baino hamar aldiz gehiago.\n• Paperaren pikorrak ere lausotzen du: zenbat eta finagoa eta leunagoa, orduan eta hobeto."
+    },
+    "tips": {
+      "title": "Aholkuak",
+      "body": "• Gau onenak ilgorako eta ilbeherako laurdenekoak dira: terminatzailean, itzal luzeek kraterrak nabarmentzen dituzte. Ilbetea laua ikusten da.\n• Utzi hodia kanpoan 10 minutuz hasi aurretik, hoztu dadin.\n• Irudiak dardara egiten badu, airearen turbulentzia da: atera argazki asko eta utzi aplikazioari garbienak aukeratzen."
+    }
+  }
 }
