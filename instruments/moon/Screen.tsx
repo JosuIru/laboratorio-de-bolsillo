@@ -1,4 +1,4 @@
-import { Canvas, Image as SkiaImageView, type SkImage } from '@shopify/react-native-skia';
+import type { SkImage } from '@shopify/react-native-skia';
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type GestureResponderEvent, type LayoutChangeEvent, Pressable, StyleSheet, View } from 'react-native';
@@ -7,15 +7,18 @@ import { Camera, type CameraRef, type MeteringMode, useCameraDevice } from 'reac
 import { formatExposureValue, stepExposure } from '@/core/camera/exposureScale';
 import { writeImageToCachePng } from '@/core/camera/imageFiles';
 import { type PixelSize, scalePointBetweenImages, squareCropAround } from '@/core/camera/photoCropGeometry';
-import { containedFrameRect } from '@/core/camera/previewGeometry';
 import { useCameraZoomAndExposure } from '@/core/camera/useCameraZoomAndExposure';
 import { useDeviceSteadiness } from '@/core/camera/useDeviceSteadiness';
-import { type PhotoBurstTimings, usePhotoBurst } from '@/core/camera/usePhotoBurst';
+import { type PhotoBurstCrop, type PhotoBurstRequest, type PhotoBurstTimings, usePhotoBurst } from '@/core/camera/usePhotoBurst';
 import { useResultImageViewer } from '@/core/camera/useResultImageViewer';
 import type { InstrumentScreenProps } from '@/core/instruments/types';
-import type { PointingGuidance } from '@/processing/astronomy/pointingGuide';
 import { isExpectedCameraInterruption } from '@/core/sensors/cameraErrors';
 import { useIsCameraAllowed } from '@/core/sensors/useIsCameraAllowed';
+import { julianDayFromDate } from '@/processing/astronomy/moonEphemeris';
+import { sharpeningSigmaForScale } from '@/processing/image/burstSuperResolution';
+import type { GrayImage } from '@/processing/image/grayImage';
+import { enhanceWithWavelets } from '@/processing/image/luckyImaging';
+import { fitLunarDisk } from '@/processing/image/lunarDiskFit';
 import { formatExposureDuration, initialLunarExposureSeconds } from '@/processing/image/lunarExposure';
 import { locateMoonInRegion, medianValue, moonCropFromRegion, moonSearchRegionSide } from '@/processing/image/lunarPhotoCrops';
 import {
@@ -29,10 +32,37 @@ import {
 import { AppButton, BodyText, Card, ScreenContainer, SectionTitle } from '@/ui/components';
 import { useThemePalette } from '@/ui/theme';
 
+import { GlassesTelescopeGuide } from './GlassesTelescopeGuide';
 import { moonInstrumentId } from './instrumentId';
+import {
+  atlasLanguageFor,
+  computeAtlasOrientation,
+  grayImageFromFloatRgb,
+  type ManualImageCorrection,
+} from './moonAtlas';
+import { AtlasControls, MoonAtlasView } from './MoonAtlasView';
+import {
+  earthshineRegionSide,
+  floatRgbFromGray,
+  fullDiskRadiusFromBrightArea,
+  planDriftCropSide,
+  planEarthshineExposures,
+  planLuckyFrameCrop,
+  waveletGainsBySharpeningLevel,
+} from './moonCapturePlanning';
 import { MoonInfoCard, useMoonReport, useObserverLocation } from './MoonInfoCard';
+import {
+  ChipSelector,
+  PointingOverlay,
+  ResultImage,
+  StepperRow,
+  TelescopeGuideOverlay,
+  ToggleChip,
+} from './MoonScreenParts';
+import { type DriftPhoto, fuseDriftPhotos, fuseEarthshineBursts, stackLuckyRecording } from './moonTechniques';
 import type { MoonMeasurementValues } from './schema';
 import { createSkiaImage } from './stackedImage';
+import { useDeviceRoll } from './useDeviceRoll';
 import { type LiveMoonDetection, useMoonFrames } from './useMoonFrames';
 import { useLunarManualExposure } from './useLunarManualExposure';
 import { useMoonPointingGuide } from './useMoonPointingGuide';
@@ -46,13 +76,34 @@ const ImageViewer = lazy(() => import('@/ui/ImageViewer').then((viewerModule) =>
 const previewHeight = 340;
 
 /**
+ * Modos de la pantalla:
+ *  - normal: ráfaga de fotos a pulso con el móvil solo.
+ *  - tripod: un minuto de fotos con el móvil quieto; la deriva de la Luna da superresolución.
+ *  - telescope: el móvil en el ocular de unos prismáticos o un telescopio (ráfaga de fotos o
+ *    muchos fotogramas de vídeo para la imagen afortunada).
+ *  - earthshine: luz cenicienta, con una ráfaga corta y otra larga fusionadas.
+ */
+type MoonShootingMode = 'normal' | 'tripod' | 'telescope' | 'earthshine';
+const shootingModes: readonly MoonShootingMode[] = ['normal', 'tripod', 'telescope', 'earthshine'];
+
+/**
  * Sin óptica, la cámara del móvil ve la Luna de unas decenas de píxeles: fase y mares. Con el
  * móvil en el ocular de unos prismáticos o un telescopio («digiscoping») la Luna es mucho más
  * grande y se ven cráteres; se apilan más fotos y se realza más.
  */
-type MoonCaptureMode = 'nakedEye' | 'telescope';
+type MoonOptics = 'nakedEye' | 'telescope';
 
-interface CaptureModeSettings {
+function opticsForMode(shootingMode: MoonShootingMode): MoonOptics {
+  return shootingMode === 'telescope' ? 'telescope' : 'nakedEye';
+}
+
+/** En modo telescopio: ráfaga de fotos a resolución completa o fotogramas de vídeo. */
+type TelescopeMethod = 'photoBurst' | 'luckyFrames';
+
+/** Técnica con la que se obtuvo un resultado (se guarda con la medida). */
+type CaptureTechnique = 'photoBurst' | 'luckyImaging' | 'driftSuperResolution' | 'earthshine';
+
+interface OpticsSettings {
   /** Fotos de cada ráfaga, a resolución completa (unos 3-6 s). */
   photoCount: number;
   /** Lado máximo del recorte que se apila (el cálculo crece con el área). */
@@ -62,7 +113,7 @@ interface CaptureModeSettings {
   initialExposureSeconds: number;
 }
 
-const captureModeSettings: Record<MoonCaptureMode, CaptureModeSettings> = {
+const opticsSettings: Record<MoonOptics, OpticsSettings> = {
   nakedEye: {
     photoCount: 12,
     maximumStackCropSize: 600,
@@ -77,14 +128,13 @@ const captureModeSettings: Record<MoonCaptureMode, CaptureModeSettings> = {
     initialExposureSeconds: initialLunarExposureSeconds / 2,
   },
 };
-const captureModes: readonly MoonCaptureMode[] = ['nakedEye', 'telescope'];
 /** Fracción más nítida que se apila; el resto se descarta por la turbulencia o el temblor. */
 const keptFrameFraction = 0.5;
 /** Zonas de búsqueda más grandes se reducen (en nativo) a este lado antes de pasarlas a JS. */
 const maximumSearchRegionOutputSide = 1024;
 /** Detecciones con un radio muy distinto del típico de la ráfaga son reflejos o errores. */
 const radiusToleranceFraction = 0.3;
-/** Niveles de realce del detalle (máscara de enfoque) que se pueden elegir tras apilar. */
+/** Niveles de realce del detalle que se pueden elegir tras apilar. */
 const sharpeningLevels = [
   { labelKey: 'sharpening.none', amount: 0 },
   { labelKey: 'sharpening.soft', amount: 0.6 },
@@ -98,36 +148,89 @@ const zoomStepFactor = Math.SQRT2;
 const overexposedSaturatedFraction = 0.02;
 /** Brillo máximo (R+G+B) por debajo del cual la Luna sale demasiado oscura. */
 const underexposedPeakBrightness = 300;
-/** Por debajo de esta distancia angular la Luna ya está en el centro de la imagen. */
-const centeredGuideDegrees = 4;
-/** Correcciones más pequeñas no se indican (la brújula no es tan precisa). */
-const negligibleCorrectionDegrees = 2;
 /** En modo telescopio, a partir de esta distancia al centro (fracción del lado corto) se avisa. */
 const offCenterFraction = 0.15;
-/** Diámetro del círculo guía del ocular, como fracción del lado corto de la imagen. */
-const eyepieceGuideFraction = 0.8;
+
+/** Imagen afortunada: fotogramas de vídeo que se graban (unos 5 s a 30 fps). */
+const luckyFrameCount = 150;
+/** Con menos fotogramas no merece la pena apilar. */
+const minimumLuckyFrameCount = 10;
+/** Si la Luna se pierde, la grabación termina sola al cabo de este tiempo. */
+const luckyRecordingTimeoutMilliseconds = 30_000;
+
+/** Trípode: duración de la captura y fotos por tanda (se decodifica tras cada tanda). */
+const driftDurationSeconds = 60;
+const driftPhotosPerBatch = 6;
+/** Memoria máxima para los recortes del trípode (RGB de 8 bits). */
+const driftMemoryBudgetBytes = 60_000_000;
+const driftMaximumPhotoCount = 120;
+const minimumDriftPhotoCount = 6;
+
+/** Luz cenicienta: fotos de cada exposición y espera para que la cámara aplique la nueva. */
+const earthshinePhotosPerExposure = 8;
+const exposureSettleMilliseconds = 700;
+/** Por encima de esta fracción iluminada la luz cenicienta apenas se ve. */
+const earthshineMaximumIlluminatedFraction = 0.4;
+
+type ResultEnhancement = 'unsharpMask' | 'wavelets' | 'none';
 
 interface StackingOutcome {
-  /** Apilado sin realzar: el realce se aplica después, según el nivel elegido. */
-  stackedBaseImage: FloatRgbImage;
+  technique: CaptureTechnique;
+  /** Resultado sin realzar: el realce se aplica después, según el nivel elegido. */
+  baseImage: FloatRgbImage;
+  /** Para el realce por ondículas (imagen afortunada): la misma imagen en un canal. */
+  baseGrayImage?: GrayImage;
+  enhancement: ResultEnhancement;
   sharpeningSigma: number;
-  bestSingleSkiaImage: SkImage;
+  defaultSharpeningLevelIndex: number;
+  /** Imagen para comparar (una sola foto o fotograma, o la exposición corta). */
+  comparisonSkiaImage: SkImage;
+  comparisonLabel: string;
+  resultLabel: string;
+  /** Explicación y tiempos, ya traducidos. */
+  detailLines: string[];
   capturedFrameCount: number;
-  rejectedFrameCount: number;
   stackedFrameCount: number;
-  /** Diámetro de la Luna en píxeles de la foto a resolución completa. */
+  /** Diámetro de la Luna en píxeles de la imagen de partida (foto o fotograma). */
   moonDiameterPixels: number;
   zoomFactor: number;
-  captureMode: MoonCaptureMode;
-  burstTimings: PhotoBurstTimings;
+  optics: MoonOptics;
+  captureDate: Date;
+  /** Giro del móvil al capturar (para el atlas); null si no se conoce. */
+  deviceRollDegrees: number | null;
   exposureBias?: number;
   /** Con exposición manual: tiempo de exposición en segundos e ISO. */
   exposureSeconds?: number;
   iso?: number;
+  exposureRatio?: number;
+}
+
+/** Datos comunes de todo resultado, tomados al empezar la captura (tras la cuenta atrás). */
+interface CaptureContext {
+  detection: LiveMoonDetection;
+  captureDate: Date;
+  deviceRollDegrees: number | null;
+  zoomFactor: number;
+  optics: MoonOptics;
+  exposureFields: Pick<StackingOutcome, 'exposureBias' | 'exposureSeconds' | 'iso'>;
+}
+
+/** Problema previsto durante la captura: se muestra el texto de la clave indicada. */
+class MoonCaptureProblem extends Error {
+  constructor(
+    readonly messageKey: string,
+    readonly messageValues: Record<string, string | number> = {},
+  ) {
+    super(messageKey);
+  }
 }
 
 function waitMilliseconds(durationMilliseconds: number) {
   return new Promise((resolve) => setTimeout(resolve, durationMilliseconds));
+}
+
+function formatSeconds(milliseconds: number): string {
+  return (milliseconds / 1000).toFixed(1);
 }
 
 /** Diámetro de la Luna detectada en la vista previa, llevado a píxeles de la foto. */
@@ -135,8 +238,17 @@ function moonDiameterInPhotoPixels(detection: LiveMoonDetection, photoSize: Pixe
   return Math.round(detection.radiusPixels * 2 * (photoSize.width / detection.frameWidth));
 }
 
+/** Centro de la Luna de la vista previa llevado a la foto derecha. */
+function expectedPhotoCenter(detection: LiveMoonDetection, uprightPhotoSize: PixelSize) {
+  return scalePointBetweenImages(
+    { x: detection.centerX, y: detection.centerY },
+    { width: detection.frameWidth, height: detection.frameHeight },
+    uprightPhotoSize,
+  );
+}
+
 export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentScreenProps<MoonMeasurementValues>) {
-  const { t } = useTranslation(moonInstrumentId);
+  const { t, i18n } = useTranslation(moonInstrumentId);
   const themePalette = useThemePalette();
   const cameraRef = useRef<CameraRef>(null);
   const cameraDevice = useCameraDevice('back');
@@ -146,9 +258,13 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
   );
   const moonReport = useMoonReport(observerLocation);
   const hasGyroscope = sensorAvailability.gyroscope.status === 'available';
+  const hasAccelerometer = sensorAvailability.accelerometer.status === 'available';
   const { isDeviceSteady, isSteadyForDisplay } = useDeviceSteadiness(isCameraAllowed, hasGyroscope);
-  const [captureMode, setCaptureMode] = useState<MoonCaptureMode>('nakedEye');
-  const modeSettings = captureModeSettings[captureMode];
+  const readDeviceRollDegrees = useDeviceRoll(isCameraAllowed && hasAccelerometer);
+  const [shootingMode, setShootingMode] = useState<MoonShootingMode>('normal');
+  const [telescopeMethod, setTelescopeMethod] = useState<TelescopeMethod>('photoBurst');
+  const optics = opticsForMode(shootingMode);
+  const modeSettings = opticsSettings[optics];
   // Desde la cuenta atrás hasta el final de la captura, la exposición no cambia.
   const [isCaptureInProgress, setIsCaptureInProgress] = useState(false);
   // La captura espera varias veces (cuenta atrás, ráfaga): si se sale de la pantalla entretanto,
@@ -163,8 +279,9 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
   // La exposición automática mide sobre todo el cielo negro y quema la Luna, incluso con la
   // compensación al mínimo. Si el móvil lo admite, se fija el tiempo de exposición midiendo solo la Luna.
   const lunarManualExposure = useLunarManualExposure(cameraRef, cameraDevice, isCaptureInProgress);
-  const { frameOutput, liveDetection } = useMoonFrames(lunarManualExposure.handleBrightnessReading);
-  // La ráfaga lee la última detección al empezar (tras la cuenta atrás), no la del toque.
+  const moonFrames = useMoonFrames(lunarManualExposure.handleBrightnessReading);
+  const { frameOutput, liveDetection } = moonFrames;
+  // La captura lee la última detección al empezar (tras la cuenta atrás), no la del toque.
   const latestDetectionRef = useRef<LiveMoonDetection | null>(null);
   useEffect(() => {
     latestDetectionRef.current = liveDetection;
@@ -172,10 +289,10 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
   const photoBurst = usePhotoBurst();
   const resultImageViewer = useResultImageViewer();
   const hasOrientationSensors =
-    sensorAvailability.accelerometer.status === 'available' && sensorAvailability.magnetometer.status === 'available';
+    hasAccelerometer && sensorAvailability.magnetometer.status === 'available';
   const pointingGuidance = useMoonPointingGuide(
     moonReport.horizontalPosition,
-    isCameraAllowed && hasOrientationSensors && captureMode === 'nakedEye',
+    isCameraAllowed && hasOrientationSensors && optics === 'nakedEye',
   );
 
   // La Luna es muy brillante sobre fondo negro: con la exposición automática sale quemada.
@@ -200,32 +317,69 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
 
   const [meteringViewPoint, setMeteringViewPoint] = useState<{ x: number; y: number } | null>(null);
   const [stackingOutcome, setStackingOutcome] = useState<StackingOutcome | null>(null);
-  const [sharpeningLevelIndex, setSharpeningLevelIndex] = useState(captureModeSettings.nakedEye.defaultSharpeningLevelIndex);
+  const [sharpeningLevelIndex, setSharpeningLevelIndex] = useState(opticsSettings.nakedEye.defaultSharpeningLevelIndex);
   const [countdownSecondsLeft, setCountdownSecondsLeft] = useState<number | null>(null);
+  /** Texto de la fase de una captura larga (trípode, luz cenicienta). */
+  const [captureStageMessage, setCaptureStageMessage] = useState<string | null>(null);
+  const isStopRequestedRef = useRef(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [previewSize, setPreviewSize] = useState<PixelSize>({ width: 0, height: 0 });
+  const [isAtlasVisible, setIsAtlasVisible] = useState(false);
+  const [imageCorrection, setImageCorrection] = useState<ManualImageCorrection>({
+    opticsRotationDegrees: 0,
+    isMirrored: false,
+  });
+  const [isGlassesGuideVisible, setIsGlassesGuideVisible] = useState(false);
 
   const stackedSkiaImage = useMemo(() => {
     if (!stackingOutcome) return null;
-    const sharpeningAmount = sharpeningLevels[sharpeningLevelIndex]?.amount ?? 0;
+    const levelIndex = Math.min(sharpeningLevelIndex, sharpeningLevels.length - 1);
+    if (stackingOutcome.enhancement === 'wavelets' && stackingOutcome.baseGrayImage && levelIndex > 0) {
+      const levelGains = waveletGainsBySharpeningLevel[levelIndex] ?? [1];
+      const enhancedImage = enhanceWithWavelets(stackingOutcome.baseGrayImage, { levelGains, noiseThresholdSigmas: 1 });
+      return createSkiaImage(floatRgbFromGray(enhancedImage));
+    }
+    const sharpeningAmount = sharpeningLevels[levelIndex]?.amount ?? 0;
     const displayedImage =
-      sharpeningAmount > 0
-        ? sharpenImage(stackingOutcome.stackedBaseImage, stackingOutcome.sharpeningSigma, sharpeningAmount)
-        : stackingOutcome.stackedBaseImage;
+      stackingOutcome.enhancement === 'unsharpMask' && sharpeningAmount > 0
+        ? sharpenImage(stackingOutcome.baseImage, stackingOutcome.sharpeningSigma, sharpeningAmount)
+        : stackingOutcome.baseImage;
     return createSkiaImage(displayedImage);
   }, [stackingOutcome, sharpeningLevelIndex]);
+
+  // Atlas: el disco se ajusta una vez por resultado, y solo si se piden los nombres.
+  const atlasDiskFit = useMemo(
+    () => (isAtlasVisible && stackingOutcome ? fitLunarDisk(grayImageFromFloatRgb(stackingOutcome.baseImage)) : null),
+    [isAtlasVisible, stackingOutcome],
+  );
+  const atlasOrientation = useMemo(
+    () =>
+      stackingOutcome && atlasDiskFit
+        ? computeAtlasOrientation({
+            julianDay: julianDayFromDate(stackingOutcome.captureDate),
+            observerLocation,
+            deviceRollDegrees: stackingOutcome.deviceRollDegrees,
+            correction: imageCorrection,
+            disk: atlasDiskFit,
+          })
+        : null,
+    [stackingOutcome, atlasDiskFit, observerLocation, imageCorrection],
+  );
 
   const canMeter = Boolean(cameraDevice?.supportsExposureMetering || cameraDevice?.supportsFocusMetering);
   const isBusy = isCaptureInProgress || isProcessing;
 
-  function handleSelectCaptureMode(nextCaptureMode: MoonCaptureMode) {
-    if (nextCaptureMode === captureMode || isBusy) return;
-    setCaptureMode(nextCaptureMode);
-    setSharpeningLevelIndex(captureModeSettings[nextCaptureMode].defaultSharpeningLevelIndex);
-    // Por el ocular la Luna es otra: se vuelve a ajustar la luz desde una exposición corta.
-    lunarManualExposure.restartAutomatic(captureModeSettings[nextCaptureMode].initialExposureSeconds);
+  function handleSelectShootingMode(nextShootingMode: MoonShootingMode) {
+    if (nextShootingMode === shootingMode || isBusy) return;
+    const nextOptics = opticsForMode(nextShootingMode);
+    setShootingMode(nextShootingMode);
+    if (nextOptics !== optics) {
+      setSharpeningLevelIndex(opticsSettings[nextOptics].defaultSharpeningLevelIndex);
+      // Por el ocular la Luna es otra: se vuelve a ajustar la luz desde una exposición corta.
+      lunarManualExposure.restartAutomatic(opticsSettings[nextOptics].initialExposureSeconds);
+    }
   }
 
   async function handlePreviewPress(pressEvent: GestureResponderEvent) {
@@ -270,141 +424,471 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
     }
   }
 
-  async function handleCapture() {
-    if (!liveDetection) return;
-    const captureSettings = modeSettings;
-    const captureModeAtStart = captureMode;
-    const captureZoomFactor = zoomFactor;
-    const captureExposureBias = exposureBias;
-    setStackingOutcome(null);
-    setStatusMessage(null);
-    setIsCaptureInProgress(true);
-    const captureExposureSeconds = lunarManualExposure.isManualExposureActive
-      ? lunarManualExposure.exposureSeconds
-      : undefined;
-    const captureIso = lunarManualExposure.isManualExposureActive ? lunarManualExposure.iso : undefined;
-    for (let secondsLeft = captureCountdownSeconds; secondsLeft > 0; secondsLeft--) {
-      setCountdownSecondsLeft(secondsLeft);
-      await waitMilliseconds(1000);
-      if (!isMountedRef.current) return;
-    }
-    setCountdownSecondsLeft(null);
-    const detectionAtBurstStart = latestDetectionRef.current;
-    if (!detectionAtBurstStart) {
-      setIsCaptureInProgress(false);
-      setStatusMessage(t('moonLostDuringCapture'));
-      return;
-    }
-    const detectionFrameSize = { width: detectionAtBurstStart.frameWidth, height: detectionAtBurstStart.frameHeight };
-    let burstResult;
-    try {
-      burstResult = await photoBurst.captureBurst({
-        photoCount: captureSettings.photoCount,
-        // Una foto tomada mientras el móvil se mueve sale corrida: no aporta, emborrona.
-        isPhotoUsable: isDeviceSteady,
-        maximumOutputSide: maximumSearchRegionOutputSide,
-        // Solo se decodifica la zona donde estaba la Luna en la vista previa, con margen.
-        planCrop: (uprightPhotoSize) => {
-          const photoPixelsPerFramePixel = uprightPhotoSize.width / detectionFrameSize.width;
-          const expectedCenter = scalePointBetweenImages(
-            { x: detectionAtBurstStart.centerX, y: detectionAtBurstStart.centerY },
-            detectionFrameSize,
-            uprightPhotoSize,
-          );
-          const searchRegionSide = moonSearchRegionSide(
-            detectionAtBurstStart.radiusPixels * photoPixelsPerFramePixel,
-            Math.min(uprightPhotoSize.width, uprightPhotoSize.height),
-          );
-          return squareCropAround(expectedCenter, searchRegionSide, uprightPhotoSize);
-        },
-      });
-    } catch (burstError) {
-      setIsCaptureInProgress(false);
-      setStatusMessage(t('core:common.error', { message: String(burstError) }));
-      return;
-    }
-    if (!isMountedRef.current) return;
+  /** Deja de capturar y pasa a calcular (deja que se pinte el indicador antes). */
+  async function enterProcessingPhase() {
+    setCaptureStageMessage(null);
     setIsCaptureInProgress(false);
-    const steadyCrops = burstResult.crops.filter((photoCrop) => photoCrop.wasMarkedUsable);
-    const rejectedFrameCount = burstResult.crops.length - steadyCrops.length;
-    if (steadyCrops.length === 0) {
-      setStatusMessage(
-        rejectedFrameCount > 0
-          ? t('tooMuchMovement')
-          : burstResult.firstErrorMessage
-            ? t('burstFailed', { message: burstResult.firstErrorMessage })
-            : t('moonLostDuringCapture'),
-      );
-      return;
-    }
     setIsProcessing(true);
-    // Deja que se pinte el indicador antes del cálculo, que ocupa el hilo JS unos segundos.
     await waitMilliseconds(50);
-    if (!isMountedRef.current) return;
-    try {
-      const moonDetections = steadyCrops.map((photoCrop) =>
-        locateMoonInRegion(photoCrop.rgbPixels, photoCrop.width, photoCrop.height),
-      );
-      const typicalRadius = medianValue(
-        moonDetections.flatMap((moonDetection) => (moonDetection ? [moonDetection.radiusPixels] : [])),
-      );
-      if (typicalRadius <= 0) {
-        setStatusMessage(t('moonLostDuringCapture'));
+    if (!isMountedRef.current) throw new MoonCaptureProblem('moonLostDuringCapture');
+  }
+
+  // ------------------------------------------------------------------------------------------
+  // Ráfaga de fotos (modo normal y telescopio)
+  // ------------------------------------------------------------------------------------------
+
+  async function capturePhotoBurstStack(captureContext: CaptureContext): Promise<StackingOutcome> {
+    const { detection } = captureContext;
+    const captureSettings = opticsSettings[captureContext.optics];
+    const detectionFrameSize = { width: detection.frameWidth, height: detection.frameHeight };
+    const burstResult = await photoBurst.captureBurst({
+      photoCount: captureSettings.photoCount,
+      // Una foto tomada mientras el móvil se mueve sale corrida: no aporta, emborrona.
+      isPhotoUsable: isDeviceSteady,
+      maximumOutputSide: maximumSearchRegionOutputSide,
+      // Solo se decodifica la zona donde estaba la Luna en la vista previa, con margen.
+      planCrop: (uprightPhotoSize) => {
+        const photoPixelsPerFramePixel = uprightPhotoSize.width / detectionFrameSize.width;
+        const searchRegionSide = moonSearchRegionSide(
+          detection.radiusPixels * photoPixelsPerFramePixel,
+          Math.min(uprightPhotoSize.width, uprightPhotoSize.height),
+        );
+        return squareCropAround(expectedPhotoCenter(detection, uprightPhotoSize), searchRegionSide, uprightPhotoSize);
+      },
+    });
+    const steadyCrops = requireSteadyCrops(burstResult.crops, burstResult.firstErrorMessage);
+    const rejectedFrameCount = burstResult.crops.length - steadyCrops.length;
+    await enterProcessingPhase();
+    const processingStartTime = Date.now();
+    const moonDetections = steadyCrops.map((photoCrop) =>
+      locateMoonInRegion(photoCrop.rgbPixels, photoCrop.width, photoCrop.height),
+    );
+    const typicalRadius = medianValue(
+      moonDetections.flatMap((moonDetection) => (moonDetection ? [moonDetection.radiusPixels] : [])),
+    );
+    if (typicalRadius <= 0) throw new MoonCaptureProblem('moonLostDuringCapture');
+    const cropSize = chooseCropSize(typicalRadius, 96, captureSettings.maximumStackCropSize);
+    const alignedCrops: AlignedCrop[] = [];
+    steadyCrops.forEach((photoCrop, cropIndex) => {
+      const moonDetection = moonDetections[cropIndex];
+      // Un radio muy distinto del típico es un reflejo, una nube o la Luna cortada por el borde.
+      if (!moonDetection || Math.abs(moonDetection.radiusPixels - typicalRadius) > typicalRadius * radiusToleranceFraction) {
         return;
       }
-      const cropSize = chooseCropSize(typicalRadius, 96, captureSettings.maximumStackCropSize);
-      const alignedCrops: AlignedCrop[] = [];
-      steadyCrops.forEach((photoCrop, cropIndex) => {
-        const moonDetection = moonDetections[cropIndex];
-        // Un radio muy distinto del típico es un reflejo, una nube o la Luna cortada por el borde.
-        if (!moonDetection || Math.abs(moonDetection.radiusPixels - typicalRadius) > typicalRadius * radiusToleranceFraction) {
+      const moonCrop = moonCropFromRegion(photoCrop.rgbPixels, photoCrop.width, photoCrop.height, cropSize, moonDetection);
+      if (moonCrop) alignedCrops.push(moonCrop.alignedCrop);
+    });
+    if (alignedCrops.length === 0) throw new MoonCaptureProblem('moonLostDuringCapture');
+    const stackingResult = stackSharpestCrops(alignedCrops, cropSize, keptFrameFraction, 0);
+    const outputScale = steadyCrops[0]?.outputScale ?? 1;
+    const moonDiameterPixels = Math.round((typicalRadius * 2) / outputScale);
+    const burstTimings: PhotoBurstTimings = burstResult.timings;
+    const detailLines = [
+      t('stackingExplanation', {
+        captured: burstTimings.capturedPhotoCount,
+        stacked: stackingResult.usedCropCount,
+        diameter: moonDiameterPixels,
+      }),
+    ];
+    if (rejectedFrameCount > 0) detailLines.push(t('rejectedFramesExplanation', { count: rejectedFrameCount }));
+    detailLines.push(
+      t('burstTimings', {
+        count: burstTimings.capturedPhotoCount,
+        captureSeconds: formatSeconds(burstTimings.captureMilliseconds),
+        decodeSeconds: formatSeconds(burstTimings.decodeMilliseconds),
+      }),
+      t('processingTime', { seconds: formatSeconds(Date.now() - processingStartTime) }),
+    );
+    return {
+      ...commonOutcomeFields(captureContext),
+      technique: 'photoBurst',
+      baseImage: stackingResult.stackedImage,
+      enhancement: 'unsharpMask',
+      sharpeningSigma: sharpeningSigmaForCropSize(cropSize),
+      defaultSharpeningLevelIndex: captureSettings.defaultSharpeningLevelIndex,
+      comparisonSkiaImage: requireSkiaImage(createSkiaImage(stackingResult.bestSingleImage)),
+      comparisonLabel: t('bestSingleFrame'),
+      resultLabel: t('stackedFrames', { count: stackingResult.usedCropCount }),
+      detailLines,
+      capturedFrameCount: burstTimings.capturedPhotoCount,
+      stackedFrameCount: stackingResult.usedCropCount,
+      moonDiameterPixels,
+    };
+  }
+
+  function requireSteadyCrops(crops: readonly PhotoBurstCrop[], firstErrorMessage: string | null): PhotoBurstCrop[] {
+    const steadyCrops = crops.filter((photoCrop) => photoCrop.wasMarkedUsable);
+    if (steadyCrops.length > 0) return steadyCrops;
+    if (crops.length > 0) throw new MoonCaptureProblem('tooMuchMovement');
+    if (firstErrorMessage) throw new MoonCaptureProblem('burstFailed', { message: firstErrorMessage });
+    throw new MoonCaptureProblem('moonLostDuringCapture');
+  }
+
+  function requireSkiaImage(skiaImage: SkImage | null): SkImage {
+    if (!skiaImage) throw new Error('Skia no pudo crear la imagen');
+    return skiaImage;
+  }
+
+  function commonOutcomeFields(captureContext: CaptureContext) {
+    return {
+      zoomFactor: captureContext.zoomFactor,
+      optics: captureContext.optics,
+      captureDate: captureContext.captureDate,
+      deviceRollDegrees: captureContext.deviceRollDegrees,
+      ...captureContext.exposureFields,
+    };
+  }
+
+  // ------------------------------------------------------------------------------------------
+  // Imagen afortunada (telescopio, fotogramas de vídeo)
+  // ------------------------------------------------------------------------------------------
+
+  async function captureLuckyStack(captureContext: CaptureContext): Promise<StackingOutcome> {
+    const { detection } = captureContext;
+    const fullDiskRadius = fullDiskRadiusFromBrightArea(detection.radiusPixels, moonReport.illuminatedFraction);
+    const cropPlan = planLuckyFrameCrop(fullDiskRadius, Math.min(detection.frameWidth, detection.frameHeight));
+    const recordingTimeout = setTimeout(moonFrames.stopRecording, luckyRecordingTimeoutMilliseconds);
+    let frameRecording;
+    try {
+      frameRecording = await moonFrames.recordFrames(cropPlan, luckyFrameCount);
+    } finally {
+      clearTimeout(recordingTimeout);
+    }
+    if (frameRecording.grayFrames.length < minimumLuckyFrameCount) throw new MoonCaptureProblem('moonLostDuringCapture');
+    await enterProcessingPhase();
+    const processingStartTime = Date.now();
+    const outputDiskRadius = fullDiskRadius / cropPlan.downsampleFactor;
+    const luckyOutcome = stackLuckyRecording(frameRecording.grayFrames, frameRecording.outputSide, outputDiskRadius);
+    const recordedCount = frameRecording.grayFrames.length;
+    const framesPerSecond = frameRecording.durationMilliseconds > 0 ? (recordedCount * 1000) / frameRecording.durationMilliseconds : 0;
+    return {
+      ...commonOutcomeFields(captureContext),
+      technique: 'luckyImaging',
+      baseImage: floatRgbFromGray(luckyOutcome.stackedImage),
+      baseGrayImage: luckyOutcome.stackedImage,
+      enhancement: 'wavelets',
+      sharpeningSigma: 1,
+      defaultSharpeningLevelIndex: opticsSettings.telescope.defaultSharpeningLevelIndex,
+      comparisonSkiaImage: requireSkiaImage(createSkiaImage(floatRgbFromGray(luckyOutcome.bestSingleImage))),
+      comparisonLabel: t('bestSingleFrame'),
+      resultLabel: t('stackedFrames', { count: luckyOutcome.usedFrameCount }),
+      detailLines: [
+        t('luckyExplanation', {
+          recorded: recordedCount,
+          stacked: luckyOutcome.usedFrameCount,
+          points: luckyOutcome.alignmentPointCount,
+          side: frameRecording.outputSide,
+        }),
+        ...(cropPlan.downsampleFactor > 1 ? [t('luckyDownsampled', { factor: cropPlan.downsampleFactor })] : []),
+        t('luckyTimings', {
+          count: recordedCount,
+          captureSeconds: formatSeconds(frameRecording.durationMilliseconds),
+          framesPerSecond: framesPerSecond.toFixed(0),
+          processSeconds: formatSeconds(Date.now() - processingStartTime),
+        }),
+      ],
+      capturedFrameCount: recordedCount,
+      stackedFrameCount: luckyOutcome.usedFrameCount,
+      moonDiameterPixels: Math.round(fullDiskRadius * 2),
+    };
+  }
+
+  // ------------------------------------------------------------------------------------------
+  // Trípode: superresolución por deriva
+  // ------------------------------------------------------------------------------------------
+
+  async function captureDriftSuperResolution(captureContext: CaptureContext): Promise<StackingOutcome> {
+    const { detection } = captureContext;
+    const typicalPhotoSize = photoBurst.uprightPhotoSize;
+    const photoPixelsPerFramePixel = typicalPhotoSize.width / detection.frameWidth;
+    const fullDiskDiameterPhoto =
+      2 * fullDiskRadiusFromBrightArea(detection.radiusPixels, moonReport.illuminatedFraction) * photoPixelsPerFramePixel;
+    const cropSide = planDriftCropSide(
+      fullDiskDiameterPhoto,
+      moonReport.apparentDiameterArcminutes,
+      driftDurationSeconds,
+      Math.min(typicalPhotoSize.width, typicalPhotoSize.height),
+    );
+    const maximumPhotoCount = Math.max(
+      minimumDriftPhotoCount,
+      Math.min(driftMaximumPhotoCount, Math.floor(driftMemoryBudgetBytes / (cropSide * cropSide * 3))),
+    );
+    // Recorte FIJO: el mismo rectángulo en todas las fotos, centrado donde estaba la Luna al empezar.
+    const planFixedCrop: PhotoBurstRequest['planCrop'] = (uprightPhotoSize) =>
+      squareCropAround(expectedPhotoCenter(detection, uprightPhotoSize), cropSide, uprightPhotoSize);
+    const driftPhotos: DriftPhoto[] = [];
+    let capturedPhotoCount = 0;
+    let rejectedPhotoCount = 0;
+    let firstErrorMessage: string | null = null;
+    const captureStartTime = Date.now();
+    while (
+      Date.now() - captureStartTime < driftDurationSeconds * 1000 &&
+      driftPhotos.length < maximumPhotoCount &&
+      !isStopRequestedRef.current &&
+      isMountedRef.current
+    ) {
+      const batchCaptureTimes: number[] = [];
+      const burstResult = await photoBurst.captureBurst({
+        photoCount: Math.min(driftPhotosPerBatch, maximumPhotoCount - driftPhotos.length),
+        isPhotoUsable: () => {
+          batchCaptureTimes.push(Date.now());
+          return isDeviceSteady();
+        },
+        planCrop: planFixedCrop,
+      });
+      capturedPhotoCount += burstResult.timings.capturedPhotoCount;
+      firstErrorMessage ??= burstResult.firstErrorMessage;
+      // Sin fallos de decodificación, cada recorte es la foto del mismo orden: su hora es la del disparo.
+      const hasMatchingTimes = burstResult.crops.length === batchCaptureTimes.length;
+      burstResult.crops.forEach((photoCrop, cropIndex) => {
+        if (!photoCrop.wasMarkedUsable) {
+          rejectedPhotoCount++;
           return;
         }
-        const moonCrop = moonCropFromRegion(photoCrop.rgbPixels, photoCrop.width, photoCrop.height, cropSize, moonDetection);
-        if (moonCrop) alignedCrops.push(moonCrop.alignedCrop);
+        if (photoCrop.width !== cropSide || photoCrop.height !== cropSide || !hasMatchingTimes) return;
+        driftPhotos.push({
+          rgbPixels: photoCrop.rgbPixels,
+          side: cropSide,
+          timestampSeconds: (batchCaptureTimes[cropIndex]! - captureStartTime) / 1000,
+        });
       });
-      if (alignedCrops.length === 0) {
-        setStatusMessage(t('moonLostDuringCapture'));
-        return;
+      if (burstResult.timings.capturedPhotoCount === 0) break;
+      if (isMountedRef.current) {
+        setCaptureStageMessage(
+          t('driftProgress', {
+            elapsed: Math.min(driftDurationSeconds, Math.round((Date.now() - captureStartTime) / 1000)),
+            total: driftDurationSeconds,
+            photos: driftPhotos.length,
+          }),
+        );
       }
-      const stackingResult = stackSharpestCrops(alignedCrops, cropSize, keptFrameFraction, 0);
-      const bestSingleSkiaImage = createSkiaImage(stackingResult.bestSingleImage);
-      if (!bestSingleSkiaImage) throw new Error('Skia no pudo crear la imagen');
-      const outputScale = steadyCrops[0]?.outputScale ?? 1;
-      setSharpeningLevelIndex(captureSettings.defaultSharpeningLevelIndex);
-      setStackingOutcome({
-        stackedBaseImage: stackingResult.stackedImage,
-        sharpeningSigma: sharpeningSigmaForCropSize(cropSize),
-        bestSingleSkiaImage,
-        capturedFrameCount: burstResult.timings.capturedPhotoCount,
-        rejectedFrameCount,
-        stackedFrameCount: stackingResult.usedCropCount,
-        moonDiameterPixels: Math.round((typicalRadius * 2) / outputScale),
-        zoomFactor: captureZoomFactor,
-        captureMode: captureModeAtStart,
-        burstTimings: burstResult.timings,
-        ...(captureExposureSeconds !== undefined && captureIso !== undefined
-          ? { exposureSeconds: captureExposureSeconds, iso: captureIso }
-          : captureExposureBias !== undefined
-            ? { exposureBias: captureExposureBias }
-            : {}),
-      });
-    } catch (processingError) {
-      setStatusMessage(t('core:common.error', { message: String(processingError) }));
-    } finally {
-      setIsProcessing(false);
     }
+    const captureMilliseconds = Date.now() - captureStartTime;
+    if (driftPhotos.length < minimumDriftPhotoCount) {
+      if (rejectedPhotoCount > 0) throw new MoonCaptureProblem('tooMuchMovement');
+      if (firstErrorMessage) throw new MoonCaptureProblem('burstFailed', { message: firstErrorMessage });
+      throw new MoonCaptureProblem('tooFewDriftPhotos', { count: driftPhotos.length });
+    }
+    await enterProcessingPhase();
+    const processingStartTime = Date.now();
+    const driftOutcome = fuseDriftPhotos(driftPhotos);
+    const detailLines = [
+      t('driftExplanation', {
+        photos: driftPhotos.length,
+        used: driftOutcome.usedFrameCount,
+        span: driftOutcome.driftSpanPixels.toFixed(1),
+      }),
+    ];
+    if (driftOutcome.driftPixelsPerSecond !== null) {
+      detailLines.push(t('driftSpeed', { speed: driftOutcome.driftPixelsPerSecond.toFixed(2) }));
+    }
+    if (driftOutcome.driftSpanPixels < 2) detailLines.push(t('driftTooSmall'));
+    if (rejectedPhotoCount > 0) detailLines.push(t('rejectedFramesExplanation', { count: rejectedPhotoCount }));
+    detailLines.push(
+      t('driftTimings', {
+        count: capturedPhotoCount,
+        captureSeconds: formatSeconds(captureMilliseconds),
+        processSeconds: formatSeconds(Date.now() - processingStartTime),
+      }),
+    );
+    return {
+      ...commonOutcomeFields(captureContext),
+      technique: 'driftSuperResolution',
+      baseImage: driftOutcome.superResolvedImage,
+      enhancement: 'unsharpMask',
+      sharpeningSigma: sharpeningSigmaForScale(2),
+      defaultSharpeningLevelIndex: opticsSettings.nakedEye.defaultSharpeningLevelIndex,
+      comparisonSkiaImage: requireSkiaImage(createSkiaImage(driftOutcome.singleFrameImage)),
+      comparisonLabel: t('singlePhotoEnlarged'),
+      resultLabel: t('driftResultLabel', { count: driftOutcome.usedFrameCount }),
+      detailLines,
+      capturedFrameCount: capturedPhotoCount,
+      stackedFrameCount: driftOutcome.usedFrameCount,
+      moonDiameterPixels: Math.round(fullDiskDiameterPhoto),
+    };
+  }
+
+  // ------------------------------------------------------------------------------------------
+  // Luz cenicienta: ráfaga corta y ráfaga larga
+  // ------------------------------------------------------------------------------------------
+
+  async function captureEarthshine(captureContext: CaptureContext): Promise<StackingOutcome> {
+    const { detection } = captureContext;
+    const cameraController = cameraRef.current?.controller;
+    if (!lunarManualExposure.isManualExposureActive || !cameraController || cameraController.maxExposureDuration <= 0) {
+      throw new MoonCaptureProblem('earthshineNeedsManualExposure');
+    }
+    const exposurePlan = planEarthshineExposures(lunarManualExposure.exposureSeconds, {
+      minimumSeconds: cameraController.minExposureDuration,
+      maximumSeconds: cameraController.maxExposureDuration,
+    });
+    const iso = lunarManualExposure.iso;
+    const typicalPhotoSize = photoBurst.uprightPhotoSize;
+    const photoPixelsPerFramePixel = typicalPhotoSize.width / detection.frameWidth;
+    const fullDiskRadiusPhoto =
+      fullDiskRadiusFromBrightArea(detection.radiusPixels, moonReport.illuminatedFraction) * photoPixelsPerFramePixel;
+    // La misma zona fija en las dos ráfagas: se alinean después por el centro del disco.
+    const planRegion: PhotoBurstRequest['planCrop'] = (uprightPhotoSize) =>
+      squareCropAround(
+        expectedPhotoCenter(detection, uprightPhotoSize),
+        earthshineRegionSide(fullDiskRadiusPhoto, Math.min(uprightPhotoSize.width, uprightPhotoSize.height)),
+        uprightPhotoSize,
+      );
+    const captureStartTime = Date.now();
+    const burstAtExposure = async (exposureSeconds: number, stageKey: string) => {
+      setCaptureStageMessage(t(stageKey, { duration: formatExposureDuration(exposureSeconds) }));
+      await cameraController.setExposureLocked(exposureSeconds, iso);
+      await waitMilliseconds(exposureSettleMilliseconds);
+      if (!isMountedRef.current || isStopRequestedRef.current) throw new MoonCaptureProblem('captureStopped');
+      const burstResult = await photoBurst.captureBurst({
+        photoCount: earthshinePhotosPerExposure,
+        isPhotoUsable: isDeviceSteady,
+        maximumOutputSide: maximumSearchRegionOutputSide,
+        planCrop: planRegion,
+      });
+      return requireSteadyCrops(burstResult.crops, burstResult.firstErrorMessage);
+    };
+    let shortCrops: PhotoBurstCrop[];
+    let longCrops: PhotoBurstCrop[];
+    try {
+      shortCrops = await burstAtExposure(exposurePlan.shortExposureSeconds, 'earthshineShortStage');
+      longCrops = await burstAtExposure(exposurePlan.longExposureSeconds, 'earthshineLongStage');
+    } finally {
+      // Vuelve a la exposición de la vista previa.
+      lunarManualExposure.reapplyExposure();
+    }
+    const captureMilliseconds = Date.now() - captureStartTime;
+    await enterProcessingPhase();
+    const processingStartTime = Date.now();
+    const toRegion = (photoCrop: PhotoBurstCrop) => ({
+      rgbPixels: photoCrop.rgbPixels,
+      width: photoCrop.width,
+      height: photoCrop.height,
+    });
+    const earthshineOutcome = fuseEarthshineBursts(
+      shortCrops.map(toRegion),
+      longCrops.map(toRegion),
+      exposurePlan.exposureRatio,
+    );
+    const outputScale = shortCrops[0]?.outputScale ?? 1;
+    const detailLines = [
+      t('earthshineExplanation', {
+        shortCount: earthshineOutcome.usedShortCount,
+        longCount: earthshineOutcome.usedLongCount,
+        shortDuration: formatExposureDuration(exposurePlan.shortExposureSeconds),
+        longDuration: formatExposureDuration(exposurePlan.longExposureSeconds),
+        ratio: Math.round(earthshineOutcome.exposureRatio),
+      }),
+      t(earthshineOutcome.isRatioMeasured ? 'earthshineRatioMeasured' : 'earthshineRatioNominal'),
+    ];
+    if (exposurePlan.isRatioLimited) detailLines.push(t('earthshineRatioLimited'));
+    detailLines.push(
+      t('driftTimings', {
+        count: shortCrops.length + longCrops.length,
+        captureSeconds: formatSeconds(captureMilliseconds),
+        processSeconds: formatSeconds(Date.now() - processingStartTime),
+      }),
+    );
+    return {
+      ...commonOutcomeFields(captureContext),
+      technique: 'earthshine',
+      baseImage: floatRgbFromGray(earthshineOutcome.displayImage, 255),
+      enhancement: 'none',
+      sharpeningSigma: 1,
+      defaultSharpeningLevelIndex: 0,
+      comparisonSkiaImage: requireSkiaImage(createSkiaImage(floatRgbFromGray(earthshineOutcome.shortExposureImage))),
+      comparisonLabel: t('earthshineShortLabel'),
+      resultLabel: t('earthshineResultLabel'),
+      detailLines,
+      capturedFrameCount: shortCrops.length + longCrops.length,
+      stackedFrameCount: shortCrops.length + longCrops.length,
+      moonDiameterPixels: Math.round((earthshineOutcome.diskRadiusPixels * 2) / outputScale),
+      exposureSeconds: exposurePlan.shortExposureSeconds,
+      iso,
+      exposureRatio: earthshineOutcome.exposureRatio,
+    };
+  }
+
+  // ------------------------------------------------------------------------------------------
+
+  async function handleCapture() {
+    if (!liveDetection) return;
+    const shootingModeAtStart = shootingMode;
+    const telescopeMethodAtStart = telescopeMethod;
+    const opticsAtStart = optics;
+    const zoomFactorAtStart = zoomFactor;
+    const exposureFields: CaptureContext['exposureFields'] = lunarManualExposure.isManualExposureActive
+      ? { exposureSeconds: lunarManualExposure.exposureSeconds, iso: lunarManualExposure.iso }
+      : exposureBias !== undefined
+        ? { exposureBias }
+        : {};
+    setStackingOutcome(null);
+    setStatusMessage(null);
+    setIsAtlasVisible(false);
+    isStopRequestedRef.current = false;
+    setIsCaptureInProgress(true);
+    try {
+      for (let secondsLeft = captureCountdownSeconds; secondsLeft > 0; secondsLeft--) {
+        setCountdownSecondsLeft(secondsLeft);
+        await waitMilliseconds(1000);
+        if (!isMountedRef.current) return;
+      }
+      setCountdownSecondsLeft(null);
+      const detectionAtStart = latestDetectionRef.current;
+      if (!detectionAtStart) throw new MoonCaptureProblem('moonLostDuringCapture');
+      const captureContext: CaptureContext = {
+        detection: detectionAtStart,
+        captureDate: new Date(),
+        deviceRollDegrees: readDeviceRollDegrees(),
+        zoomFactor: zoomFactorAtStart,
+        optics: opticsAtStart,
+        exposureFields,
+      };
+      const outcome =
+        shootingModeAtStart === 'tripod'
+          ? await captureDriftSuperResolution(captureContext)
+          : shootingModeAtStart === 'earthshine'
+            ? await captureEarthshine(captureContext)
+            : shootingModeAtStart === 'telescope' && telescopeMethodAtStart === 'luckyFrames'
+              ? await captureLuckyStack(captureContext)
+              : await capturePhotoBurstStack(captureContext);
+      if (!isMountedRef.current) return;
+      setSharpeningLevelIndex(outcome.defaultSharpeningLevelIndex);
+      // Un telescopio o una lente sola giran la imagen 180°; los prismáticos, no.
+      setImageCorrection({ opticsRotationDegrees: outcome.optics === 'telescope' ? 180 : 0, isMirrored: false });
+      setStackingOutcome(outcome);
+    } catch (captureError) {
+      if (!isMountedRef.current) return;
+      setStatusMessage(
+        captureError instanceof MoonCaptureProblem
+          ? t(captureError.messageKey, captureError.messageValues)
+          : t('core:common.error', { message: String(captureError) }),
+      );
+    } finally {
+      if (isMountedRef.current) {
+        setCountdownSecondsLeft(null);
+        setCaptureStageMessage(null);
+        setIsCaptureInProgress(false);
+        setIsProcessing(false);
+      }
+    }
+  }
+
+  function handleStopCapture() {
+    isStopRequestedRef.current = true;
+    photoBurst.stopCapture();
+    moonFrames.stopRecording();
   }
 
   function handleOpenFullSize() {
     if (!stackingOutcome || !stackedSkiaImage) return;
     resultImageViewer.openViewer([
+      { skiaImage: stackedSkiaImage, caption: stackingOutcome.resultLabel, fileNamePrefix: 'luna-resultado' },
       {
-        skiaImage: stackedSkiaImage,
-        caption: t('stackedFrames', { count: stackingOutcome.stackedFrameCount }),
-        fileNamePrefix: 'luna-apilada',
+        skiaImage: stackingOutcome.comparisonSkiaImage,
+        caption: stackingOutcome.comparisonLabel,
+        fileNamePrefix: 'luna-comparacion',
       },
-      { skiaImage: stackingOutcome.bestSingleSkiaImage, caption: t('bestSingleFrame'), fileNamePrefix: 'luna-mejor' },
     ]);
   }
 
@@ -442,8 +926,12 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
             : exposureScale.isStepIndex
               ? { exposureCompensationSteps: stackingOutcome.exposureBias }
               : { exposureBias: stackingOutcome.exposureBias }),
-          sharpeningAmount: sharpeningLevels[sharpeningLevelIndex]?.amount ?? 0,
-          throughOptics: stackingOutcome.captureMode === 'telescope',
+          ...(stackingOutcome.enhancement === 'unsharpMask'
+            ? { sharpeningAmount: sharpeningLevels[sharpeningLevelIndex]?.amount ?? 0 }
+            : {}),
+          throughOptics: stackingOutcome.optics === 'telescope',
+          captureTechnique: stackingOutcome.technique,
+          ...(stackingOutcome.exposureRatio !== undefined ? { exposureRatio: roundTo(stackingOutcome.exposureRatio, 1) } : {}),
         },
         attachments: [
           {
@@ -470,6 +958,7 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
 
   const moonDiameterPixels = liveDetection ? moonDiameterInPhotoPixels(liveDetection, photoBurst.uprightPhotoSize) : 0;
   const isExposureAtMinimum = exposureBias === undefined || exposureBias <= minimumExposureBias;
+  // En la luz cenicienta la parte iluminada se mide igual: la ráfaga corta debe quedar sin quemar.
   const exposureHint = !liveDetection
     ? null
     : lunarManualExposure.isManualExposureActive
@@ -477,10 +966,10 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
         ? t('overexposedHint')
         : null
       : liveDetection.saturatedFraction > overexposedSaturatedFraction
-      ? t(isExposureAtMinimum ? 'overexposedAtMinimumHint' : 'overexposedHint')
-      : liveDetection.peakBrightness < underexposedPeakBrightness
-        ? t('underexposedHint')
-        : null;
+        ? t(isExposureAtMinimum ? 'overexposedAtMinimumHint' : 'overexposedHint')
+        : liveDetection.peakBrightness < underexposedPeakBrightness
+          ? t('underexposedHint')
+          : null;
   const isMoonOffCenter =
     liveDetection !== null &&
     Math.hypot(
@@ -489,6 +978,32 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
     ) >
       offCenterFraction * Math.min(liveDetection.frameWidth, liveDetection.frameHeight);
   const captureProgress = photoBurst.captureProgress;
+  const isLuckyMode = shootingMode === 'telescope' && telescopeMethod === 'luckyFrames';
+  const isEarthshineUnsupported = shootingMode === 'earthshine' && !lunarManualExposure.isManualExposureActive;
+  const captureButtonLabel =
+    countdownSecondsLeft !== null
+      ? t('captureCountdown', { seconds: countdownSecondsLeft })
+      : shootingMode === 'tripod'
+        ? t('captureDrift', { seconds: driftDurationSeconds })
+        : shootingMode === 'earthshine'
+          ? t('captureEarthshine')
+          : isLuckyMode
+            ? t('captureLuckyFrames', { count: luckyFrameCount })
+            : t('captureAndStack', { count: modeSettings.photoCount });
+  const introKey: Record<MoonShootingMode, string> = {
+    normal: 'nakedEyeLimitation',
+    tripod: 'tripodIntro',
+    telescope: 'telescopeIntro',
+    earthshine: 'earthshineIntro',
+  };
+  const tipsKey: Record<MoonShootingMode, string> = {
+    normal: 'tips',
+    tripod: 'tripodTips',
+    telescope: 'telescopeTips',
+    earthshine: 'earthshineTips',
+  };
+  const isLongCaptureRunning = isCaptureInProgress && countdownSecondsLeft === null;
+  const atlasLanguage = atlasLanguageFor(i18n.language);
 
   return (
     <ScreenContainer>
@@ -501,23 +1016,34 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
       />
 
       <SectionTitle>{t('captureModeTitle')}</SectionTitle>
-      <View style={styles.chipRow}>
-        {captureModes.map((modeOption) => {
-          const isSelectedMode = modeOption === captureMode;
-          return (
-            <Pressable
-              key={modeOption}
-              accessibilityRole="radio"
-              accessibilityState={{ selected: isSelectedMode, disabled: isBusy }}
-              disabled={isBusy}
-              onPress={() => handleSelectCaptureMode(modeOption)}
-              style={[styles.chip, { borderColor: isSelectedMode ? themePalette.accent : themePalette.border }]}>
-              <BodyText tone={isSelectedMode ? 'accent' : 'secondary'}>{t(`captureModes.${modeOption}`)}</BodyText>
-            </Pressable>
-          );
-        })}
-      </View>
-      <BodyText tone="secondary">{t(captureMode === 'nakedEye' ? 'nakedEyeLimitation' : 'telescopeIntro')}</BodyText>
+      <ChipSelector
+        options={shootingModes.map((modeOption) => ({ value: modeOption, label: t(`captureModes.${modeOption}`) }))}
+        selectedValue={shootingMode}
+        onSelect={handleSelectShootingMode}
+        isDisabled={isBusy}
+      />
+      <BodyText tone="secondary">{t(introKey[shootingMode])}</BodyText>
+      {shootingMode === 'telescope' ? (
+        <>
+          <BodyText tone="secondary">{t('telescopeMethodTitle')}</BodyText>
+          <ChipSelector<TelescopeMethod>
+            options={[
+              { value: 'photoBurst', label: t('telescopeMethods.photoBurst') },
+              { value: 'luckyFrames', label: t('telescopeMethods.luckyFrames') },
+            ]}
+            selectedValue={telescopeMethod}
+            onSelect={setTelescopeMethod}
+            isDisabled={isBusy}
+          />
+          {isLuckyMode ? <BodyText tone="secondary">{t('luckyIntro')}</BodyText> : null}
+        </>
+      ) : null}
+      {shootingMode === 'earthshine' && moonReport.illuminatedFraction > earthshineMaximumIlluminatedFraction ? (
+        <BodyText tone="danger">
+          {t('earthshineWrongPhase', { percent: Math.round(moonReport.illuminatedFraction * 100) })}
+        </BodyText>
+      ) : null}
+      {isEarthshineUnsupported ? <BodyText tone="danger">{t('earthshineNeedsManualExposure')}</BodyText> : null}
 
       <View
         style={[styles.previewContainer, { borderColor: themePalette.border }]}
@@ -541,7 +1067,7 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
           onStarted={handleCameraStarted}
           resizeMode="contain"
         />
-        {captureMode === 'telescope' && previewSize.width > 0 ? (
+        {optics === 'telescope' && previewSize.width > 0 ? (
           <TelescopeGuideOverlay previewSize={previewSize} liveDetection={liveDetection} isMoonOffCenter={isMoonOffCenter} />
         ) : null}
         <Pressable
@@ -576,20 +1102,18 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
         ) : null}
       </View>
       {pointingGuidance ? <BodyText tone="secondary">{t('compassCalibrationHint')}</BodyText> : null}
-      {!moonReport.horizontalPosition && hasOrientationSensors && captureMode === 'nakedEye' ? (
+      {!moonReport.horizontalPosition && hasOrientationSensors && optics === 'nakedEye' ? (
         <BodyText tone="secondary">{t('guideNeedsLocation')}</BodyText>
       ) : null}
 
       <BodyText tone={liveDetection ? 'primary' : 'secondary'}>
         {liveDetection
           ? t('moonDetected', { diameter: moonDiameterPixels })
-          : t(captureMode === 'nakedEye' ? 'moonNotDetected' : 'telescopeMoonNotDetected')}
+          : t(optics === 'nakedEye' ? 'moonNotDetected' : 'telescopeMoonNotDetected')}
       </BodyText>
-      {captureMode === 'telescope' && isMoonOffCenter ? (
-        <BodyText tone="danger">{t('telescopeOffCenter')}</BodyText>
-      ) : null}
+      {optics === 'telescope' && isMoonOffCenter ? <BodyText tone="danger">{t('telescopeOffCenter')}</BodyText> : null}
       {exposureHint ? <BodyText tone="danger">{exposureHint}</BodyText> : null}
-      {liveDetection && hasGyroscope && !photoBurst.isCapturing ? (
+      {liveDetection && hasGyroscope && !isCaptureInProgress ? (
         <BodyText tone={isSteadyForDisplay ? 'secondary' : 'danger'}>
           {t(isSteadyForDisplay ? 'deviceSteady' : 'deviceMoving')}
         </BodyText>
@@ -669,83 +1193,84 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
         </View>
       ) : null}
 
-      {photoBurst.isCapturing && captureProgress ? (
+      {isLongCaptureRunning ? (
         <View style={styles.buttonRow}>
           <View style={styles.buttonCell}>
-            <BodyText>
-              {t(captureProgress.phase === 'capturing' ? 'capturingProgress' : 'decodingProgress', {
-                captured: captureProgress.completedCount,
-                target: captureProgress.totalCount,
-              })}
-            </BodyText>
+            {captureStageMessage ? <BodyText>{captureStageMessage}</BodyText> : null}
+            {moonFrames.isRecording ? (
+              <BodyText>{t('recordingProgress', { recorded: moonFrames.recordedFrameCount, target: luckyFrameCount })}</BodyText>
+            ) : null}
+            {captureProgress ? (
+              <BodyText tone={captureStageMessage ? 'secondary' : 'primary'}>
+                {t(captureProgress.phase === 'capturing' ? 'capturingProgress' : 'decodingProgress', {
+                  captured: captureProgress.completedCount,
+                  target: captureProgress.totalCount,
+                })}
+              </BodyText>
+            ) : null}
           </View>
-          {captureProgress.phase === 'capturing' ? (
-            <View style={styles.buttonCell}>
-              <AppButton label={t('stopCapture')} onPress={photoBurst.stopCapture} variant="secondary" />
-            </View>
-          ) : null}
+          <View style={styles.buttonCell}>
+            <AppButton label={t('stopCapture')} onPress={handleStopCapture} variant="secondary" />
+          </View>
         </View>
       ) : (
         <AppButton
-          label={
-            countdownSecondsLeft !== null
-              ? t('captureCountdown', { seconds: countdownSecondsLeft })
-              : t('captureAndStack', { count: modeSettings.photoCount })
-          }
+          label={captureButtonLabel}
           onPress={() => void handleCapture()}
           isBusy={isProcessing}
-          isDisabled={!liveDetection || isBusy}
+          isDisabled={!liveDetection || isBusy || isEarthshineUnsupported}
         />
       )}
+      {isProcessing ? <BodyText tone="secondary">{t('processingProgress')}</BodyText> : null}
 
       {stackingOutcome && stackedSkiaImage ? (
         <Card>
           <SectionTitle>{t('resultTitle')}</SectionTitle>
-          <Pressable accessibilityRole="button" accessibilityLabel={t('openFullSize')} onPress={handleOpenFullSize}>
-            <View style={styles.resultRow}>
-              <ResultImage label={t('bestSingleFrame')} skiaImage={stackingOutcome.bestSingleSkiaImage} />
-              <ResultImage
-                label={t('stackedFrames', { count: stackingOutcome.stackedFrameCount })}
-                skiaImage={stackedSkiaImage}
-              />
-            </View>
-          </Pressable>
-          <AppButton label={t('openFullSize')} onPress={handleOpenFullSize} variant="secondary" />
-          <BodyText tone="secondary">{t('sharpeningTitle')}</BodyText>
-          <View style={styles.chipRow}>
-            {sharpeningLevels.map((sharpeningLevel, levelIndex) => {
-              const isSelectedLevel = levelIndex === sharpeningLevelIndex;
-              return (
-                <Pressable
-                  key={sharpeningLevel.labelKey}
-                  accessibilityRole="radio"
-                  accessibilityState={{ selected: isSelectedLevel }}
-                  onPress={() => setSharpeningLevelIndex(levelIndex)}
-                  style={[styles.chip, { borderColor: isSelectedLevel ? themePalette.accent : themePalette.border }]}>
-                  <BodyText tone={isSelectedLevel ? 'accent' : 'secondary'}>{t(sharpeningLevel.labelKey)}</BodyText>
-                </Pressable>
-              );
-            })}
-          </View>
-          <BodyText tone="secondary">
-            {t('stackingExplanation', {
-              captured: stackingOutcome.capturedFrameCount,
-              stacked: stackingOutcome.stackedFrameCount,
-              diameter: stackingOutcome.moonDiameterPixels,
-            })}
-          </BodyText>
-          {stackingOutcome.rejectedFrameCount > 0 ? (
-            <BodyText tone="secondary">
-              {t('rejectedFramesExplanation', { count: stackingOutcome.rejectedFrameCount })}
-            </BodyText>
+          {isAtlasVisible ? (
+            <MoonAtlasView
+              skiaImage={stackedSkiaImage}
+              imageSide={stackingOutcome.baseImage.size}
+              atlasView={atlasOrientation?.view ?? null}
+              language={atlasLanguage}
+            />
+          ) : (
+            <Pressable accessibilityRole="button" accessibilityLabel={t('openFullSize')} onPress={handleOpenFullSize}>
+              <View style={styles.resultRow}>
+                <ResultImage label={stackingOutcome.comparisonLabel} skiaImage={stackingOutcome.comparisonSkiaImage} />
+                <ResultImage label={stackingOutcome.resultLabel} skiaImage={stackedSkiaImage} />
+              </View>
+            </Pressable>
+          )}
+          <ToggleChip label={t('atlas.showNames')} isOn={isAtlasVisible} onToggle={() => setIsAtlasVisible(!isAtlasVisible)} />
+          {isAtlasVisible ? (
+            <AtlasControls
+              correction={imageCorrection}
+              onChangeCorrection={setImageCorrection}
+              isApproximate={atlasOrientation?.isApproximate ?? observerLocation === null}
+              hasDisk={atlasDiskFit !== null}
+            />
           ) : null}
-          <BodyText tone="secondary">
-            {t('burstTimings', {
-              count: stackingOutcome.burstTimings.capturedPhotoCount,
-              captureSeconds: (stackingOutcome.burstTimings.captureMilliseconds / 1000).toFixed(1),
-              decodeSeconds: (stackingOutcome.burstTimings.decodeMilliseconds / 1000).toFixed(1),
-            })}
-          </BodyText>
+          <AppButton label={t('openFullSize')} onPress={handleOpenFullSize} variant="secondary" />
+          {stackingOutcome.enhancement !== 'none' ? (
+            <>
+              <BodyText tone="secondary">
+                {t(stackingOutcome.enhancement === 'wavelets' ? 'waveletSharpeningTitle' : 'sharpeningTitle')}
+              </BodyText>
+              <ChipSelector
+                options={sharpeningLevels.map((sharpeningLevel, levelIndex) => ({
+                  value: String(levelIndex),
+                  label: t(sharpeningLevel.labelKey),
+                }))}
+                selectedValue={String(sharpeningLevelIndex)}
+                onSelect={(levelValue) => setSharpeningLevelIndex(Number(levelValue))}
+              />
+            </>
+          ) : null}
+          {stackingOutcome.detailLines.map((detailLine) => (
+            <BodyText key={detailLine} tone="secondary">
+              {detailLine}
+            </BodyText>
+          ))}
           <AppButton label={t('core:common.save')} onPress={() => void handleSave()} isBusy={isSaving} />
         </Card>
       ) : null}
@@ -753,153 +1278,16 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
 
       <Card>
         <SectionTitle>{t('tipsTitle')}</SectionTitle>
-        <BodyText tone="secondary">{t(captureMode === 'nakedEye' ? 'tips' : 'telescopeTips')}</BodyText>
+        <BodyText tone="secondary">{t(tipsKey[shootingMode])}</BodyText>
       </Card>
+
+      <AppButton
+        label={t(isGlassesGuideVisible ? 'glassesGuide.hide' : 'glassesGuide.show')}
+        onPress={() => setIsGlassesGuideVisible(!isGlassesGuideVisible)}
+        variant="secondary"
+      />
+      {isGlassesGuideVisible ? <GlassesTelescopeGuide /> : null}
     </ScreenContainer>
-  );
-}
-
-/**
- * Guía del modo telescopio: un círculo donde encajar el del ocular y un punto donde se ve la Luna.
- * La detección viene en píxeles del fotograma; la vista previa lo muestra con `contain`.
- */
-function TelescopeGuideOverlay({
-  previewSize,
-  liveDetection,
-  isMoonOffCenter,
-}: {
-  previewSize: PixelSize;
-  liveDetection: LiveMoonDetection | null;
-  isMoonOffCenter: boolean;
-}) {
-  const guideDiameter = Math.min(previewSize.width, previewSize.height) * eyepieceGuideFraction;
-  let moonMarker = null;
-  if (liveDetection) {
-    const displayedFrame = containedFrameRect({
-      viewWidth: previewSize.width,
-      viewHeight: previewSize.height,
-      frameWidth: liveDetection.frameWidth,
-      frameHeight: liveDetection.frameHeight,
-    });
-    const markerRadius = Math.max(10, liveDetection.radiusPixels * displayedFrame.displayScale);
-    moonMarker = (
-      <View
-        style={[
-          styles.moonMarker,
-          {
-            left: displayedFrame.left + liveDetection.centerX * displayedFrame.displayScale - markerRadius,
-            top: displayedFrame.top + liveDetection.centerY * displayedFrame.displayScale - markerRadius,
-            width: markerRadius * 2,
-            height: markerRadius * 2,
-            borderRadius: markerRadius,
-            borderColor: isMoonOffCenter ? '#FCA5A5' : '#4ADE80',
-          },
-        ]}
-      />
-    );
-  }
-  return (
-    <View pointerEvents="none" style={styles.guideOverlay}>
-      <View
-        style={[
-          styles.eyepieceGuide,
-          { width: guideDiameter, height: guideDiameter, borderRadius: guideDiameter / 2 },
-        ]}
-      />
-      {moonMarker}
-    </View>
-  );
-}
-
-function PointingOverlay({
-  pointingGuidance,
-  isBelowHorizon,
-}: {
-  pointingGuidance: PointingGuidance;
-  isBelowHorizon: boolean;
-}) {
-  const { t } = useTranslation(moonInstrumentId);
-  const { angularDistanceDegrees, screenArrowAngleDegrees, turnRightDegrees, raiseDegrees } = pointingGuidance;
-  const isCentered = angularDistanceDegrees < centeredGuideDegrees;
-  const corrections: string[] = [];
-  if (Math.abs(turnRightDegrees) >= negligibleCorrectionDegrees) {
-    corrections.push(t(turnRightDegrees > 0 ? 'guideTurnRight' : 'guideTurnLeft', { degrees: Math.abs(turnRightDegrees).toFixed(0) }));
-  }
-  if (Math.abs(raiseDegrees) >= negligibleCorrectionDegrees) {
-    corrections.push(t(raiseDegrees > 0 ? 'guideRaise' : 'guideLower', { degrees: Math.abs(raiseDegrees).toFixed(0) }));
-  }
-  const guideMessage = isBelowHorizon
-    ? t('guideBelowHorizon')
-    : isCentered
-      ? t('guideCentered')
-      : corrections.join(' · ');
-  return (
-    <View pointerEvents="none" style={styles.guideOverlay}>
-      {isCentered ? (
-        <View style={styles.guideCenterRing} />
-      ) : (
-        // La flecha «➜» apunta a la derecha; RN gira en sentido horario y el ángulo es antihorario.
-        <BodyText style={{ ...styles.guideArrow, transform: [{ rotate: `${-screenArrowAngleDegrees}deg` }] }}>➜</BodyText>
-      )}
-      {guideMessage ? (
-        <View style={styles.guideLabel}>
-          <BodyText style={styles.guideLabelText}>{guideMessage}</BodyText>
-        </View>
-      ) : null}
-    </View>
-  );
-}
-
-interface StepperRowProps {
-  label: string;
-  onDecrease(): void;
-  onIncrease(): void;
-  isDecreaseDisabled: boolean;
-  isIncreaseDisabled: boolean;
-  decreaseLabel: string;
-  increaseLabel: string;
-}
-
-function StepperRow({
-  label,
-  onDecrease,
-  onIncrease,
-  isDecreaseDisabled,
-  isIncreaseDisabled,
-  decreaseLabel,
-  increaseLabel,
-}: StepperRowProps) {
-  return (
-    <View style={styles.stepperRow}>
-      <View style={styles.stepperButton}>
-        <AppButton label={decreaseLabel} onPress={onDecrease} isDisabled={isDecreaseDisabled} variant="secondary" />
-      </View>
-      <BodyText style={styles.stepperLabel}>{label}</BodyText>
-      <View style={styles.stepperButton}>
-        <AppButton label={increaseLabel} onPress={onIncrease} isDisabled={isIncreaseDisabled} variant="secondary" />
-      </View>
-    </View>
-  );
-}
-
-function ResultImage({ label, skiaImage }: { label: string; skiaImage: SkImage }) {
-  const [imageSide, setImageSide] = useState(0);
-  return (
-    <View style={styles.resultColumn}>
-      <View
-        style={styles.resultImageFrame}
-        accessible
-        accessibilityRole="image"
-        accessibilityLabel={label}
-        onLayout={(layoutEvent: LayoutChangeEvent) => setImageSide(layoutEvent.nativeEvent.layout.width)}>
-        {imageSide > 0 ? (
-          <Canvas style={{ width: imageSide, height: imageSide }}>
-            <SkiaImageView image={skiaImage} x={0} y={0} width={imageSide} height={imageSide} fit="contain" />
-          </Canvas>
-        ) : null}
-      </View>
-      <BodyText tone="secondary">{label}</BodyText>
-    </View>
   );
 }
 
@@ -921,28 +1309,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#FACC15',
   },
-  guideOverlay: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center' },
-  guideArrow: { fontSize: 72, lineHeight: 84, color: '#FACC15' },
-  guideCenterRing: { width: 72, height: 72, borderRadius: 36, borderWidth: 3, borderColor: '#4ADE80' },
-  guideLabel: {
-    position: 'absolute',
-    bottom: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-  },
-  guideLabelText: { color: '#FFFFFF', fontWeight: '600' },
-  eyepieceGuide: { borderWidth: 2, borderColor: 'rgba(250, 204, 21, 0.8)', borderStyle: 'dashed' },
-  moonMarker: { position: 'absolute', borderWidth: 2 },
-  stepperRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  stepperButton: { width: 110 },
-  stepperLabel: { flex: 1, textAlign: 'center', fontWeight: '600', fontVariant: ['tabular-nums'] },
   buttonRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   buttonCell: { flex: 1 },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 16, borderWidth: 1.5 },
   resultRow: { flexDirection: 'row', gap: 8 },
-  resultColumn: { flex: 1, alignItems: 'center', gap: 4 },
-  resultImageFrame: { width: '100%', aspectRatio: 1, backgroundColor: '#000000', borderRadius: 8, overflow: 'hidden' },
 });

@@ -1,6 +1,6 @@
 {
   "name": "Luna",
-  "description": "Fase, posición y distancia de la Luna, y fotos nítidas apilando una ráfaga de fotos, también a través de prismáticos o telescopio.",
+  "description": "Fase, posición y distancia de la Luna; fotos nítidas apilando ráfagas (también con prismáticos o telescopio), superresolución con trípode, luz cenicienta y nombres de mares y cráteres.",
   "phase": {
     "newMoon": "Luna nueva",
     "waxingCrescent": "Creciente",
@@ -85,7 +85,9 @@
     "sharpeningAmount": "Realce",
     "exposureMilliseconds": "Tiempo de exposición",
     "iso": "ISO",
-    "throughOptics": "A través de prismáticos o telescopio"
+    "throughOptics": "A través de prismáticos o telescopio",
+    "captureTechnique": "Técnica",
+    "exposureRatio": "Relación entre exposiciones"
   },
   "exposureTimeLabel": "Exposición {{duration}} · ISO {{iso}}",
   "automaticLunarExposure": "Exposición ajustada sola sobre la Luna: lo más clara posible sin quemarse.",
@@ -93,8 +95,10 @@
   "useAutomaticLunarExposure": "Automática",
   "captureModeTitle": "Cómo la fotografías",
   "captureModes": {
-    "nakedEye": "Solo con el móvil",
-    "telescope": "A través de prismáticos o telescopio"
+    "telescope": "Prismáticos o telescopio",
+    "normal": "Normal",
+    "tripod": "Con trípode (1 min)",
+    "earthshine": "Luz cenicienta"
   },
   "nakedEyeLimitation": "Con la cámara del móvil sola se ven la fase y los mares, pero no los cráteres: la Luna ocupa unas pocas decenas de píxeles y una lente de menos de 3 mm de abertura no puede separar detalles más finos (difracción). Para ver cráteres, pon el móvil en el ocular de unos prismáticos o un telescopio y elige ese modo.",
   "telescopeIntro": "Apoya la cámara del móvil en el ocular y centra el círculo de luz del ocular en el círculo amarillo. Se apilan más fotos y se realza más el detalle.",
@@ -104,5 +108,94 @@
   "burstFailed": "No se han podido tomar las fotos: {{message}}",
   "burstTimings": "Ráfaga: {{count}} fotos en {{captureSeconds}} s; leerlas y recortarlas, {{decodeSeconds}} s.",
   "openFullSize": "Ver a tamaño real",
-  "telescopeTips": "• Enfoca primero el telescopio o los prismáticos mirando con el ojo; luego acerca el móvil.\n• Usa el ocular de menos aumentos: la Luna entera debe caber en el círculo.\n• Deja el zoom del móvil en ×1 y apoya la cámara centrada en el ocular, a la distancia a la que pondrías el ojo. Un adaptador de móvil para ocular ayuda mucho.\n• El telescopio debe estar en un trípode o una montura firme; no toques el móvil durante la ráfaga (hay cuenta atrás).\n• La Luna por el ocular es mucho más grande: empieza con la exposición corta y deja que se ajuste sola, o bájala si ves el aviso de sobreexposición.\n• Si la imagen sale con un halo o viñeteada, acerca o aleja un poco el móvil del ocular."
+  "telescopeTips": "• Enfoca primero el telescopio o los prismáticos mirando con el ojo; luego acerca el móvil.\n• Usa el ocular de menos aumentos: la Luna entera debe caber en el círculo.\n• Deja el zoom del móvil en ×1 y apoya la cámara centrada en el ocular, a la distancia a la que pondrías el ojo. Un adaptador de móvil para ocular ayuda mucho.\n• El telescopio debe estar en un trípode o una montura firme; no toques el móvil durante la ráfaga (hay cuenta atrás).\n• La Luna por el ocular es mucho más grande: empieza con la exposición corta y deja que se ajuste sola, o bájala si ves el aviso de sobreexposición.\n• Si la imagen sale con un halo o viñeteada, acerca o aleja un poco el móvil del ocular.",
+  "tripodIntro": "Pon el móvil en un trípode (o apóyalo firme) apuntando a la Luna y no lo toques durante un minuto. La rotación de la Tierra arrastra la Luna unas décimas de píxel por segundo: cada foto la recoge en una posición distinta y, juntas, dan una imagen con el doble de resolución (superresolución por deriva). Se recorta siempre la misma zona, con sitio para lo que se mueve la Luna.",
+  "earthshineIntro": "En una luna creciente o menguante fina, la parte en sombra se ve débilmente iluminada por la luz que refleja la Tierra (luz cenicienta), unas mil veces más débil que la parte al sol. Se toman dos ráfagas, una corta (la parte iluminada sin quemar) y otra hasta 200 veces más larga (la parte en sombra), y se fusionan. Necesita trípode y un móvil que permita fijar el tiempo de exposición.",
+  "telescopeMethodTitle": "Qué capturar",
+  "telescopeMethods": {
+    "photoBurst": "Ráfaga de fotos (resolución completa)",
+    "luckyFrames": "Muchos fotogramas (imagen afortunada)"
+  },
+  "luckyIntro": "Se graban unos 150 fotogramas de vídeo en pocos segundos y se apila la cuarta parte más nítida: la turbulencia del aire deja algunos casi perfectos. Cada fotograma se recorta alrededor de la Luna al vuelo (sin guardar la imagen entera) y se alinea por zonas, porque la turbulencia deforma cada parte de forma distinta.",
+  "earthshineWrongPhase": "Ahora la Luna está iluminada al {{percent}} %: la luz cenicienta se ve bien por debajo del 30 %, unos días antes o después de la luna nueva.",
+  "earthshineNeedsManualExposure": "Tu móvil no permite fijar el tiempo de exposición: sin eso no se pueden tomar las dos ráfagas de la luz cenicienta.",
+  "processingTime": "Procesado: {{seconds}} s.",
+  "luckyExplanation": "De {{recorded}} fotogramas se han apilado los {{stacked}} más nítidos, alineados en conjunto y por {{points}} puntos (la turbulencia deforma cada zona de forma distinta), con una media recortada que descarta los valores raros. La imagen mide {{side}} px de lado.",
+  "luckyDownsampled": "La Luna era grande en el fotograma: cada píxel promedia {{factor}}×{{factor}} para ahorrar memoria y tiempo.",
+  "luckyTimings": "Grabación: {{count}} fotogramas en {{captureSeconds}} s ({{framesPerSecond}} por segundo); apilado: {{processSeconds}} s.",
+  "driftProgress": "No toques el móvil… {{elapsed}} s de {{total}} s · {{photos}} fotos",
+  "tooFewDriftPhotos": "Solo se han conseguido {{count}} fotos útiles y hacen falta más. Comprueba que la Luna está dentro de la imagen y vuelve a intentarlo.",
+  "driftExplanation": "De {{photos}} fotos del mismo recorte se han fusionado {{used}} en una rejilla dos veces más fina. La Luna se ha desplazado {{span}} px durante la captura.",
+  "driftSpeed": "Deriva medida: {{speed}} px/s.",
+  "driftTooSmall": "La Luna apenas se ha movido: sin deriva no hay superresolución. Deja el móvil quieto el minuto entero.",
+  "driftTimings": "Captura: {{count}} fotos en {{captureSeconds}} s; procesado: {{processSeconds}} s.",
+  "singlePhotoEnlarged": "Una foto, ampliada",
+  "driftResultLabel": "Superresolución ({{count}} fotos)",
+  "earthshineShortStage": "Ráfaga corta ({{duration}})… no toques el móvil",
+  "earthshineLongStage": "Ráfaga larga ({{duration}})… no toques el móvil",
+  "captureStopped": "Captura detenida.",
+  "earthshineExplanation": "{{shortCount}} fotos de {{shortDuration}} y {{longCount}} de {{longDuration}} (relación ×{{ratio}}), alineadas por el centro del disco y fusionadas: la exposición larga saca la parte en sombra y la corta conserva la iluminada. Una curva de tono logarítmica muestra las dos a la vez.",
+  "earthshineRatioMeasured": "La relación entre las exposiciones se ha medido en las propias fotos.",
+  "earthshineRatioNominal": "No se ha podido medir la relación entre las exposiciones en las fotos: se usa la que da la cámara.",
+  "earthshineRatioLimited": "Los límites de exposición del móvil no dan para una relación de ×100: la parte en sombra saldrá con más ruido.",
+  "earthshineShortLabel": "Exposición corta",
+  "earthshineResultLabel": "Luz cenicienta (fusión)",
+  "captureDrift": "Tomar fotos durante {{seconds}} s",
+  "captureEarthshine": "Tomar las dos ráfagas y fusionar",
+  "captureLuckyFrames": "Grabar {{count}} fotogramas y apilar",
+  "recordingProgress": "Grabando… fotograma {{recorded}} / {{target}}",
+  "processingProgress": "Procesando… puede tardar unos segundos.",
+  "waveletSharpeningTitle": "Realce del detalle (ondículas)",
+  "tripodTips": "• El trípode (o un apoyo muy firme) es imprescindible: si algo mueve el móvil, las fotos movidas se descartan.\n• Sube el zoom hasta que la Luna se vea grande, pero deja sitio alrededor: en un minuto recorre casi medio diámetro.\n• Espera a que la exposición se ajuste antes de empezar y no toques la pantalla después (hay cuenta atrás).\n• Cuanto más se desplaza la Luna, más posiciones distintas: si apenas se mueve, no hay ganancia.",
+  "earthshineTips": "• Lo mejor, 2-5 días antes o después de la luna nueva: poco después de la puesta del Sol o antes del amanecer, con el cielo ya oscuro.\n• El trípode es imprescindible: la exposición larga dura décimas de segundo.\n• Deja que la exposición se ajuste sobre la parte iluminada antes de empezar: es la de la ráfaga corta.\n• Lejos de las farolas: la luz del cielo se confunde con la luz cenicienta.",
+  "atlas": {
+    "showNames": "Mostrar nombres",
+    "imageLabel": "Resultado con los nombres de mares y cráteres",
+    "tooSmall": "La Luna sale demasiado pequeña para poner nombres: acércala con el zoom o con un telescopio.",
+    "diskNotFound": "No he encontrado el borde del disco en la imagen: no puedo colocar los nombres.",
+    "legendMaria": "Mares",
+    "legendCraters": "Cráteres",
+    "legendLandingSites": "Alunizajes del Apolo",
+    "unlitExplanation": "Los nombres atenuados quedan ahora en la parte de noche de la Luna.",
+    "approximateOrientation": "Sin tu ubicación, la orientación es aproximada: se sabe cómo está girada la Luna respecto al norte celeste, pero no respecto al horizonte. Activa la ubicación (arriba) para colocar bien los nombres.",
+    "rotationTitle": "La imagen sale girada (por la óptica):",
+    "mirror": "Espejo",
+    "rotationHint": "Un telescopio o una lente sola dan la vuelta a la imagen (180°); unos prismáticos, no. Con una diagonal, además, sale en espejo. Si los nombres no cuadran con la foto, prueba otro giro."
+  },
+  "glassesGuide": {
+    "show": "Guía: telescopio con unas gafas de presbicia",
+    "hide": "Ocultar la guía del telescopio",
+    "title": "Telescopio con una lente de gafas de presbicia",
+    "safetyTitle": "⚠️ NUNCA apuntes al Sol",
+    "safetyBody": "Ni con el tubo ni con la lente suelta. Una lente concentra la luz del Sol en un punto que quema el papel, la piel y los ojos al instante. No dejes la lente ni el tubo al sol (en una ventana, en el coche): puede prender fuego. Si hay niños, que lo monte y lo apunte un adulto.",
+    "intro": "Un «telescopio» de cartón que forma la imagen de la Luna en una pantalla de papel; el móvil fotografía esa pantalla.",
+    "materials": {
+      "title": "Materiales",
+      "body": "• Una lente de gafas de presbicia («de leer») de +1 a +2 dioptrías: sirven unas gafas baratas; se usa una sola lente.\n• Dos tubos de cartón que entren uno dentro del otro (de papel de cocina, de envío de pósteres o cartulina enrollada), de la longitud que sale en el cálculo.\n• Papel vegetal (o papel de horno, o una bolsa de plástico blanca y fina) como pantalla.\n• Cartulina negra, cinta adhesiva y tijeras.\n• Un trípode o algo firme donde apoyar el tubo."
+    },
+    "focalLength": {
+      "title": "1. Calcula la focal",
+      "body": "La focal es la inversa de las dioptrías: f = 1 / dioptrías (en metros).\n• +1,0: focal de 100 cm, tubo de ≈ 100 cm, Luna de ≈ 9 mm en el papel.\n• +1,5: focal de 67 cm, tubo de ≈ 67 cm, Luna de ≈ 6 mm.\n• +2,0: focal de 50 cm, tubo de ≈ 50 cm, Luna de ≈ 4,6 mm.\nLa imagen de la Luna mide f × 0,0091 (la Luna ocupa 0,52° en el cielo). Con menos graduación la Luna sale más grande, pero el tubo es más largo."
+    },
+    "assembly": {
+      "title": "2. Monta el tubo",
+      "body": "1. Pega la lente en un extremo del tubo grueso y cubre el borde con cartulina negra.\n2. Pon delante de la lente un diafragma: un disco de cartulina con un agujero de 15-20 mm en el centro. Se pierde luz, pero la imagen sale mucho más nítida.\n3. Tapa un extremo del tubo delgado con el papel vegetal bien tenso: es la pantalla.\n4. Mete el tubo delgado en el grueso, con la pantalla hacia dentro: deslizándolo, enfocas.\n5. La distancia entre la lente y el papel debe poder variar unos ±5 cm alrededor de la focal."
+    },
+    "focusing": {
+      "title": "3. Enfoca",
+      "body": "1. De día, apunta a un edificio o un árbol lejano (a más de 100 m y nunca hacia el Sol) y desliza el tubo hasta que la imagen en el papel se vea nítida. Marca esa posición con un lápiz: la Luna enfoca prácticamente en el mismo sitio.\n2. De noche, apoya el tubo y apunta a la Luna: estará alineado cuando veas un disco brillante en el papel. Es más fácil si antes apuntas mirando por encima del tubo.\n3. Ajusta hasta que el borde del disco se vea lo más fino posible."
+    },
+    "photographing": {
+      "title": "4. Fotografía la pantalla con el móvil",
+      "body": "1. Mira la pantalla desde detrás, desde fuera del tubo. La imagen sale girada 180°: al mostrar los nombres en el resultado, elige 180°.\n2. Haz un parasol con otro trozo de tubo o de cartulina negra entre el papel y el móvil, para que no entre luz de la calle.\n3. Coloca el móvil a 8-12 cm del papel, centrado. Si el móvil tiene modo macro, úsalo.\n4. En esta pantalla: toca la imagen para enfocar en el papel, deja que la exposición se ajuste y toma una ráfaga. El trípode es imprescindible: la Luna cruza el campo del tubo en un par de minutos y hay que volver a apuntar.\nA 10 cm del papel, la imagen de 9 mm ocupa unos 290 píxeles de diámetro en la foto, frente a los ~27 de la Luna fotografiada sin nada."
+    },
+    "resolution": {
+      "title": "5. Qué se puede ver",
+      "body": "• Por la difracción, con un agujero de 20 mm el detalle más fino es de unos 7″ (unos 13 km en la Luna).\n• En la práctica manda la aberración cromática de una lente simple (cada color enfoca a una distancia distinta): el borrón es de 40-60″ con la lente de +1 y el doble con la de +2. Por eso ayuda el diafragma.\n• Se ven los mares, los cráteres grandes (Copérnico, Tycho y sus rayos, Clavius, Platón) y el relieve del terminador: unas 20 veces menos detalle que un telescopio de verdad, pero diez veces más que el móvil solo.\n• El grano del papel también emborrona: cuanto más fino y liso, mejor."
+    },
+    "tips": {
+      "title": "Consejos",
+      "body": "• Las mejores noches son las de cuarto creciente o menguante: en el terminador las sombras largas marcan los cráteres. La luna llena se ve plana.\n• Deja el tubo fuera 10 minutos antes de empezar, para que se enfríe.\n• Si la imagen tiembla, es la turbulencia del aire: haz muchas fotos y deja que la app se quede con las más nítidas."
+    }
+  }
 }
