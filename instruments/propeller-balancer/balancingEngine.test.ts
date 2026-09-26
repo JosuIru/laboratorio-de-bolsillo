@@ -1,5 +1,6 @@
 import {
   measureRotationVibration,
+  normalizeAmplitudeToReferenceSpeed,
   solveFourRunBalancing,
   splitCorrectionBetweenBlades,
   trialPositionsDegrees,
@@ -53,6 +54,40 @@ describe('solveFourRunBalancing', () => {
     expect(solveFourRunBalancing({ initialAmplitude: 0.01, trialAmplitudes: [0.3, 0.3, 0.3], trialMassGrams: 1 })).toBe(
       'already-balanced',
     );
+  });
+});
+
+describe('normalizeAmplitudeToReferenceSpeed', () => {
+  it('lleva la amplitud a la velocidad de referencia con (f₀/fᵢ)²', () => {
+    expect(normalizeAmplitudeToReferenceSpeed(1, 50, 50)).toBeCloseTo(1, 12);
+    // Un 5 % más rápido vibra un 10,25 % más solo por la velocidad.
+    expect(normalizeAmplitudeToReferenceSpeed(1.1025, 52.5, 50)).toBeCloseTo(1, 12);
+    expect(normalizeAmplitudeToReferenceSpeed(0.25, 25, 50)).toBeCloseTo(1, 12);
+  });
+
+  it('con una frecuencia no válida deja la amplitud como está', () => {
+    expect(normalizeAmplitudeToReferenceSpeed(0.7, 0, 50)).toBe(0.7);
+    expect(normalizeAmplitudeToReferenceSpeed(0.7, 50, Number.NaN)).toBe(0.7);
+  });
+
+  it('corrige el ángulo y la masa cuando las pasadas de prueba van a otra velocidad', () => {
+    const referenceFrequencyHz = 40;
+    const trialFrequenciesHz = [41.6, 38.8, 40.8];
+    const { initialAmplitude, trialAmplitudes } = simulateFourRuns(0.8, 30, 0.5);
+    const measuredTrialAmplitudes = trialAmplitudes.map(
+      (trialAmplitude, trialIndex) => trialAmplitude * (trialFrequenciesHz[trialIndex]! / referenceFrequencyHz) ** 2,
+    );
+    const normalizedTrialAmplitudes = measuredTrialAmplitudes.map((measuredAmplitude, trialIndex) =>
+      normalizeAmplitudeToReferenceSpeed(measuredAmplitude, trialFrequenciesHz[trialIndex]!, referenceFrequencyHz),
+    ) as [number, number, number];
+    const balancingSolution = solveFourRunBalancing({
+      initialAmplitude,
+      trialAmplitudes: normalizedTrialAmplitudes,
+      trialMassGrams: 1,
+    });
+    if (typeof balancingSolution === 'string') throw new Error(balancingSolution);
+    expect(balancingSolution.correctionAngleDegrees).toBeCloseTo(210, 6);
+    expect(balancingSolution.correctionMassGrams).toBeCloseTo(0.8 / 0.5, 6);
   });
 });
 

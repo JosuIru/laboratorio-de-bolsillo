@@ -23,7 +23,9 @@
     "measure": "Neurtu",
     "measuring": "Neurtzen…",
     "failed": "Ez da bibrazio argirik aurkitu biraketa-abiaduran: egiaztatu mugikorra ondo lotuta dagoela eta motorra martxan.",
-    "speedChanged": "Abiadura % 5 baino gehiago aldatu da neurketen artean: kalkulua ez da hain fidagarria izango."
+    "speedChanged": "Abiadura % 5 baino gehiago aldatu da neurketen artean. Bibrazioak abiadura-aldaketaren arabera zuzentzen dira, baina kalkulua ez da hain fidagarria izango: ahal baduzu, errepikatu aldentzen den neurketa.",
+    "repeat": "Errepikatu",
+    "repeatLabel": "Errepikatu «{{run}}» neurketa"
   },
   "result": {
     "title": "Zuzenketa",
@@ -37,7 +39,7 @@
   },
   "problem": {
     "trial-too-small": "Proba-pisuak ia ez du bibrazioa aldatzen: erabili astunago bat edo jarri erdigunetik urrunago eta errepikatu.",
-    "inconsistent": "Neurketak ez datoz bat (abiadura aldatu da edo mugikorra mugitu da?). Errepikatu laurak.",
+    "inconsistent": "Neurketak ez datoz bat (abiadura aldatu da edo mugikorra mugitu da?). Errepikatu arraroa dirudiena edo hasi berriro.",
     "already-balanced": "Bibrazioa oso txikia da jada: errotorea orekatuta dago mugikorrak bereizten duenerako."
   },
   "restart": "Hasi berriro",

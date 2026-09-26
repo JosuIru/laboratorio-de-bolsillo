@@ -23,7 +23,9 @@
     "measure": "Medir",
     "measuring": "Midiendo…",
     "failed": "No se ha encontrado una vibración clara a la velocidad de giro: comprueba que el móvil está bien sujeto y el motor en marcha.",
-    "speedChanged": "La velocidad ha cambiado más de un 5 % entre medidas: el cálculo será menos fiable."
+    "speedChanged": "La velocidad ha cambiado más de un 5 % entre medidas. Las vibraciones se corrigen por el cambio de velocidad, pero el cálculo será menos fiable: si puedes, repite la medida que se aparte.",
+    "repeat": "Repetir",
+    "repeatLabel": "Repetir la medida «{{run}}»"
   },
   "result": {
     "title": "Corrección",
@@ -37,7 +39,7 @@
   },
   "problem": {
     "trial-too-small": "El peso de prueba apenas cambia la vibración: usa uno más pesado o ponlo más lejos del centro y repite.",
-    "inconsistent": "Las medidas no encajan (¿cambió la velocidad o se movió el móvil?). Repite las cuatro.",
+    "inconsistent": "Las medidas no encajan (¿cambió la velocidad o se movió el móvil?). Repite la que parezca rara o empieza de nuevo.",
     "already-balanced": "La vibración ya es muy pequeña: el rotor está equilibrado para lo que distingue el móvil."
   },
   "restart": "Empezar de nuevo",

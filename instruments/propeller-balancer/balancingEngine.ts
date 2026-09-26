@@ -99,6 +99,20 @@ export function measureRotationVibration(
   };
 }
 
+/**
+ * La fuerza del desequilibrio crece con ω²: una pasada a otra velocidad vibra más o menos solo
+ * por eso. Lleva la amplitud medida a `referenceFrequencyHz` multiplicando por (f₀/fᵢ)², para que
+ * las cuatro pasadas se comparen como si se hubieran hecho a la misma velocidad.
+ */
+export function normalizeAmplitudeToReferenceSpeed(
+  measuredAmplitude: number,
+  rotationFrequencyHz: number,
+  referenceFrequencyHz: number,
+): number {
+  if (!(rotationFrequencyHz > 0) || !(referenceFrequencyHz > 0)) return measuredAmplitude;
+  return measuredAmplitude * (referenceFrequencyHz / rotationFrequencyHz) ** 2;
+}
+
 // ── Cuatro pasadas ──────────────────────────────────────────────────────────────────────────
 
 /** Posiciones del peso de prueba, en grados desde la marca de referencia, en el sentido elegido. */
