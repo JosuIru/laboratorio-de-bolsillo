@@ -5,6 +5,7 @@ import {
   normalizeSourceValue,
   normalizedValueToMidiNote,
   normalizedValueToThereminFrequencyHz,
+  magneticMagnitudeChange,
   tiltDegreesFromGravity,
 } from './sonification';
 
@@ -53,6 +54,18 @@ describe('tiltDegreesFromGravity', () => {
     expect(tiltDegreesFromGravity(0, 9.81, 0)).toBeCloseTo(90, 6);
     expect(tiltDegreesFromGravity(0, 1, 1)).toBeCloseTo(45, 6);
     expect(tiltDegreesFromGravity(0, 0, -9.81)).toBeCloseTo(0, 6);
+  });
+});
+
+describe('magneticMagnitudeChange', () => {
+  it('no cambia al girar el móvil, solo si cambia el módulo del campo', () => {
+    const baselineMagnitude = Math.hypot(20, 0, -40);
+    // El mismo campo visto con el móvil dado la vuelta: los vectores distan ~89 µT.
+    expect(magneticMagnitudeChange(-20, 0, 40, baselineMagnitude)).toBeCloseTo(0, 6);
+    expect(magneticMagnitudeChange(0, 44.72, 0, baselineMagnitude)).toBeCloseTo(0, 1);
+    expect(magneticMagnitudeChange(30, 0, -60, baselineMagnitude)).toBeCloseTo(baselineMagnitude / 2, 6);
+    // Un imán que lo debilita también cuenta como cambio.
+    expect(magneticMagnitudeChange(10, 0, -20, baselineMagnitude)).toBeCloseTo(baselineMagnitude / 2, 6);
   });
 });
 

@@ -99,6 +99,8 @@ export function ResonanceScaleScreen({
     },
   });
   const isMeasuring = measurementState.status === 'measuring';
+  /** Si la última medida falló, el resultado mostrado es el de antes: no se deja guardarlo como nuevo. */
+  const hasFailedMeasurement = measurementState.status === 'error';
 
   const lastMeasurement = lastAnalysis ? responseMeasurementFromAnalysis(lastAnalysis) : null;
   const lastEstimate =
@@ -116,7 +118,7 @@ export function ResonanceScaleScreen({
   }
 
   async function handleSave() {
-    if (!lastAnalysis || lastPurpose !== 'weigh') return;
+    if (!lastAnalysis || lastPurpose !== 'weigh' || hasFailedMeasurement) return;
     setIsSaving(true);
     setStatusMessage(null);
     try {
@@ -222,7 +224,7 @@ export function ResonanceScaleScreen({
         onPress={() => void handleSave()}
         variant="secondary"
         isBusy={isSaving}
-        isDisabled={isMeasuring || !lastAnalysis || lastPurpose !== 'weigh'}
+        isDisabled={isMeasuring || hasFailedMeasurement || !lastAnalysis || lastPurpose !== 'weigh'}
       />
       {statusMessage ? <BodyText tone="secondary">{statusMessage}</BodyText> : null}
 

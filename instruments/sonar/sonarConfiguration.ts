@@ -24,6 +24,12 @@ export const echogramMaximumDecibels = -10;
 /** Columnas del perfil que se guardan con cada medición. */
 export const savedProfileColumnCount = 60;
 
+/**
+ * Minutos de emisión seguida antes de pararla sola: gasta batería y algunos perros, gatos y
+ * personas jóvenes oyen los pitidos aunque quien mide no los oiga.
+ */
+export const maximumEmissionMinutes = 3;
+
 export const volumeOptions: readonly number[] = [0.25, 0.5, 0.75, 1];
 export const defaultVolume = 0.75;
 export const minimumTemperatureCelsius = -10;

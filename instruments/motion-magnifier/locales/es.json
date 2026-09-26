@@ -22,6 +22,7 @@
   "highCutoff": "Hasta {{frequency}} Hz",
   "vibrationLimits": "La cámara toma unos 30 fotogramas/s, así que solo se ven vibraciones de hasta unos 13 Hz. Una vibración más rápida aparece «plegada» a una frecuencia falsa (aliasing).",
   "deviceMoving": "El móvil se mueve: apóyalo en algo firme. Cualquier movimiento de la cámara se amplifica también.",
+  "measurementRestartedByMovement": "Mientras el móvil se mueve, la medida vuelve a empezar y no se puede guardar.",
   "startingUp": "Midiendo la cadencia de la cámara…",
   "bandAboveFrameRate": "Con {{framesPerSecond}} fotogramas/s esta banda queda por encima de lo que la cámara puede captar. Baja las frecuencias.",
   "highCutoffLimited": "La frecuencia superior se ha limitado a {{frequency}} Hz por la cadencia de la cámara.",

@@ -22,6 +22,7 @@
   "highCutoff": "{{frequency}} Hz-ra arte",
   "vibrationLimits": "Kamerak 30 fotograma/s inguru hartzen ditu; beraz, 13 Hz ingurura arteko bibrazioak baino ez dira ikusten. Bibrazio azkarragoak maiztasun faltsu batera «tolesten» dira (aliasing).",
   "deviceMoving": "Mugikorra mugitzen ari da: jarri zerbait sendoren gainean. Kameraren edozein mugimendu ere anplifikatzen da.",
+  "measurementRestartedByMovement": "Mugikorra mugitzen den bitartean, neurketa hasieratik hasten da eta ezin da gorde.",
   "startingUp": "Kameraren kadentzia neurtzen…",
   "bandAboveFrameRate": "{{framesPerSecond}} fotograma/s-rekin banda hau kamerak har dezakeenaren gainetik dago. Jaitsi maiztasunak.",
   "highCutoffLimited": "Goiko maiztasuna {{frequency}} Hz-ra mugatu da kameraren kadentziagatik.",

@@ -3,6 +3,7 @@
   "description": "Mide distancias con ecos de ultrasonidos como un murciélago, dibuja un ecograma y detecta gestos de la mano por efecto Doppler.",
   "start": "Empezar",
   "stop": "Parar",
+  "automaticStop": "Se ha parado solo tras {{minutes}} minutos emitiendo, para ahorrar batería y no molestar a animales ni a quien oiga los agudos. Pulsa «Empezar» para seguir.",
   "starting": "Arrancando altavoz y micrófono…",
   "hearingWarning": "Emite sonidos muy agudos (16-22 kHz). La mayoría de adultos no los oye, pero algunos perros, gatos y personas jóvenes sí: baja el volumen o para si molesta. El sonido se para al salir de la pantalla o de la app.",
   "modes": {

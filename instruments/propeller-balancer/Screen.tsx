@@ -8,6 +8,7 @@ import { parseDecimalInput } from '@/ui/decimalInput';
 import { useThemePalette } from '@/ui/theme';
 
 import {
+  normalizeAmplitudeToReferenceSpeed,
   type RotationVibration,
   solveFourRunBalancing,
   splitCorrectionBetweenBlades,
@@ -21,7 +22,10 @@ export const propellerBalancerInstrumentId = 'propeller-balancer';
 const bladeCountOptions = [2, 3, 4, 5, 6] as const;
 /** Pasadas: sin peso y con el peso de prueba en 0°, 120° y 240°. */
 const runCount = 1 + trialPositionsDegrees.length;
-/** Si la velocidad de una pasada se aparta más de esto de la primera, se avisa. */
+/**
+ * Si la velocidad de una pasada se aparta más de esto de la primera, se avisa: las amplitudes se
+ * corrigen con (f₀/fᵢ)², pero la respuesta del soporte también puede cambiar con la velocidad.
+ */
 const maximumSpeedChangeFraction = 0.05;
 
 export function PropellerBalancerScreen({
@@ -38,6 +42,8 @@ export function PropellerBalancerScreen({
   );
   const [checkVibration, setCheckVibration] = useState<RotationVibration | null>(null);
   const [isMeasuringCheck, setIsMeasuringCheck] = useState(false);
+  /** Pasada que se está repitiendo (null: la siguiente que falta). */
+  const [repeatedRunIndex, setRepeatedRunIndex] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
@@ -53,13 +59,30 @@ export function PropellerBalancerScreen({
     if (isMeasuringCheck) {
       setCheckVibration(captureState.vibration);
       setIsMeasuringCheck(false);
-    } else if (nextRunIndex >= 0) {
-      setRunVibrations(
-        runVibrations.map((runVibration, runIndex) =>
-          runIndex === nextRunIndex ? captureState.vibration : runVibration,
-        ),
-      );
+    } else {
+      const capturedRunIndex = repeatedRunIndex ?? nextRunIndex;
+      setRepeatedRunIndex(null);
+      if (capturedRunIndex >= 0) {
+        setRunVibrations(
+          runVibrations.map((runVibration, runIndex) =>
+            runIndex === capturedRunIndex ? captureState.vibration : runVibration,
+          ),
+        );
+        // La corrección cambia: la comprobación anterior ya no vale.
+        setCheckVibration(null);
+      }
     }
+  }
+
+  /** Amplitud de una pasada llevada a la velocidad de la pasada sin peso. */
+  function amplitudeAtReferenceSpeed(rotationVibration: RotationVibration): number {
+    return referenceFrequencyHz === null
+      ? rotationVibration.amplitude
+      : normalizeAmplitudeToReferenceSpeed(
+          rotationVibration.amplitude,
+          rotationVibration.rotationFrequencyHz,
+          referenceFrequencyHz,
+        );
   }
 
   const areRunsComplete = nextRunIndex < 0;
@@ -67,7 +90,11 @@ export function PropellerBalancerScreen({
     areRunsComplete && isTrialMassValid
       ? solveFourRunBalancing({
           initialAmplitude: runVibrations[0]!.amplitude,
-          trialAmplitudes: [runVibrations[1]!.amplitude, runVibrations[2]!.amplitude, runVibrations[3]!.amplitude],
+          trialAmplitudes: [
+            amplitudeAtReferenceSpeed(runVibrations[1]!),
+            amplitudeAtReferenceSpeed(runVibrations[2]!),
+            amplitudeAtReferenceSpeed(runVibrations[3]!),
+          ],
           trialMassGrams,
         })
       : null;
@@ -88,14 +115,25 @@ export function PropellerBalancerScreen({
           maximumSpeedChangeFraction,
     );
   const isCapturing = captureState.status === 'capturing';
+  const checkAmplitudeAtReferenceSpeed = checkVibration ? amplitudeAtReferenceSpeed(checkVibration) : null;
 
   function handleMeasure() {
     setStatusMessage(null);
+    setRepeatedRunIndex(null);
     startCapture(nextRunIndex === 0 ? null : referenceFrequencyHz);
+  }
+
+  function handleRepeatRun(runIndex: number) {
+    setStatusMessage(null);
+    setIsMeasuringCheck(false);
+    setRepeatedRunIndex(runIndex);
+    // La pasada sin peso fija la velocidad de referencia: al repetirla se busca en todo el rango.
+    startCapture(runIndex === 0 ? null : referenceFrequencyHz);
   }
 
   function handleMeasureCheck() {
     setStatusMessage(null);
+    setRepeatedRunIndex(null);
     setIsMeasuringCheck(true);
     startCapture(referenceFrequencyHz);
   }
@@ -104,6 +142,7 @@ export function PropellerBalancerScreen({
     setRunVibrations(new Array(runCount).fill(null));
     setCheckVibration(null);
     setIsMeasuringCheck(false);
+    setRepeatedRunIndex(null);
     setStatusMessage(null);
     resetCapture();
   }
@@ -127,7 +166,9 @@ export function PropellerBalancerScreen({
                 correctionAngleDegrees: Math.round(balancingSolution.correctionAngleDegrees),
               }
             : {}),
-          ...(checkVibration ? { amplitudeAfterCorrection: roundTo(checkVibration.amplitude, 4) } : {}),
+          ...(checkAmplitudeAtReferenceSpeed !== null
+            ? { amplitudeAfterCorrection: roundTo(checkAmplitudeAtReferenceSpeed, 4) }
+            : {}),
           outcome: typeof balancingResult === 'string' ? balancingResult : 'solved',
         },
       });
@@ -187,7 +228,9 @@ export function PropellerBalancerScreen({
         <SectionTitle>{t('runs.title')}</SectionTitle>
         {runVibrations.map((runVibration, runIndex) => (
           <View key={runIndex} style={[styles.runRow, { borderBottomColor: themePalette.border }]}>
-            <BodyText style={styles.runLabel} tone={runIndex === nextRunIndex ? 'accent' : 'primary'}>
+            <BodyText
+              style={styles.runLabel}
+              tone={runIndex === (repeatedRunIndex ?? nextRunIndex) ? 'accent' : 'primary'}>
               {runIndex === 0 ? t('runs.initial') : t('runs.trial', { angle: trialPositionsDegrees[runIndex - 1] })}
             </BodyText>
             <BodyText style={styles.runValue}>
@@ -198,6 +241,19 @@ export function PropellerBalancerScreen({
                   })
                 : '—'}
             </BodyText>
+            {runVibration ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('runs.repeatLabel', {
+                  run: runIndex === 0 ? t('runs.initial') : t('runs.trial', { angle: trialPositionsDegrees[runIndex - 1] }),
+                })}
+                disabled={isCapturing}
+                onPress={() => handleRepeatRun(runIndex)}
+                style={[styles.repeatButton, { opacity: isCapturing ? 0.4 : 1 }]}
+              >
+                <BodyText tone="accent">{t('runs.repeat')}</BodyText>
+              </Pressable>
+            ) : null}
           </View>
         ))}
         {!areRunsComplete ? (
@@ -268,8 +324,11 @@ export function PropellerBalancerScreen({
                 <BodyText>
                   {t('result.checkValue', {
                     before: runVibrations[0]!.amplitude.toFixed(3),
-                    after: checkVibration.amplitude.toFixed(3),
-                    reduction: Math.round((1 - checkVibration.amplitude / runVibrations[0]!.amplitude) * 100),
+                    after: (checkAmplitudeAtReferenceSpeed ?? checkVibration.amplitude).toFixed(3),
+                    reduction: Math.round(
+                      (1 - (checkAmplitudeAtReferenceSpeed ?? checkVibration.amplitude) / runVibrations[0]!.amplitude) *
+                        100,
+                    ),
                   })}
                 </BodyText>
               ) : null}
@@ -297,7 +356,13 @@ const styles = StyleSheet.create({
   chip: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 16, borderWidth: 1.5 },
   inputRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 },
   textInput: { minWidth: 64, borderWidth: 1, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 6, fontSize: 16 },
-  runRow: { flexDirection: 'row', paddingVertical: 6, borderBottomWidth: StyleSheet.hairlineWidth },
+  runRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 6,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  repeatButton: { paddingVertical: 4, paddingLeft: 12 },
   runLabel: { flex: 1 },
   runValue: { flex: 1, textAlign: 'right', fontVariant: ['tabular-nums'] },
   progressTrack: { height: 8, borderRadius: 4, overflow: 'hidden' },

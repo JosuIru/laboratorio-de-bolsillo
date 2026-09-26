@@ -89,6 +89,20 @@ export function tiltDegreesFromGravity(accelerationX: number, accelerationY: num
 }
 
 /**
+ * Cambio del módulo del campo magnético respecto al de referencia, | |B| − |B₀| |, en µT. Con los
+ * módulos, girar el móvil no cambia nada (el campo terrestre es el mismo en otro marco); restar
+ * los vectores daría hasta 2·|B₀| (~100 µT) solo por girarlo.
+ */
+export function magneticMagnitudeChange(
+  magneticFieldX: number,
+  magneticFieldY: number,
+  magneticFieldZ: number,
+  baselineMagnitude: number,
+): number {
+  return Math.abs(Math.hypot(magneticFieldX, magneticFieldY, magneticFieldZ) - baselineMagnitude);
+}
+
+/**
  * Suavizado exponencial con constante de tiempo: evita que el ruido del sensor haga saltar la
  * nota de un lado a otro en cada muestra.
  */
