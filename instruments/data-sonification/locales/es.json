@@ -1,0 +1,58 @@
+{
+  "name": "Sonificación de datos",
+  "description": "Escucha los sensores: la inclinación, la vibración, el giro, el campo magnético o la luz convertidos en melodía o en un theremin.",
+  "intro": "Elige qué quieres oír y pulsa «Sonar». Mueve el móvil, acércalo a un imán o tápale la luz y escucha cómo cambia.",
+  "source": {
+    "title": "Qué suena",
+    "tilt": "Inclinación",
+    "vibration": "Vibración",
+    "rotation": "Giro",
+    "magnetic": "Campo magnético",
+    "light": "Luz"
+  },
+  "sourceHint": {
+    "tilt": "De tumbado (grave) a de pie (agudo).",
+    "vibration": "Golpes, pasos o una máquina: cuanto más vibra, más agudo. Escala logarítmica, como el oído.",
+    "rotation": "Gira el móvil: cuanto más rápido, más agudo.",
+    "magnetic": "Diferencia con el campo al empezar: acércalo a un imán o a algo de hierro.",
+    "light": "De la oscuridad (grave) al sol (agudo). Escala logarítmica."
+  },
+  "sourceUnavailable": "Este móvil no tiene ese sensor.",
+  "mode": {
+    "title": "Cómo suena",
+    "melody": "Melodía",
+    "theremin": "Theremin"
+  },
+  "scale": {
+    "title": "Escala",
+    "major-pentatonic": "Pentatónica mayor",
+    "minor-pentatonic": "Pentatónica menor",
+    "major": "Mayor",
+    "chromatic": "Cromática"
+  },
+  "play": "Sonar",
+  "stop": "Parar",
+  "waiting": "Esperando al sensor…",
+  "notes": {
+    "0": "Do",
+    "1": "Do♯",
+    "2": "Re",
+    "3": "Re♯",
+    "4": "Mi",
+    "5": "Fa",
+    "6": "Fa♯",
+    "7": "Sol",
+    "8": "Sol♯",
+    "9": "La",
+    "10": "La♯",
+    "11": "Si"
+  },
+  "fields": {
+    "source": "Fuente",
+    "sourceValue": "Valor",
+    "sourceUnit": "Unidad",
+    "normalizedValue": "Posición en el rango",
+    "mode": "Modo",
+    "scale": "Escala"
+  }
+}

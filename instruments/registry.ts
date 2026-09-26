@@ -4,6 +4,7 @@ import { audioSpectrumInstrument } from './audio-spectrum';
 import { beerWineColorInstrument } from './beer-wine-color';
 import { colorHuntInstrument } from './color-hunt';
 import { colorimeterInstrument } from './colorimeter';
+import { dataSonificationInstrument } from './data-sonification';
 import { exampleLevelInstrument } from './example-level';
 import { gnssSkyInstrument } from './gnss-sky';
 import { machineDiagnosisInstrument } from './machine-diagnosis';
@@ -60,6 +61,7 @@ export const instrumentSections: readonly InstrumentSection[] = [
       audioSpectrumInstrument,
       roomAcousticsInstrument,
       sonarInstrument,
+      dataSonificationInstrument,
     ],
   },
   {
