@@ -72,7 +72,7 @@
       "/node_modules/",
       "/android/",
       "/ios/",
-      "/\\.claude/"
+      "<rootDir>/\\.claude/"
     ],
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/src/$1",
