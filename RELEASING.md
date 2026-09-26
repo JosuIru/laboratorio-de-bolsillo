@@ -9,7 +9,7 @@ si su tag es una versión semántica mayor que la instalada (`v0.2.0`), no es bo
 ## Publicar (automático)
 
 1. Sube la versión en `app.json`:
-   - `expo.version`: `0.3.2` (la que ve el usuario y la que se compara con el tag)
+   - `expo.version`: `0.3.3` (la que ve el usuario y la que se compara con el tag)
    - `expo.android.versionCode`: súmale 1 (Android no instala una actualización con un
      `versionCode` igual o menor)
 2. Haz commit, crea el tag y súbelo:
