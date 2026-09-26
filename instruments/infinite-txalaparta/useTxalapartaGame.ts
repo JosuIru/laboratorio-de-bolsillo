@@ -11,16 +11,19 @@ import { findCountInGrid } from '@instruments/rhythm/rhythmAnalysis';
 import {
   addJudgement,
   beatsPerMinuteForBar,
+  detectStrayStroke,
   eighthSeconds,
   emptyTally,
   type GameTally,
   generateBar,
   judgePlayerSlot,
   levelForBar,
+  machineStrokeSeconds,
   type SlotJudgement,
   type SlotOwner,
   slotsPerBar,
   startBeatsPerMinute,
+  strayJudgement,
   toleranceForTempo,
 } from './txalapartaGame';
 
@@ -29,7 +32,8 @@ const countInStrokeCount = 4;
 const schedulingLeadSeconds = 0.6;
 const schedulerIntervalMilliseconds = 50;
 const scheduleAheadSeconds = 0.3;
-const judgeIntervalMilliseconds = 100;
+/** También marca el ritmo al que se repinta el compás en pantalla. */
+const judgeIntervalMilliseconds = 50;
 /** Margen tras la ventana de una palmada antes de juzgarla (el detector va algo retrasado). */
 const judgingDelaySeconds = 0.12;
 /** Golpes y tiempos que se conservan para juzgar: los de más atrás ya no hacen falta. */
@@ -49,6 +53,10 @@ export type TxalapartaState =
       beatsPerMinute: number;
       level: number;
       lastJudgement: SlotJudgement | null;
+      /** El compás que suena ahora, para pintarlo (vacío durante la entrada). */
+      currentBarSlots: SlotOwner[];
+      /** Corchea que suena ahora dentro de `currentBarSlots`, o null si aún no ha empezado. */
+      currentSlotIndex: number | null;
     }
   | { phase: 'over'; tally: GameTally; barIndex: number; beatsPerMinute: number }
   | { phase: 'strokes-not-heard' }
@@ -66,7 +74,7 @@ interface ActiveSession {
  */
 function createWoodStrokeBuffer(audioContext: AudioContext, frequencyHz: number): AudioBuffer {
   const sampleRateHz = audioContext.sampleRate;
-  const strokeSamples = new Float32Array(Math.round(0.14 * sampleRateHz));
+  const strokeSamples = new Float32Array(Math.round(machineStrokeSeconds * sampleRateHz));
   const clickNoise = generateNoise({ sampleRateHz, durationSeconds: 0.01, amplitude: 0.4, seed: Math.round(frequencyHz) });
   for (let sampleIndex = 0; sampleIndex < strokeSamples.length; sampleIndex++) {
     const elapsedSeconds = sampleIndex / sampleRateHz;
@@ -171,8 +179,11 @@ export function useTxalapartaGame() {
       }
       const countInEndContextSeconds = firstStrokeContextSeconds + countInStrokeCount * quarterSeconds;
 
-      // Corcheas programadas: cuándo suenan (reloj de audio), de quién son y si ya se juzgaron.
-      const scheduledPlayerSlots: { contextSeconds: number; beatsPerMinute: number }[] = [];
+      // Corcheas programadas y aún sin juzgar: cuándo suenan (reloj de audio) y de quién son. Las
+      // del jugador se juzgan como acierto o fallo; las demás, por si hubo un golpe fuera de sitio.
+      const scheduledSlots: { contextSeconds: number; beatsPerMinute: number; slotOwner: SlotOwner }[] = [];
+      // Compases ya programados, con el instante en que empiezan, para pintar el que suena.
+      const scheduledBars: { contextSeconds: number; slotSeconds: number; barSlots: SlotOwner[] }[] = [];
       let barIndex = 0;
       let slotIndex = 0;
       let barSlots: SlotOwner[] = generateBar(0, seed);
@@ -183,6 +194,16 @@ export function useTxalapartaGame() {
 
       const publishState = () => {
         const beatsPerMinute = beatsPerMinuteForBar(barIndex);
+        const currentTime = audioContext.currentTime;
+        while (scheduledBars.length > 1 && scheduledBars[1]!.contextSeconds <= currentTime) scheduledBars.shift();
+        const soundingBar = scheduledBars[0];
+        let currentSlotIndex: number | null = null;
+        if (soundingBar && soundingBar.contextSeconds <= currentTime) {
+          currentSlotIndex = Math.min(
+            slotsPerBar - 1,
+            Math.floor((currentTime - soundingBar.contextSeconds) / soundingBar.slotSeconds),
+          );
+        }
         setGameState({
           phase: 'playing',
           isCountIn: audioContext.currentTime < countInEndContextSeconds,
@@ -191,6 +212,8 @@ export function useTxalapartaGame() {
           beatsPerMinute,
           level: levelForBar(barIndex),
           lastJudgement,
+          currentBarSlots: soundingBar && currentSlotIndex !== null ? soundingBar.barSlots : [],
+          currentSlotIndex,
         });
       };
 
@@ -200,8 +223,11 @@ export function useTxalapartaGame() {
           while (nextSlotContextSeconds < audioContext.currentTime + scheduleAheadSeconds) {
             const beatsPerMinute = beatsPerMinuteForBar(barIndex);
             const slotOwner = barSlots[slotIndex]!;
+            if (slotIndex === 0) {
+              scheduledBars.push({ contextSeconds: nextSlotContextSeconds, slotSeconds: eighthSeconds(beatsPerMinute), barSlots });
+            }
             if (slotOwner === 'machine') playStroke(nextSlotContextSeconds);
-            if (slotOwner === 'player') scheduledPlayerSlots.push({ contextSeconds: nextSlotContextSeconds, beatsPerMinute });
+            scheduledSlots.push({ contextSeconds: nextSlotContextSeconds, beatsPerMinute, slotOwner });
             nextSlotContextSeconds += eighthSeconds(beatsPerMinute);
             slotIndex++;
             if (slotIndex >= slotsPerBar) {
@@ -240,13 +266,19 @@ export function useTxalapartaGame() {
           const machineMicrophoneTimes = machineContextTimes.map(
             (contextSeconds) => contextSeconds + contextToMicrophoneOffsetSeconds!,
           );
-          while (scheduledPlayerSlots.length > 0) {
-            const playerSlot = scheduledPlayerSlots[0]!;
-            const toleranceSeconds = toleranceForTempo(playerSlot.beatsPerMinute);
-            const expectedMicrophoneSeconds = playerSlot.contextSeconds + contextToMicrophoneOffsetSeconds;
+          while (scheduledSlots.length > 0) {
+            const scheduledSlot = scheduledSlots[0]!;
+            const toleranceSeconds = toleranceForTempo(scheduledSlot.beatsPerMinute);
+            const expectedMicrophoneSeconds = scheduledSlot.contextSeconds + contextToMicrophoneOffsetSeconds;
             if (expectedMicrophoneSeconds + toleranceSeconds + judgingDelaySeconds > latestMicrophoneSeconds) break;
-            scheduledPlayerSlots.shift();
-            lastJudgement = judgePlayerSlot(expectedMicrophoneSeconds, onsetTimesSeconds, machineMicrophoneTimes, toleranceSeconds);
+            scheduledSlots.shift();
+            if (scheduledSlot.slotOwner === 'player') {
+              lastJudgement = judgePlayerSlot(expectedMicrophoneSeconds, onsetTimesSeconds, machineMicrophoneTimes, toleranceSeconds);
+            } else if (detectStrayStroke(expectedMicrophoneSeconds, onsetTimesSeconds, machineMicrophoneTimes, toleranceSeconds)) {
+              lastJudgement = strayJudgement;
+            } else {
+              continue;
+            }
             gameTally = addJudgement(gameTally, lastJudgement);
             if (gameTally.isOver) {
               stopSession();
