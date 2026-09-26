@@ -150,7 +150,11 @@ export function useGnssSky() {
           skySummary,
           assessment,
           automaticGainControlReadings: currentAutomaticGainControlReadings,
-          topFourHistory: appendToHistory(previousSnapshot.topFourHistory, skySummary.topFourMeanCarrierToNoiseDbHz ?? 0),
+          // Sin señales no hay C/N₀ que anotar: un 0 dibujaría una caída falsa en la gráfica.
+          topFourHistory:
+            skySummary.topFourMeanCarrierToNoiseDbHz === null
+              ? previousSnapshot.topFourHistory
+              : appendToHistory(previousSnapshot.topFourHistory, skySummary.topFourMeanCarrierToNoiseDbHz),
           automaticGainControlHistory:
             currentAutomaticGainControlReadings.length > 0
               ? appendToHistory(
