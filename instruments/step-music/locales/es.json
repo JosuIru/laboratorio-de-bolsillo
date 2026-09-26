@@ -1,0 +1,43 @@
+{
+  "name": "Música que sigue tu paso",
+  "description": "Andando, corriendo o en bici, el móvil cuenta tus pasos y genera un ritmo a tu cadencia, o marca una cadencia objetivo para entrenar.",
+  "intro": "Lleva el móvil en el bolsillo o en la mano y pulsa «Empezar». La música se genera en el móvil y cambia con tu paso.",
+  "mode": {
+    "title": "Modo",
+    "follow": "Sigue mi paso",
+    "target": "Cadencia objetivo"
+  },
+  "modeHint": {
+    "follow": "El tempo sigue a tus pasos y la música se anima cuanto más rápido vas.",
+    "target": "La música va a la cadencia que elijas y te dice si vas por debajo o por encima. Correr a 170–180 pasos por minuto reduce el impacto de cada zancada."
+  },
+  "target": {
+    "title": "Cadencia",
+    "preset": "{{cadence}} · {{label}}",
+    "label": {
+      "100": "pasear",
+      "120": "andar rápido",
+      "160": "trotar",
+      "170": "correr",
+      "180": "correr ligero"
+    }
+  },
+  "start": "Empezar",
+  "stop": "Parar",
+  "cadenceLabel": "Tu cadencia",
+  "stepsPerMinute": "pasos por minuto",
+  "waitingSteps": "Empieza a andar…",
+  "pace": {
+    "slower": "Más rápido",
+    "on-pace": "Al ritmo",
+    "faster": "Más despacio"
+  },
+  "musicTempo": "Música a {{bpm}} bpm · {{minutes}}:{{seconds}}",
+  "fields": {
+    "meanCadence": "Cadencia media",
+    "durationSeconds": "Duración",
+    "targetCadence": "Cadencia objetivo",
+    "onPacePercent": "Tiempo al ritmo",
+    "mode": "Modo"
+  }
+}
