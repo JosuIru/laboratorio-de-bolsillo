@@ -22,24 +22,53 @@
   "highCutoff": "{{frequency}} Hz-ra arte",
   "vibrationLimits": "Kamerak 30 fotograma/s inguru hartzen ditu; beraz, 13 Hz ingurura arteko bibrazioak baino ez dira ikusten. Bibrazio azkarragoak maiztasun faltsu batera «tolesten» dira (aliasing).",
   "deviceMoving": "Mugikorra mugitzen ari da: jarri zerbait sendoren gainean. Kameraren edozein mugimendu ere anplifikatzen da.",
+  "deviceMovingShort": "Mugikorra mugitzen ari da: jarri zerbait sendoren gainean.",
   "measurementRestartedByMovement": "Mugikorra mugitzen den bitartean, neurketa hasieratik hasten da eta ezin da gorde.",
   "startingUp": "Kameraren kadentzia neurtzen…",
   "bandAboveFrameRate": "{{framesPerSecond}} fotograma/s-rekin banda hau kamerak har dezakeenaren gainetik dago. Jaitsi maiztasunak.",
+  "bandAboveFrameRateShort": "Banda kamerak har dezakeenaren gainetik dago.",
   "highCutoffLimited": "Goiko maiztasuna {{frequency}} Hz-ra mugatu da kameraren kadentziagatik.",
-  "tapToLockHint": "Ukitu irudia esposizioa eta fokua finkatzeko: kamerak berriro doitzen baditu, distira-aldaketa hori ere anplifikatzen da.",
   "exposureLocked": "Esposizioa eta fokua finkatuta.",
   "unlockExposure": "Askatu",
+  "tapToChooseRegionHint": "Ukitu irudia lauki horia (neurketa-eremua) hara eramateko. Puntu horretan finkatzen dira esposizioa eta fokua ere: kamerak berriro doitzen baditu, distira-aldaketa hori ere anplifikatzen da.",
   "displayTitle": "Bistaratzea",
   "viewModes": {
     "amplified": "Anplifikatua",
-    "overlay": "Mapa kameraren gainean",
+    "heatMap": "Bero-mapa",
+    "phaseMap": "Fase-mapa",
+    "camera": "Jatorrizkoa"
+  },
+  "viewModesShort": {
+    "amplified": "Anplif.",
+    "heatMap": "Beroa",
+    "phaseMap": "Fasea",
     "camera": "Jatorrizkoa"
   },
   "viewModeHints": {
     "amplified": "Aldaketak biderkatuta dituen irudi berreraikia. Bereizmen txikikoa da (96 × 128 puntu): aldaketa da garrantzitsua, ez xehetasuna.",
-    "overlay": "Benetako irudiaren gainean, kolore beroz seinalea igotzen den tokian eta hotzez jaisten den tokian. Pultsuarekin, larruazalak gorriz eta urdinez taupadaka egin beharko luke.",
+    "heatMap": "Benetako irudiaren gainean, bandaren barruan irudia non aldatzen den gehien: gardenetik (geldi) hori argira (gehien mugitzen dena). Eskala bere kasa egokitzen zaio eszenako indartsuenari.",
+    "phaseMap": "Eremu bakoitza koloreztatzen du maiztasun nagusiko oszilazioaren unearen arabera, laukiarekin alderatuta: laukiarekin batera mugitzen dena gorri ateratzen da, eta kontratenporan doana, zian. Horrela ikusten dira pieza baten bibrazio-moduak edo pultsuaren uhina nola aurreratzen den. Segundo batzuk behar ditu maiztasuna neurtzeko.",
     "camera": "Kamera prozesatu gabe, alderatzeko."
   },
+  "curtain": "Gortina",
+  "curtainOptions": {
+    "curtainOff": "Gortinarik gabe",
+    "curtainOn": "Alderatzeko gortina"
+  },
+  "curtainHandle": "Alderatzeko gortina: arrastatu jatorrizko irudia (ezkerrean) eta prozesatua (eskuinean) alderatzeko.",
+  "heatLegend": {
+    "title": "Mugimenduaren anplitudea",
+    "low": "geldi",
+    "high": "gehiago mugitzen da"
+  },
+  "phaseLegend": {
+    "title": "Fasea laukiarekiko",
+    "same": "kolore bera: batera mugitzen dira",
+    "opposite": "aurkako kolorea: kontratenporan",
+    "frequency": "{{rate}} {{unit}}-tan"
+  },
+  "phaseWaiting": "Fase-mapak maiztasun nagusia behar du: lauki horian neurtzen ari da (segundo batzuk).",
+  "phaseWaitingShort": "Maiztasuna neurtzen…",
   "amplificationTitle": "Anplifikazioa (α)",
   "cameraTitle": "Kamera",
   "cameras": {
@@ -53,9 +82,9 @@
     "measure": "Maiztasuna neurtu"
   },
   "measureHints": {
-    "pulse": "Utzi larruazala lauki horiaren barruan gutxienez 12 s-z, mugitu eta hitz egin gabe.",
-    "breathing": "Utzi bularra edo sabela lauki horiaren barruan 30 s inguruz, normal arnastuz.",
-    "vibration": "Utzi bibratzen duen pieza lauki horiaren barruan, ertz edo kontraste ikusgarriren batekin."
+    "pulse": "Utzi larruazala lauki horiaren barruan (ukitu irudia laukia mugitzeko) gutxienez 12 s-z, mugitu eta hitz egin gabe.",
+    "breathing": "Utzi bularra edo sabela lauki horiaren barruan (ukitu irudia laukia mugitzeko) 30 s inguruz, normal arnastuz.",
+    "vibration": "Utzi bibratzen duen pieza lauki horiaren barruan (ukitu irudia laukia mugitzeko), ertz edo kontraste ikusgarriren batekin."
   },
   "measuredQuantity": {
     "pulse": "Kalkulatutako pultsua",
@@ -68,15 +97,20 @@
     "hertz": "Hz"
   },
   "collecting": "Datuak biltzen… {{stored}} / {{window}} s",
+  "pulseMonitor": {
+    "accessibility": "Pultsu-monitorea: {{rate}} {{unit}}"
+  },
+  "notMedicalShort": "Ez da gailu medikoa.",
   "peakQuality": {
     "clear": "Gailur argia (×{{ratio}} hondoaren gainetik).",
     "fair": "Gailur apala (×{{ratio}} hondoaren gainetik): kontuz hartu.",
     "weak": "Seinale ahula (×{{ratio}} hondoaren gainetik): irakurketa ez da fidagarria. Hobetu argia eta egon geldi."
   },
-  "spectrumTitle": "Erdiko eskualdearen espektroa bandan",
+  "spectrumTitle": "Neurketa-eremuaren espektroa bandan",
   "tipsTitle": "Aholkuak eta mugak",
   "tips": "Aholkuak: argi ugari eta konstantea (eguneko argia da onena; fluoreszente eta LED batzuek dir-dir egiten dute, eta dir-dir hori bibrazio faltsu gisa sar daiteke). Mugikorra bermatuta eta geldi. Pultsurako, aurpegiak edo esku-ahurrak laukia bete dezala; aurreko kamerarekin zeure burua ikus dezakezu.",
-  "howItWorks": "Nola dabilen (anplifikazio euleriarra, Wu eta lankideak, MIT 2012): fotograma bakoitza 96 × 128ko sareta batera murrizten da eta piramide gaussiar batekin leuntzen da (24 × 32 pultsuaren kolorerako, 48 × 64 mugimendurako). Puntu bakoitzaren denbora-seriea Butterworth banda-igarotze iragazki batetik pasatzen da; aldakuntza hori α-rekin biderkatu eta irudiari gehitzen zaio. Neurketak erdiko eskualdearen FFTa erabiltzen du: pultsurako, berdearen batez bestekoa; mugimendurako, gehien aldatzen diren puntuen espektroen batura.",
+  "howItWorks": "Nola dabilen (anplifikazio euleriarra, Wu eta lankideak, MIT 2012): fotograma bakoitza 96 × 128ko sareta batera murrizten da eta piramide gaussiar batekin leuntzen da (24 × 32 pultsuaren kolorerako, 48 × 64 mugimendurako). Puntu bakoitzaren denbora-seriea Butterworth banda-igarotze iragazki batetik pasatzen da; aldakuntza hori α-rekin biderkatu eta irudiari gehitzen zaio. Neurketak laukiko eremuaren FFTa erabiltzen du: pultsurako, berdearen batez bestekoa; mugimendurako, gehien aldatzen diren puntuen espektroen batura.",
+  "mapsHowItWorks": "Mapak: bero-mapa puntu bakoitzaren seinale iragaziaren balio eraginkorra da, segundo batzuetako batez bestekoa. Fase-mapa detekzio sinkronoa da (lock-in): puntu bakoitzaren seinalea maiztasun nagusiaren kosinuarekin eta sinuarekin biderkatu eta batez bestekoa egiten da; hortik ateratzen dira haren anplitudea eta fasea, eta fasea kolore-gurpileko tonu gisa marrazten da, laukikoarekiko. Maiztasun horretan seinale gutxi duten puntuak (zarata) garden geratzen dira.",
   "limits": "Mugak: bereizmena oso txikia da; beraz, eremu zabalei edo ertz nabarmenei eragiten dieten aldaketak baino ez dira ikusten. α altuarekin kameraren zarata ere anplifikatzen da. Mugikorrak geldi egon behar du: kameraren mugimendua seinalearekin nahasten da. Pultsuaren edo arnasketaren neurketak huts egin dezake (adibidez, bikoitza edo erdia eman) eta ez du pultsioximetroa ez beste inolako gailu medikorik ordezkatzen.",
   "fields": {
     "band": "Banda",

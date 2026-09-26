@@ -22,24 +22,53 @@
   "highCutoff": "Hasta {{frequency}} Hz",
   "vibrationLimits": "La cámara toma unos 30 fotogramas/s, así que solo se ven vibraciones de hasta unos 13 Hz. Una vibración más rápida aparece «plegada» a una frecuencia falsa (aliasing).",
   "deviceMoving": "El móvil se mueve: apóyalo en algo firme. Cualquier movimiento de la cámara se amplifica también.",
+  "deviceMovingShort": "El móvil se mueve: apóyalo en algo firme.",
   "measurementRestartedByMovement": "Mientras el móvil se mueve, la medida vuelve a empezar y no se puede guardar.",
   "startingUp": "Midiendo la cadencia de la cámara…",
   "bandAboveFrameRate": "Con {{framesPerSecond}} fotogramas/s esta banda queda por encima de lo que la cámara puede captar. Baja las frecuencias.",
+  "bandAboveFrameRateShort": "La banda queda por encima de lo que capta la cámara.",
   "highCutoffLimited": "La frecuencia superior se ha limitado a {{frequency}} Hz por la cadencia de la cámara.",
-  "tapToLockHint": "Toca la imagen para fijar la exposición y el enfoque: si la cámara los reajusta, ese cambio de brillo también se amplifica.",
   "exposureLocked": "Exposición y enfoque fijados.",
   "unlockExposure": "Soltar",
+  "tapToChooseRegionHint": "Toca la imagen para llevar allí el recuadro amarillo (la zona de medida). En ese punto se fijan también la exposición y el enfoque: si la cámara los reajusta, ese cambio de brillo también se amplifica.",
   "displayTitle": "Visualización",
   "viewModes": {
     "amplified": "Amplificada",
-    "overlay": "Mapa sobre la cámara",
+    "heatMap": "Mapa de calor",
+    "phaseMap": "Mapa de fase",
+    "camera": "Original"
+  },
+  "viewModesShort": {
+    "amplified": "Amplif.",
+    "heatMap": "Calor",
+    "phaseMap": "Fase",
     "camera": "Original"
   },
   "viewModeHints": {
     "amplified": "La imagen reconstruida con los cambios multiplicados. Es de baja resolución (96 × 128 puntos): lo que importa es el cambio, no el detalle.",
-    "overlay": "Sobre la imagen real, en cálido donde la señal sube y en frío donde baja. Con el pulso, la piel debería latir en rojo y azul a la vez.",
+    "heatMap": "Sobre la imagen real, dónde cambia más la imagen dentro de la banda: de transparente (quieto) a amarillo pálido (lo que más se mueve). La escala se ajusta sola a lo más fuerte de la escena.",
+    "phaseMap": "Colorea cada zona según el momento de su oscilación a la frecuencia dominante, comparado con el recuadro: lo que se mueve a la vez que el recuadro sale rojo y lo que va a contratiempo, cian. Así se ven los modos de vibración de una pieza o cómo avanza la onda del pulso. Necesita unos segundos para medir la frecuencia.",
     "camera": "La cámara sin procesar, para comparar."
   },
+  "curtain": "Cortina",
+  "curtainOptions": {
+    "curtainOff": "Sin cortina",
+    "curtainOn": "Cortina antes/después"
+  },
+  "curtainHandle": "Cortina antes/después: arrástrala para comparar la imagen original (a la izquierda) con la procesada (a la derecha).",
+  "heatLegend": {
+    "title": "Amplitud del movimiento",
+    "low": "quieto",
+    "high": "se mueve más"
+  },
+  "phaseLegend": {
+    "title": "Fase respecto al recuadro",
+    "same": "mismo color: se mueven a la vez",
+    "opposite": "color opuesto: a contratiempo",
+    "frequency": "a {{rate}} {{unit}}"
+  },
+  "phaseWaiting": "El mapa de fase necesita la frecuencia dominante: se está midiendo en el recuadro amarillo (unos segundos).",
+  "phaseWaitingShort": "Midiendo la frecuencia…",
   "amplificationTitle": "Amplificación (α)",
   "cameraTitle": "Cámara",
   "cameras": {
@@ -53,9 +82,9 @@
     "measure": "Medir frecuencia"
   },
   "measureHints": {
-    "pulse": "Deja la piel dentro del recuadro amarillo durante al menos 12 s, sin moverte ni hablar.",
-    "breathing": "Deja el pecho o el abdomen dentro del recuadro amarillo durante unos 30 s, respirando con normalidad.",
-    "vibration": "Deja la pieza que vibra dentro del recuadro amarillo, con algún borde o contraste visible."
+    "pulse": "Deja la piel dentro del recuadro amarillo (toca la imagen para moverlo) durante al menos 12 s, sin moverte ni hablar.",
+    "breathing": "Deja el pecho o el abdomen dentro del recuadro amarillo (toca la imagen para moverlo) durante unos 30 s, respirando con normalidad.",
+    "vibration": "Deja la pieza que vibra dentro del recuadro amarillo (toca la imagen para moverlo), con algún borde o contraste visible."
   },
   "measuredQuantity": {
     "pulse": "Pulso estimado",
@@ -68,15 +97,20 @@
     "hertz": "Hz"
   },
   "collecting": "Reuniendo datos… {{stored}} / {{window}} s",
+  "pulseMonitor": {
+    "accessibility": "Monitor de pulso: {{rate}} {{unit}}"
+  },
+  "notMedicalShort": "No es un aparato médico.",
   "peakQuality": {
     "clear": "Pico claro (×{{ratio}} sobre el fondo).",
     "fair": "Pico discreto (×{{ratio}} sobre el fondo): tómalo con cautela.",
     "weak": "Señal débil (×{{ratio}} sobre el fondo): la lectura no es fiable. Mejora la luz y quédate quieto."
   },
-  "spectrumTitle": "Espectro de la región central en la banda",
+  "spectrumTitle": "Espectro de la zona de medida en la banda",
   "tipsTitle": "Consejos y límites",
   "tips": "Consejos: luz abundante y constante (la luz del día es la mejor; algunos fluorescentes y LED parpadean y el parpadeo puede colarse como una vibración falsa). Móvil apoyado y quieto. Para el pulso, la cara o la palma llenando el recuadro; la cámara delantera te deja verte.",
-  "howItWorks": "Cómo funciona (amplificación euleriana, Wu y colaboradores, MIT 2012): cada fotograma se reduce a una rejilla de 96 × 128 y se suaviza con una pirámide gaussiana (24 × 32 para el color del pulso, 48 × 64 para el movimiento). La serie temporal de cada punto pasa por un filtro pasabanda Butterworth; esa variación se multiplica por α y se suma a la imagen. La medida usa la FFT de la región central: para el pulso, la media del verde; para el movimiento, la suma de los espectros de los puntos que más cambian.",
+  "howItWorks": "Cómo funciona (amplificación euleriana, Wu y colaboradores, MIT 2012): cada fotograma se reduce a una rejilla de 96 × 128 y se suaviza con una pirámide gaussiana (24 × 32 para el color del pulso, 48 × 64 para el movimiento). La serie temporal de cada punto pasa por un filtro pasabanda Butterworth; esa variación se multiplica por α y se suma a la imagen. La medida usa la FFT de la zona del recuadro: para el pulso, la media del verde; para el movimiento, la suma de los espectros de los puntos que más cambian.",
+  "mapsHowItWorks": "Los mapas: el de calor es el valor eficaz de la señal filtrada de cada punto, promediado unos segundos. El de fase es una detección síncrona (lock-in): la señal de cada punto se multiplica por el coseno y el seno de la frecuencia dominante y se promedia; de ahí salen su amplitud y su fase, que se dibuja como un tono de la rueda de color relativo al del recuadro. Los puntos con poca señal a esa frecuencia (el ruido) quedan transparentes.",
   "limits": "Límites: la resolución es muy baja, así que solo se ven cambios que afectan a zonas amplias o a bordes marcados. Con α alto también se amplifica el ruido de la cámara. El móvil debe estar quieto: un movimiento de la cámara se confunde con la señal. La medida de pulso o respiración puede equivocarse (por ejemplo, dar el doble o la mitad) y no sustituye a un pulsioxímetro ni a ningún aparato médico.",
   "fields": {
     "band": "Banda",
