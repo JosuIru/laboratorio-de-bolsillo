@@ -11,6 +11,8 @@
   "zero": "Poner a cero",
   "zeroHelp": "Pon a cero lejos de cualquier metal y luego pasa la parte de arriba del móvil despacio sobre la superficie. Mide cuánto cambia la intensidad del campo, no su dirección, así que inclinar o girar el móvil no lo dispara. La referencia se reajusta sola poco a poco; si algo se queda raro, vuelve a ponerlo a cero. El campo de la Tierra está entre 25 y 65 µT.",
   "vibrate": "Vibrar al detectar",
+  "beep": "Pitido continuo",
+  "beepHelp": "Pita sin parar, cada vez más agudo y rápido cuanto más cambia el campo: sirve para barrer una pared o el suelo sin mirar la pantalla.",
   "sensitivity": {
     "title": "Sensibilidad",
     "low": "Baja",
