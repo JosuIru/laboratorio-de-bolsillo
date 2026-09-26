@@ -8,6 +8,8 @@ import { useTranslation } from 'react-i18next';
 import { AppState } from 'react-native';
 
 import { useSensorAvailabilityStore } from '@/core/sensors/availabilityStore';
+import { removeObsoleteDownloadedApks } from '@/core/updates/apkInstaller';
+import { getInstalledVersion } from '@/core/updates/updateChecker';
 import { useThemePalette } from '@/ui/theme';
 
 /** Revisa los sensores al abrir la app y al volver a ella (el usuario puede haber cambiado permisos). */
@@ -26,6 +28,8 @@ export default function RootLayout() {
   const { t } = useTranslation();
   const themePalette = useThemePalette();
   useSensorAvailabilityRefresh();
+  // Tras actualizar, el APK descargado ya no sirve: se borra de la caché al arrancar.
+  useEffect(() => removeObsoleteDownloadedApks(getInstalledVersion()), []);
 
   return (
     <>

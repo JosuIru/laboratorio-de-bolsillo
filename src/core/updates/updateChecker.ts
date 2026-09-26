@@ -1,4 +1,5 @@
 import Constants from 'expo-constants';
+import * as Device from 'expo-device';
 
 import { evaluateLatestRelease, type GitHubReleaseResponse, type UpdateCheckResult } from './releaseSelection';
 
@@ -52,5 +53,6 @@ export async function checkForUpdate(): Promise<UpdateCheckResult> {
   } catch {
     throw new UpdateCheckError('unexpected-response');
   }
-  return evaluateLatestRelease(getInstalledVersion(), latestRelease);
+  // La arquitectura del procesador solo sirve para elegir el APK adecuado; no sale del móvil.
+  return evaluateLatestRelease(getInstalledVersion(), latestRelease, Device.supportedCpuArchitectures);
 }
