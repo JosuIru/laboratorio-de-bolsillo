@@ -3,6 +3,8 @@ import {
   confidenceLevelFor,
   decideDetectionLogging,
   displayNameFor,
+  relativeMarginScore,
+  selectDisplayedResults,
   topScoringClasses,
 } from './classification';
 import type { SoundClass } from './modelManifest';
@@ -106,8 +108,85 @@ describe('decideDetectionLogging', () => {
     ).toBe('log');
   });
 
+  it('apunta la mejor especie aunque haya otras dentro del margen', () => {
+    expect(
+      decideDetectionLogging(
+        [
+          { classIndex: 0, score: 9 },
+          { classIndex: 1, score: 8 },
+        ],
+        classes,
+      ),
+    ).toEqual({ kind: 'log', speciesClassIndex: 0, speciesScore: 9 });
+  });
+
   it('no apunta sonidos generales ni especies dudosas', () => {
     expect(decideDetectionLogging([{ classIndex: 3, score: 14 }], classes)).toEqual({ kind: 'below-threshold' });
     expect(decideDetectionLogging([{ classIndex: 0, score: 5 }], classes)).toEqual({ kind: 'below-threshold' });
+  });
+});
+
+describe('selectDisplayedResults', () => {
+  const robin: SoundClass = { label: 'Erithacus rubecula', kind: 'species', names: { es: null, eu: null, en: null } };
+  const wren: SoundClass = { label: 'Troglodytes troglodytes', kind: 'species', names: { es: null, eu: null, en: null } };
+  const car: SoundClass = { label: 'Car', kind: 'sound', names: { es: null, eu: null, en: null } };
+  // 0 mirlo, 1 petirrojo, 2 chochín, 3 viento, 4 coche
+  const displayClasses = [blackbird, robin, wren, wind, car];
+  const indicesOf = (rankedClasses: readonly { classIndex: number }[]) => rankedClasses.map((rankedClass) => rankedClass.classIndex);
+
+  it('con una primera muy clara no muestra acompañantes lejanas', () => {
+    const displayedResults = selectDisplayedResults(
+      [
+        { classIndex: 0, score: 14 },
+        { classIndex: 1, score: 9 },
+        { classIndex: 2, score: 7.5 },
+      ],
+      displayClasses,
+    );
+    expect(indicesOf(displayedResults.shownSpecies)).toEqual([0]);
+    expect(indicesOf(displayedResults.doubtfulSpecies)).toEqual([1, 2]);
+  });
+
+  it('muestra las especies cercanas a la primera que llegan a «posible»', () => {
+    const displayedResults = selectDisplayedResults(
+      [
+        { classIndex: 0, score: 11 },
+        { classIndex: 1, score: 11 - relativeMarginScore + 0.5 },
+        { classIndex: 2, score: 11 - relativeMarginScore },
+      ],
+      displayClasses,
+    );
+    expect(indicesOf(displayedResults.shownSpecies)).toEqual([0, 1]);
+    expect(indicesOf(displayedResults.doubtfulSpecies)).toEqual([2]);
+  });
+
+  it('oculta lo dudoso aunque esté cerca de la primera', () => {
+    const displayedResults = selectDisplayedResults(
+      [
+        { classIndex: 0, score: 6.5 },
+        { classIndex: 1, score: 6 },
+      ],
+      displayClasses,
+    );
+    expect(displayedResults.shownSpecies).toEqual([]);
+    expect(indicesOf(displayedResults.doubtfulSpecies)).toEqual([0, 1]);
+  });
+
+  it('el margen se mide desde la primera especie, no desde un sonido general', () => {
+    const displayedResults = selectDisplayedResults(
+      [
+        { classIndex: 3, score: 15 },
+        { classIndex: 0, score: 9 },
+        { classIndex: 4, score: 8 },
+      ],
+      displayClasses,
+    );
+    expect(indicesOf(displayedResults.shownSpecies)).toEqual([0]);
+    // El viento (15) se menciona; el coche (8) no llega a «también se oye».
+    expect(indicesOf(displayedResults.alsoHeardSounds)).toEqual([3]);
+  });
+
+  it('acepta otro umbral absoluto', () => {
+    expect(selectDisplayedResults([{ classIndex: 0, score: 8 }], displayClasses, 9).shownSpecies).toEqual([]);
   });
 });

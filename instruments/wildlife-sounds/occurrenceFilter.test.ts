@@ -2,6 +2,7 @@ import { bytesToBase64 } from './detectionLog';
 import type { SoundClass } from './modelManifest';
 import {
   computeClassPenalties,
+  excludedSpeciesPenalty,
   gridCellKeyFor,
   occurrenceContextFor,
   OccurrenceFormatError,
@@ -127,6 +128,24 @@ describe('penalizaciones y reordenación', () => {
     const classPenalties = computeClassPenalties(occurrenceData, januaryInDonostia, classes);
     expect(Array.from(classPenalties.penaltyByClassIndex)).toEqual([0, outOfAreaPenalty, offSeasonPenalty, 0]);
     expect(classPenalties.penalizedClassCount).toBe(2);
+    expect(classPenalties.excludedClassCount).toBe(0);
+  });
+
+  it('con «Solo especies de mi zona» excluye las ausentes y sigue penalizando la época', () => {
+    const januaryInDonostia = occurrenceContextFor(occurrenceData, donostiaLatitude, donostiaLongitude, januaryIndex);
+    const classPenalties = computeClassPenalties(occurrenceData, januaryInDonostia, classes, 'exclude');
+    expect(Array.from(classPenalties.penaltyByClassIndex)).toEqual([0, excludedSpeciesPenalty, offSeasonPenalty, 0]);
+    expect(classPenalties.excludedClassCount).toBe(1);
+    expect(classPenalties.penalizedClassCount).toBe(1);
+    // El petirrojo (ausente) no aparece aunque sea el que más puntúa según el modelo.
+    const adjustedTop = rankClassesWithPenalties([9, 15, 12, 8], classPenalties, 4);
+    expect(adjustedTop.map((rankedClass) => rankedClass.classIndex)).toEqual([2, 0, 3]);
+    expect(adjustedTop[0]).toMatchObject({ score: 12 - offSeasonPenalty, rawScore: 12 });
+  });
+
+  it('sin exclusión, una ausente muy clara todavía llega a «posible» y una confusión normal no', () => {
+    expect(13 - outOfAreaPenalty).toBeGreaterThanOrEqual(7);
+    expect(12 - outOfAreaPenalty).toBeLessThan(7);
   });
 
   it('reordena el top con las puntuaciones corregidas y conserva la del modelo', () => {

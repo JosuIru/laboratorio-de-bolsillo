@@ -12,6 +12,16 @@ export interface LoggedClassScore {
   score: number;
 }
 
+/**
+ * Revisión del usuario: «correcta» o «incorrecta» (null = sin revisar). Sirve para ajustar los
+ * umbrales con datos reales.
+ */
+export type DetectionVerdict = 'correct' | 'incorrect';
+
+export function parseDetectionVerdict(rawVerdict: unknown): DetectionVerdict | null {
+  return rawVerdict === 'correct' || rawVerdict === 'incorrect' ? rawVerdict : null;
+}
+
 export interface DetectionRecord {
   id: number;
   /** Hora del final de la ventana, ISO 8601 con zona UTC. */
@@ -32,9 +42,11 @@ export interface DetectionRecord {
   modelVersion: string;
   /** Embedding de 1536 valores en float16 little-endian. */
   embeddingFloat16Bytes: Uint8Array;
+  userVerdict: DetectionVerdict | null;
 }
 
-export type NewDetectionRecord = Omit<DetectionRecord, 'id'>;
+/** Al apuntarla, la detección todavía no está revisada. */
+export type NewDetectionRecord = Omit<DetectionRecord, 'id' | 'userVerdict'>;
 
 export function roundCoordinate(coordinateDegrees: number): number {
   const factor = 10 ** coordinateDecimals;
@@ -167,6 +179,7 @@ export function formatDetectionJsonLine(record: DetectionRecord): string {
     customClass: record.isCustomClass,
     top: record.topClasses.map((classScore) => ({ label: classScore.label, score: roundScore(classScore.score) })),
     modelVersion: record.modelVersion,
+    userVerdict: record.userVerdict,
     embedding: {
       format: embeddingExportFormat,
       dimensions: record.embeddingFloat16Bytes.length / 2,
@@ -189,8 +202,9 @@ const csvTopCount = 5;
 
 /**
  * CSV sin embeddings, para hojas de cálculo. `commonNameForLabel` añade el nombre común de la
- * especie en el idioma de la app. La última columna marca las clases propias (1) frente a las
- * especies del modelo (0).
+ * especie en el idioma de la app. `custom_class` marca las clases propias (1) frente a las
+ * especies del modelo (0) y `user_verdict` es la revisión del usuario (vacía si no la hay); van
+ * al final para no mover las columnas de exportaciones anteriores.
  */
 export function formatDetectionsCsv(
   records: readonly DetectionRecord[],
@@ -198,7 +212,7 @@ export function formatDetectionsCsv(
 ): string {
   const headerFields = ['detected_at', 'duration_s', 'latitude', 'longitude', 'species', 'common_name', 'species_score'];
   for (let rankIndex = 1; rankIndex <= csvTopCount; rankIndex++) headerFields.push(`top${rankIndex}_label`, `top${rankIndex}_score`);
-  headerFields.push('model_version', 'custom_class');
+  headerFields.push('model_version', 'custom_class', 'user_verdict');
   const csvLines = [headerFields.join(',')];
   for (const record of records) {
     const rowFields: (string | number | null)[] = [
@@ -214,7 +228,7 @@ export function formatDetectionsCsv(
       const classScore = record.topClasses[rankIndex];
       rowFields.push(classScore?.label ?? null, classScore ? roundScore(classScore.score) : null);
     }
-    rowFields.push(record.modelVersion, record.isCustomClass ? 1 : 0);
+    rowFields.push(record.modelVersion, record.isCustomClass ? 1 : 0, record.userVerdict);
     csvLines.push(rowFields.map(csvField).join(','));
   }
   return csvLines.join('\n') + '\n';
@@ -234,6 +248,7 @@ export interface DetectionRow {
   model_version: string;
   embedding: Uint8Array;
   is_custom_class: number;
+  user_verdict: string | null;
 }
 
 export function rowToDetectionRecord(detectionRow: DetectionRow): DetectionRecord {
@@ -250,5 +265,6 @@ export function rowToDetectionRecord(detectionRow: DetectionRow): DetectionRecor
     modelVersion: detectionRow.model_version,
     embeddingFloat16Bytes: detectionRow.embedding,
     isCustomClass: detectionRow.is_custom_class === 1,
+    userVerdict: parseDetectionVerdict(detectionRow.user_verdict),
   };
 }

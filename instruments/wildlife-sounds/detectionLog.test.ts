@@ -8,6 +8,7 @@ import {
   float32ToFloat16Bits,
   formatDetectionsCsv,
   formatDetectionsJsonLines,
+  parseDetectionVerdict,
   roundCoordinate,
   rowToDetectionRecord,
 } from './detectionLog';
@@ -82,6 +83,7 @@ const sampleRecord: DetectionRecord = {
   modelVersion: 'europa-1',
   embeddingFloat16Bytes: encodeFloat16LittleEndian([1, -2]),
   isCustomClass: false,
+  userVerdict: null,
 };
 
 describe('exportación', () => {
@@ -103,22 +105,33 @@ describe('exportación', () => {
         { label: 'Wind', score: 6.5 },
       ],
       modelVersion: 'europa-1',
+      userVerdict: null,
       embedding: { format: 'float16-le-base64', dimensions: 2, data: 'ADwAwA==' },
     });
+    expect(JSON.parse(formatDetectionsJsonLines([{ ...sampleRecord, userVerdict: 'incorrect' }])).userVerdict).toBe(
+      'incorrect',
+    );
     expect(formatDetectionsJsonLines([])).toBe('');
   });
 
   it('CSV: cabecera, nombre común, top 5 con huecos vacíos y sin embedding', () => {
-    const csvText = formatDetectionsCsv([{ ...sampleRecord, latitude: null, longitude: null }], () => 'Mirlo, común');
-    const [headerLine, firstRow] = csvText.trimEnd().split('\n');
+    const csvText = formatDetectionsCsv(
+      [
+        { ...sampleRecord, latitude: null, longitude: null },
+        { ...sampleRecord, userVerdict: 'correct' },
+      ],
+      () => 'Mirlo, común',
+    );
+    const [headerLine, firstRow, secondRow] = csvText.trimEnd().split('\n');
     expect(headerLine).toBe(
       'detected_at,duration_s,latitude,longitude,species,common_name,species_score,' +
         'top1_label,top1_score,top2_label,top2_score,top3_label,top3_score,top4_label,top4_score,top5_label,top5_score,' +
-        'model_version,custom_class',
+        'model_version,custom_class,user_verdict',
     );
     expect(firstRow).toBe(
-      '2026-09-26T06:30:05.000Z,5,,,Turdus merula,"Mirlo, común",11.23,Turdus merula,11.23,Wind,6.5,,,,,,,europa-1,0',
+      '2026-09-26T06:30:05.000Z,5,,,Turdus merula,"Mirlo, común",11.23,Turdus merula,11.23,Wind,6.5,,,,,,,europa-1,0,',
     );
+    expect(secondRow!.endsWith(',europa-1,0,correct')).toBe(true);
   });
 });
 
@@ -136,10 +149,21 @@ describe('rowToDetectionRecord', () => {
       model_version: 'europa-1',
       embedding: sampleRecord.embeddingFloat16Bytes,
       is_custom_class: 1,
+      user_verdict: 'incorrect',
     });
     expect(detectionRecord.isCustomClass).toBe(true);
+    expect(detectionRecord.userVerdict).toBe('incorrect');
     expect(detectionRecord.topClasses).toEqual(sampleRecord.topClasses);
     expect(detectionRecord.latitude).toBeNull();
     expect(detectionRecord.id).toBe(3);
+  });
+});
+
+describe('parseDetectionVerdict', () => {
+  it('solo acepta «correct» e «incorrect»; lo demás es sin revisar', () => {
+    expect(parseDetectionVerdict('correct')).toBe('correct');
+    expect(parseDetectionVerdict('incorrect')).toBe('incorrect');
+    expect(parseDetectionVerdict(null)).toBeNull();
+    expect(parseDetectionVerdict('maybe')).toBeNull();
   });
 });

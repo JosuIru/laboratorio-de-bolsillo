@@ -104,6 +104,16 @@ describe('detecciones de una ventana', () => {
     expect(sessionDetectionsForWindow(topClasses, classes, [], sessionStart, true)).toEqual([]);
   });
 
+  it('no cuenta las especies que quedan lejos de la primera', () => {
+    const topWithDistantSecond = [
+      { classIndex: 0, score: 14 },
+      { classIndex: 1, score: 9 },
+    ];
+    expect(sessionDetectionsForWindow(topWithDistantSecond, classes, [], sessionStart, false).map((detection) => detection.label)).toEqual([
+      'Turdus merula',
+    ]);
+  });
+
   it('no pasa del tope de detecciones en memoria', () => {
     const manyDetections = Array.from({ length: maximumSessionDetections }, (_, detectionIndex) => detectionAt('A', detectionIndex, 8));
     const appended = appendSessionDetections(manyDetections, [detectionAt('B', 0, 8)]);

@@ -14,8 +14,29 @@ export const probableMinimumScore = 10;
 const confidenceBarEmptyScore = 3;
 const confidenceBarFullScore = 15;
 
-/** Una detección se apunta en el registro si alguna especie del top 5 llega a esto. */
-export const loggingMinimumScore = possibleMinimumScore;
+// --- Qué se muestra como resultado (y, por tanto, qué se apunta) ---
+
+/**
+ * Umbral absoluto: una especie por debajo de «posible» es «dudosa» y no se muestra como resultado
+ * (queda en el desplegable «ver candidatas dudosas»). En las pruebas, las especies «raras» que
+ * aparecían eran casi siempre dudosas.
+ */
+export const displayMinimumScore = possibleMinimumScore;
+/**
+ * Margen relativo: además, una especie solo se muestra si queda a menos de estos puntos de la
+ * primera. Con una primera muy clara (14) no aparecen acompañantes de 8 o 9, que suelen ser
+ * confusiones del modelo con especies parecidas; con dos especies cantando a la vez y bien
+ * oídas, las dos suelen quedar a 1-2 puntos.
+ */
+export const relativeMarginScore = 3;
+/**
+ * Un sonido general (viento, coche, perro…) se menciona como «también se oye» si llega a esto.
+ * Alto a propósito: es información de contexto, no el resultado.
+ */
+export const alsoHeardSoundMinimumScore = probableMinimumScore;
+/** Una detección se apunta en el registro si la mejor especie se muestra como resultado. */
+export const loggingMinimumScore = displayMinimumScore;
+
 /**
  * Privacidad: si una clase de voz humana está entre las 3 primeras con al menos esta puntuación,
  * la detección no se guarda. Más baja que «dudoso» a propósito: mejor perder alguna detección
@@ -79,6 +100,43 @@ export function displayNameFor(soundClass: SoundClass, locale: string): string {
   return soundClass.label.replace(/_/g, ' ');
 }
 
+/** Reparto del top de una ventana entre lo que se muestra, lo que queda oculto y el contexto. */
+export interface DisplayedResults<RankedType extends RankedClass> {
+  /** Especies que pasan el umbral absoluto y el margen relativo, de mayor a menor. */
+  shownSpecies: RankedType[];
+  /** Especies del top que no pasan alguno de los dos criterios (ocultas por defecto). */
+  doubtfulSpecies: RankedType[];
+  /** Sonidos generales con puntuación alta («también se oye: …»). */
+  alsoHeardSounds: RankedType[];
+}
+
+/**
+ * Decide qué se muestra de un top ya ordenado de mayor a menor (con las puntuaciones corregidas
+ * por el filtro de zona, si lo hay). `minimumSpeciesScore` permite otro umbral absoluto.
+ */
+export function selectDisplayedResults<RankedType extends RankedClass>(
+  topClasses: readonly RankedType[],
+  classes: readonly SoundClass[],
+  minimumSpeciesScore: number = displayMinimumScore,
+): DisplayedResults<RankedType> {
+  const displayedResults: DisplayedResults<RankedType> = { shownSpecies: [], doubtfulSpecies: [], alsoHeardSounds: [] };
+  let bestSpeciesScore: number | null = null;
+  for (const rankedClass of topClasses) {
+    const soundClass = classes[rankedClass.classIndex];
+    if (!soundClass) continue;
+    if (soundClass.kind !== 'species') {
+      if (rankedClass.score >= alsoHeardSoundMinimumScore) displayedResults.alsoHeardSounds.push(rankedClass);
+      continue;
+    }
+    bestSpeciesScore ??= rankedClass.score;
+    const isAboveThreshold = rankedClass.score >= minimumSpeciesScore;
+    const isWithinMargin = bestSpeciesScore - rankedClass.score < relativeMarginScore;
+    if (isAboveThreshold && isWithinMargin) displayedResults.shownSpecies.push(rankedClass);
+    else displayedResults.doubtfulSpecies.push(rankedClass);
+  }
+  return displayedResults;
+}
+
 export type LoggingDecision =
   | { kind: 'log'; speciesClassIndex: number; speciesScore: number }
   | { kind: 'human-voice' }
@@ -87,8 +145,9 @@ export type LoggingDecision =
 /**
  * Decide si una ventana analizada se apunta en el registro:
  * - no, si hay voz humana entre las primeras (privacidad), aunque también haya un pájaro;
- * - sí, si alguna especie del top llega al umbral (se apunta la mejor);
+ * - sí, si alguna especie se muestra como resultado (se apunta la mejor);
  * - no, en otro caso (solo sonidos generales o especies dudosas).
+ * Como el top llega ya sin las especies excluidas por el filtro de zona, tampoco se apuntan.
  */
 export function decideDetectionLogging(
   topClasses: readonly RankedClass[],
@@ -99,9 +158,9 @@ export function decideDetectionLogging(
     .slice(0, humanVoiceTopCount)
     .some((rankedClass) => classes[rankedClass.classIndex]?.isHumanVoice && rankedClass.score >= humanVoiceMinimumScore);
   if (hasHumanVoice) return { kind: 'human-voice' };
-  const bestSpecies = topClasses.find((rankedClass) => classes[rankedClass.classIndex]?.kind === 'species');
-  if (bestSpecies && bestSpecies.score >= minimumSpeciesScore) {
-    return { kind: 'log', speciesClassIndex: bestSpecies.classIndex, speciesScore: bestSpecies.score };
+  const bestShownSpecies = selectDisplayedResults(topClasses, classes, minimumSpeciesScore).shownSpecies[0];
+  if (bestShownSpecies) {
+    return { kind: 'log', speciesClassIndex: bestShownSpecies.classIndex, speciesScore: bestShownSpecies.score };
   }
   return { kind: 'below-threshold' };
 }
