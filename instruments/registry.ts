@@ -38,6 +38,7 @@ import { traditionalTunerInstrument } from './traditional-tuner';
 import { tachometerInstrument } from './tachometer';
 import { trackerHunterInstrument } from './tracker-hunter';
 import { wifiMapInstrument } from './wifi-map';
+import { wildlifeSoundsInstrument } from './wildlife-sounds';
 
 /**
  * Registro de instrumentos, agrupados por para qué sirven. Para añadir uno: crea su carpeta en
@@ -73,6 +74,7 @@ export const instrumentSections: readonly InstrumentSection[] = [
       audioSpectrumInstrument,
       roomAcousticsInstrument,
       noiseLogInstrument,
+      wildlifeSoundsInstrument,
       sonarInstrument,
       dataSonificationInstrument,
     ],

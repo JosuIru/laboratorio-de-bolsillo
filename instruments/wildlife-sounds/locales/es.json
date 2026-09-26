@@ -1,0 +1,99 @@
+{
+  "name": "¿Quién canta?",
+  "description": "Reconoce por el sonido aves, anfibios, insectos y mamíferos de Europa con un modelo de IA que funciona sin conexión, y lleva un registro para estudios.",
+  "intro": "Escucha con el micrófono y, cada pocos segundos, pasa los últimos 5 s por Perch 2.0, un modelo de Google entrenado con sonidos de miles de especies. Reconoce 1028 especies europeas y unos 200 sonidos generales (perros, coches, lluvia…).",
+  "disclaimer": "Resultado orientativo: el modelo se equivoca, sobre todo con ruido, con especies parecidas o con animales lejos del micrófono. Confírmalo antes de darlo por bueno.",
+  "privacyTitle": "Voz humana",
+  "privacy": "El audio se analiza en el móvil y se descarta: no se graba ni se envía a ningún sitio. Las voces humanas no se identifican, y si se oye a alguien hablar o cantar, ese trozo no se guarda en el registro.",
+  "accelerator": {
+    "cpu": "CPU",
+    "gpu": "GPU"
+  },
+  "model": {
+    "title": "Modelo",
+    "missing": "Hay que descargar el modelo una vez (unos {{megabytes}} MB). Después funciona sin conexión.",
+    "download": "Descargar el modelo",
+    "fetchingManifest": "Consultando el tamaño del modelo…",
+    "confirmTitle": "¿Descargar el modelo?",
+    "confirmMessage": "Se van a descargar {{megabytes}} MB. Si no tienes wifi, gastará datos móviles.",
+    "confirm": "Descargar",
+    "downloadStarting": "Empezando la descarga…",
+    "downloading": "Descargando: {{percent}} % ({{downloaded}} de {{total}} MB)",
+    "verifying": "Comprobando el fichero…",
+    "cancel": "Cancelar la descarga",
+    "downloadError": "No se ha podido descargar el modelo: {{message}}",
+    "installed": "Modelo {{version}} instalado ({{megabytes}} MB). Funciona sin conexión.",
+    "license": "Modelo: Google Perch 2.0 (licencia Apache 2.0), recortado a las especies de Europa.",
+    "loading": "Cargando el modelo en memoria…",
+    "loadError": "No se ha podido cargar el modelo: {{message}}",
+    "useGpu": "Usar la GPU (experimental)",
+    "useGpuHelp": "Puede ir más rápido, pero no funciona en todos los móviles. Si falla, se usa la CPU.",
+    "gpuFallback": "La GPU no está disponible en este móvil: se usa la CPU.",
+    "delete": "Borrar el modelo",
+    "deleteTitle": "¿Borrar el modelo?",
+    "deleteMessage": "Libera unos {{megabytes}} MB. Para volver a usar el instrumento habrá que descargarlo otra vez. El registro de detecciones se conserva."
+  },
+  "listen": {
+    "start": "Empezar a escuchar",
+    "stop": "Detener",
+    "starting": "Abriendo el micrófono…",
+    "listening": "Escuchando ({{sampleRate}} Hz). Analiza los últimos 5 s cada {{hop}} s.",
+    "waitingFirst": "Esperando a tener los primeros 5 s de audio…",
+    "interrupted": "La escucha se detuvo porque la app dejó de estar en primer plano.",
+    "keepAwake": "La pantalla se queda encendida mientras escucha. Si sales de la app o bloqueas el móvil, se detiene.",
+    "timing": "Último análisis: {{total}} ms (remuestreo {{resample}} ms, modelo {{model}} ms) · {{accelerator}}",
+    "quiet": "Apenas llega sonido al micrófono ({{level}} dBFS).",
+    "analysisError": "Error al analizar: {{message}}"
+  },
+  "results": {
+    "title": "Qué se oye",
+    "nothingYet": "Todavía no hay resultados.",
+    "humanVoice": "Se oye voz humana: este trozo no se identifica ni se guarda.",
+    "logged": "Apuntado en el registro.",
+    "confidence": {
+      "doubtful": "dudoso",
+      "possible": "posible",
+      "probable": "probable"
+    },
+    "score": "puntuación {{score}}",
+    "scoreHelp": "La puntuación no es un porcentaje: por debajo de {{possible}} es dudoso y a partir de {{probable}}, probable. Son umbrales a ojo.",
+    "soundKind": "sonido",
+    "spectrogramTitle": "Espectrograma del último trozo",
+    "spectrogramAccessibility": "Espectrograma mel de los últimos 5 segundos analizados: el tiempo en horizontal y los graves abajo"
+  },
+  "log": {
+    "title": "Registro para estudios",
+    "explanation": "Se apunta cada trozo en el que una especie llega a «posible»: hora, especies con su puntuación, versión del modelo y el embedding (1536 números que resumen el sonido, útiles para entrenar o comparar con IA). No se guarda audio.",
+    "useLocation": "Guardar la ubicación aproximada",
+    "useLocationHelp": "Redondeada a 0,01° (≈1 km).",
+    "locationDenied": "Sin permiso de ubicación: las detecciones se guardan sin coordenadas.",
+    "statistics": "{{detections}} detecciones · {{species}} especies distintas",
+    "recent": "Últimas detecciones",
+    "empty": "El registro está vacío.",
+    "exportJsonl": "Exportar JSONL (con embeddings)",
+    "exportCsv": "Exportar CSV",
+    "shareTitle": "Compartir el registro",
+    "delete": "Borrar el registro",
+    "deleteTitle": "¿Borrar el registro?",
+    "deleteMessage": "Se borrarán {{count}} detecciones. No se puede deshacer.",
+    "saveError": "No se ha podido guardar la detección: {{message}}"
+  },
+  "session": {
+    "title": "Sesión",
+    "summary": "{{windows}} trozos analizados · {{logged}} apuntados · {{voice}} descartados por voz humana",
+    "save": "Guardar la sesión como medición"
+  },
+  "fields": {
+    "speciesSummary": "Especies detectadas",
+    "distinctSpeciesCount": "Especies distintas",
+    "loggedDetectionCount": "Detecciones apuntadas",
+    "analyzedWindowCount": "Trozos analizados",
+    "humanVoiceWindowCount": "Trozos descartados por voz humana",
+    "bestSpeciesLabel": "Mejor detección",
+    "bestSpeciesScore": "Puntuación de la mejor detección",
+    "duration": "Duración",
+    "averageAnalysis": "Tiempo medio de análisis",
+    "modelVersion": "Versión del modelo",
+    "sessionStart": "Inicio"
+  }
+}
