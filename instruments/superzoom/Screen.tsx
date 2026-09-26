@@ -27,8 +27,16 @@ import { useBurstFrames } from './useBurstFrames';
 export const superzoomInstrumentId = 'superzoom';
 
 const previewHeight = 340;
-/** Lado del recorte central de cada fotograma; el resultado mide el doble. */
-const cropSizePixels = 384;
+/**
+ * Lado del recorte central de cada fotograma (el resultado mide el doble). Más grande abarca más
+ * escena, pero el cálculo crece con el área: el grande tarda unas cuatro veces lo que el pequeño.
+ */
+const cropSizeOptions = [
+  { labelKey: 'cropSizes.small', cropSizePixels: 512 },
+  { labelKey: 'cropSizes.medium', cropSizePixels: 768 },
+  { labelKey: 'cropSizes.large', cropSizePixels: 1024 },
+] as const;
+const defaultCropSizeOptionIndex = 1;
 /** Fotogramas de cada ráfaga (~0,5 s); se fusiona la fracción más nítida. */
 const capturedFrameTarget = 12;
 /** Cuenta atrás antes de capturar, para que el toque en la pantalla no mueva la imagen. */
@@ -48,7 +56,9 @@ type DisplayedVersion = 'superzoom' | 'singleFrame';
 interface SuperzoomOutcome {
   result: SuperResolutionResult;
   capturedFrameCount: number;
+  cropSizePixels: number;
   zoomFactor: number;
+  processingSeconds: number;
 }
 
 function waitMilliseconds(durationMilliseconds: number) {
@@ -68,10 +78,12 @@ function CropFrameOverlay({
   previewWidth,
   frameWidth,
   frameHeight,
+  cropSizePixels,
 }: {
   previewWidth: number;
   frameWidth: number;
   frameHeight: number;
+  cropSizePixels: number;
 }) {
   const displayScale = Math.min(previewWidth / frameWidth, previewHeight / frameHeight);
   const cropSideOnScreen = cropSizePixels * displayScale;
@@ -171,6 +183,7 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
   const [superzoomOutcome, setSuperzoomOutcome] = useState<SuperzoomOutcome | null>(null);
   const [displayedVersion, setDisplayedVersion] = useState<DisplayedVersion>('superzoom');
   const [sharpeningLevelIndex, setSharpeningLevelIndex] = useState(defaultSharpeningLevelIndex);
+  const [cropSizeOptionIndex, setCropSizeOptionIndex] = useState(defaultCropSizeOptionIndex);
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   // La captura espera varias veces (cuenta atrás, ráfaga): si se sale de la pantalla entretanto,
@@ -193,6 +206,8 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
     return createSkiaImage(sharpeningAmount > 0 ? sharpenImage(baseImage, sharpeningSigma, sharpeningAmount) : baseImage);
   }, [superzoomOutcome, displayedVersion, sharpeningAmount]);
 
+  const cropSizePixels =
+    cropSizeOptions[cropSizeOptionIndex]?.cropSizePixels ?? cropSizeOptions[defaultCropSizeOptionIndex].cropSizePixels;
   const isFrameLargeEnough =
     frameDimensions === null || Math.min(frameDimensions.frameWidth, frameDimensions.frameHeight) >= cropSizePixels;
   const canMeter = Boolean(cameraDevice?.supportsExposureMetering || cameraDevice?.supportsFocusMetering);
@@ -236,6 +251,7 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
 
   async function handleCapture() {
     const captureZoomFactor = zoomFactor;
+    const captureCropSizePixels = cropSizePixels;
     setSuperzoomOutcome(null);
     setStatusMessage(null);
     for (let secondsLeft = captureCountdownSeconds; secondsLeft > 0; secondsLeft--) {
@@ -244,7 +260,7 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
       if (!isMountedRef.current) return;
     }
     setCountdownSecondsLeft(null);
-    const capturedFrames = await captureBurst(capturedFrameTarget, cropSizePixels);
+    const capturedFrames = await captureBurst(capturedFrameTarget, captureCropSizePixels);
     if (!isMountedRef.current) return;
     if (capturedFrames.length === 0) {
       setStatusMessage(t('noFramesCaptured'));
@@ -255,9 +271,16 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
     await waitMilliseconds(50);
     if (!isMountedRef.current) return;
     try {
-      const result = superResolveBurst(capturedFrames, cropSizePixels, defaultSuperResolutionOptions);
+      const processingStartTime = Date.now();
+      const result = superResolveBurst(capturedFrames, captureCropSizePixels, defaultSuperResolutionOptions);
       setDisplayedVersion('superzoom');
-      setSuperzoomOutcome({ result, capturedFrameCount: capturedFrames.length, zoomFactor: captureZoomFactor });
+      setSuperzoomOutcome({
+        result,
+        capturedFrameCount: capturedFrames.length,
+        cropSizePixels: captureCropSizePixels,
+        zoomFactor: captureZoomFactor,
+        processingSeconds: (Date.now() - processingStartTime) / 1000,
+      });
     } catch (processingError) {
       setStatusMessage(t('core:common.error', { message: String(processingError) }));
     } finally {
@@ -285,7 +308,7 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
         values: {
           capturedFrameCount: superzoomOutcome.capturedFrameCount,
           mergedFrameCount: superzoomOutcome.result.usedFrameCount,
-          cropSizePixels,
+          cropSizePixels: superzoomOutcome.cropSizePixels,
           outputSizePixels: superzoomOutcome.result.image.size,
           zoomFactor: Math.round(superzoomOutcome.zoomFactor * 100) / 100,
           meanShiftPixels: Math.round(superzoomOutcome.result.meanShiftPixels * 10) / 10,
@@ -338,6 +361,7 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
             previewWidth={previewWidth}
             frameWidth={frameDimensions.frameWidth}
             frameHeight={frameDimensions.frameHeight}
+            cropSizePixels={cropSizePixels}
           />
         ) : null}
         <Pressable
@@ -385,6 +409,18 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
         isIncreaseDisabled={zoomFactor >= maximumZoom || isBusy}
       />
       <BodyText tone="secondary">{t('zoomHint')}</BodyText>
+
+      {!isBusy ? (
+        <>
+          <BodyText tone="secondary">{t('cropSizeTitle')}</BodyText>
+          <ChoiceChips<number>
+            options={cropSizeOptions.map((_option, optionIndex) => optionIndex)}
+            selectedOption={cropSizeOptionIndex}
+            labelFor={(optionIndex) => t(cropSizeOptions[optionIndex]?.labelKey ?? 'cropSizes.medium')}
+            onSelect={setCropSizeOptionIndex}
+          />
+        </>
+      ) : null}
 
       {countdownSecondsLeft !== null ? (
         <Card style={styles.centeredCard}>
@@ -437,6 +473,7 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
               captured: superzoomOutcome.capturedFrameCount,
               merged: superzoomOutcome.result.usedFrameCount,
               size: superzoomOutcome.result.image.size,
+              seconds: superzoomOutcome.processingSeconds.toFixed(1),
             })}
           </BodyText>
           <BodyText tone="secondary">

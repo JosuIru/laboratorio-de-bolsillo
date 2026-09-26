@@ -12,6 +12,12 @@
   "zoomOut": "− Zooma",
   "zoomIn": "+ Zooma",
   "zoomHint": "×1 zoomarekin (edo teleobjektibo batekin) gehiago irabazten da: superzoomak zoom digitala ordezkatzen du.",
+  "cropSizeTitle": "Laukiaren tamaina: zenbat eta handiagoa, orduan eta eszena gehiago hartzen du, baina kalkuluak gehiago irauten du.",
+  "cropSizes": {
+    "small": "Txikia",
+    "medium": "Ertaina",
+    "large": "Handia"
+  },
   "holdStill": "Eutsi mugikorrari mugitu gabe…",
   "capture": "Atera {{count}} fotograma",
   "capturingProgress": "Ateratzen… {{captured}} / {{target}}",
@@ -31,7 +37,7 @@
     "medium": "Ertaina",
     "strong": "Gogorra"
   },
-  "mergeExplanation": "{{captured}} fotogrametatik {{merged}} garbienak batu dira {{size}} × {{size}} px-eko irudi batean.",
+  "mergeExplanation": "{{captured}} fotogrametatik {{merged}} garbienak batu dira {{size}} × {{size}} px-eko irudi batean, {{seconds}} s-tan.",
   "handMovement": "Eskua {{shift}} px mugitu zen batez beste fotograma batetik bestera: dardara horrek ematen du xehetasun gehigarria.",
   "tooLittleMovement": "Ia ez zen mugimendurik egon fotogramen artean (mugikorra bermatuta?): superzoomak zarata bakarrik kentzen du, ez du xehetasunik irabazten. Saiatu eskuz helduta.",
   "howItWorks": "Nola dabilen: argazki batetik bestera pultsuak irudia pixel zati batzuk mugitzen du, beraz fotograma bakoitzak eszena posizio apur bat desberdinetan ikusten du. Pixel azpiko zehaztasunez lerrokatzen dira eta bi aldiz finagoa den sare batean banatzen dira; eszenan mugitu zena baztertu egiten da mamurik utz ez dezan. Dena mugikorrean kalkulatzen da.",
