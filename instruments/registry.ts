@@ -6,6 +6,7 @@ import { colorHuntInstrument } from './color-hunt';
 import { colorimeterInstrument } from './colorimeter';
 import { exampleLevelInstrument } from './example-level';
 import { gnssSkyInstrument } from './gnss-sky';
+import { infiniteTxalapartaInstrument } from './infinite-txalaparta';
 import { machineDiagnosisInstrument } from './machine-diagnosis';
 import { mainsFrequencyInstrument } from './mains-frequency';
 import { metalDetectorInstrument } from './metal-detector';
@@ -79,6 +80,7 @@ export const instrumentSections: readonly InstrumentSection[] = [
       colorHuntInstrument,
       singTheNoteInstrument,
       rhythmInstrument,
+      infiniteTxalapartaInstrument,
       phoneModemInstrument,
       soundLocatorInstrument,
       seismicNetworkInstrument,

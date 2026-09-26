@@ -1,0 +1,39 @@
+{
+  "name": "Txalaparta amaigabea",
+  "description": "Erritmo-jokoa: mugikorrak bere txalaparta-zatia jotzen du eta zuk hutsuneak betetzen dituzu txaloekin edo mahaian kolpeak emanez. Tempoa igo egiten da hiru jarraian huts egin arte.",
+  "howTo": {
+    "title": "Nola jokatu",
+    "rules": "Txalapartan bezala, bi lagunek jotzen dute: sarrerako lau kolpe entzuten dira eta gero mugikorrak bere tokian jotzen du eta zuk hutsuneetan, txalo batekin edo mahaian kolpe lehor batekin. Noizean behin tempoa igo eta eredua zailtzen da. Hiru huts jarraian eta amaitu da.",
+    "setup": "Jarri mugikorra mahai gainean bolumena altu, zaratarik gabeko leku batean. Ez da entzungailurik behar: mugikorraren kolpeak ez dira zureak bezala zenbatzen."
+  },
+  "start": "Jokatu",
+  "again": "Berriro",
+  "stop": "Gelditu",
+  "countIn": "Entzun sarrera…",
+  "yourTurn": "Bete hutsuneak!",
+  "hitsLabel": "asmatutakoak",
+  "tempo": "{{bpm}} bpm · {{level}}. maila",
+  "judgement": {
+    "hit": "Ondo! {{offset}} ms",
+    "miss": "Huts!"
+  },
+  "over": {
+    "title": "Amaiera",
+    "summary": "{{bars}} konpas, {{bpm}} bpm-raino",
+    "accuracy": "Batez besteko errorea: {{milliseconds}} ms",
+    "newRecord": "Errekor berria!"
+  },
+  "best": "Errekorra: {{hits}} asmatuta",
+  "error": {
+    "notHeard": "Mikrofonoak ez ditu sarrerako kolpeak entzun: igo bolumena edo hurbildu mugikorra.",
+    "microphone": "Ezin da mikrofonoa erabili: {{message}}"
+  },
+  "privacy": "Soinua mugikorrean aztertzen da eta ez da grabatzen.",
+  "fields": {
+    "hits": "Asmatutakoak",
+    "barsReached": "Konpasak",
+    "finalBeatsPerMinute": "Azken tempoa",
+    "meanAbsoluteErrorMilliseconds": "Batez besteko errorea",
+    "misses": "Hutsak"
+  }
+}
