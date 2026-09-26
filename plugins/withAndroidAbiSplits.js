@@ -5,7 +5,7 @@
  * `android/app/build/outputs/apk/release/`:
  *   - `app-arm64-v8a-release.apk`   (móviles de 64 bits, casi todos los actuales)
  *   - `app-armeabi-v7a-release.apk` (móviles de 32 bits)
- *   - `app-universal-release.apk`   (todas las arquitecturas, el que sirve siempre)
+ *   - `app-universal-release.apk`   (las arquitecturas compiladas, el que sirve siempre; sin x86)
  *
  * Las arquitecturas salen de `-PreactNativeArchitectures` (las mismas para las que se compila el
  * C++), así que `--arm64` genera solo `app-arm64-v8a-release.apk`: si se compila una sola
@@ -20,15 +20,26 @@ const abiSplitsMarker = '// laboratorio-de-bolsillo: ABI splits';
 
 const abiSplitsConfig = `
     ${abiSplitsMarker}
+    def labArchitecturesProperty = findProperty('reactNativeArchitectures') ?: 'armeabi-v7a,arm64-v8a'
+    def labBuildArchitectures = labArchitecturesProperty.toString().split(',').collect { it.trim() }.findAll { it }
+    def labIsReleaseBuild = gradle.startParameter.taskNames.any { it.toLowerCase().contains('release') }
     splits {
         abi {
-            def labArchitecturesProperty = findProperty('reactNativeArchitectures') ?: 'armeabi-v7a,arm64-v8a'
-            def labBuildArchitectures = labArchitecturesProperty.toString().split(',').collect { it.trim() }.findAll { it }
-            def labIsReleaseBuild = gradle.startParameter.taskNames.any { it.toLowerCase().contains('release') }
             enable labIsReleaseBuild && !labBuildArchitectures.isEmpty()
             reset()
             include(*labBuildArchitectures)
             universalApk labBuildArchitectures.size() > 1
+        }
+    }
+    // Con los splits activos, el APK universal mete también las librerías x86/x86_64 que traen
+    // ya compiladas algunas dependencias (LiteRT, Skia…): ~50 MB que ningún móvil usa. Fuera.
+    packaging {
+        jniLibs {
+            if (labIsReleaseBuild) {
+                ['x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'].findAll { !labBuildArchitectures.contains(it) }.each { unusedArchitecture ->
+                    excludes += ["lib/\${unusedArchitecture}/**".toString()]
+                }
+            }
         }
     }
 `;
