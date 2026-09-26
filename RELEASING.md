@@ -35,6 +35,14 @@ npm run build:release   # deja el APK firmado en dist/
 El APK incluye solo las arquitecturas ARM (`arm64-v8a` y `armeabi-v7a`), que cubren
 prácticamente todos los móviles; x86 solo lo usan los emuladores.
 
+Para probar en un móvil actual basta con `npm run build:release:arm64`: compila solo
+`arm64-v8a`, tarda la mitad y deja `dist/laboratorio-de-bolsillo-<versión>-arm64.apk`. No lo
+publiques, porque no funciona en los móviles de 32 bits.
+
+El build es incremental: `android/` solo se regenera desde cero cuando cambian
+`package-lock.json`, `plugins/` o `modules/`. Si no cambian, se reaprovecha el C++ ya compilado.
+Para forzar un build limpio: `LAB_CLEAN_BUILD=1 npm run build:release`.
+
 Lee las credenciales de `~/.android-keys/laboratorio-de-bolsillo-release.env` (o de la ruta
 que indiques en `LAB_RELEASE_ENV_FILE`). Si no hay credenciales, Gradle firma con la clave
 de depuración y avisa: ese APK **no se debe publicar**.

@@ -57,6 +57,7 @@
     "lint": "expo lint src instruments test plugins",
     "doctor": "expo-doctor",
     "build:release": "bash scripts/build-release.sh",
+    "build:release:arm64": "bash scripts/build-release.sh --arm64",
     "postinstall": "patch-package"
   },
   "private": true,
