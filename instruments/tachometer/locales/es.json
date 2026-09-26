@@ -9,6 +9,7 @@
   "stable": "Lectura estable",
   "unstable": "Estabilizando…",
   "pulseFrequencyValue": "Pulsos a {{frequency}} Hz",
+  "uncertaintyValue": "± {{uncertainty}} rpm",
   "pulsesHint": "Cuántos pulsos se oyen en cada vuelta: aspas de un ventilador o una hélice, o 1 si lo que suena es el propio giro del motor.",
   "pulsesAccessibility": "{{count}} pulsos por vuelta",
   "howTo": "Acerca el micrófono a la máquina con el régimen estable y espera a que la lectura se estabilice. Si el resultado es la mitad o el doble del esperado, revisa los pulsos por vuelta.",

@@ -30,6 +30,11 @@ export interface StabilizedReading {
   relativeSpread: number;
   isStable: boolean;
   readingCount: number;
+  /**
+   * Incertidumbre aproximada de `medianFrequencyHz`: la de cada estimación (resolución de la FFT
+   * afinada con los armónicos) o la mitad del rango intercuartílico si la lectura baila más.
+   */
+  frequencyUncertaintyHz: number;
 }
 
 export interface ReadingStabilizerOptions {
@@ -56,27 +61,51 @@ function quantile(sortedValues: readonly number[], fraction: number): number {
  */
 export function createReadingStabilizer(options: ReadingStabilizerOptions = {}) {
   const { historyLength = 15, stableRelativeSpread = 0.01, minimumReadingCount = 5 } = options;
-  let recentReadings: (number | null)[] = [];
+  let recentReadings: ({ frequencyHz: number; frequencyUncertaintyHz: number } | null)[] = [];
 
   return {
-    push(frequencyHz: number | null): StabilizedReading | null {
-      recentReadings = [...recentReadings, frequencyHz].slice(-historyLength);
-      const validReadings = recentReadings.filter((reading): reading is number => reading !== null);
+    /** `frequencyUncertaintyHz`: la incertidumbre de esta estimación, si se conoce. */
+    push(frequencyHz: number | null, frequencyUncertaintyHz = 0): StabilizedReading | null {
+      recentReadings = [...recentReadings, frequencyHz === null ? null : { frequencyHz, frequencyUncertaintyHz }].slice(
+        -historyLength,
+      );
+      const validReadings = recentReadings.filter((reading) => reading !== null);
       if (validReadings.length === 0) return null;
 
-      const sortedReadings = [...validReadings].sort((leftReading, rightReading) => leftReading - rightReading);
+      const sortedReadings = validReadings
+        .map((reading) => reading.frequencyHz)
+        .sort((leftReading, rightReading) => leftReading - rightReading);
       const medianFrequencyHz = sortedReadings[Math.floor((sortedReadings.length - 1) / 2)]!;
       const interquartileRange = quantile(sortedReadings, 0.75) - quantile(sortedReadings, 0.25);
       const relativeSpread = medianFrequencyHz > 0 ? interquartileRange / medianFrequencyHz : Infinity;
+      const sortedUncertainties = validReadings
+        .map((reading) => reading.frequencyUncertaintyHz)
+        .sort((leftUncertainty, rightUncertainty) => leftUncertainty - rightUncertainty);
       return {
         medianFrequencyHz,
         relativeSpread,
         isStable: validReadings.length >= minimumReadingCount && relativeSpread <= stableRelativeSpread,
         readingCount: validReadings.length,
+        frequencyUncertaintyHz: Math.max(quantile(sortedUncertainties, 0.5), interquartileRange / 2),
       };
     },
     reset(): void {
       recentReadings = [];
     },
+  };
+}
+
+/**
+ * Redondea un valor a la cifra que permite su incertidumbre (una cifra significativa en la
+ * incertidumbre, nunca por debajo de la unidad): 1234,6 ± 2,7 → «1235» y «3».
+ */
+export function roundWithUncertainty(value: number, uncertainty: number): { roundedValue: number; roundedUncertainty: number } {
+  if (!(uncertainty > 0) || !Number.isFinite(uncertainty)) {
+    return { roundedValue: Math.round(value), roundedUncertainty: 0 };
+  }
+  const roundingStep = Math.max(1, 10 ** Math.floor(Math.log10(uncertainty)));
+  return {
+    roundedValue: Math.round(value / roundingStep) * roundingStep,
+    roundedUncertainty: Math.max(roundingStep, Math.ceil(uncertainty / roundingStep) * roundingStep),
   };
 }

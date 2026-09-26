@@ -8,8 +8,9 @@ import { type FundamentalEstimate, estimateFundamentalFrequency } from '@/proces
 import { createReadingStabilizer, type StabilizedReading } from './rpmReading';
 
 /**
- * FFT larga: a 48 kHz, 16384 muestras dan bins de ~2,9 Hz (0,34 s de audio). Con la
- * interpolación del pico basta para ±0,5 % a partir de unos 50 Hz de pulsos.
+ * FFT larga: a 48 kHz, 16384 muestras dan bins de ~2,9 Hz (0,34 s de audio). La interpolación
+ * de los picos y el promedio de los armónicos bajan el error a unas centésimas de hercio con
+ * un sonido limpio; la incertidumbre de cada lectura se muestra junto a las rpm.
  */
 export const tachometerFftSize = 16384;
 /** Pulsos entre 5 y 2000 Hz: de 300 rpm con un pulso por vuelta a 120 000 rpm. */
@@ -110,7 +111,10 @@ export function useTachometerMicrophone({ isRunning }: { isRunning: boolean }) {
               sampleRateHz,
               fftSize: tachometerFftSize,
               latestEstimate,
-              stabilizedReading: readingStabilizer.push(latestEstimate?.frequencyHz ?? null),
+              stabilizedReading: readingStabilizer.push(
+                latestEstimate?.frequencyHz ?? null,
+                latestEstimate?.frequencyUncertaintyHz,
+              ),
             },
           });
         }, readingIntervalMilliseconds);
