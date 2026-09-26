@@ -8,11 +8,15 @@
     "empty": "Sortu makina bat hasteko (adib. «Putzuko ponpa»).",
     "newPlaceholder": "Makinaren izena",
     "create": "Gehitu",
-    "delete": "Ezabatu makina hau"
+    "delete": "Ezabatu makina hau",
+    "deleteTitle": "«{{name}}» ezabatu?",
+    "deleteMessage": "Bere aztarna ezabatuko da. Historialean gordetako neurketak mantentzen dira."
   },
   "baseline": {
     "missing": "Oraindik ez du aztarnarik: grabatu makina osasuntsu dagoenean.",
-    "recordedAt": "Aztarna grabatze-data: {{date}}"
+    "recordedAt_one": "{{count}} grabazioko aztarna, azkena {{date}}",
+    "recordedAt_other": "{{count}} grabazioko aztarna, azkena {{date}}",
+    "addMoreHint": "Grabatu makina osasuntsua gutxienez {{recommended}} aldiz, mugikorra kendu eta berriro jarriz: horrela ikasten da neurketa batetik bestera zenbat aldatzen den, eta alarma faltsuak saihesten dira."
   },
   "capture": {
     "recordBaseline": "Grabatu aztarna (makina osasuntsua)",
@@ -22,7 +26,10 @@
     "recordingComparison": "Alderatzeko neurtzen…",
     "hint": "Utzi mugikorra makinaren gainean (edo zintarekin lotuta) eta ez ukitu {{seconds}} segundoz.",
     "microphoneError": "Mikrofonoa: {{message}}",
-    "noData": "Ez da sentsoreen daturik jaso. Saiatu berriro."
+    "noData": "Ez da sentsoreen daturik jaso. Saiatu berriro.",
+    "addBaselineRecording": "Gehitu beste grabazio bat aztarnari",
+    "rerecordTitle": "Aztarna berriro hasi?",
+    "rerecordMessage": "Orain dituen makina osasuntsuaren grabazioak ezabatuko dira."
   },
   "verdict": {
     "normal": "Normala",
@@ -31,8 +38,8 @@
   },
   "verdictHint": {
     "normal": "Ez dago aldaketa garrantzitsurik aztarnarekiko.",
-    "watch": "Banda batzuk 3 eta 6 dB artean igo dira: errepikatu neurketa geroago, igotzen jarraitzen duen ikusteko.",
-    "alert": "Bandaren bat 6 dB edo gehiago igo da (energiaren laukoitza): komeni da makina berrikustea."
+    "watch": "Maila ohiko aldakuntza baino zertxobait gehiago igo da (3–6 dB globalean edo zenbait bandatan): errepikatu neurketa geroago, igotzen jarraitzen duen ikusteko.",
+    "alert": "Maila 6 dB edo gehiago igo da (energia laukoitza) ohiko aldakuntzaren gainetik, globalean, zenbait bandatan edo tonu berri batean: komeni da makina berrikustea."
   },
   "overall": {
     "audio": "Soinu orokorra: {{delta}} dB",

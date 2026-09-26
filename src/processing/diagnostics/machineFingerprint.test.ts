@@ -1,4 +1,5 @@
 import {
+  combineBaselineRecordings,
   compareFingerprints,
   createDomainAccumulator,
   type DomainFingerprint,
@@ -37,6 +38,19 @@ describe('createDomainAccumulator', () => {
   });
 });
 
+describe('combineBaselineRecordings', () => {
+  it('una sola grabación queda igual, sin dispersión', () => {
+    const recording = machineFingerprint(domainFingerprint([-40, -45, -50, -60], -38), null);
+    const baseline = combineBaselineRecordings([recording])!;
+    expect(baseline.audio).toEqual(recording.audio);
+    expect(baseline.recordingCount).toBe(1);
+  });
+
+  it('sin grabaciones no hay huella', () => {
+    expect(combineBaselineRecordings([])).toBeNull();
+  });
+});
+
 describe('compareFingerprints', () => {
   const healthyAudio = domainFingerprint([-40, -45, -50, -60], -38);
   const healthyVibration = domainFingerprint([-30, -35, -40, -50], -28);
@@ -49,11 +63,39 @@ describe('compareFingerprints', () => {
     expect(diagnosis.overallDeltaDecibels).toEqual({ audio: 0, vibration: 0 });
   });
 
-  it('una banda de vibración que sube 8 dB da alerta y sale la primera', () => {
+  it('una sola banda que sube 8 dB queda en vigilancia y sale la primera', () => {
     const worseVibration = domainFingerprint([-30, -35, -32, -50], -27);
     const diagnosis = compareFingerprints(healthyMachine, machineFingerprint(healthyAudio, worseVibration));
-    expect(diagnosis.verdict).toBe('alert');
+    expect(diagnosis.verdict).toBe('watch');
     expect(diagnosis.bandDeviations[0]).toEqual({ domain: 'vibration', centerHz: 160, deltaDecibels: 8 });
+  });
+
+  it('una sola banda que sube 10 dB (un tono nuevo) da alerta', () => {
+    const newTone = domainFingerprint([-30, -35, -30, -50], -27.5);
+    expect(compareFingerprints(healthyMachine, machineFingerprint(healthyAudio, newTone)).verdict).toBe('alert');
+  });
+
+  it('dos bandas que suben 7 dB dan alerta', () => {
+    const twoBandsUp = domainFingerprint([-30, -28, -33, -50], -27);
+    expect(compareFingerprints(healthyMachine, machineFingerprint(healthyAudio, twoBandsUp)).verdict).toBe('alert');
+  });
+
+  it('una banda sola que sube 4 dB es normal', () => {
+    const oneBandUp = domainFingerprint([-40, -45, -46, -60], -37.5);
+    expect(compareFingerprints(healthyMachine, machineFingerprint(oneBandUp, healthyVibration)).verdict).toBe('normal');
+  });
+
+  it('descuenta la variación normal entre las grabaciones de la huella base', () => {
+    const baseline = combineBaselineRecordings([
+      machineFingerprint(domainFingerprint([-40, -45, -50, -60], -38), null),
+      machineFingerprint(domainFingerprint([-36, -41, -50, -60], -34), null),
+    ])!;
+    expect(baseline.recordingCount).toBe(2);
+    // Las dos primeras bandas varían ±2 dB entre grabaciones; el global, lo mismo.
+    expect(baseline.audio!.bandSpreadDecibels![0]).toBeCloseTo(2, 0);
+    expect(baseline.audio!.bandSpreadDecibels![2]).toBe(0);
+    const sameAsSecondRecording = machineFingerprint(domainFingerprint([-36, -41, -50, -60], -34), null);
+    expect(compareFingerprints(baseline, sameAsSecondRecording).verdict).toBe('normal');
   });
 
   it('una subida de 4 dB queda en vigilancia', () => {

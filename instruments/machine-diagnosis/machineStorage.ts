@@ -1,12 +1,28 @@
 import Storage from 'expo-sqlite/kv-store';
 
-import type { DomainFingerprint, MachineFingerprint } from '@/processing/diagnostics/machineFingerprint';
+import {
+  combineBaselineRecordings,
+  type DomainFingerprint,
+  type MachineFingerprint,
+  maximumBaselineRecordingCount,
+} from '@/processing/diagnostics/machineFingerprint';
 
 export interface MonitoredMachine {
   id: string;
   name: string;
-  /** Huella de la máquina sana, o null si todavía no se ha grabado. */
+  /** Grabaciones de la máquina sana (hasta `maximumBaselineRecordingCount`). */
+  baselineRecordings: MachineFingerprint[];
+  /** Huella base: las grabaciones combinadas, o null si todavía no hay ninguna. */
   baseline: MachineFingerprint | null;
+}
+
+/** Máquina con sus grabaciones de la huella base y la huella combinada a partir de ellas. */
+export function machineWithBaselineRecordings(
+  machine: Pick<MonitoredMachine, 'id' | 'name'>,
+  baselineRecordings: readonly MachineFingerprint[],
+): MonitoredMachine {
+  const keptRecordings = baselineRecordings.slice(-maximumBaselineRecordingCount);
+  return { id: machine.id, name: machine.name, baselineRecordings: keptRecordings, baseline: combineBaselineRecordings(keptRecordings) };
 }
 
 const machinesStorageKey = 'machineDiagnosis.machines';
@@ -54,11 +70,18 @@ export function parseStoredMachines(storedText: string | null): MonitoredMachine
   try {
     const parsedValue: unknown = JSON.parse(storedText);
     if (!Array.isArray(parsedValue)) return [];
-    return parsedValue.flatMap((candidateMachine): MonitoredMachine[] =>
-      typeof candidateMachine?.id === 'string' && typeof candidateMachine?.name === 'string'
-        ? [{ id: candidateMachine.id, name: candidateMachine.name, baseline: parseFingerprint(candidateMachine.baseline) }]
-        : [],
-    );
+    return parsedValue.flatMap((candidateMachine): MonitoredMachine[] => {
+      if (typeof candidateMachine?.id !== 'string' || typeof candidateMachine?.name !== 'string') return [];
+      // Las máquinas guardadas antes de las huellas de varias grabaciones solo tienen `baseline`.
+      const storedRecordings: unknown[] = Array.isArray(candidateMachine.baselineRecordings)
+        ? candidateMachine.baselineRecordings
+        : [candidateMachine.baseline];
+      const baselineRecordings = storedRecordings.flatMap((storedRecording) => {
+        const recording = parseFingerprint(storedRecording);
+        return recording ? [recording] : [];
+      });
+      return [machineWithBaselineRecordings(candidateMachine, baselineRecordings)];
+    });
   } catch {
     return [];
   }
@@ -73,5 +96,9 @@ export function loadMachines(): MonitoredMachine[] {
 }
 
 export function saveMachines(machines: readonly MonitoredMachine[]): void {
-  Storage.setItemSync(machinesStorageKey, JSON.stringify(machines));
+  // La huella combinada se recalcula al leer: basta con guardar las grabaciones.
+  Storage.setItemSync(
+    machinesStorageKey,
+    JSON.stringify(machines.map(({ id, name, baselineRecordings }) => ({ id, name, baselineRecordings }))),
+  );
 }

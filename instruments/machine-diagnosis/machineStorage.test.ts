@@ -14,9 +14,29 @@ describe('parseStoredMachines', () => {
       { id: 'lavadora', name: 'Lavadora', baseline: null },
     ]);
     expect(parseStoredMachines(storedText)).toEqual([
-      { id: 'bomba', name: 'Bomba del pozo', baseline: validBaseline },
-      { id: 'lavadora', name: 'Lavadora', baseline: null },
+      {
+        id: 'bomba',
+        name: 'Bomba del pozo',
+        baselineRecordings: [validBaseline],
+        baseline: { ...validBaseline, recordingCount: 1 },
+      },
+      { id: 'lavadora', name: 'Lavadora', baselineRecordings: [], baseline: null },
     ]);
+  });
+
+  it('combina las grabaciones de la huella base', () => {
+    const louderRecording = {
+      ...validBaseline,
+      capturedAt: validBaseline.capturedAt + 60_000,
+      audio: { ...validBaseline.audio, bandLevelsDecibels: [-36, -45], overallLevelDecibels: -35.5 },
+    };
+    const [machine] = parseStoredMachines(
+      JSON.stringify([{ id: 'bomba', name: 'Bomba', baselineRecordings: [validBaseline, louderRecording] }]),
+    );
+    expect(machine!.baselineRecordings).toHaveLength(2);
+    expect(machine!.baseline!.recordingCount).toBe(2);
+    expect(machine!.baseline!.capturedAt).toBe(louderRecording.capturedAt);
+    expect(machine!.baseline!.audio!.bandSpreadDecibels![0]).toBeGreaterThan(1);
   });
 
   it('descarta huellas corruptas pero conserva la máquina', () => {
@@ -25,7 +45,7 @@ describe('parseStoredMachines', () => {
       audio: { bandCentersHz: [100, 125], bandLevelsDecibels: [-40], overallLevelDecibels: -38 },
     };
     expect(parseStoredMachines(JSON.stringify([{ id: 'a', name: 'A', baseline: corruptBaseline }]))).toEqual([
-      { id: 'a', name: 'A', baseline: null },
+      { id: 'a', name: 'A', baselineRecordings: [], baseline: null },
     ]);
   });
 

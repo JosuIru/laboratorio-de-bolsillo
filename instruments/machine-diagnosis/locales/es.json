@@ -8,11 +8,15 @@
     "empty": "Crea una máquina para empezar (p. ej. «Bomba del pozo»).",
     "newPlaceholder": "Nombre de la máquina",
     "create": "Añadir",
-    "delete": "Borrar esta máquina"
+    "delete": "Borrar esta máquina",
+    "deleteTitle": "¿Borrar «{{name}}»?",
+    "deleteMessage": "Se borrará su huella. Las mediciones guardadas en el historial se conservan."
   },
   "baseline": {
     "missing": "Todavía no tiene huella: grábala con la máquina sana.",
-    "recordedAt": "Huella grabada el {{date}}"
+    "recordedAt_one": "Huella de {{count}} grabación, la última el {{date}}",
+    "recordedAt_other": "Huella de {{count}} grabaciones, la última el {{date}}",
+    "addMoreHint": "Graba al menos {{recommended}} veces la máquina sana, quitando y volviendo a poner el móvil: así se aprende cuánto varía de una medida a otra y se evitan falsas alarmas."
   },
   "capture": {
     "recordBaseline": "Grabar huella (máquina sana)",
@@ -22,7 +26,10 @@
     "recordingComparison": "Midiendo para comparar…",
     "hint": "Deja el móvil apoyado sobre la máquina (o sujeto con cinta) y sin tocarlo durante {{seconds}} s.",
     "microphoneError": "Micrófono: {{message}}",
-    "noData": "No se han recibido datos de los sensores. Inténtalo de nuevo."
+    "noData": "No se han recibido datos de los sensores. Inténtalo de nuevo.",
+    "addBaselineRecording": "Añadir otra grabación a la huella",
+    "rerecordTitle": "¿Empezar la huella de nuevo?",
+    "rerecordMessage": "Se borrarán las grabaciones de la máquina sana que tiene ahora."
   },
   "verdict": {
     "normal": "Normal",
@@ -31,8 +38,8 @@
   },
   "verdictHint": {
     "normal": "No hay cambios importantes respecto a la huella.",
-    "watch": "Algunas bandas han subido entre 3 y 6 dB: repite la medida más adelante para ver si sigue subiendo.",
-    "alert": "Alguna banda ha subido 6 dB o más (el cuádruple de energía): conviene revisar la máquina."
+    "watch": "El nivel ha subido algo más de lo que varía normalmente (3–6 dB en el global o en varias bandas): repite la medida más adelante para ver si sigue subiendo.",
+    "alert": "El nivel ha subido 6 dB o más (el cuádruple de energía) por encima de su variación normal, en el global, en varias bandas o en un tono nuevo: conviene revisar la máquina."
   },
   "overall": {
     "audio": "Sonido global: {{delta}} dB",

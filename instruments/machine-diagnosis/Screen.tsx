@@ -1,7 +1,7 @@
 import { randomUUID } from 'expo-crypto';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import type { InstrumentScreenProps } from '@/core/instruments/types';
 import { formatBandCenter } from '@/processing/dsp/frequencyBands';
@@ -10,18 +10,23 @@ import {
   type DiagnosisResult,
   type DomainFingerprint,
   type MachineFingerprint,
+  maximumBaselineRecordingCount,
 } from '@/processing/diagnostics/machineFingerprint';
 import { SignalChart } from '@/ui/charts/SignalChart';
 import { AppButton, BodyText, Card, ScreenContainer, SectionTitle } from '@/ui/components';
 import { useThemePalette } from '@/ui/theme';
 
-import { loadMachines, type MonitoredMachine, saveMachines } from './machineStorage';
+import { loadMachines, machineWithBaselineRecordings, type MonitoredMachine, saveMachines } from './machineStorage';
 import type { MachineDiagnosisMeasurementValues } from './schema';
 import { captureDurationSeconds, useFingerprintCapture } from './useFingerprintCapture';
 
 export const machineDiagnosisInstrumentId = 'machine-diagnosis';
 
-type CapturePurpose = 'baseline' | 'comparison';
+/** `baseline` empieza la huella de cero; `extraBaseline` le añade otra grabación. */
+type CapturePurpose = 'baseline' | 'extraBaseline' | 'comparison';
+
+/** Con menos grabaciones no se sabe qué variación entre medidas es normal. */
+const recommendedBaselineRecordingCount = 3;
 
 const shownDeviationCount = 5;
 
@@ -57,9 +62,13 @@ export function MachineDiagnosisScreen({ saveMeasurement }: InstrumentScreenProp
   // Al terminar una grabación: guarda la huella base o compara con ella.
   function handleCaptureComplete(fingerprint: MachineFingerprint) {
     if (!selectedMachine || !capturePurpose) return;
-    if (capturePurpose === 'baseline') {
+    if (capturePurpose === 'baseline' || capturePurpose === 'extraBaseline') {
+      const baselineRecordings =
+        capturePurpose === 'baseline' ? [fingerprint] : [...selectedMachine.baselineRecordings, fingerprint];
       updateMachines(
-        machines.map((machine) => (machine.id === selectedMachine.id ? { ...machine, baseline: fingerprint } : machine)),
+        machines.map((machine) =>
+          machine.id === selectedMachine.id ? machineWithBaselineRecordings(machine, baselineRecordings) : machine,
+        ),
       );
     } else if (selectedMachine.baseline) {
       setLatestComparison({ diagnosis: compareFingerprints(selectedMachine.baseline, fingerprint), current: fingerprint });
@@ -81,7 +90,7 @@ export function MachineDiagnosisScreen({ saveMeasurement }: InstrumentScreenProp
   function handleCreateMachine() {
     const machineName = newMachineName.trim();
     if (!machineName) return;
-    const createdMachine: MonitoredMachine = { id: randomUUID(), name: machineName, baseline: null };
+    const createdMachine: MonitoredMachine = { id: randomUUID(), name: machineName, baselineRecordings: [], baseline: null };
     updateMachines([...machines, createdMachine]);
     setSelectedMachineId(createdMachine.id);
     setNewMachineName('');
@@ -90,10 +99,28 @@ export function MachineDiagnosisScreen({ saveMeasurement }: InstrumentScreenProp
 
   function handleDeleteMachine() {
     if (!selectedMachine) return;
-    const remainingMachines = machines.filter((machine) => machine.id !== selectedMachine.id);
-    updateMachines(remainingMachines);
-    setSelectedMachineId(remainingMachines[0]?.id ?? null);
-    setLatestComparison(null);
+    const deletedMachineId = selectedMachine.id;
+    Alert.alert(t('machines.deleteTitle', { name: selectedMachine.name }), t('machines.deleteMessage'), [
+      { text: t('core:common.cancel'), style: 'cancel' },
+      {
+        text: t('machines.delete'),
+        style: 'destructive',
+        onPress: () => {
+          const remainingMachines = machines.filter((machine) => machine.id !== deletedMachineId);
+          updateMachines(remainingMachines);
+          setSelectedMachineId(remainingMachines[0]?.id ?? null);
+          setLatestComparison(null);
+        },
+      },
+    ]);
+  }
+
+  /** Volver a grabar la huella borra la anterior: se pide confirmación. */
+  function handleRerecordBaseline() {
+    Alert.alert(t('capture.rerecordTitle'), t('capture.rerecordMessage'), [
+      { text: t('core:common.cancel'), style: 'cancel' },
+      { text: t('capture.rerecordBaseline'), style: 'destructive', onPress: () => beginCapture('baseline') },
+    ]);
   }
 
   function describeBand(domain: 'audio' | 'vibration', centerHz: number) {
@@ -183,13 +210,21 @@ export function MachineDiagnosisScreen({ saveMeasurement }: InstrumentScreenProp
           <BodyText style={styles.machineName}>{selectedMachine.name}</BodyText>
           <BodyText tone="secondary">
             {selectedMachine.baseline
-              ? t('baseline.recordedAt', { date: new Date(selectedMachine.baseline.capturedAt).toLocaleString(i18n.language) })
+              ? t('baseline.recordedAt', {
+                  date: new Date(selectedMachine.baseline.capturedAt).toLocaleString(i18n.language),
+                  count: selectedMachine.baselineRecordings.length,
+                })
               : t('baseline.missing')}
           </BodyText>
+          {selectedMachine.baseline && selectedMachine.baselineRecordings.length < recommendedBaselineRecordingCount ? (
+            <BodyText tone="secondary">
+              {t('baseline.addMoreHint', { recommended: recommendedBaselineRecordingCount })}
+            </BodyText>
+          ) : null}
 
           {isCapturing ? (
             <View style={styles.captureBlock}>
-              <BodyText>{t(capturePurpose === 'baseline' ? 'capture.recordingBaseline' : 'capture.recordingComparison')}</BodyText>
+              <BodyText>{t(capturePurpose === 'comparison' ? 'capture.recordingComparison' : 'capture.recordingBaseline')}</BodyText>
               <View style={[styles.progressTrack, { backgroundColor: themePalette.border }]}>
                 <View
                   style={[
@@ -209,9 +244,16 @@ export function MachineDiagnosisScreen({ saveMeasurement }: InstrumentScreenProp
               {selectedMachine.baseline ? (
                 <AppButton label={t('capture.compare')} onPress={() => beginCapture('comparison')} />
               ) : null}
+              {selectedMachine.baseline && selectedMachine.baselineRecordings.length < maximumBaselineRecordingCount ? (
+                <AppButton
+                  label={t('capture.addBaselineRecording')}
+                  onPress={() => beginCapture('extraBaseline')}
+                  variant={selectedMachine.baselineRecordings.length < recommendedBaselineRecordingCount ? 'primary' : 'secondary'}
+                />
+              ) : null}
               <AppButton
                 label={t(selectedMachine.baseline ? 'capture.rerecordBaseline' : 'capture.recordBaseline')}
-                onPress={() => beginCapture('baseline')}
+                onPress={selectedMachine.baseline ? handleRerecordBaseline : () => beginCapture('baseline')}
                 variant={selectedMachine.baseline ? 'secondary' : 'primary'}
               />
               {captureState.status === 'error' ? <BodyText tone="danger">{t('capture.noData')}</BodyText> : null}

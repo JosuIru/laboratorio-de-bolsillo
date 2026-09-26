@@ -14,6 +14,13 @@ export interface DomainFingerprint {
   /** Nivel global (suma de todas las bandas) en dB. */
   overallLevelDecibels: number;
   frameCount: number;
+  /**
+   * Solo en una huella base de varias grabaciones: cuánto se aparta como mucho cada grabación de
+   * la media, por banda y en el global (dB). Es la variación normal entre medidas (colocación,
+   * ruido ambiente) y se descuenta al comparar.
+   */
+  bandSpreadDecibels?: number[];
+  overallSpreadDecibels?: number;
 }
 
 export interface MachineFingerprint {
@@ -21,6 +28,63 @@ export interface MachineFingerprint {
   vibration: DomainFingerprint | null;
   capturedAt: number;
   durationSeconds: number;
+  /** Grabaciones combinadas en esta huella (1 si es una sola). */
+  recordingCount?: number;
+}
+
+/** Más grabaciones en la huella base apenas afinan la dispersión y alargan el proceso. */
+export const maximumBaselineRecordingCount = 5;
+
+const decibelsToPower = (levelDecibels: number) => 10 ** (levelDecibels / 10);
+const roundToHundredths = (value: number) => Math.round(value * 100) / 100;
+
+function combineDomainRecordings(domainRecordings: readonly (DomainFingerprint | null)[]): DomainFingerprint | null {
+  const firstRecording = domainRecordings.find((recording) => recording !== null);
+  if (!firstRecording) return null;
+  const compatibleRecordings = domainRecordings.filter(
+    (recording): recording is DomainFingerprint =>
+      recording !== null && recording.bandLevelsDecibels.length === firstRecording.bandLevelsDecibels.length,
+  );
+  if (compatibleRecordings.length === 1) return firstRecording;
+  const meanLevel = (levels: number[]) =>
+    powerToDecibels(levels.reduce((powerSum, level) => powerSum + decibelsToPower(level), 0) / levels.length);
+  const spreadAround = (levels: number[], meanLevelDecibels: number) =>
+    Math.max(...levels.map((level) => Math.abs(level - meanLevelDecibels)));
+
+  const bandLevelsDecibels: number[] = [];
+  const bandSpreadDecibels: number[] = [];
+  firstRecording.bandLevelsDecibels.forEach((_level, bandIndex) => {
+    const levels = compatibleRecordings.map((recording) => recording.bandLevelsDecibels[bandIndex]!);
+    const combinedLevel = meanLevel(levels);
+    bandLevelsDecibels.push(roundToHundredths(combinedLevel));
+    bandSpreadDecibels.push(roundToHundredths(spreadAround(levels, combinedLevel)));
+  });
+  const overallLevels = compatibleRecordings.map((recording) => recording.overallLevelDecibels);
+  const overallLevelDecibels = meanLevel(overallLevels);
+  return {
+    bandCentersHz: [...firstRecording.bandCentersHz],
+    bandLevelsDecibels,
+    overallLevelDecibels: roundToHundredths(overallLevelDecibels),
+    frameCount: compatibleRecordings.reduce((frameSum, recording) => frameSum + recording.frameCount, 0),
+    bandSpreadDecibels,
+    overallSpreadDecibels: roundToHundredths(spreadAround(overallLevels, overallLevelDecibels)),
+  };
+}
+
+/**
+ * Une varias grabaciones de la máquina sana en una huella base: media en potencia y, por banda,
+ * cuánto varían entre sí. Con una sola grabación no se sabe qué variación es normal.
+ */
+export function combineBaselineRecordings(recordings: readonly MachineFingerprint[]): MachineFingerprint | null {
+  if (recordings.length === 0) return null;
+  const latestRecording = recordings.reduce((latest, recording) => (recording.capturedAt > latest.capturedAt ? recording : latest));
+  return {
+    audio: combineDomainRecordings(recordings.map((recording) => recording.audio)),
+    vibration: combineDomainRecordings(recordings.map((recording) => recording.vibration)),
+    capturedAt: latestRecording.capturedAt,
+    durationSeconds: recordings.reduce((durationSum, recording) => durationSum + recording.durationSeconds, 0),
+    recordingCount: recordings.length,
+  };
 }
 
 /** Acumula tramas en potencia (no en dB) para que la media sea físicamente correcta. */
@@ -59,15 +123,21 @@ export type DiagnosisVerdict = 'normal' | 'watch' | 'alert';
 export interface DiagnosisThresholds {
   /** Bandas por debajo de este nivel (dB) en ambas mediciones se ignoran: son ruido de fondo. */
   noiseFloorDecibels: Record<FingerprintDomain, number>;
-  /** Subida de una banda o del nivel global a partir de la cual se vigila o se alerta. */
+  /**
+   * Subida (por encima de la variación normal de la huella base) a partir de la cual se vigila o
+   * se alerta. En las bandas hace falta que suban al menos dos: una sola banda de unas 45 sube
+   * por azar a menudo. Una sola solo cuenta si sube `singleBandExtraDecibels` más (un tono nuevo).
+   */
   watchDeltaDecibels: number;
   alertDeltaDecibels: number;
+  singleBandExtraDecibels: number;
 }
 
 export const defaultDiagnosisThresholds: DiagnosisThresholds = {
   noiseFloorDecibels: { audio: -100, vibration: -70 },
   watchDeltaDecibels: 3,
   alertDeltaDecibels: 6,
+  singleBandExtraDecibels: 3,
 };
 
 export interface DiagnosisResult {
@@ -85,10 +155,12 @@ function compareDomain(
   baseline: DomainFingerprint | null,
   current: DomainFingerprint | null,
   thresholds: DiagnosisThresholds,
-): { overallDelta: number | null; deviations: BandDeviation[] } {
-  if (!baseline || !current) return { overallDelta: null, deviations: [] };
+): { overallDelta: number | null; overallExcess: number; deviations: BandDeviation[]; bandExcesses: number[] } {
+  if (!baseline || !current) return { overallDelta: null, overallExcess: 0, deviations: [], bandExcesses: [] };
   const floorDecibels = thresholds.noiseFloorDecibels[domain];
   const deviations: BandDeviation[] = [];
+  /** Subida de cada banda descontada su variación normal. */
+  const bandExcesses: number[] = [];
   baseline.bandCentersHz.forEach((centerHz, bandIndex) => {
     const currentIndex = current.bandCentersHz.findIndex((candidateHz) => Math.abs(candidateHz / centerHz - 1) < 0.01);
     if (currentIndex < 0) return;
@@ -99,10 +171,14 @@ function compareDomain(
     // «desde el ruido», no desde −200 dB.
     const deltaDecibels = Math.max(currentLevel, floorDecibels) - Math.max(baselineLevel, floorDecibels);
     deviations.push({ domain, centerHz, deltaDecibels: Math.round(deltaDecibels * 100) / 100 });
+    bandExcesses.push(deltaDecibels - (baseline.bandSpreadDecibels?.[bandIndex] ?? 0));
   });
+  const overallDelta = Math.round((current.overallLevelDecibels - baseline.overallLevelDecibels) * 100) / 100;
   return {
-    overallDelta: Math.round((current.overallLevelDecibels - baseline.overallLevelDecibels) * 100) / 100,
+    overallDelta,
+    overallExcess: overallDelta - (baseline.overallSpreadDecibels ?? 0),
     deviations,
+    bandExcesses,
   };
 }
 
@@ -117,15 +193,23 @@ export function compareFingerprints(
     (leftDeviation, rightDeviation) => rightDeviation.deltaDecibels - leftDeviation.deltaDecibels,
   );
   const largestIncreaseDecibels = Math.max(0, bandDeviations[0]?.deltaDecibels ?? 0);
-  const largestOverallIncrease = Math.max(0, audioComparison.overallDelta ?? 0, vibrationComparison.overallDelta ?? 0);
-  // Una banda estrecha puede subir sin que suba el global (un tono nuevo): cuenta cualquiera.
-  const worstIncrease = Math.max(largestIncreaseDecibels, largestOverallIncrease);
-  const verdict: DiagnosisVerdict =
-    worstIncrease >= thresholds.alertDeltaDecibels
-      ? 'alert'
-      : worstIncrease >= thresholds.watchDeltaDecibels
-        ? 'watch'
-        : 'normal';
+  const verdictRank = { normal: 0, watch: 1, alert: 2 } as const;
+  const verdictFor = (increase: number): DiagnosisVerdict =>
+    increase >= thresholds.alertDeltaDecibels ? 'alert' : increase >= thresholds.watchDeltaDecibels ? 'watch' : 'normal';
+
+  const overallVerdict = verdictFor(Math.max(0, audioComparison.overallExcess, vibrationComparison.overallExcess));
+  // Una banda estrecha puede subir sin que suba el global (un tono nuevo), pero una sola banda
+  // también sube por azar: cuenta la segunda que más sube, o la primera si sube de sobra.
+  const sortedExcesses = [...audioComparison.bandExcesses, ...vibrationComparison.bandExcesses].sort(
+    (leftExcess, rightExcess) => rightExcess - leftExcess,
+  );
+  const largestExcess = sortedExcesses[0] ?? 0;
+  const secondLargestExcess = sortedExcesses[1] ?? 0;
+  const bandVerdict = [
+    verdictFor(secondLargestExcess),
+    verdictFor(largestExcess - thresholds.singleBandExtraDecibels),
+  ].reduce((worst, candidate) => (verdictRank[candidate] > verdictRank[worst] ? candidate : worst));
+  const verdict = verdictRank[bandVerdict] > verdictRank[overallVerdict] ? bandVerdict : overallVerdict;
   return {
     verdict,
     overallDeltaDecibels: { audio: audioComparison.overallDelta, vibration: vibrationComparison.overallDelta },
