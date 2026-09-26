@@ -1,0 +1,43 @@
+{
+  "name": "Poltsikoko espektrometroa",
+  "description": "Kameraren aurrean CD zati bat edo difrakzio-sare bat jarrita, argi baten espektroa eta bere lerroen uhin-luzera neurtzen ditu.",
+  "howTo": {
+    "title": "Nola muntatu",
+    "kit": "Egin kartoi beltzezko kutxa bat, mutur batean zirrikitu estu batekin (bi xafla edo zinta opakua) eta bestean, kameraren aurrean itsatsita, geruza zilarkararik gabeko DVD edo CD zati bat (edo 1000 lerro/mm-ko difrakzio-sare xafla bat).",
+    "aim": "Zuzendu zirrikitua neurtu nahi duzun argira, mugitu lerro zuria ortzadarra luzetara gurutza dezan eta egon geldi."
+  },
+  "guide": {
+    "up": "Lerroa gora",
+    "down": "Lerroa behera"
+  },
+  "waiting": "Kameraren zain…",
+  "chartLabel": "Espektroa: intentsitatea lerroan zehar",
+  "peaks": {
+    "title": "Gailurrak",
+    "none": "Ez da gailur argirik ikusten: hurbildu zirrikitua argira edo mugitu lerroa.",
+    "position": "{{position}}. posizioa"
+  },
+  "calibration": {
+    "missing": "Kalibratu gabe: gailurrak posiziotan ateratzen dira, ez nanometrotan. Kalibratu behin fluoreszente batekin.",
+    "moved": "Lerroa mugitu duzu kalibraziotik: kalibratu berriro nanometroak irakurtzeko.",
+    "start": "Kalibratu fluoreszente batekin",
+    "cancel": "Utzi kalibrazioa",
+    "pick": "Ukitu {{line}} lerroaren gailurra ({{wavelength}} nm)",
+    "line": {
+      "mercury-blue": "merkurioaren urdin",
+      "mercury-green": "merkurioaren berde",
+      "europium-red": "europioaren gorri"
+    },
+    "hint": "Fluoreszente batek edo kontsumo txikiko bonbilla batek lerro urdin oso fin bat (436 nm) eta berde oso distiratsu bat (546 nm) ditu: bi horiekin posiziotik nanometroetara pasatzen da. Ez mugitu kutxa mugikorrarekiko gero.",
+    "done": "Kalibratuta. Orain nanometroak irakurtzen dira.",
+    "invalid": "Bi gailur horiek elkarrengandik gertuegi daude: aukeratu lerro urdina eta berdea."
+  },
+  "fields": {
+    "peakWavelengthsNm": "Gailurren uhin-luzerak",
+    "peakPositions": "Gailurren posizioak",
+    "isCalibrated": "Kalibratuta",
+    "startWavelengthNm": "Espektroaren hasiera",
+    "endWavelengthNm": "Espektroaren amaiera",
+    "profile": "Profila"
+  }
+}

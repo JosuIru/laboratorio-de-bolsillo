@@ -14,6 +14,7 @@ import { moonInstrument } from './moon';
 import { motionMagnifierInstrument } from './motion-magnifier';
 import { muonDetectorInstrument } from './muon-detector';
 import { phoneModemInstrument } from './phone-modem';
+import { pocketSpectrometerInstrument } from './pocket-spectrometer';
 import { poolStripsInstrument } from './pool-strips';
 import { resonanceScaleInstrument } from './resonance-scale';
 import { rhythmInstrument } from './rhythm';
@@ -50,7 +51,7 @@ export const instrumentSections: readonly InstrumentSection[] = [
   },
   {
     id: 'color',
-    instruments: [colorimeterInstrument, poolStripsInstrument, beerWineColorInstrument],
+    instruments: [colorimeterInstrument, poolStripsInstrument, beerWineColorInstrument, pocketSpectrometerInstrument],
   },
   {
     id: 'sound',

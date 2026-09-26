@@ -1,0 +1,43 @@
+{
+  "name": "Espectrómetro de bolsillo",
+  "description": "Con un trozo de CD o una red de difracción delante de la cámara, mide el espectro de una luz y la longitud de onda de sus líneas.",
+  "howTo": {
+    "title": "Cómo montarlo",
+    "kit": "Haz una caja de cartón negro con una rendija estrecha (dos cuchillas o cinta opaca) en un extremo y, en el otro, un trozo de DVD o CD sin la capa plateada (o una lámina de red de difracción de 1000 líneas/mm) pegado delante de la cámara.",
+    "aim": "Apunta la rendija a la luz que quieras medir, mueve la línea blanca para que cruce el arcoíris a lo largo y quédate quieto."
+  },
+  "guide": {
+    "up": "Línea arriba",
+    "down": "Línea abajo"
+  },
+  "waiting": "Esperando a la cámara…",
+  "chartLabel": "Espectro: intensidad a lo largo de la línea",
+  "peaks": {
+    "title": "Picos",
+    "none": "No se ven picos claros: acerca la rendija a la luz o mueve la línea.",
+    "position": "posición {{position}}"
+  },
+  "calibration": {
+    "missing": "Sin calibrar: los picos salen en posiciones, no en nanómetros. Calibra una vez con un fluorescente.",
+    "moved": "Has movido la línea desde la calibración: vuelve a calibrar para leer nanómetros.",
+    "start": "Calibrar con un fluorescente",
+    "cancel": "Cancelar la calibración",
+    "pick": "Toca el pico de la línea {{line}} ({{wavelength}} nm)",
+    "line": {
+      "mercury-blue": "azul del mercurio",
+      "mercury-green": "verde del mercurio",
+      "europium-red": "roja del europio"
+    },
+    "hint": "Un fluorescente o una bombilla de bajo consumo tiene una línea azul muy fina (436 nm) y una verde muy brillante (546 nm): con esas dos se pasa de posición a nanómetros. No muevas la caja respecto al móvil después.",
+    "done": "Calibrado. Ya se leen nanómetros.",
+    "invalid": "Esos dos picos están demasiado juntos: elige la línea azul y la verde."
+  },
+  "fields": {
+    "peakWavelengthsNm": "Longitudes de onda de los picos",
+    "peakPositions": "Posiciones de los picos",
+    "isCalibrated": "Calibrado",
+    "startWavelengthNm": "Inicio del espectro",
+    "endWavelengthNm": "Final del espectro",
+    "profile": "Perfil"
+  }
+}
