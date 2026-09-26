@@ -1,12 +1,19 @@
 import { centeredFrameSquareInView, containedFrameRect, convertCameraPointsToViewPoints } from './previewGeometry';
 
 describe('imagen de la cámara en una vista «contain»', () => {
-  it('un fotograma 4:3 en la vista normal (360 × 340) queda limitado por el alto', () => {
-    const frameRect = containedFrameRect({ viewWidth: 360, viewHeight: 340, frameWidth: 1600, frameHeight: 1200 });
-    expect(frameRect.displayScale).toBeCloseTo(340 / 1200);
+  it('un fotograma vertical 3:4 en la vista normal (360 × 340) queda limitado por el alto', () => {
+    const frameRect = containedFrameRect({ viewWidth: 360, viewHeight: 340, frameWidth: 1200, frameHeight: 1600 });
+    expect(frameRect.displayScale).toBeCloseTo(340 / 1600);
     expect(frameRect.height).toBeCloseTo(340);
     expect(frameRect.top).toBeCloseTo(0);
-    expect(frameRect.left).toBeCloseTo((360 - 1600 * (340 / 1200)) / 2);
+    expect(frameRect.left).toBeCloseTo((360 - 1200 * (340 / 1600)) / 2);
+  });
+
+  it('un fotograma apaisado 4:3 en la vista normal queda limitado por el ancho', () => {
+    const frameRect = containedFrameRect({ viewWidth: 360, viewHeight: 340, frameWidth: 1600, frameHeight: 1200 });
+    expect(frameRect.displayScale).toBeCloseTo(360 / 1600);
+    expect(frameRect.width).toBeCloseTo(360);
+    expect(frameRect.top).toBeCloseTo((340 - 270) / 2);
   });
 
   it('a pantalla completa (360 × 780) queda limitado por el ancho y centrado en vertical', () => {
