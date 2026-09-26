@@ -1,6 +1,7 @@
 import type { DetectedParticleEvent, FrameDetectionResult, ParticleShape } from './darkFrameEvents';
 import {
   analyzedFrameFraction,
+  liveObservationMinutes,
   applyFrameDetection,
   createDetectionSession,
   defaultDetectionSessionOptions,
@@ -96,5 +97,19 @@ describe('sesión de detección', () => {
     expect(analyzedFrameFraction(150, 60, 10)).toBe(0.25);
     expect(analyzedFrameFraction(1000, 60, 10)).toBe(1);
     expect(analyzedFrameFraction(10, 60, undefined)).toBeNull();
+  });
+
+  it('cuenta como tiempo útil solo el de los fotogramas limpios', () => {
+    // 10 min; de 3000 fotogramas analizados, 600 descartados → 8 min útiles.
+    expect(
+      liveObservationMinutes({ elapsedSeconds: 600, processedFrameCount: 3000, cleanFrameCount: 2400, framesPerSecond: undefined }),
+    ).toBeCloseTo(8);
+    // Con la cadencia conocida (10/s = 6000 fotogramas), solo se analizó la mitad → 4 min.
+    expect(
+      liveObservationMinutes({ elapsedSeconds: 600, processedFrameCount: 3000, cleanFrameCount: 2400, framesPerSecond: 10 }),
+    ).toBeCloseTo(4);
+    expect(
+      liveObservationMinutes({ elapsedSeconds: 600, processedFrameCount: 0, cleanFrameCount: 0, framesPerSecond: 10 }),
+    ).toBe(0);
   });
 });

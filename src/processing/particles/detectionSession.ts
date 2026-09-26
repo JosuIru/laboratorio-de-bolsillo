@@ -231,3 +231,30 @@ export function analyzedFrameFraction(
   if (!framesPerSecond || framesPerSecond <= 0 || elapsedSeconds <= 0) return null;
   return Math.min(1, processedFrameCount / (elapsedSeconds * framesPerSecond));
 }
+
+/**
+ * Minutos en los que el detector estuvo mirando de verdad. Las partículas que llegan durante los
+ * fotogramas descartados (luz, fogonazos de ruido) no cuentan, así que dividir entre el tiempo de
+ * reloj daría una tasa más baja de la real. Se descuentan siempre esos fotogramas. Los que la
+ * cámara dio pero no llegaron a analizarse solo se descuentan si se conoce la cadencia real
+ * (`framesPerSecond`, con la exposición fijada): con exposición automática, a oscuras la cámara
+ * puede bajar la cadencia por su cuenta y la corrección inflaría la tasa.
+ */
+export function liveObservationMinutes({
+  elapsedSeconds,
+  processedFrameCount,
+  cleanFrameCount,
+  framesPerSecond,
+}: {
+  elapsedSeconds: number;
+  /** Fotogramas analizados, incluidos los descartados por luz o ruido. */
+  processedFrameCount: number;
+  cleanFrameCount: number;
+  framesPerSecond: number | undefined;
+}): number {
+  const elapsedMinutes = Math.max(0, elapsedSeconds) / 60;
+  if (processedFrameCount <= 0) return 0;
+  const cleanFraction = Math.min(1, Math.max(0, cleanFrameCount) / processedFrameCount);
+  const processedFraction = analyzedFrameFraction(processedFrameCount, elapsedSeconds, framesPerSecond) ?? 1;
+  return elapsedMinutes * cleanFraction * processedFraction;
+}

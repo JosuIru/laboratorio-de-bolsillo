@@ -42,7 +42,8 @@
     "heatedPixels": "Neurketan beste {{addedPixels}} pixel berotu dira; haietatik zetozen {{discardedEvents}} gertaera kendu dira.",
     "thresholdRaised": "Zarata gehiegi zegoen eta atalasea {{threshold}} mailara igo da.",
     "frames": "Aztertutako fotogramak: {{analyzed}} · argiarekin: {{lightLeak}} · zaratarekin: {{noisy}}",
-    "analyzedFraction": "Fotogramen % {{percent}} inguru aztertzen da (kamerak {{framesPerSecond}} ematen ditu segundoko); gainerakoetan detektagailua itsu dago."
+    "analyzedFraction": "Fotogramen % {{percent}} inguru aztertzen da (kamerak {{framesPerSecond}} ematen ditu segundoko); gainerakoetan detektagailua itsu dago.",
+    "liveTime": "Denbora baliagarria: {{live}} min {{elapsed}} minututik (aztertutako fotograma garbiena). Tasak horrekin kalkulatzen dira."
   },
   "messages": {
     "coverFirst": "Estali kamera hasi aurretik: beltz-mailak jaitsi egin behar du.",
@@ -94,6 +95,7 @@
     "finalThreshold": "Azken atalasea",
     "meanDarkLevel": "Batez besteko beltz-maila",
     "lightLeakFrames": "Argia duten fotogramak",
-    "noisyFrames": "Zarata duten fotogramak"
+    "noisyFrames": "Zarata duten fotogramak",
+    "liveTime": "Denbora baliagarria"
   }
 }

@@ -2,6 +2,8 @@ import { defineMeasurementSchema } from '@/core/measurements/schema';
 
 export interface MuonDetectorMeasurementValues {
   durationMinutes: number;
+  /** Minutos de observación útil (fotogramas limpios analizados); las tasas se calculan con este. */
+  liveMinutes?: number;
   /** Fotogramas analizados sin luz ni fogonazos de ruido. */
   analyzedFrameCount: number;
   /** Fracción aproximada de los fotogramas de la cámara que se llegaron a analizar. */
@@ -33,6 +35,7 @@ export interface MuonDetectorMeasurementValues {
 
 export const muonDetectorSchema = defineMeasurementSchema<MuonDetectorMeasurementValues>(1, [
   { key: 'durationMinutes', labelKey: 'fields.duration', type: 'number', unit: 'min' },
+  { key: 'liveMinutes', labelKey: 'fields.liveTime', type: 'number', unit: 'min', optional: true },
   { key: 'analyzedFrameCount', labelKey: 'fields.analyzedFrames', type: 'number' },
   { key: 'analyzedFramePercent', labelKey: 'fields.analyzedFramePercent', type: 'number', unit: '%', optional: true },
   { key: 'frameWidthPixels', labelKey: 'fields.frameWidth', type: 'number', unit: 'px' },

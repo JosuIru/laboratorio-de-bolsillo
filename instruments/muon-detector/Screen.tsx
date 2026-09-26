@@ -29,6 +29,7 @@ import {
   applyFrameDetection,
   createDetectionSession,
   type DetectionSessionState,
+  liveObservationMinutes,
   summarizeDetectionSession,
 } from '@/processing/particles/detectionSession';
 import { buildThumbnailMosaic } from '@/processing/particles/thumbnailRendering';
@@ -131,6 +132,8 @@ export function MuonDetectorScreen({ saveMeasurement }: InstrumentScreenProps<Mu
   const [, setEventRenderVersion] = useState(0);
   const [currentTimeMilliseconds, setCurrentTimeMilliseconds] = useState(() => Date.now());
   const [selectedFramesPerSecond, setSelectedFramesPerSecond] = useState<number | undefined>(undefined);
+  /** Con la exposición fijada (iOS), la cámara mantiene la cadencia y se conocen los fotogramas perdidos. */
+  const [isExposureLocked, setIsExposureLocked] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const calibrationAccumulator = useRef<CalibrationAccumulator>(createCalibrationAccumulator());
@@ -298,6 +301,7 @@ export function MuonDetectorScreen({ saveMeasurement }: InstrumentScreenProps<Mu
         const frameIntervalSeconds = 1 / (selectedFramesPerSecond ?? targetFramesPerSecond);
         const exposureSeconds = Math.min(cameraController.maxExposureDuration, frameIntervalSeconds);
         await cameraController.setExposureLocked(exposureSeconds, cameraController.maxISO);
+        setIsExposureLocked(true);
       } else if (maximumExposureBias !== undefined) {
         await cameraController.setExposureBias(maximumExposureBias);
       }
@@ -333,7 +337,16 @@ export function MuonDetectorScreen({ saveMeasurement }: InstrumentScreenProps<Mu
     ? (measurementRun.endedAtMilliseconds ?? currentTimeMilliseconds) - measurementRun.startedAtMilliseconds
     : 0;
   const elapsedMinutes = Math.max(0, elapsedMilliseconds) / 60_000;
-  const sessionSummary = detectionSession ? summarizeDetectionSession(detectionSession, elapsedMinutes) : null;
+  // La tasa se divide por el tiempo en que el detector miraba de verdad, no por el de reloj.
+  const liveMinutes = detectionSession
+    ? liveObservationMinutes({
+        elapsedSeconds: elapsedMilliseconds / 1000,
+        processedFrameCount: detectionSession.analyzedFrameCount + detectionSession.lightLeakFrameCount,
+        cleanFrameCount: detectionSession.analyzedFrameCount - detectionSession.noisyFrameCount,
+        framesPerSecond: isExposureLocked ? selectedFramesPerSecond : undefined,
+      })
+    : 0;
+  const sessionSummary = detectionSession ? summarizeDetectionSession(detectionSession, liveMinutes) : null;
   const analyzedFraction = measurementRun
     ? analyzedFrameFraction(
         measurementRun.detectionSession.analyzedFrameCount + measurementRun.detectionSession.lightLeakFrameCount,
@@ -375,6 +388,7 @@ export function MuonDetectorScreen({ saveMeasurement }: InstrumentScreenProps<Mu
       await saveMeasurement({
         values: {
           durationMinutes: roundTo(elapsedMinutes, 2),
+          liveMinutes: roundTo(liveMinutes, 2),
           analyzedFrameCount: detectionSession.analyzedFrameCount - detectionSession.noisyFrameCount,
           ...(analyzedFraction !== null ? { analyzedFramePercent: roundTo(analyzedFraction * 100, 1) } : {}),
           frameWidthPixels: detectionSession.frameWidth,
@@ -559,6 +573,9 @@ export function MuonDetectorScreen({ saveMeasurement }: InstrumentScreenProps<Mu
                 })}
               </BodyText>
             ) : null}
+            <BodyText tone="secondary" style={styles.smallText}>
+              {t('details.liveTime', { live: liveMinutes.toFixed(1), elapsed: elapsedMinutes.toFixed(1) })}
+            </BodyText>
           </Card>
           {isSensorWarming ? <BodyText tone="danger">{t('messages.sensorWarming')}</BodyText> : null}
           {detectionSession.lightLeakFrameCount > 0 && phase === 'measuring' && !isCovered ? (
@@ -576,7 +593,7 @@ export function MuonDetectorScreen({ saveMeasurement }: InstrumentScreenProps<Mu
                 label={t('core:common.save')}
                 onPress={() => void handleSave()}
                 isBusy={isSaving}
-                isDisabled={elapsedMinutes <= 0}
+                isDisabled={liveMinutes <= 0}
               />
               <AppButton label={t('actions.newMeasurement')} onPress={handleNewMeasurement} variant="secondary" />
             </View>

@@ -42,7 +42,8 @@
     "heatedPixels": "Durante la medición se han calentado {{addedPixels}} píxeles más; se han retirado {{discardedEvents}} sucesos que venían de ellos.",
     "thresholdRaised": "Había demasiado ruido y el umbral se ha subido a {{threshold}} niveles.",
     "frames": "Fotogramas analizados: {{analyzed}} · con luz: {{lightLeak}} · con ruido: {{noisy}}",
-    "analyzedFraction": "Se analiza aproximadamente el {{percent}} % de los fotogramas (la cámara da {{framesPerSecond}} por segundo); en el resto, el detector está ciego."
+    "analyzedFraction": "Se analiza aproximadamente el {{percent}} % de los fotogramas (la cámara da {{framesPerSecond}} por segundo); en el resto, el detector está ciego.",
+    "liveTime": "Tiempo útil: {{live}} min de {{elapsed}} min (el de los fotogramas limpios analizados). Las tasas se calculan con él."
   },
   "messages": {
     "coverFirst": "Tapa la cámara antes de empezar: el nivel de negro tiene que bajar.",
@@ -94,6 +95,7 @@
     "finalThreshold": "Umbral final",
     "meanDarkLevel": "Nivel de negro medio",
     "lightLeakFrames": "Fotogramas con luz",
-    "noisyFrames": "Fotogramas con ruido"
+    "noisyFrames": "Fotogramas con ruido",
+    "liveTime": "Tiempo útil"
   }
 }
