@@ -132,6 +132,8 @@ export interface EarthshineOutcome {
   displayImage: GrayImage;
   /** Apilado de la exposición corta (lo que da una foto normal), 0-255. */
   shortExposureImage: GrayImage;
+  /** Apilado de la exposición larga, 0-255 (la parte iluminada, saturada). Mismo encuadre que la corta. */
+  longExposureImage: GrayImage;
   /** Relación de exposiciones usada: la medida en los datos si es creíble, si no la nominal. */
   exposureRatio: number;
   isRatioMeasured: boolean;
@@ -201,6 +203,7 @@ export function fuseEarthshineBursts(
   return {
     displayImage: earthshineResult.displayImage,
     shortExposureImage,
+    longExposureImage,
     exposureRatio,
     isRatioMeasured,
     diskRadiusPixels: referenceCircle.radius,
