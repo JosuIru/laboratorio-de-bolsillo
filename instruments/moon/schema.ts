@@ -19,6 +19,8 @@ export interface MoonMeasurementValues {
   exposureMilliseconds?: number;
   iso?: number;
   sharpeningAmount?: number;
+  /** Foto tomada a través del ocular de unos prismáticos o un telescopio. */
+  throughOptics?: boolean;
 }
 
 export const moonSchema = defineMeasurementSchema<MoonMeasurementValues>(1, [
@@ -43,4 +45,5 @@ export const moonSchema = defineMeasurementSchema<MoonMeasurementValues>(1, [
   { key: 'exposureMilliseconds', labelKey: 'fields.exposureMilliseconds', type: 'number', unit: 'ms', optional: true },
   { key: 'iso', labelKey: 'fields.iso', type: 'number', optional: true },
   { key: 'sharpeningAmount', labelKey: 'fields.sharpeningAmount', type: 'number', optional: true },
+  { key: 'throughOptics', labelKey: 'fields.throughOptics', type: 'boolean', optional: true },
 ]);

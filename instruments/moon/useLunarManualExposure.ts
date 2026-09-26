@@ -131,6 +131,16 @@ export function useLunarManualExposure(
     darken: () => stepExposureByThirds(-1),
     brighten: () => stepExposureByThirds(1),
     enableAutomatic: () => setIsAutomatic(true),
+    /** Vuelve al ajuste automático partiendo de `startingExposureSeconds` (p. ej. al cambiar de modo). */
+    restartAutomatic: (startingExposureSeconds: number) => {
+      setIsAutomatic(true);
+      exposureAppliedTime.current = null;
+      setExposureSeconds(
+        manualExposureLimits
+          ? clampExposureDuration(startingExposureSeconds, manualExposureLimits.durationRange)
+          : startingExposureSeconds,
+      );
+    },
     /** Vuelve a fijar la exposición manual (p. ej. después de `resetFocus`, que la quita). */
     reapplyExposure: () => setApplyRequestCount((previousCount) => previousCount + 1),
   };
