@@ -1,0 +1,72 @@
+{
+  "name": "Macro enfocado",
+  "description": "Fotos de cerca nítidas de delante a atrás: junta una serie de fotos enfocadas a distintas distancias.",
+  "intro": "Acerca el móvil a un objeto pequeño (una flor, un insecto, una moneda, una pieza) y déjalo dentro del recuadro azul. Mejor con el móvil apoyado.",
+  "tapToMeterHint": "Toca el objeto para medir la luz en él. El enfoque lo mueve la app sola durante el barrido.",
+  "focusLockingUnsupported": "Este móvil no deja mover el enfoque a mano desde las apps, así que no puede hacer el barrido de enfoque: el macro enfocado no funciona en él.",
+  "frameTooSmall": "Las fotos de este móvil son demasiado pequeñas para esta zona: elige una más pequeña.",
+  "cropTitle": "Zona que se apila: cuanto más grande, más tarda el cálculo.",
+  "cropOptions": {
+    "small": "Pequeña",
+    "medium": "Mediana",
+    "large": "Grande",
+    "whole": "Toda (reducida)"
+  },
+  "rangeTitle": "Distancias que se recorren:",
+  "rangeModes": {
+    "auto": "Automático",
+    "macro": "Muy cerca",
+    "near": "Cerca"
+  },
+  "rangeHints": {
+    "auto": "Antes del barrido se toman 8 fotos pequeñas por todo el recorrido del enfoque para ver a qué distancia está cada parte del recuadro; luego se barre solo de lo más cercano a lo más lejano que haya.",
+    "macro": "Unos 10-18 cm (en un móvil que enfoca desde 10 cm).",
+    "near": "Unos 14-50 cm (en un móvil que enfoca desde 10 cm)."
+  },
+  "holdStill": "No muevas el móvil…",
+  "capture": "Barrer el enfoque",
+  "stop": "Parar",
+  "probingProgress": "Buscando el objeto… foto de prueba {{completed}} / {{total}}",
+  "sweepingProgress": "Barriendo el enfoque… foto {{completed}} / {{total}}",
+  "processing": "Alineando las fotos y juntando lo más nítido de cada una… (puede tardar bastantes segundos)",
+  "sweepFailed": "No se han podido tomar las fotos: {{message}}",
+  "tooFewPhotos": "Hacen falta al menos dos fotos. Vuelve a intentarlo.",
+  "resultTitle": "Resultado",
+  "versions": {
+    "stacked": "Apilado",
+    "bestSingle": "Mejor foto sola",
+    "depthMap": "Profundidad"
+  },
+  "versionHints": {
+    "stacked": "Cada zona sale de la foto en la que estaba más nítida.",
+    "bestSingle": "La foto {{index}} de {{count}}, la más nítida en conjunto, sola (alineada igual que el resultado): compárala con el apilado.",
+    "depthMap": "Qué foto se usó en cada punto: rojo = enfocada más cerca, violeta = más lejos. Es un mapa de profundidad aproximado; en las zonas lisas (grises) no se puede saber."
+  },
+  "openFullSize": "Ver a tamaño real",
+  "depthLegendNear": "{{distance}} cm",
+  "depthLegendFar": "{{distance}} cm",
+  "sweepSummary": "{{count}} fotos con el objetivo de {{near}} a {{far}} (unos {{nearDistance}}-{{farDistance}} cm), en pasos de {{step}}.",
+  "probeSummary": "Rango elegido con {{photos}} fotos de prueba: {{tiles}} zonas del recuadro tenían detalle.",
+  "probeFallback": "Las fotos de prueba no mostraban detalle claro: se ha barrido el rango de reserva (muy cerca).",
+  "focusGapsWarning": "El rango es largo para el número de fotos: entre una foto y la siguiente puede quedar alguna franja sin enfocar del todo. Prueba a acercarte menos o a usar un rango fijo.",
+  "sweepStopped": "Barrido parado a mano: se han apilado las fotos que ya había.",
+  "alignmentSummary": "Alineado: el enfoque cambió el tamaño de la imagen hasta un {{breathing}} % («focus breathing») y el móvil se movió hasta {{shift}} px; ambos corregidos.",
+  "exposureLocked": "Exposición fija durante el barrido.",
+  "exposureNotLocked": "Este móvil no deja fijar la exposición: puede variar algo entre fotos.",
+  "whiteBalanceLocked": "Balance de blancos fijo.",
+  "whiteBalanceNotLocked": "Balance de blancos automático.",
+  "timings": "Tiempos: sondeo {{probeSeconds}} s; barrido {{sweepSeconds}} s (de ellos, leer y recortar las fotos {{decodeSeconds}} s); alinear {{alignSeconds}} s; nitidez {{sharpnessSeconds}} s; fusión {{blendSeconds}} s; cálculo total {{totalSeconds}} s.",
+  "howItWorks": "Cómo funciona: de cerca, la profundidad de campo de un móvil es de pocos milímetros. La app mueve el enfoque a mano desde lo más cercano hasta un poco más allá del objeto, con la exposición y el color fijos, y toma una foto en cada paso. Al cambiar el enfoque la imagen crece o encoge un poco («focus breathing»), así que se alinea cada foto con su vecina corrigiendo escala, giro y desplazamiento. Luego se mide en cada foto dónde está nítida (la energía del laplaciano, suavizada) y se elige por punto la más nítida. Para que no se noten costuras ni halos, las fotos se juntan con una pirámide laplaciana: el detalle fino cambia de foto en poco espacio y el tono general, poco a poco. Todo se calcula en el móvil.",
+  "fields": {
+    "capturedFrameCount": "Fotos apiladas",
+    "outputSize": "Tamaño del resultado",
+    "rangeMode": "Rango de enfoque",
+    "nearLensPosition": "Enfoque más cercano (posición)",
+    "farLensPosition": "Enfoque más lejano (posición)",
+    "focusStep": "Paso de enfoque",
+    "focusBreathing": "«Focus breathing»",
+    "bestSingleFrame": "Mejor foto sola",
+    "captureSeconds": "Tiempo de captura",
+    "processingSeconds": "Tiempo de cálculo"
+  }
+}

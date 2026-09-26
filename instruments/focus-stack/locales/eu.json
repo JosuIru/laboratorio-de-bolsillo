@@ -1,0 +1,72 @@
+{
+  "name": "Makro fokatua",
+  "description": "Hurbileko argazki garbiak aurretik atzera: distantzia desberdinetan fokatutako argazki sorta bat batzen du.",
+  "intro": "Hurbildu mugikorra objektu txiki batera (lore bat, intsektu bat, txanpon bat, pieza bat) eta utzi lauki urdinaren barruan. Hobe mugikorra bermatuta.",
+  "tapToMeterHint": "Ukitu objektua argia bertan neurtzeko. Fokua aplikazioak berak mugitzen du ekorketan.",
+  "focusLockingUnsupported": "Mugikor honek ez du uzten aplikazioetatik fokua eskuz mugitzen, beraz ezin du fokuaren ekorketa egin: makro fokatuak ez du funtzionatzen bertan.",
+  "frameTooSmall": "Mugikor honen argazkiak txikiegiak dira eremu honetarako: aukeratu txikiago bat.",
+  "cropTitle": "Pilatzen den eremua: zenbat eta handiagoa, orduan eta gehiago irauten du kalkuluak.",
+  "cropOptions": {
+    "small": "Txikia",
+    "medium": "Ertaina",
+    "large": "Handia",
+    "whole": "Osoa (txikituta)"
+  },
+  "rangeTitle": "Korritzen diren distantziak:",
+  "rangeModes": {
+    "auto": "Automatikoa",
+    "macro": "Oso hurbil",
+    "near": "Hurbil"
+  },
+  "rangeHints": {
+    "auto": "Ekorketaren aurretik 8 argazki txiki ateratzen dira fokuaren ibilbide osoan, laukiaren zati bakoitza zer distantziatan dagoen ikusteko; gero hurbilenetik urrunenera bakarrik ekortzen da.",
+    "macro": "10-18 cm inguru (10 cm-tik fokatzen duen mugikor batean).",
+    "near": "14-50 cm inguru (10 cm-tik fokatzen duen mugikor batean)."
+  },
+  "holdStill": "Ez mugitu mugikorra…",
+  "capture": "Ekortu fokua",
+  "stop": "Gelditu",
+  "probingProgress": "Objektua bilatzen… {{completed}} / {{total}} proba-argazkia",
+  "sweepingProgress": "Fokua ekortzen… {{completed}} / {{total}} argazkia",
+  "processing": "Argazkiak lerrokatzen eta bakoitzaren zatirik garbiena batzen… (segundo dezente iraun dezake)",
+  "sweepFailed": "Ezin izan dira argazkiak atera: {{message}}",
+  "tooFewPhotos": "Gutxienez bi argazki behar dira. Saiatu berriro.",
+  "resultTitle": "Emaitza",
+  "versions": {
+    "stacked": "Pilatua",
+    "bestSingle": "Argazki onena bakarrik",
+    "depthMap": "Sakonera"
+  },
+  "versionHints": {
+    "stacked": "Eremu bakoitza garbien zegoen argazkitik hartzen da.",
+    "bestSingle": "{{index}}. argazkia ({{count}} guztira), oro har garbiena, bakarrik (emaitzaren moduan lerrokatuta): alderatu pilatuarekin.",
+    "depthMap": "Puntu bakoitzean zein argazki erabili den: gorria = hurbilago fokatua, morea = urrunago. Gutxi gorabeherako sakonera-mapa da; eremu leunetan (grisak) ezin da jakin."
+  },
+  "openFullSize": "Ikusi benetako tamainan",
+  "depthLegendNear": "{{distance}} cm",
+  "depthLegendFar": "{{distance}} cm",
+  "sweepSummary": "{{count}} argazki, objektiboaren posizioa {{near}} eta {{far}} artean dela ({{nearDistance}}-{{farDistance}} cm inguru); urrats bakoitza: {{step}}.",
+  "probeSummary": "Tartea {{photos}} proba-argazkirekin aukeratu da: laukiaren {{tiles}} eremuk zuten xehetasuna.",
+  "probeFallback": "Proba-argazkiek ez zuten xehetasun argirik erakusten: ordezko tartea ekortu da (oso hurbil).",
+  "focusGapsWarning": "Tartea luzea da argazki kopururako: argazki batetik hurrengora zerrendaren bat ez da guztiz fokatuta geratuko agian. Saiatu gutxiago hurbiltzen edo tarte finko bat erabiltzen.",
+  "sweepStopped": "Ekorketa eskuz gelditu da: lehendik zeuden argazkiak pilatu dira.",
+  "alignmentSummary": "Lerrokatzea: fokuak irudiaren tamaina % {{breathing}} arte aldatu zuen («focus breathing») eta mugikorra {{shift}} px arte mugitu zen; biak zuzenduta.",
+  "exposureLocked": "Esposizioa finko ekorketan zehar.",
+  "exposureNotLocked": "Mugikor honek ez du esposizioa finkatzen uzten: argazkien artean zertxobait alda daiteke.",
+  "whiteBalanceLocked": "Zuri-balantzea finko.",
+  "whiteBalanceNotLocked": "Zuri-balantze automatikoa.",
+  "timings": "Denborak: zundaketa {{probeSeconds}} s; ekorketa {{sweepSeconds}} s (horietatik, argazkiak irakurri eta moztea {{decodeSeconds}} s); lerrokatu {{alignSeconds}} s; garbitasuna {{sharpnessSeconds}} s; batu {{blendSeconds}} s; kalkulua guztira {{totalSeconds}} s.",
+  "howItWorks": "Nola dabilen: hurbiletik, mugikor baten eremu-sakonera milimetro gutxikoa da. Aplikazioak fokua eskuz mugitzen du hurbilenetik objektua baino apur bat haratago arte, esposizioa eta kolorea finko, eta urrats bakoitzean argazki bat ateratzen du. Fokua aldatzean irudia pixka bat handitu edo txikitzen da («focus breathing»), beraz argazki bakoitza bere aldamenekoarekin lerrokatzen da eskala, biraketa eta desplazamendua zuzenduz. Gero argazki bakoitzean non dagoen garbi neurtzen da (laplazianoaren energia, leunduta) eta puntu bakoitzean garbiena aukeratzen da. Josturarik eta halorik ez nabaritzeko, argazkiak piramide laplaziar batekin batzen dira: xehetasun fina tarte txikian aldatzen da argazkiz eta tonu orokorra, pixkanaka. Dena mugikorrean kalkulatzen da.",
+  "fields": {
+    "capturedFrameCount": "Pilatutako argazkiak",
+    "outputSize": "Emaitzaren tamaina",
+    "rangeMode": "Foku-tartea",
+    "nearLensPosition": "Foku hurbilena (posizioa)",
+    "farLensPosition": "Foku urrunena (posizioa)",
+    "focusStep": "Foku-urratsa",
+    "focusBreathing": "«Focus breathing»",
+    "bestSingleFrame": "Argazki onena bakarrik",
+    "captureSeconds": "Argazkiak ateratzeko denbora",
+    "processingSeconds": "Kalkulu-denbora"
+  }
+}

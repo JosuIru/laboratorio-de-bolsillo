@@ -9,6 +9,7 @@ import { dataSonificationInstrument } from './data-sonification';
 import { earTrainerInstrument } from './ear-trainer';
 import { escapeLocksInstrument } from './escape-locks';
 import { exampleLevelInstrument } from './example-level';
+import { focusStackInstrument } from './focus-stack';
 import { gnssSkyInstrument } from './gnss-sky';
 import { infiniteTxalapartaInstrument } from './infinite-txalaparta';
 import { machineDiagnosisInstrument } from './machine-diagnosis';
@@ -18,6 +19,7 @@ import { metronomeInstrument } from './metronome';
 import { moonInstrument } from './moon';
 import { motionMagnifierInstrument } from './motion-magnifier';
 import { muonDetectorInstrument } from './muon-detector';
+import { nightModeInstrument } from './night-mode';
 import { noiseLogInstrument } from './noise-log';
 import { phoneModemInstrument } from './phone-modem';
 import { pocketSpectrometerInstrument } from './pocket-spectrometer';
@@ -60,6 +62,8 @@ export const instrumentSections: readonly InstrumentSection[] = [
       propellerBalancerInstrument,
       tachometerInstrument,
       superzoomInstrument,
+      focusStackInstrument,
+      nightModeInstrument,
     ],
   },
   {
