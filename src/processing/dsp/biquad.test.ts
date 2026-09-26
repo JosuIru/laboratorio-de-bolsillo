@@ -1,5 +1,37 @@
 import { amplitudeToDecibels, rootMeanSquare } from './levels';
-import { biquadGainAt, createBiquadState, designBiquad, processBiquadBlock } from './biquad';
+import {
+  biquadGainAt,
+  createBiquadState,
+  designBiquad,
+  primeBiquadState,
+  processBiquadBlock,
+  processBiquadSample,
+} from './biquad';
+
+describe('primeBiquadState', () => {
+  it('un paso alto cebado con la gravedad no da el escalón inicial', () => {
+    const coefficients = designBiquad('high-pass', 0.5, 200);
+    const gravity = 9.81;
+    const coldState = createBiquadState();
+    const primedState = createBiquadState();
+    primeBiquadState(coefficients, primedState, gravity);
+    let coldPeak = 0;
+    let primedPeak = 0;
+    for (let sampleIndex = 0; sampleIndex < 400; sampleIndex++) {
+      coldPeak = Math.max(coldPeak, Math.abs(processBiquadSample(coefficients, coldState, gravity)));
+      primedPeak = Math.max(primedPeak, Math.abs(processBiquadSample(coefficients, primedState, gravity)));
+    }
+    expect(coldPeak).toBeGreaterThan(5);
+    expect(primedPeak).toBeLessThan(1e-9);
+  });
+
+  it('un paso bajo cebado sale ya en el valor de entrada', () => {
+    const coefficients = designBiquad('low-pass', 5, 200);
+    const primedState = createBiquadState();
+    primeBiquadState(coefficients, primedState, 3);
+    expect(processBiquadSample(coefficients, primedState, 3)).toBeCloseTo(3, 9);
+  });
+});
 
 const sampleRateHz = 100;
 

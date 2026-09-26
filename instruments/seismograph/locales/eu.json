@@ -7,6 +7,7 @@
   "sampleRate": "{{rate}} lagin/s",
   "traceChart": "Hiru ardatzen azelerazioa grabitaterik gabe, azken segundoak",
   "spectrumChart": "Bibrazioaren maiztasun-espektroa",
+  "recentReadings": "Gailurrak, balio eraginkorrak eta gertaerek saio osoa hartzen dute («Berrabiarazi» arte). Azken segundoetan: gailurra {{peak}} m/s², balio eraginkorra {{rms}} m/s². Maiztasun nagusia eta espektroa ere azken segundoetakoak dira.",
   "pause": "Pausatu",
   "resume": "Jarraitu",
   "reset": "Berrabiarazi",
@@ -18,8 +19,8 @@
   },
   "fields": {
     "dominantFrequency": "Maiztasun nagusia",
-    "peak": "Gailurra",
-    "rms": "Balio eraginkorra",
+    "peak": "Gailurra (saioa)",
+    "rms": "Balio eraginkorra (saioa)",
     "events": "Gertaerak",
     "threshold": "Gertaera-atalasea",
     "sampleRate": "Laginketa-maiztasuna",

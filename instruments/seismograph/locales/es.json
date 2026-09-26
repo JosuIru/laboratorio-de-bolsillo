@@ -7,6 +7,7 @@
   "sampleRate": "{{rate}} muestras/s",
   "traceChart": "Aceleración de los tres ejes sin la gravedad, últimos segundos",
   "spectrumChart": "Espectro de frecuencias de la vibración",
+  "recentReadings": "Pico, valor eficaz y eventos cuentan toda la sesión (hasta «Reiniciar»). En los últimos segundos: pico {{peak}} m/s², valor eficaz {{rms}} m/s². La frecuencia dominante y el espectro también son de los últimos segundos.",
   "pause": "Pausar",
   "resume": "Reanudar",
   "reset": "Reiniciar",
@@ -18,8 +19,8 @@
   },
   "fields": {
     "dominantFrequency": "Frecuencia dominante",
-    "peak": "Pico",
-    "rms": "Valor eficaz",
+    "peak": "Pico (sesión)",
+    "rms": "Valor eficaz (sesión)",
     "events": "Eventos",
     "threshold": "Umbral de evento",
     "sampleRate": "Frecuencia de muestreo",

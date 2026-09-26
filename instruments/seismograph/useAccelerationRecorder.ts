@@ -2,7 +2,14 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { accelerometerSource } from '@/core/sensors/adapters/motionAndEnvironment';
 import { useSensorSubscription } from '@/core/sensors/useSensorSubscription';
-import { type BiquadCoefficients, type BiquadState, createBiquadState, designBiquad, processBiquadSample } from '@/processing/dsp/biquad';
+import {
+  type BiquadCoefficients,
+  type BiquadState,
+  createBiquadState,
+  designBiquad,
+  primeBiquadState,
+  processBiquadSample,
+} from '@/processing/dsp/biquad';
 import { createEventDetector } from '@/processing/dsp/peaks';
 import { estimateSampleRateHz } from '@/processing/signal/resampling';
 import {
@@ -24,6 +31,18 @@ const gravityRemovalCutoffHz = 0.5;
 const fftSize = 512;
 const displayRefreshIntervalMilliseconds = 40;
 const analysisIntervalMilliseconds = 500;
+/** Hueco entre muestras (pausa, app en segundo plano) tras el que se vuelve a cebar el filtro. */
+const maximumGapSeconds = 0.5;
+/**
+ * Un golpe hace vibrar la mesa (decenas de Hz) durante un rato y la señal cruza por cero en
+ * cada ciclo: tras un evento no se cuenta otro en medio segundo, y solo se rearma cuando la
+ * señal lleva un rato seguido por debajo del umbral de rearme.
+ */
+const eventTimingOptions = { refractorySeconds: 0.5, quietSecondsBeforeRearm: 0.2 } as const;
+
+function createSeismographEventDetector(eventThreshold: number) {
+  return createEventDetector(eventThreshold, eventThreshold / 2, eventTimingOptions);
+}
 
 export interface AccelerationHistory {
   timestamps: RingBuffer;
@@ -39,7 +58,17 @@ interface GravityFilters {
   sampleRateHz: number;
   coefficients: BiquadCoefficients;
   axisStates: [BiquadState, BiquadState, BiquadState];
+  /** Si ya se cebó con una muestra real (ver `primeBiquadState`). */
+  isPrimed: boolean;
 }
+
+const emptyDisplaySnapshot = {
+  revision: 0,
+  eventCount: 0,
+  durationSeconds: 0,
+  sessionPeakDynamicAcceleration: 0,
+  sessionRmsDynamicAcceleration: 0,
+};
 
 function createHistory(): AccelerationHistory {
   return {
@@ -58,6 +87,7 @@ function createGravityFilters(sampleRateHz: number): GravityFilters {
     sampleRateHz,
     coefficients: designBiquad('high-pass', gravityRemovalCutoffHz, sampleRateHz),
     axisStates: [createBiquadState(), createBiquadState(), createBiquadState()],
+    isPrimed: false,
   };
 }
 
@@ -70,29 +100,45 @@ export function useAccelerationRecorder({ isRunning, eventThreshold }: { isRunni
   const [history] = useState(createHistory);
   const [vibrationAnalyzer] = useState(() => createVibrationAnalyzer(fftSize));
   const gravityFilters = useRef<GravityFilters>(createGravityFilters(100));
-  const eventDetector = useRef(createEventDetector(eventThreshold, eventThreshold / 2));
+  const eventDetector = useRef(createSeismographEventDetector(eventThreshold));
   const eventCount = useRef(0);
   const recordingStartTimestamp = useRef<number | null>(null);
   const latestTimestamp = useRef<number | null>(null);
+  /**
+   * Pico y valor eficaz del módulo de la aceleración dinámica en toda la sesión (desde el
+   * último «Reiniciar»), para que lo guardado cubra el mismo tiempo que la duración y los
+   * eventos. El análisis espectral solo mira los últimos segundos.
+   */
+  const sessionStatistics = useRef({ peakDynamicAcceleration: 0, sumOfSquares: 0, sampleCount: 0 });
 
-  const [displaySnapshot, setDisplaySnapshot] = useState({ revision: 0, eventCount: 0, durationSeconds: 0 });
+  const [displaySnapshot, setDisplaySnapshot] = useState(emptyDisplaySnapshot);
   const [vibrationAnalysis, setVibrationAnalysis] = useState<VibrationAnalysis | null>(null);
 
   useEffect(() => {
-    eventDetector.current = createEventDetector(eventThreshold, eventThreshold / 2);
+    eventDetector.current = createSeismographEventDetector(eventThreshold);
   }, [eventThreshold]);
 
   useSensorSubscription(
     accelerometerSource,
     ({ timestampSeconds, value }) => {
       recordingStartTimestamp.current ??= timestampSeconds;
+      const previousTimestamp = latestTimestamp.current;
       latestTimestamp.current = timestampSeconds;
       pushToRingBuffer(history.timestamps, timestampSeconds);
       pushToRingBuffer(history.rawX, value.x);
       pushToRingBuffer(history.rawY, value.y);
       pushToRingBuffer(history.rawZ, value.z);
 
+      // El paso alto se ceba con la primera muestra (al empezar, tras reiniciar, tras una pausa o
+      // al rediseñarlo): si arrancara en cero, la gravedad entraría como un escalón y daría un pico falso.
+      const hasLongGap = previousTimestamp !== null && timestampSeconds - previousTimestamp > maximumGapSeconds;
       const { coefficients, axisStates } = gravityFilters.current;
+      if (!gravityFilters.current.isPrimed || hasLongGap) {
+        primeBiquadState(coefficients, axisStates[0], value.x);
+        primeBiquadState(coefficients, axisStates[1], value.y);
+        primeBiquadState(coefficients, axisStates[2], value.z);
+        gravityFilters.current.isPrimed = true;
+      }
       const dynamicX = processBiquadSample(coefficients, axisStates[0], value.x);
       const dynamicY = processBiquadSample(coefficients, axisStates[1], value.y);
       const dynamicZ = processBiquadSample(coefficients, axisStates[2], value.z);
@@ -100,9 +146,14 @@ export function useAccelerationRecorder({ isRunning, eventThreshold }: { isRunni
       pushToRingBuffer(history.dynamicY, dynamicY);
       pushToRingBuffer(history.dynamicZ, dynamicZ);
 
-      // El filtro tarda unos segundos en asentarse: no se cuentan eventos hasta entonces.
-      const hasFilterSettled = timestampSeconds - recordingStartTimestamp.current > 3;
-      if (hasFilterSettled && eventDetector.current.push(Math.hypot(dynamicX, dynamicY, dynamicZ))) {
+      const dynamicMagnitude = Math.hypot(dynamicX, dynamicY, dynamicZ);
+      const statistics = sessionStatistics.current;
+      statistics.peakDynamicAcceleration = Math.max(statistics.peakDynamicAcceleration, dynamicMagnitude);
+      statistics.sumOfSquares += dynamicMagnitude * dynamicMagnitude;
+      statistics.sampleCount++;
+
+      if (hasLongGap) eventDetector.current.reset();
+      if (eventDetector.current.push(dynamicMagnitude, timestampSeconds)) {
         eventCount.current++;
       }
     },
@@ -113,14 +164,20 @@ export function useAccelerationRecorder({ isRunning, eventThreshold }: { isRunni
     if (!isRunning) return;
     const displayTimer = setInterval(
       () =>
-        setDisplaySnapshot((previousSnapshot) => ({
-          revision: previousSnapshot.revision + 1,
-          eventCount: eventCount.current,
-          durationSeconds:
-            recordingStartTimestamp.current !== null && latestTimestamp.current !== null
-              ? latestTimestamp.current - recordingStartTimestamp.current
-              : 0,
-        })),
+        setDisplaySnapshot((previousSnapshot) => {
+          const statistics = sessionStatistics.current;
+          return {
+            revision: previousSnapshot.revision + 1,
+            eventCount: eventCount.current,
+            durationSeconds:
+              recordingStartTimestamp.current !== null && latestTimestamp.current !== null
+                ? latestTimestamp.current - recordingStartTimestamp.current
+                : 0,
+            sessionPeakDynamicAcceleration: statistics.peakDynamicAcceleration,
+            sessionRmsDynamicAcceleration:
+              statistics.sampleCount > 0 ? Math.sqrt(statistics.sumOfSquares / statistics.sampleCount) : 0,
+          };
+        }),
       displayRefreshIntervalMilliseconds,
     );
     const analysisTimer = setInterval(() => {
@@ -129,12 +186,10 @@ export function useAccelerationRecorder({ isRunning, eventThreshold }: { isRunni
       const recentTimestamps = new Float64Array(recentCount);
       copyLatestFromRingBuffer(history.timestamps, recentTimestamps);
       const measuredRateHz = estimateSampleRateHz(recentTimestamps);
-      // Rediseña el filtro de gravedad si la frecuencia real difiere de la supuesta.
+      // Rediseña el filtro de gravedad si la frecuencia real difiere de la supuesta. El estado
+      // viejo no vale con los coeficientes nuevos (daría un salto): se vuelve a cebar.
       if (measuredRateHz && Math.abs(measuredRateHz - gravityFilters.current.sampleRateHz) > 5) {
-        gravityFilters.current = {
-          ...createGravityFilters(measuredRateHz),
-          axisStates: gravityFilters.current.axisStates,
-        };
+        gravityFilters.current = createGravityFilters(measuredRateHz);
       }
       const copyAxis = (axisBuffer: RingBuffer) => {
         const axisValues = new Float64Array(recentCount);
@@ -163,8 +218,9 @@ export function useAccelerationRecorder({ isRunning, eventThreshold }: { isRunni
     eventCount.current = 0;
     recordingStartTimestamp.current = null;
     latestTimestamp.current = null;
+    sessionStatistics.current = { peakDynamicAcceleration: 0, sumOfSquares: 0, sampleCount: 0 };
     setVibrationAnalysis(null);
-    setDisplaySnapshot((previousSnapshot) => ({ revision: previousSnapshot.revision + 1, eventCount: 0, durationSeconds: 0 }));
+    setDisplaySnapshot((previousSnapshot) => ({ ...emptyDisplaySnapshot, revision: previousSnapshot.revision + 1 }));
   }, [history]);
 
   /** Copia ordenada de las últimas `sampleCount` muestras de un buffer. */
@@ -179,6 +235,8 @@ export function useAccelerationRecorder({ isRunning, eventThreshold }: { isRunni
     displayRevision: displaySnapshot.revision,
     eventCount: displaySnapshot.eventCount,
     recordingDurationSeconds: displaySnapshot.durationSeconds,
+    sessionPeakDynamicAcceleration: displaySnapshot.sessionPeakDynamicAcceleration,
+    sessionRmsDynamicAcceleration: displaySnapshot.sessionRmsDynamicAcceleration,
     vibrationAnalysis,
     readLatest,
     reset,
