@@ -9,6 +9,7 @@ import { earTrainerInstrument } from './ear-trainer';
 import { escapeLocksInstrument } from './escape-locks';
 import { exampleLevelInstrument } from './example-level';
 import { gnssSkyInstrument } from './gnss-sky';
+import { infiniteTxalapartaInstrument } from './infinite-txalaparta';
 import { machineDiagnosisInstrument } from './machine-diagnosis';
 import { mainsFrequencyInstrument } from './mains-frequency';
 import { metalDetectorInstrument } from './metal-detector';
@@ -90,6 +91,7 @@ export const instrumentSections: readonly InstrumentSection[] = [
       stepMusicInstrument,
       escapeLocksInstrument,
       rhythmInstrument,
+      infiniteTxalapartaInstrument,
       phoneModemInstrument,
       soundLocatorInstrument,
       seismicNetworkInstrument,

@@ -1,0 +1,39 @@
+{
+  "name": "Txalaparta sin fin",
+  "description": "Juego de ritmo: el móvil toca su parte de txalaparta y tú rellenas los huecos con palmadas o golpes en la mesa. El tempo sube hasta que falles tres seguidas.",
+  "howTo": {
+    "title": "Cómo se juega",
+    "rules": "Como en la txalaparta, se toca a dos: suenan cuatro golpes de entrada y después el móvil toca en su sitio y tú en los huecos, con una palmada o un golpe seco en la mesa. Cada cierto tiempo sube el tempo y el patrón se complica. Tres fallos seguidos y se acaba.",
+    "setup": "Pon el móvil sobre la mesa con el volumen alto, en un sitio sin ruido. No hacen falta auriculares: los golpes del propio móvil no cuentan como tuyos."
+  },
+  "start": "Jugar",
+  "again": "Otra vez",
+  "stop": "Parar",
+  "countIn": "Escucha la entrada…",
+  "yourTurn": "¡Rellena los huecos!",
+  "hitsLabel": "aciertos",
+  "tempo": "{{bpm}} bpm · nivel {{level}}",
+  "judgement": {
+    "hit": "¡Bien! {{offset}} ms",
+    "miss": "¡Fallo!"
+  },
+  "over": {
+    "title": "Fin",
+    "summary": "{{bars}} compases, hasta {{bpm}} bpm",
+    "accuracy": "Error medio: {{milliseconds}} ms",
+    "newRecord": "¡Nuevo récord!"
+  },
+  "best": "Récord: {{hits}} aciertos",
+  "error": {
+    "notHeard": "El micrófono no ha oído los golpes de entrada: sube el volumen o acerca el móvil.",
+    "microphone": "No se puede usar el micrófono: {{message}}"
+  },
+  "privacy": "El sonido se analiza en el móvil y no se graba.",
+  "fields": {
+    "hits": "Aciertos",
+    "barsReached": "Compases",
+    "finalBeatsPerMinute": "Tempo final",
+    "meanAbsoluteErrorMilliseconds": "Error medio",
+    "misses": "Fallos"
+  }
+}
