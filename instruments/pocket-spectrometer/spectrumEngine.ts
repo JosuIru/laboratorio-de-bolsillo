@@ -1,3 +1,5 @@
+import type { ReferenceBrightnessReading } from '@/core/camera/lockedCameraExposure';
+import { srgbComponentToLinear } from '@/processing/color/colorSpaces';
 import type { PixelLayout } from '@/processing/color/regionSampling';
 
 /**
@@ -96,6 +98,31 @@ export function sampleProfileAlongLine(
       : (redSum + greenSum + blueSum) / pixelCount;
   }
   return { intensities, reds, greens, blues, saturatedSampleCount };
+}
+
+/**
+ * Brillo del pico más brillante de un fotograma: el canal más alto a lo largo de la línea (con
+ * gamma, 0-255, pasado a lineal) y la fracción de puntos con algún píxel saturado.
+ */
+export function spectrumPeakBrightness(
+  reds: Float64Array,
+  greens: Float64Array,
+  blues: Float64Array,
+  saturatedSampleCount: number,
+): ReferenceBrightnessReading {
+  let brightestEncodedChannel = 0;
+  for (let sampleIndex = 0; sampleIndex < reds.length; sampleIndex++) {
+    brightestEncodedChannel = Math.max(
+      brightestEncodedChannel,
+      reds[sampleIndex]!,
+      greens[sampleIndex]!,
+      blues[sampleIndex]!,
+    );
+  }
+  return {
+    brightestChannelLinear: srgbComponentToLinear(Math.min(255, brightestEncodedChannel)),
+    saturatedFraction: reds.length > 0 ? saturatedSampleCount / reds.length : 0,
+  };
 }
 
 /** Media exponencial de perfiles sucesivos: estabiliza el espectro sin congelarlo. */

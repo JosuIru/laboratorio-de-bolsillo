@@ -38,7 +38,11 @@
     "isCalibrated": "Kalibratuta",
     "startWavelengthNm": "Espektroaren hasiera",
     "endWavelengthNm": "Espektroaren amaiera",
-    "profile": "Profila"
+    "profile": "Profila",
+    "isCameraLocked": "Kamera finkatuta",
+    "exposureDurationSeconds": "Esposizio-denbora",
+    "exposureIso": "ISO"
   },
-  "saturationWarning": "Zona saturatuak daude (zuri hutsa): gailur horien altuera moztuta dago. Urrundu argia edo apuntatu ertz ez hain distiratsu batera."
+  "saturationWarning": "Zona saturatuak daude (zuri hutsa): gailur horien altuera moztuta dago. Urrundu argia edo apuntatu ertz ez hain distiratsu batera.",
+  "lockedCameraWaitingHint": "Esposizioa eta kolorea espektroa iristean finkatuko dira."
 }

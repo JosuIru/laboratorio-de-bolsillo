@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { CommonResolutions, type Frame, useFrameOutput } from 'react-native-vision-camera';
 import { scheduleOnRN } from 'react-native-worklets';
 
@@ -18,9 +18,13 @@ const averagedReadingCount = 8;
  * Como `useColorimeterFrames`, pero con regiones rectangulares (una por almohadilla o parche) y
  * media robusta dentro de cada una, para que los reflejos de la tira mojada no cuenten.
  * `null` = región sin colocar. Las regiones que devuelve están promediadas en las últimas
- * lecturas y se olvidan al cambiar la lista de regiones.
+ * lecturas y se olvidan al cambiar la lista de regiones (o con `resetAverage`). `onRegionsAveraged`
+ * recibe cada promedio nuevo (p. ej. para ajustar la exposición con la cámara fijada).
  */
-export function useStripFrames(cameraRegions: readonly (CameraRegion | null)[]) {
+export function useStripFrames(
+  cameraRegions: readonly (CameraRegion | null)[],
+  onRegionsAveraged?: (averagedRegions: (RegionColorStatistics | null)[]) => void,
+) {
   const [srgbToLinearTable] = useState(createSrgbToLinearTable);
   const lastDeliveryTime = useRef(0);
   const [latestDelivery, setLatestDelivery] = useState<{
@@ -35,15 +39,29 @@ export function useStripFrames(cameraRegions: readonly (CameraRegion | null)[]) 
     setRegionAverager(createRegionAverager(averagedReadingCount));
   }
 
+  // El último `onRegionsAveraged`, sin rehacer la salida de fotogramas cada vez que cambia.
+  const onRegionsAveragedRef = useRef(onRegionsAveraged);
+  useEffect(() => {
+    onRegionsAveragedRef.current = onRegionsAveraged;
+  });
+
   const deliverRegions = useCallback(
     (measuredRegions: (RegionColorStatistics | null)[]) => {
       const currentTime = Date.now();
       if (currentTime - lastDeliveryTime.current < 1000 / maximumReadingsPerSecond) return;
       lastDeliveryTime.current = currentTime;
-      setLatestDelivery({ sourceRegions: cameraRegions, averagedRegions: regionAverager.push(measuredRegions) });
+      const averagedRegions = regionAverager.push(measuredRegions);
+      setLatestDelivery({ sourceRegions: cameraRegions, averagedRegions });
+      onRegionsAveragedRef.current?.(averagedRegions);
     },
     [cameraRegions, regionAverager],
   );
+
+  /** Olvida el promedio (p. ej. al cambiar la exposición). */
+  const resetAverage = useCallback(() => {
+    regionAverager.reset();
+    setLatestDelivery(null);
+  }, [regionAverager]);
 
   const handleFrame = useCallback(
     (frame: Frame) => {
@@ -99,5 +117,5 @@ export function useStripFrames(cameraRegions: readonly (CameraRegion | null)[]) 
   });
 
   const latestRegions = latestDelivery && latestDelivery.sourceRegions === cameraRegions ? latestDelivery.averagedRegions : null;
-  return { frameOutput, latestRegions };
+  return { frameOutput, latestRegions, resetAverage };
 }

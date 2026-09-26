@@ -2,8 +2,10 @@ import { router } from 'expo-router';
 import { Fragment, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type GestureResponderEvent, type LayoutChangeEvent, Pressable, StyleSheet, Vibration, View } from 'react-native';
-import { Camera, type CameraRef } from 'react-native-vision-camera';
+import { Camera, type CameraRef, useCameraDevice } from 'react-native-vision-camera';
 
+import { brightnessReadingFromLinearMean } from '@/core/camera/lockedCameraExposure';
+import { useLockedCameraSettings } from '@/core/camera/useLockedCameraSettings';
 import { useKeepScreenOnWhile } from '@/core/useKeepScreenOnWhile';
 import { useResolvedCalibration } from '@/core/calibration/useResolvedCalibration';
 import type { InstrumentScreenProps } from '@/core/instruments/types';
@@ -13,7 +15,9 @@ import { AppButton, BodyText, Card, ScreenContainer } from '@/ui/components';
 import { useThemePalette } from '@/ui/theme';
 
 import { colorimeterInstrument } from '@instruments/colorimeter';
+import { LockedCameraPanel } from '@instruments/colorimeter/LockedCameraPanel';
 import {
+  brightestPlacedPatchIndex,
   type ColorimeterCalibrationParameters,
   defaultReferenceCard,
   referencePatchLabel,
@@ -64,12 +68,15 @@ type ScreenMode = 'read' | 'calibrate';
 interface FrozenReading {
   stripReading: StripReading;
   secondsAfterDip: number | null;
+  /** La cámara estaba fijada cuando se tomó la lectura. */
+  wasCameraLocked: boolean;
 }
 
 export function PoolStripsScreen({ saveMeasurement }: InstrumentScreenProps<PoolStripsMeasurementValues>) {
   const { t } = useTranslation(poolStripsInstrumentId);
   const themePalette = useThemePalette();
   const cameraRef = useRef<CameraRef>(null);
+  const cameraDevice = useCameraDevice('back');
   const isCameraAllowed = useIsCameraAllowed();
 
   // La tarjeta de referencia es la del colorímetro: se calibra una vez y sirve para los dos.
@@ -102,6 +109,7 @@ export function PoolStripsScreen({ saveMeasurement }: InstrumentScreenProps<Pool
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   /** La cuenta atrás terminó sin la tira dentro de la guía: no se pudo fijar la lectura. */
   const [isCountdownReadingMissed, setIsCountdownReadingMissed] = useState(false);
+  const [isCameraLockEnabled, setIsCameraLockEnabled] = useState(true);
 
   // Si cambia la tarjeta (otra calibración del colorímetro), los parches colocados ya no valen.
   const [markersCardKey, setMarkersCardKey] = useState(referenceCard);
@@ -138,7 +146,21 @@ export function PoolStripsScreen({ saveMeasurement }: InstrumentScreenProps<Pool
     );
     return [...cellRegions, ...patchRegions];
   }, [viewToCameraMapping, guideLayout, patchMarkerPoints, screenMode, padSlots]);
-  const { frameOutput, latestRegions } = useStripFrames(cameraRegions);
+  // La exposición se fija con el parche colocado más claro de la tarjeta (el blanco).
+  const referencePatchIndex = brightestPlacedPatchIndex(referenceCard.patches, (patchIndex) => patchMarkerPoints[patchIndex] != null);
+  const lockedCamera = useLockedCameraSettings({
+    cameraRef,
+    cameraDevice,
+    isEnabled: isCameraLockEnabled,
+    isTargetReady: referencePatchIndex >= 0 && viewToCameraMapping !== null,
+    onCameraSettingsChanged: () => resetAverage(),
+  });
+  const { frameOutput, latestRegions, resetAverage } = useStripFrames(cameraRegions, (latestAveragedRegions) => {
+    const referenceRegion = latestAveragedRegions[cellCount + referencePatchIndex];
+    if (referencePatchIndex >= 0 && referenceRegion) {
+      lockedCamera.handleReferenceBrightness(brightnessReadingFromLinearMean(referenceRegion.meanLinear));
+    }
+  });
 
   const liveStripReading = useMemo(() => {
     if (screenMode !== 'read' || !latestRegions) return null;
@@ -155,7 +177,11 @@ export function PoolStripsScreen({ saveMeasurement }: InstrumentScreenProps<Pool
     // Los colores siguen cambiando después del tiempo indicado: se fija la lectura de ese momento.
     // Se guarda la duración con la que arrancó la cuenta atrás, no la que esté elegida ahora.
     if (liveStripReading) {
-      setFrozenReading({ stripReading: liveStripReading, secondsAfterDip: countdownDurationSeconds });
+      setFrozenReading({
+        stripReading: liveStripReading,
+        secondsAfterDip: countdownDurationSeconds,
+        wasCameraLocked: lockedCamera.isLocked,
+      });
     } else {
       setIsCountdownReadingMissed(true);
     }
@@ -190,9 +216,16 @@ export function PoolStripsScreen({ saveMeasurement }: InstrumentScreenProps<Pool
 
   function handlePreviewPress(pressEvent: GestureResponderEvent) {
     const tappedPoint = { x: pressEvent.nativeEvent.locationX, y: pressEvent.nativeEvent.locationY };
-    setPatchMarkerPoints((previousPoints) =>
-      previousPoints.map((markerPoint, markerIndex) => (markerIndex === activePatchIndex ? tappedPoint : markerPoint)),
+    const updatedMarkerPoints = patchMarkerPoints.map((markerPoint, markerIndex) =>
+      markerIndex === activePatchIndex ? tappedPoint : markerPoint,
     );
+    setPatchMarkerPoints(updatedMarkerPoints);
+    // Si ahora el parche más claro es otro, se vuelve a fijar la exposición con él.
+    const updatedReferencePatchIndex = brightestPlacedPatchIndex(
+      referenceCard.patches,
+      (patchIndex) => updatedMarkerPoints[patchIndex] != null,
+    );
+    if (referencePatchIndex >= 0 && updatedReferencePatchIndex !== referencePatchIndex) lockedCamera.relock();
     // Pasa al siguiente parche sin colocar, para colocar la tarjeta de una vez.
     const nextUnplacedIndex = patchMarkerPoints.findIndex(
       (markerPoint, markerIndex) => markerPoint === null && markerIndex !== activePatchIndex,
@@ -225,11 +258,14 @@ export function PoolStripsScreen({ saveMeasurement }: InstrumentScreenProps<Pool
     setStatusMessage(null);
     try {
       await saveMeasurement({
-        values: buildStripMeasurementValues(
-          presetId,
-          displayedReading,
-          frozenReading ? frozenReading.secondsAfterDip : secondsSinceDip(),
-        ),
+        values: {
+          ...buildStripMeasurementValues(
+            presetId,
+            displayedReading,
+            frozenReading ? frozenReading.secondsAfterDip : secondsSinceDip(),
+          ),
+          isCameraLocked: frozenReading ? frozenReading.wasCameraLocked : lockedCamera.isLocked,
+        },
       });
       setStatusMessage(t('core:instrument.savedMeasurement'));
     } catch (saveError) {
@@ -266,11 +302,12 @@ export function PoolStripsScreen({ saveMeasurement }: InstrumentScreenProps<Pool
         <Camera
           ref={cameraRef}
           style={StyleSheet.absoluteFill}
-          device="back"
+          device={cameraDevice ?? 'back'}
           isActive={isCameraAllowed}
           outputs={[frameOutput]}
           torchMode={isTorchOn ? 'on' : 'off'}
           resizeMode="cover"
+          onStarted={lockedCamera.handleCameraStarted}
           onPreviewStarted={() => {
             if (previewSize) captureViewToCameraMapping(previewSize.width, previewSize.height);
           }}
@@ -415,7 +452,11 @@ export function PoolStripsScreen({ saveMeasurement }: InstrumentScreenProps<Pool
           <View style={styles.buttonCell}>
             <AppButton
               label={isTorchOn ? t('torchOff') : t('torchOn')}
-              onPress={() => setIsTorchOn((wasTorchOn) => !wasTorchOn)}
+              onPress={() => {
+                setIsTorchOn((wasTorchOn) => !wasTorchOn);
+                // Con otra luz, la exposición y el balance fijados ya no valen.
+                lockedCamera.relock();
+              }}
               variant="secondary"
             />
           </View>
@@ -436,6 +477,13 @@ export function PoolStripsScreen({ saveMeasurement }: InstrumentScreenProps<Pool
           onPress={() => router.push({ pathname: '/instrument/[id]/calibrate', params: { id: colorimeterInstrument.id } })}
         />
       </Card>
+
+      <LockedCameraPanel
+        lockedCamera={lockedCamera}
+        isEnabled={isCameraLockEnabled}
+        onEnabledChange={setIsCameraLockEnabled}
+        waitingForTargetHint={t('lockedCameraWaitingHint')}
+      />
 
       {screenMode === 'read' ? (
         <>
@@ -482,7 +530,13 @@ export function PoolStripsScreen({ saveMeasurement }: InstrumentScreenProps<Pool
             frozenAtSeconds={frozenReading ? frozenReading.secondsAfterDip : null}
             isFrozen={frozenReading !== null}
             onFreeze={() => {
-              if (liveStripReading) setFrozenReading({ stripReading: liveStripReading, secondsAfterDip: secondsSinceDip() });
+              if (liveStripReading) {
+                setFrozenReading({
+                  stripReading: liveStripReading,
+                  secondsAfterDip: secondsSinceDip(),
+                  wasCameraLocked: lockedCamera.isLocked,
+                });
+              }
             }}
             onUnfreeze={() => setFrozenReading(null)}
           />
@@ -491,7 +545,7 @@ export function PoolStripsScreen({ saveMeasurement }: InstrumentScreenProps<Pool
             label={t('core:common.save')}
             onPress={() => void handleSave()}
             isBusy={isSaving}
-            isDisabled={!displayedReading}
+            isDisabled={!displayedReading || (!frozenReading && lockedCamera.isSettling)}
           />
           {statusMessage ? <BodyText tone="secondary">{statusMessage}</BodyText> : null}
 

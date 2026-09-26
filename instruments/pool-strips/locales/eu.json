@@ -182,6 +182,8 @@
     "secondsAfterDip": "Zerrenda busti ondoko denbora",
     "correctionModel": "Zuzenketa",
     "referencePatchCount": "Erreferentzia-adabakiak",
-    "correctionResidual": "Zuzenketaren errore estimatua"
-  }
+    "correctionResidual": "Zuzenketaren errore estimatua",
+    "isCameraLocked": "Kamera finkatuta"
+  },
+  "lockedCameraWaitingHint": "Esposizioa eta kolorea txartelaren adabaki zuria (argiena) jartzean finkatuko dira."
 }

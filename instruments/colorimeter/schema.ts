@@ -10,6 +10,8 @@ export interface ColorimeterMeasurementValues {
   referencePatchCount: number;
   correctionMeanResidualDeltaE?: number;
   sampleRelativeDeviation: number;
+  /** Exposición y balance de blancos fijados («Cámara fijada») al medir; ausente en mediciones antiguas. */
+  isCameraLocked?: boolean;
   scaleName?: string;
   nearestScaleLabel?: string;
   nearestScaleDeltaE?: number;
@@ -40,4 +42,5 @@ export const colorimeterSchema = defineMeasurementSchema<ColorimeterMeasurementV
     optional: true,
   },
   { key: 'sampleRelativeDeviation', labelKey: 'fields.sampleRelativeDeviation', type: 'number' },
+  { key: 'isCameraLocked', labelKey: 'fields.isCameraLocked', type: 'boolean', optional: true },
 ]);

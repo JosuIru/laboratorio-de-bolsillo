@@ -77,6 +77,8 @@
     "transmittanceGreen": "Transmitancia verde",
     "transmittanceBlue": "Transmitancia azul",
     "fitResidual": "Error del ajuste",
-    "exposureProblems": "Avisos"
-  }
+    "exposureProblems": "Avisos",
+    "isCameraLocked": "Cámara fijada"
+  },
+  "lockedCameraWaitingHint": "La exposición y el color se fijarán al colocar el marcador del papel (P)."
 }

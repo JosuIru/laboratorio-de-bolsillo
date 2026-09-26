@@ -2,8 +2,10 @@ import Storage from 'expo-sqlite/kv-store';
 import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type LayoutChangeEvent, Pressable, StyleSheet, View } from 'react-native';
-import { Camera, type CameraRef } from 'react-native-vision-camera';
+import { Camera, type CameraRef, useCameraDevice } from 'react-native-vision-camera';
 
+import { spectrumPeakTargetBand } from '@/core/camera/lockedCameraExposure';
+import { useLockedCameraSettings } from '@/core/camera/useLockedCameraSettings';
 import type { InstrumentScreenProps } from '@/core/instruments/types';
 import { isExpectedCameraInterruption } from '@/core/sensors/cameraErrors';
 import { useIsCameraAllowed } from '@/core/sensors/useIsCameraAllowed';
@@ -11,6 +13,7 @@ import { SignalChart } from '@/ui/charts/SignalChart';
 import { AppButton, BodyText, Card, ScreenContainer, SectionTitle } from '@/ui/components';
 import { useThemePalette } from '@/ui/theme';
 
+import { LockedCameraPanel } from '@instruments/colorimeter/LockedCameraPanel';
 import {
   createViewToCameraMapping,
   mapViewPointToCamera,
@@ -71,6 +74,7 @@ export function PocketSpectrometerScreen({
   const { t } = useTranslation(pocketSpectrometerInstrumentId);
   const themePalette = useThemePalette();
   const cameraRef = useRef<CameraRef>(null);
+  const cameraDevice = useCameraDevice('back');
   const isCameraAllowed = useIsCameraAllowed();
   const [previewSize, setPreviewSize] = useState<{ width: number; height: number } | null>(null);
   const previewWidth = previewSize?.width ?? 0;
@@ -79,6 +83,7 @@ export function PocketSpectrometerScreen({
   const [guideFraction, setGuideFraction] = useState(() => loadCalibration()?.guideFraction ?? 0.5);
   const [pendingCalibrationPositions, setPendingCalibrationPositions] = useState<number[] | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [isCameraLockEnabled, setIsCameraLockEnabled] = useState(true);
 
   const guideY = guideFraction * previewHeight;
   const cameraLine = useMemo<CameraLine | null>(() => {
@@ -88,7 +93,19 @@ export function PocketSpectrometerScreen({
       end: mapViewPointToCamera(viewToCameraMapping, { x: previewWidth * (1 - guideMarginFraction), y: guideY }),
     };
   }, [viewToCameraMapping, previewWidth, guideY]);
-  const { frameOutput, spectrumProfile } = useSpectrumFrames(cameraLine);
+  // Exposición fija que deja el pico más brillante sin saturar, y balance de blancos congelado:
+  // así las alturas relativas de los picos no cambian entre lecturas.
+  const lockedCamera = useLockedCameraSettings({
+    cameraRef,
+    cameraDevice,
+    isEnabled: isCameraLockEnabled,
+    isTargetReady: cameraLine !== null,
+    targetBand: spectrumPeakTargetBand,
+    onCameraSettingsChanged: () => resetProfile(),
+  });
+  const { frameOutput, spectrumProfile, resetProfile } = useSpectrumFrames(cameraLine, (peakBrightness) =>
+    lockedCamera.handleReferenceBrightness(peakBrightness),
+  );
 
   const isCalibrationCurrent =
     isCalibrationUsable(calibration) && Math.abs(calibration.guideFraction - guideFraction) < 1e-6;
@@ -129,6 +146,8 @@ export function PocketSpectrometerScreen({
     setGuideFraction((previousFraction) =>
       Math.min(0.9, Math.max(0.1, previousFraction + direction * guideStepFraction)),
     );
+    // Otra línea puede cruzar otra parte del espectro: se vuelve a ajustar la exposición.
+    lockedCamera.relock();
   }
 
   function handlePeakPressForCalibration(peakPosition: number) {
@@ -182,6 +201,13 @@ export function PocketSpectrometerScreen({
               }
             : {}),
           profile: downsampledProfile,
+          isCameraLocked: lockedCamera.isLocked,
+          ...(lockedCamera.isLocked && lockedCamera.lockedExposure
+            ? {
+                exposureDurationSeconds: lockedCamera.lockedExposure.durationSeconds,
+                exposureIso: Math.round(lockedCamera.lockedExposure.iso),
+              }
+            : {}),
         },
       });
       setStatusMessage(t('core:instrument.savedMeasurement'));
@@ -210,10 +236,11 @@ export function PocketSpectrometerScreen({
         <Camera
           ref={cameraRef}
           style={StyleSheet.absoluteFill}
-          device="back"
+          device={cameraDevice ?? 'back'}
           isActive={isCameraAllowed}
           outputs={[frameOutput]}
           resizeMode="cover"
+          onStarted={lockedCamera.handleCameraStarted}
           onPreviewStarted={() => {
             if (previewSize) captureViewToCameraMapping(previewSize.width, previewSize.height);
           }}
@@ -331,7 +358,18 @@ export function PocketSpectrometerScreen({
         <BodyText tone="secondary">{t('calibration.hint')}</BodyText>
       </Card>
 
-      <AppButton label={t('core:common.save')} onPress={() => void handleSave()} isDisabled={!spectrumProfile} />
+      <LockedCameraPanel
+        lockedCamera={lockedCamera}
+        isEnabled={isCameraLockEnabled}
+        onEnabledChange={setIsCameraLockEnabled}
+        waitingForTargetHint={t('lockedCameraWaitingHint')}
+      />
+
+      <AppButton
+        label={t('core:common.save')}
+        onPress={() => void handleSave()}
+        isDisabled={!spectrumProfile || lockedCamera.isSettling}
+      />
       {statusMessage ? <BodyText tone="secondary">{statusMessage}</BodyText> : null}
     </ScreenContainer>
   );

@@ -73,6 +73,30 @@
     "correctionModel": "Corrección",
     "referencePatchCount": "Parches de referencia",
     "correctionResidual": "Error estimado de la corrección",
-    "sampleRelativeDeviation": "Variación dentro de la muestra"
-  }
+    "sampleRelativeDeviation": "Variación dentro de la muestra",
+    "isCameraLocked": "Cámara fijada"
+  },
+  "lockedCamera": {
+    "title": "Cámara fijada",
+    "status": {
+      "unsupported": "Este móvil no permite fijar la exposición ni el balance de blancos: la cámara sigue en automático y el color puede variar un poco entre lecturas.",
+      "disabled": "Cámara en automático: la exposición y el color pueden cambiar entre lecturas.",
+      "waitingForTarget": "La exposición y el color se fijarán al colocar la referencia.",
+      "converging": "La cámara se está ajustando…",
+      "adjustingExposure": "Ajustando la exposición…",
+      "locked": "Exposición y color fijados",
+      "lockedExposureOnly": "Exposición fijada (este móvil no permite fijar el balance de blancos)",
+      "lockedWhiteBalanceOnly": "Color fijado (este móvil no permite fijar la exposición)",
+      "failed": "No se ha podido fijar la cámara: sigue en automático."
+    },
+    "exposureValues": "{{duration}} · ISO {{iso}}",
+    "limitReached": "La exposición ha llegado al límite del móvil: cambia la luz y vuelve a fijar.",
+    "gaveUp": "No se ha podido afinar la exposición del todo: si la luz cambia, vuelve a fijar.",
+    "relock": "Volver a fijar",
+    "enable": "Fijar la cámara",
+    "disable": "Dejar en automático",
+    "hint": "Con la cámara fijada, la exposición y el balance de blancos no cambian entre lecturas. Si cambias la luz o la linterna, vuelve a fijar.",
+    "waitBeforeSaving": "Espera a que se fije la cámara para guardar."
+  },
+  "lockedCameraWaitingHint": "La exposición y el color se fijarán al colocar la muestra; si colocas parches de la tarjeta, se ajustan al más claro."
 }
