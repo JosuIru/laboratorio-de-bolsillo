@@ -160,5 +160,47 @@
       "peek": "acciones principales",
       "open": "abierto"
     }
+  },
+  "imageViewer": {
+    "counter": "{{current}} de {{total}}",
+    "close": "Cerrar",
+    "previous": "Imagen anterior",
+    "next": "Imagen siguiente",
+    "share": "Compartir",
+    "saveToGallery": "Guardar en la galería",
+    "savedTitle": "Imagen guardada",
+    "savedInAlbum": "Está en la galería, en el álbum «Laboratorio de Bolsillo».",
+    "savedInGallery": "Está en la galería de fotos.",
+    "permissionDeniedTitle": "Sin permiso para guardar",
+    "permissionDeniedMessage": "Para guardar la imagen, permite que la app añada fotos a la galería. Solo se pide permiso para guardar, no para ver tus fotos.",
+    "permissionBlockedMessage": "Has denegado el permiso para guardar fotos. Actívalo en los ajustes del sistema, en los permisos de la app (Fotos y vídeos).",
+    "loadError": "No se puede abrir la imagen: puede que el fichero se haya borrado.",
+    "openImage": "Ver la imagen {{fileName}}"
+  },
+  "myData": {
+    "title": "Mis datos",
+    "homeCardTitle": "Mis datos",
+    "homeCardDescription": "Todas tus mediciones e imágenes, de todos los instrumentos.",
+    "allInstruments": "Todos",
+    "instrumentFilter": "Instrumentos",
+    "dateFilter": "Fechas",
+    "dateRange": {
+      "today": "Hoy",
+      "last7Days": "7 días",
+      "last30Days": "30 días",
+      "all": "Todo"
+    },
+    "viewList": "Lista",
+    "viewGallery": "Galería",
+    "measurementCount_one": "{{count}} medición",
+    "measurementCount_other": "{{count}} mediciones",
+    "empty": "Todavía no has guardado ninguna medición. Usa el botón de guardar de cualquier instrumento.",
+    "emptyFiltered": "No hay mediciones con estos filtros.",
+    "emptyGallery": "No hay imágenes con estos filtros.",
+    "openHistory": "Abrir el historial de {{instrument}}",
+    "export": "Exportar",
+    "exportHint": "Se exportan las mediciones que cumplen los filtros.",
+    "exportCsvHint": "Para exportar en CSV, elige un solo instrumento: cada uno tiene sus propias columnas.",
+    "exportAllJson": "Exportar JSON (todos)"
   }
 }

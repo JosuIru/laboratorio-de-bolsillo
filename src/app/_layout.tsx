@@ -38,6 +38,7 @@ export default function RootLayout() {
         }}>
         <Stack.Screen name="index" options={{ title: t('app.name') }} />
         <Stack.Screen name="settings" options={{ title: t('settings.title') }} />
+        <Stack.Screen name="my-data" options={{ title: t('myData.title') }} />
       </Stack>
     </>
   );
