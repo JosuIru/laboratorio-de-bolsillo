@@ -32,7 +32,8 @@
     "blade": "Pala {{blade}}: {{mass}} g",
     "checkHint": "Pon la corrección y comprueba el resultado con el motor a la misma velocidad.",
     "measureCheck": "Medir el resultado",
-    "checkValue": "Antes {{before}} m/s², ahora {{after}} m/s² ({{reduction}} % menos)"
+    "checkValue": "Antes {{before}} m/s², ahora {{after}} m/s² ({{reduction}} % menos)",
+    "hub": "Buje (o base de las palas) a {{angle}}°: {{mass}} g"
   },
   "problem": {
     "trial-too-small": "El peso de prueba apenas cambia la vibración: usa uno más pesado o ponlo más lejos del centro y repite.",

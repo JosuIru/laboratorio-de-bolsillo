@@ -32,7 +32,8 @@
     "blade": "{{blade}}. pala: {{mass}} g",
     "checkHint": "Jarri zuzenketa eta egiaztatu emaitza motorra abiadura berean dela.",
     "measureCheck": "Neurtu emaitza",
-    "checkValue": "Lehen {{before}} m/s², orain {{after}} m/s² (% {{reduction}} gutxiago)"
+    "checkValue": "Lehen {{before}} m/s², orain {{after}} m/s² (% {{reduction}} gutxiago)",
+    "hub": "Ardatza (edo palen oinarria) {{angle}}°-tan: {{mass}} g"
   },
   "problem": {
     "trial-too-small": "Proba-pisuak ia ez du bibrazioa aldatzen: erabili astunago bat edo jarri erdigunetik urrunago eta errepikatu.",

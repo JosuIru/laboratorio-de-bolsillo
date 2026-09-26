@@ -72,13 +72,13 @@ export function PropellerBalancerScreen({
         })
       : null;
   const balancingSolution = balancingResult && typeof balancingResult === 'object' ? balancingResult : null;
-  const bladeCorrections = balancingSolution
+  const bladeSplit = balancingSolution
     ? splitCorrectionBetweenBlades(
         balancingSolution.correctionMassGrams,
         balancingSolution.correctionAngleDegrees,
         bladeCount,
       )
-    : [];
+    : null;
   const hasSpeedChanged =
     referenceFrequencyHz !== null &&
     runVibrations.some(
@@ -241,7 +241,7 @@ export function PropellerBalancerScreen({
                 })}
               </BodyText>
               <BodyText tone="secondary">{t('result.removeTrial')}</BodyText>
-              {bladeCorrections.map((bladeCorrection) => (
+              {bladeSplit?.bladeCorrections.map((bladeCorrection) => (
                 <BodyText key={bladeCorrection.bladeNumber}>
                   {t('result.blade', {
                     blade: bladeCorrection.bladeNumber,
@@ -249,6 +249,14 @@ export function PropellerBalancerScreen({
                   })}
                 </BodyText>
               ))}
+              {bladeSplit?.hubCorrection ? (
+                <BodyText>
+                  {t('result.hub', {
+                    mass: bladeSplit.hubCorrection.massGrams.toFixed(2),
+                    angle: bladeSplit.hubCorrection.angleDegrees,
+                  })}
+                </BodyText>
+              ) : null}
               <BodyText tone="secondary">{t('result.checkHint')}</BodyText>
               <AppButton
                 label={isMeasuringCheck && isCapturing ? t('runs.measuring') : t('result.measureCheck')}

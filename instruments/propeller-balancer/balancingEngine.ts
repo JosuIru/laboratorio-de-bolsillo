@@ -188,29 +188,61 @@ export function solveFourRunBalancing(balancingInput: BalancingInput): Balancing
   };
 }
 
+export interface BladeSplit {
+  bladeCorrections: { bladeNumber: number; massGrams: number }[];
+  /**
+   * Parte de la corrección que no cabe en las palas: con dos palas (opuestas, en una misma
+   * línea) la componente lateral hay que ponerla en el buje, a 90° o 270°. Null si no hace falta.
+   */
+  hubCorrection: { massGrams: number; angleDegrees: number } | null;
+}
+
+/** Por debajo de esta fracción de la corrección, la parte lateral no merece la pena. */
+const negligibleHubFraction = 0.05;
+
 /**
  * En una hélice solo se puede poner peso en las palas: reparte la corrección entre las dos palas
  * vecinas al ángulo (descomposición de vectores). Con `bladeCount` palas equiespaciadas, la pala
- * 1 está en 0°.
+ * 1 está en 0°. Con dos palas no hay dos direcciones independientes: la parte a lo largo de las
+ * palas va a la de ese lado y la lateral se devuelve aparte, para el buje.
  */
 export function splitCorrectionBetweenBlades(
   correctionMassGrams: number,
   correctionAngleDegrees: number,
   bladeCount: number,
-): { bladeNumber: number; massGrams: number }[] {
-  if (bladeCount < 2) return [{ bladeNumber: 1, massGrams: correctionMassGrams }];
-  const bladeSpacingDegrees = 360 / bladeCount;
+): BladeSplit {
   const angle = normalizeDegrees(correctionAngleDegrees);
+  if (bladeCount < 2)
+    return { bladeCorrections: [{ bladeNumber: 1, massGrams: correctionMassGrams }], hubCorrection: null };
+  if (bladeCount === 2) {
+    const angleRadians = (angle * Math.PI) / 180;
+    const alongBladesGrams = correctionMassGrams * Math.cos(angleRadians);
+    const sidewaysGrams = correctionMassGrams * Math.sin(angleRadians);
+    return {
+      bladeCorrections:
+        Math.abs(alongBladesGrams) > 1e-9
+          ? [{ bladeNumber: alongBladesGrams > 0 ? 1 : 2, massGrams: Math.abs(alongBladesGrams) }]
+          : [],
+      hubCorrection:
+        Math.abs(sidewaysGrams) > negligibleHubFraction * correctionMassGrams
+          ? { massGrams: Math.abs(sidewaysGrams), angleDegrees: sidewaysGrams > 0 ? 90 : 270 }
+          : null,
+    };
+  }
+  const bladeSpacingDegrees = 360 / bladeCount;
   const lowerBladeIndex = Math.floor(angle / bladeSpacingDegrees) % bladeCount;
   const upperBladeIndex = (lowerBladeIndex + 1) % bladeCount;
   const offsetFromLowerRadians = ((angle - lowerBladeIndex * bladeSpacingDegrees) * Math.PI) / 180;
   const spacingRadians = (bladeSpacingDegrees * Math.PI) / 180;
-  // Ley de senos: m_a·sin(α) = m·sin(β − x)… con α el ángulo entre palas y x el desfase.
+  // Ley de los senos en el triángulo que forman la corrección y sus dos componentes.
   const lowerMass =
     (correctionMassGrams * Math.sin(spacingRadians - offsetFromLowerRadians)) / Math.sin(spacingRadians);
   const upperMass = (correctionMassGrams * Math.sin(offsetFromLowerRadians)) / Math.sin(spacingRadians);
-  return [
-    { bladeNumber: lowerBladeIndex + 1, massGrams: lowerMass },
-    { bladeNumber: upperBladeIndex + 1, massGrams: upperMass },
-  ].filter((bladeCorrection) => bladeCorrection.massGrams > 1e-6);
+  return {
+    bladeCorrections: [
+      { bladeNumber: lowerBladeIndex + 1, massGrams: lowerMass },
+      { bladeNumber: upperBladeIndex + 1, massGrams: upperMass },
+    ].filter((bladeCorrection) => bladeCorrection.massGrams > 1e-6),
+    hubCorrection: null,
+  };
 }

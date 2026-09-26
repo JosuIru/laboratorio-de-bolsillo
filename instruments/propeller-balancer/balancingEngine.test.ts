@@ -58,14 +58,14 @@ describe('solveFourRunBalancing', () => {
 
 describe('splitCorrectionBetweenBlades', () => {
   it('sobre una pala, todo el peso a esa pala', () => {
-    const bladeCorrections = splitCorrectionBetweenBlades(3, 120, 3);
+    const { bladeCorrections } = splitCorrectionBetweenBlades(3, 120, 3);
     expect(bladeCorrections).toHaveLength(1);
     expect(bladeCorrections[0]!.bladeNumber).toBe(2);
     expect(bladeCorrections[0]!.massGrams).toBeCloseTo(3, 6);
   });
 
   it('entre dos palas, reparte de forma que la suma vectorial da la corrección', () => {
-    const bladeCorrections = splitCorrectionBetweenBlades(2, 45, 4);
+    const { bladeCorrections } = splitCorrectionBetweenBlades(2, 45, 4);
     const sumX = bladeCorrections.reduce(
       (partialSum, bladeCorrection) =>
         partialSum + bladeCorrection.massGrams * Math.cos(((bladeCorrection.bladeNumber - 1) * 90 * Math.PI) / 180),
@@ -80,9 +80,26 @@ describe('splitCorrectionBetweenBlades', () => {
     expect((Math.atan2(sumY, sumX) * 180) / Math.PI).toBeCloseTo(45, 6);
   });
 
+  it('con dos palas: lo que va a lo largo de las palas a la de ese lado, y lo lateral al buje', () => {
+    const bladeSplit = splitCorrectionBetweenBlades(1, 300, 2);
+    // 300°: cos = 0,5 (hacia la pala 1) y sin = −0,87 (a 270°).
+    expect(bladeSplit.bladeCorrections).toEqual([{ bladeNumber: 1, massGrams: expect.closeTo(0.5, 6) }]);
+    expect(bladeSplit.hubCorrection!.angleDegrees).toBe(270);
+    expect(bladeSplit.hubCorrection!.massGrams).toBeCloseTo(Math.sqrt(3) / 2, 6);
+    for (const bladeCorrection of bladeSplit.bladeCorrections) expect(bladeCorrection.massGrams).toBeLessThan(1);
+  });
+
+  it('con dos palas y la corrección sobre una pala, no hace falta nada en el buje', () => {
+    const bladeSplit = splitCorrectionBetweenBlades(2, 180, 2);
+    expect(bladeSplit.bladeCorrections).toEqual([{ bladeNumber: 2, massGrams: expect.closeTo(2, 6) }]);
+    expect(bladeSplit.hubCorrection).toBeNull();
+  });
+
   it('pasa de la última pala a la primera', () => {
-    const bladeNumbers = splitCorrectionBetweenBlades(1, 300, 2).map((bladeCorrection) => bladeCorrection.bladeNumber);
-    expect(bladeNumbers.sort()).toEqual([1, 2]);
+    const bladeNumbers = splitCorrectionBetweenBlades(1, 330, 3).bladeCorrections.map(
+      (bladeCorrection) => bladeCorrection.bladeNumber,
+    );
+    expect(bladeNumbers.sort()).toEqual([1, 3]);
   });
 });
 
