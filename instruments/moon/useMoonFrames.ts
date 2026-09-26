@@ -6,6 +6,7 @@ import { readFramePixels } from '@/core/camera/framePixels';
 import { type BrightObjectDetection, locateBrightObject } from '@/processing/image/lunarStacking';
 
 import { copyGrayCropWithDownsampling, type LuckyFrameCropPlan } from './moonCapturePlanning';
+import type { StarFrame } from './occultationAnalysis';
 
 /** Detecciones por segundo que se envían al hilo JS. */
 const maximumDetectionsPerSecond = 4;
@@ -25,6 +26,22 @@ export interface FrameRecording {
   outputSide: number;
   /** Desde el primer fotograma recibido hasta el último. */
   durationMilliseconds: number;
+}
+
+/**
+ * Ocultación: recorte fijo alrededor de una estrella, que sigue a la Luna (la estrella y la Luna
+ * derivan juntas por el cielo). Desplazamiento de la estrella respecto al centro de la Luna.
+ */
+export interface StarRecordingPlan {
+  offsetFromMoonX: number;
+  offsetFromMoonY: number;
+  side: number;
+}
+
+interface ActiveStarRecording {
+  starFrames: StarFrame[];
+  maximumFrameCount: number;
+  resolve: (starFrames: StarFrame[]) => void;
 }
 
 interface ActiveRecording {
@@ -51,6 +68,8 @@ export function useMoonFrames(onDetection?: (detection: LiveMoonDetection) => vo
   const [recordingCropPlan, setRecordingCropPlan] = useState<LuckyFrameCropPlan | null>(null);
   const [recordedFrameCount, setRecordedFrameCount] = useState(0);
   const activeRecordingRef = useRef<ActiveRecording | null>(null);
+  const [starRecordingPlan, setStarRecordingPlan] = useState<StarRecordingPlan | null>(null);
+  const activeStarRecordingRef = useRef<ActiveStarRecording | null>(null);
   const lastDetectionDeliveryTime = useRef(0);
   // En una ref para no recrear la salida de fotogramas cada vez que cambia la función.
   const onDetectionRef = useRef(onDetection);
@@ -66,7 +85,29 @@ export function useMoonFrames(onDetection?: (detection: LiveMoonDetection) => vo
     if (detection) onDetectionRef.current?.(detection);
   }, []);
 
+  const finishStarRecording = useCallback(() => {
+    const activeStarRecording = activeStarRecordingRef.current;
+    if (!activeStarRecording) return;
+    activeStarRecordingRef.current = null;
+    setStarRecordingPlan(null);
+    setRecordedFrameCount(0);
+    activeStarRecording.resolve(activeStarRecording.starFrames);
+  }, []);
+
+  const deliverStarFrame = useCallback(
+    (grayPixels: Uint8Array, side: number, sensorTimestampNanoseconds: number, wallClockMilliseconds: number) => {
+      const activeStarRecording = activeStarRecordingRef.current;
+      if (!activeStarRecording) return;
+      activeStarRecording.starFrames.push({ grayPixels, side, sensorTimestampNanoseconds, wallClockMilliseconds });
+      const recordedCount = activeStarRecording.starFrames.length;
+      if (recordedCount % recordingProgressEveryFrames === 0) setRecordedFrameCount(recordedCount);
+      if (recordedCount >= activeStarRecording.maximumFrameCount) finishStarRecording();
+    },
+    [finishStarRecording],
+  );
+
   const finishRecording = useCallback(() => {
+    finishStarRecording();
     const activeRecording = activeRecordingRef.current;
     if (!activeRecording) return;
     activeRecordingRef.current = null;
@@ -78,7 +119,7 @@ export function useMoonFrames(onDetection?: (detection: LiveMoonDetection) => vo
       durationMilliseconds:
         activeRecording.firstFrameTime === null ? 0 : activeRecording.lastFrameTime - activeRecording.firstFrameTime,
     });
-  }, []);
+  }, [finishStarRecording]);
 
   const deliverRecordedFrame = useCallback(
     (grayFrame: Uint8Array) => {
@@ -107,7 +148,23 @@ export function useMoonFrames(onDetection?: (detection: LiveMoonDetection) => vo
       const { pixels, bytesPerRow, bytesPerPixel } = framePixels;
       const frameWidth = framePixels.width;
       const frameHeight = framePixels.height;
+      // La hora se anota al llegar el fotograma, en este hilo (sin esperar al hilo JS).
+      const wallClockMilliseconds = Date.now();
       const detection = locateBrightObject(pixels, frameWidth, frameHeight, bytesPerRow, bytesPerPixel, detectionSampleStride);
+      if (starRecordingPlan && detection) {
+        const starCropPixels = copyGrayCropWithDownsampling(
+          pixels,
+          frameWidth,
+          frameHeight,
+          bytesPerRow,
+          bytesPerPixel,
+          Math.round(detection.centerX + starRecordingPlan.offsetFromMoonX - starRecordingPlan.side / 2),
+          Math.round(detection.centerY + starRecordingPlan.offsetFromMoonY - starRecordingPlan.side / 2),
+          1,
+          starRecordingPlan.side,
+        );
+        scheduleOnRN(deliverStarFrame, starCropPixels, starRecordingPlan.side, frame.timestamp, wallClockMilliseconds);
+      }
       if (recordingCropPlan && detection) {
         // Recorte centrado en la Luna de este fotograma; el apilado afina el alineado después.
         const grayFrame = copyGrayCropWithDownsampling(
@@ -126,7 +183,7 @@ export function useMoonFrames(onDetection?: (detection: LiveMoonDetection) => vo
       frame.dispose();
       scheduleOnRN(deliverDetection, detection ? { ...detection, frameWidth, frameHeight } : null);
     },
-    [deliverDetection, deliverRecordedFrame, recordingCropPlan],
+    [deliverDetection, deliverRecordedFrame, deliverStarFrame, recordingCropPlan, starRecordingPlan],
   );
 
   const frameOutput = useFrameOutput({
@@ -141,7 +198,7 @@ export function useMoonFrames(onDetection?: (detection: LiveMoonDetection) => vo
 
   /** Graba `targetFrameCount` recortes (o los que haya al llamar a `stopRecording`). */
   const recordFrames = useCallback((cropPlan: LuckyFrameCropPlan, targetFrameCount: number) => {
-    if (activeRecordingRef.current) return Promise.reject(new Error('Ya hay una grabación en marcha'));
+    if (activeRecordingRef.current || activeStarRecordingRef.current) return Promise.reject(new Error('Ya hay una grabación en marcha'));
     return new Promise<FrameRecording>((resolve) => {
       activeRecordingRef.current = {
         cropPlan,
@@ -156,6 +213,16 @@ export function useMoonFrames(onDetection?: (detection: LiveMoonDetection) => vo
     });
   }, []);
 
+  /** Graba recortes alrededor de una estrella hasta `maximumFrameCount` o hasta `stopRecording`. */
+  const recordStarFrames = useCallback((plan: StarRecordingPlan, maximumFrameCount: number) => {
+    if (activeRecordingRef.current || activeStarRecordingRef.current) return Promise.reject(new Error('Ya hay una grabación en marcha'));
+    return new Promise<StarFrame[]>((resolve) => {
+      activeStarRecordingRef.current = { starFrames: [], maximumFrameCount, resolve };
+      setRecordedFrameCount(0);
+      setStarRecordingPlan(plan);
+    });
+  }, []);
+
   // Al salir de la pantalla, se termina la grabación (con lo que haya) para no dejar la promesa colgada.
   useEffect(() => finishRecording, [finishRecording]);
 
@@ -163,8 +230,9 @@ export function useMoonFrames(onDetection?: (detection: LiveMoonDetection) => vo
     frameOutput,
     liveDetection,
     recordFrames,
+    recordStarFrames,
     stopRecording: finishRecording,
-    isRecording: recordingCropPlan !== null,
+    isRecording: recordingCropPlan !== null || starRecordingPlan !== null,
     recordedFrameCount,
   };
 }

@@ -87,7 +87,29 @@
     "iso": "ISO",
     "throughOptics": "Prismatikoen edo teleskopioaren bidez",
     "captureTechnique": "Teknika",
-    "exposureRatio": "Esposizioen arteko erlazioa"
+    "exposureRatio": "Esposizioen arteko erlazioa",
+    "colorCorrected": "Kolorea zuzenduta",
+    "deconvolutionIterations": "Dekonboluzioaren iterazioak",
+    "mineralSaturationGain": "Ilargi mineralaren saturazioa",
+    "rawCapture": "RAW segida",
+    "focusLensPosition": "Fokuaren posizioa",
+    "whiteBalanceMode": "Zuri-balantzea",
+    "experiment": "Esperimentua",
+    "measuredDiameterPixels": "Neurtutako diametroa",
+    "diameterUncertaintyPixels": "Diametroaren ziurgabetasuna",
+    "sizeScaleSource": "Diametroaren eskala",
+    "predictedDiameterArcminutes": "Aurreikusitako diametroa",
+    "earthshineRatio": "Lurraren argia / Eguzkia erlazioa",
+    "earthshineRatioRelativeUncertainty": "Erlazioaren ziurgabetasun erlatiboa",
+    "lunarPhaseAngleDegrees": "Ilargiaren fase-angelua",
+    "earthAlbedo": "Lurraren itxurazko albedoa",
+    "earthAlbedoLower": "Albedoa (gutxienekoa)",
+    "earthAlbedoUpper": "Albedoa (gehienekoa)",
+    "occultationEventUtc": "Ezkutatzearen unea (UTC)",
+    "occultationUncertaintyMilliseconds": "Unearen ziurgabetasuna",
+    "occultationEventType": "Gertaera mota",
+    "occultationSignificance": "Jauziaren esangura",
+    "clockOffsetMilliseconds": "Erlojuaren desfasea"
   },
   "exposureTimeLabel": "Esposizioa {{duration}} · ISO {{iso}}",
   "automaticLunarExposure": "Esposizioa Ilargiaren gainean berez doitua: ahalik eta argiena, erre gabe.",
@@ -197,5 +219,162 @@
       "title": "Aholkuak",
       "body": "• Gau onenak ilgorako eta ilbeherako laurdenekoak dira: terminatzailean, itzal luzeek kraterrak nabarmentzen dituzte. Ilbetea laua ikusten da.\n• Utzi hodia kanpoan 10 minutuz hasi aurretik, hoztu dadin.\n• Irudiak dardara egiten badu, airearen turbulentzia da: atera argazki asko eta utzi aplikazioari garbienak aukeratzen."
     }
+  },
+  "captureRawAndStack": "Atera {{count}} RAW argazki eta pilatu",
+  "rawExplanation": "RAW: {{captured}} DNG argazkietatik Ilargiaren eremua eta haren kanal berdea bakarrik irakurri dira (patroia {{pattern}}, beltza {{black}}, zuria {{white}}); {{stacked}} zorrotzenak diskoaren arabera lerrokatu, eta {{factor}} aldiz finagoa den sare batean batez bestekoa egin da. Ilargiak {{diameter}} px ditu sentsorean.",
+  "rawTimings": "RAW segida: {{count}} argazki {{captureSeconds}} s-tan; DNG bakoitza irakurtzea, {{readMilliseconds}} ms (Ilargiaren eremuko {{kilobytes}} KB, ez fitxategiaren ~25 MB); pilatzea: {{processSeconds}} s.",
+  "rawResultLabel": "RAW berdea ({{count}} pilatuta)",
+  "rawNotUnderstood": "Ezin izan ditut mugikor honen DNGak irakurri ({{reason}}): JPEGera itzuliko naiz. Saiatu berriro.",
+  "rawNeedsPhotoBurst": "RAW aktibatuta dagoenean, argazki-segidak bakarrik egin daitezke: desaktibatu RAW («Argazkiak atera» atalean) modu honetarako.",
+  "rawUnsupportedByCamera": "Kamerak ez ditu RAW argazkiak onartu: JPEGera itzuliko naiz.",
+  "tabs": {
+    "photograph": "Argazkiak atera",
+    "experiments": "Esperimentuak",
+    "help": "Laguntza"
+  },
+  "assistant": {
+    "title": "Argazkia atera aurretik",
+    "altitudeQuality": {
+      "belowHorizon": "Ilargia horizontearen azpian dago ({{altitude}}°).",
+      "poor": "Ilargia oso behean dago ({{altitude}}°): aire asko aurrean, irudi lausoa eta gorrixka.",
+      "fair": "Ilargia behe samar dago ({{altitude}}°): egin daiteke, baina gorago dagoenean hobeto aterako da.",
+      "good": "Altuera ona ({{altitude}}°).",
+      "excellent": "Altuera bikaina ({{altitude}}°): argazkia ateratzeko unerik onena."
+    },
+    "altitudeWarnings": {
+      "belowHorizon": "Itxaron atera arte.",
+      "lowAltitudeBlurAndTint": "Horizontetik hurbil, turbulentziak irudia lausotzen du, eta aireak Ilargia gorritu egiten du (eta haren koloreak bereizi).",
+      "strongExtinction": "Aireak {{extinction}} magnitude inguru kentzen dizkio distirari."
+    },
+    "altitudeNeedsLocation": "Aktibatu kokapena (goian) Ilargia zer altueratan dagoen eta gaur gaueko ordurik onena zein den jakiteko.",
+    "noDarkMoonTonight": "Gaur gauean Ilargia ez dago horizontearen gainean gaua den bitartean.",
+    "bestTime": "Gaur gaueko unerik onena: {{time}}, {{altitude}}°-ko altueran.",
+    "bestTimePassed": "Gaur gaueko unerik onena igaro da ({{time}}, {{altitude}}°-an).",
+    "whiteBalance": {
+      "unsupported": "Zuri-balantzea: zure mugikorrak ez du uzten finkatzen (Androiden, kameraren bertsio honek oraindik ez du onartzen). Erabili «Zuzendu kolorea» emaitzan.",
+      "pending": "Zuri-balantzea: egun-argira finkatuko da hastean.",
+      "lockedDaylight": "Zuri-balantzea egun-argira finkatuta (5500 K).",
+      "failed": "Ezin izan da zuri-balantzea finkatu: erabili «Zuzendu kolorea» emaitzan."
+    },
+    "focusButton": "Fokua doitu",
+    "focusProgress": "Fokuak probatzen… {{series}}. segida, {{measured}} neurtuta ({{position}} posizioa)",
+    "focusResult": "Fokua doituta: {{position}} posizioa ({{count}} proba). Saio honetan erabiliko da.",
+    "focusResultRough": "Gutxi gorabeherako fokua: {{position}} posizioa ({{count}} proba); segidak ez du guztiz fintzea lortu.",
+    "focusForget": "Ahaztu",
+    "focusExplanation": "Segida labur batzuk egiten ditu fokua infinitutik hurbileko posizio desberdinetan finkatuta, bakoitzean Ilargiaren ertzaren zorroztasuna neurtzen du eta onena hartzen du. Minutu bat behar du: bermatu mugikorra.",
+    "focusUnsupported": "Fokua doitu: zure mugikorrak ez du uzten fokua eskuz mugitzen (Androiden, kameraren bertsio honek oraindik ez du onartzen). Ukitu Ilargia irudian bertan fokatzeko.",
+    "focusFailed": "Ezin izan da zorroztasuna neurtu: egiaztatu Ilargia irudian dagoela eta saiatu berriro.",
+    "rawToggle": "RAW (esperimentala): kanal berdea",
+    "rawExplanation": "Argazkiak DNG formatuan ateratzen dira, mugikorrak errebelatu gabe. Bakoitzetik Ilargiaren eremua bakarrik irakurtzen da, eta pixel berdeak bakarrik erabiltzen dira (sentsorearen erdia, hobekien fokatuak). Emaitza zuri-beltzean ateratzen da. DNGak beti hartzen du sentsore osoa: zoomak ez du handitzen, apuntatzeko bakarrik balio du. DNGa ulertzen ez bada, JPEGera itzultzen da."
+  },
+  "processing": {
+    "correctColor": "Zuzendu kolorea (aberrazio kromatikoa eta zuri-balantzea)",
+    "deconvolutionTitle": "Zorroztasuna (dekonboluzioa Ilargiaren ertzarekin)",
+    "deconvolution": {
+      "off": "Ez",
+      "soft": "Leuna",
+      "medium": "Ertaina",
+      "strong": "Indartsua"
+    },
+    "mineralView": "Ilargi minerala",
+    "mineralExplanation": "Gainazalaren benetako koloreak, oso ahulak, areagotzen ditu: titanio askoko itsasoak urdinxka ateratzen dira, eta titanio gutxikoak, laranjaxka. Argazki asko pilatuta bakarrik du zentzua.",
+    "mineralGain": "×{{gain}}",
+    "mineralFailed": "Ez da diskoa aurkitu Ilargi mineralerako.",
+    "mineralLabel": "Ilargi minerala (saturazioa ×{{gain}})",
+    "chromaticReport": "Aberrazio kromatikoa: {{fringe}} px-ko ertza; gorriaren eskala {{redScale}} eta urdinarena {{blueScale}}, berdearekiko.",
+    "whiteBalanceReport": "Zuri-balantzea Ilargiaren gainean: gorria ×{{red}}, urdina ×{{blue}}.",
+    "deconvolutionReport": "Dekonboluzioa: limboan neurtutako lausotzea σ = {{sigma}} px, {{iterations}} iterazio, {{seconds}} s.",
+    "colorFailed": "Ezin izan da kolorea zuzendu (ez da diskoa aurkitzen hiru koloreetan).",
+    "deconvolutionFailed": "Ezin izan da dekonboluzioa egin: ez da diskoaren ertz argiztaturik aurkitzen."
+  },
+  "experiments": {
+    "title": "Esperimentuak",
+    "names": {
+      "apparentSize": "Ilargiaren tamaina",
+      "earthAlbedo": "Lurraren albedoa",
+      "occultation": "Ezkutatzea"
+    },
+    "size": {
+      "title": "Ilargiaren tamaina (ilargi-ilusioa eta superilargia)",
+      "explanation": "Horizontetik hurbil, Ilargiak izugarri handia DIRUDI, baina argazkian % 1,5 txikiagoa da gora dagoenean baino: goian dagoenean, Lurraren erradio bat hurbilago gaude harengandik. Eta perigeoaren eta apogeoaren artean, tamaina % 14 aldatzen da (superilargia). Neurtu diskoaren diametroa pixel-hamarrenen zehaztasunez hainbat gauetan eta altuera desberdinetan, beti zoom berarekin, eta alderatu aurreikusitakoarekin.",
+      "needsLocation": "Zure kokapena behar da (goian) aurreikusitako tamaina kalkulatzeko.",
+      "captureAndMeasure": "Atera argazkiak eta neurtu",
+      "measureLatest": "Neurtu azken emaitza",
+      "diskNotFound": "Ez da diskoaren ertza ondo aurkitzen (limboaren laurden bat, gutxienez, argiztatuta egon behar da).",
+      "measured": "Neurtutako diametroa: {{diameter}} ± {{uncertainty}} px (gordeta).",
+      "seriesTitleJpeg": "Segida ({{count}} neurketa, argazkiaren px-etan ×1 zoomean):",
+      "seriesTitleRaw": "Segida ({{count}} neurketa, RAW sentsorearen px-etan):",
+      "seriesRow": "{{date}} · altuera {{altitude}}° · {{diameter}} ± {{uncertainty}} px · aurreikusia {{predicted}}′",
+      "verdict": {
+        "consistentWithGeometry": "Emaitza: tamaina altuerarekin hazten da, geometriak aurreikusten duen bezala. Behean dagoen Ilargia txikiagoa da: «ilargi-ilusioa» garunean dago, ez argazkian.",
+        "horizonLarger": "Emaitza: neurketen arabera, behean dagoen Ilargia handiagoa da, geometriaren aurka. Berrikusi fokua, zooma (beti berbera izan behar du) eta horizontetik hurbileko errefrakzioa.",
+        "inconclusive": "Emaitza: oraindik ezin da efektua (% 1,5) bereizi. Neurketa gehiago behar dira, eta altueran elkarrengandik urrunago (horizontetik goreneraino)."
+      },
+      "growth": "Neurtutako hazkundea: % {{measured}} ± {{uncertainty}} sin(altuera)-ren unitate bakoitzeko; aurreikusia: % {{predicted}}. Neurketa baxuenaren eta altuenaren artean % {{lowToHigh}} espero da.",
+      "scale": "Doitutako eskala: {{scale}} ± {{uncertainty}}″ pixel bakoitzeko (χ² murriztua: {{chiSquared}}).",
+      "needMore": "Beste {{count}} neurketa behar dira analisirako (gutxienez 3).",
+      "tips": "• Erabili beti zoom bera eta modu bera (JPEG edo RAW): segidak ez dira nahasten.\n• Neurtu Ilargia ateratzen denean eta ordu batzuk geroago, gora dagoenean; eta beste gau batean, perigeotik hurbil.\n• Fokatu ondo (edo erabili «Fokua doitu»): ertz lauso batek neurtutako diametroa aldatzen du."
+    },
+    "albedo": {
+      "title": "Lurraren albedoa",
+      "explanation": "Ilgora mehearen alde ilunak Lurrak islatzen duen argiagatik egiten du distira. Haren distira Eguzkiak argiztatutako aldearenarekin alderatuta, Lurrak zenbat argi islatzen duen kalkulatzen da (haren albedoa, ~0,3). Lurraren argiaren argazki bat behar da (bi segida: laburra eta luzea).",
+      "needsEarthshine": "Lehenik, atera Lurraren argiaren argazki bat (tripodearekin eta esposizio manualarekin).",
+      "automatic": "Eremu automatikoak",
+      "manual": "Markatu hatzarekin",
+      "tapDark": "Ukitu Lurraren argiak argiztatutako zatiko eremu bat (zirkulu urdina).",
+      "tapSunlit": "Orain ukitu Eguzkiak argiztatutako zatiko eremu bat (zirkulu horia).",
+      "imageLabel": "Lurraren argiaren esposizio luzea; ukitu eremuak markatzeko",
+      "legend": "Urdina: Lurraren argia (esposizio luzean neurtua). Horia: Eguzkiaren argia (laburrean neurtua).",
+      "terrainTitle": "Lur mota bi eremuetan:",
+      "terrain": {
+        "sameTerrain": "Berbera",
+        "mareInShadow": "Itsasoa itzalean",
+        "mareInSunlight": "Itsasoa eguzkitan"
+      },
+      "problems": {
+        "noSunlitSignal": "Eguzkitako eremuak ez du seinalerik: markatu argiztatutako zatiaren gainean.",
+        "noEarthshineSignal": "Eremu horretan Lurraren argia ez da zerutik bereizten: probatu beste eremu bat edo esposizio luze luzeago bat.",
+        "earthshineSaturated": "Lurraren argiaren eremua saturatuta dago esposizio luzean: markatu argiztatutako zatitik urrun.",
+        "sunlitSaturated": "Eguzkitako eremua saturatuta dago esposizio laburrean: jaitsi esposizioa eta errepikatu argazkia.",
+        "outsideDisk": "Markatu bi eremuak diskoaren barruan."
+      },
+      "result": "Lurraren itxurazko albedoa: {{albedo}} ({{lower}} eta {{upper}} artean).",
+      "details": "Distiren arteko erlazioa {{ratio}} (±% {{uncertainty}}), fase-angelua {{phase}}°, Lurra % {{earthPhase}} argiztatuta Ilargitik ikusita; esposizioen arteko erlazioa ×{{exposureRatio}}.",
+      "noAutomaticRegions": "Ezin dira eremuak automatikoki aukeratu (Ilargia ia betea al dago?): markatu hatzarekin.",
+      "assumptions": "Suposizioak: Lurra argia norabide guztietan berdin islatzen duen esfera gisa hartzen da; Ilargiaren fase-legea hurbilketa bat da; JPEGak distira linealera pasatzen dira sRGB kurbarekin, eta hori ez da zehazki mugikorrarena (horregatik % 25eko ziurgabetasuna gehitzen da). Lurraren batez besteko balioa ~0,30 da. Esperimentu didaktikoa da, ez klimarako neurketa bat.",
+      "captureAgain": "Atera beste Lurraren argi bat"
+    },
+    "occultation": {
+      "title": "Izar baten ezkutatzea",
+      "explanation": "Ilargia izar baten aurretik igarotzen denean, izarra bat-batean desagertzen da (segundo-ehuneko bat baino gutxiagoan). Izarraren distira bideoaren fotograma bakoitzean neurtuta, unea milisegundoko zehaztasunez kalkulatzen da. Tripodea, zooma eta izarra ikusi arte igotako esposizioa behar dituzu; hobe Ilargiaren ertz ilunetik.",
+      "starMarked": "Izarra markatuta (zirkulu urdina). Ukitu berriro zuzentzeko.",
+      "tapStar": "Ukitu izarra irudian.",
+      "recording": "Grabatzen… {{frames}} fotograma (~{{seconds}} s)",
+      "record": "Grabatu ({{seconds}} s arte)",
+      "tooFewFrames": "Fotograma gutxiegi grabatu dira: Ilargia galdu al da?",
+      "noEvent": "Ez da distira-jauzi argirik ikusten kurban.",
+      "clockFailed": "Ezin izan da ordua zerbitzari batekin alderatu (konexiorik ez?).",
+      "chartLabel": "Izarraren argi-kurba",
+      "recordingSummary": "{{frames}} fotograma segundoko {{framesPerSecond}}-ko abiaduran; fotogramen entrega {{jitter}} ms aldatzen da.",
+      "event": {
+        "disappearance": "Desagertzea: {{time}} ± {{uncertainty}} ms (mugikorraren erlojuaren arabera).",
+        "reappearance": "Berragertzea: {{time}} ± {{uncertainty}} ms (mugikorraren erlojuaren arabera)."
+      },
+      "correctedTime": "Erlojuaren desfasea zuzenduta: {{time}} (± {{uncertainty}} ms erlojuagatik).",
+      "doubtful": "Jauzi ez oso argia (esangura: {{significance}}): unea zalantzazkoa da.",
+      "significance": "Jauzi argia (esangura: {{significance}}).",
+      "clockWarning": "Mugikorraren ordua segundo-hamarren batzuk (edo gehiago) desfasatuta egon daiteke UTC orduarekiko, eta kamerak atzerapen txiki batekin ematen ditu fotogramak, hemen neurtu ezin dena (milisegundo-hamarkada batzuk).",
+      "checkClock": "Egiaztatu mugikorraren erlojua",
+      "clockOffset": "Erlojuaren desfasea: {{offset}} s ± {{uncertainty}} s (zerbitzaria − mugikorra; Date goiburuak segundo osoak bakarrik ematen ditu).",
+      "tips": "• Bilatu zure eremurako aurreikusitako ezkutatzeak (IOTA, efemeride astronomikoak).\n• Jarri mugikorra tripode batean, igo zooma, finkatu esposizioa izarra ikusi arte eta markatu segundo batzuk lehenago.\n• Ez ukitu mugikorra grabatzen ari den bitartean."
+    }
+  },
+  "help": {
+    "captureTitle": "Fokua, zuri-balantzea eta RAW",
+    "capture": "• «Fokua doitu» aukerak Ilargiaren ertza finen uzten duen fokuaren posizioa bilatzen du (fokua eskuz mugitzen uzten duten mugikorretan bakarrik).\n• Zuri-balantzea egun-argira finkatzen da mugikorrak uzten badu; bestela, «Zuzendu kolorea» aukerak gero doitzen du, Ilargia, oro har, gris gisa hartuta.\n• RAW (esperimentala): errebelatu gabeko DNG argazkiak; kanal berdea bakarrik erabiltzen da. Neurtzeko baliagarria (tamaina, distirak), JPEGa baino itsusiagoa.\n• Goian Ilargiaren altuera eta gaur gaueko ordurik onena ikusiko dituzu: zenbat eta gorago, orduan eta aire gutxiago aurrean.",
+    "processingTitle": "Emaitzaren prozesamendua",
+    "processing": "• Zuzendu kolorea: gorria eta urdina berdea baino apur bat handiago edo txikiago ateratzen dira (aberrazio kromatikoa); Ilargiaren ertzarekin berarekin neurtzen eta lerrokatzen dira.\n• Zorroztasuna: Ilargiaren ertza maila-jauzi perfektua da; argazkian lauso ateratzen dena argazki horren lausotzea da, eta Richardson–Lucy metodoarekin desegiten da, teknika honek ertzean uzten duen eraztun distiratsua saihestuta.\n• Ilargi minerala: Ilargiaren benetako koloreak, biderkatuta.",
+    "experimentsTitle": "Esperimentuak",
+    "experiments": "• Ilargiaren tamaina: egiaztatu neurketen bidez «ilargi-ilusioa» ez dagoela argazkian, eta neurtu superilargia.\n• Lurraren albedoa: Lurraren argiarekin, gure planetak zenbat argi islatzen duen.\n• Ezkutatzea: Ilargiak izar bat estaltzen duen une zehatza.\nNeurketa bakoitza Ilargiaren historian gordetzen da, eta esporta daiteke."
   }
 }
