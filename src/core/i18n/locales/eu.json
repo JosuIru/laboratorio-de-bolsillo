@@ -146,6 +146,8 @@
     "title": "Honi buruz",
     "version": "Poltsikoko Laborategia {{version}}",
     "license": "Software librea, GPL-3.0 edo ondorengo lizentziapean: erabil, azter, alda eta parteka dezakezu. Iturburu-kodea publikoa da.",
-    "sourceCode": "Ikusi iturburu-kodea"
+    "sourceCode": "Ikusi iturburu-kodea",
+    "shareApp": "Partekatu aplikazioa",
+    "shareMessage": "Poltsikoko Laborategia gomendatzen dizut: mugikorra zientzia-laborategi bihurtzen du. Deskargatu doan hemen: {{url}}"
   }
 }

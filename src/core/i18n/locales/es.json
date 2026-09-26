@@ -146,6 +146,8 @@
     "title": "Acerca de",
     "version": "Laboratorio de Bolsillo {{version}}",
     "license": "Software libre bajo licencia GPL-3.0 o posterior: puedes usarlo, estudiarlo, modificarlo y compartirlo. El código fuente es público.",
-    "sourceCode": "Ver el código fuente"
+    "sourceCode": "Ver el código fuente",
+    "shareApp": "Compartir la app",
+    "shareMessage": "Te recomiendo Laboratorio de Bolsillo: convierte el móvil en un laboratorio de ciencia. Descárgala gratis aquí: {{url}}"
   }
 }

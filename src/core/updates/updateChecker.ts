@@ -6,6 +6,7 @@ import { evaluateLatestRelease, type GitHubReleaseResponse, type UpdateCheckResu
 export const releaseRepository = { owner: 'JosuIru', name: 'laboratorio-de-bolsillo' } as const;
 
 export const repositoryUrl = `https://github.com/${releaseRepository.owner}/${releaseRepository.name}`;
+export const releasesUrl = `${repositoryUrl}/releases`;
 
 const latestReleaseApiUrl = `https://api.github.com/repos/${releaseRepository.owner}/${releaseRepository.name}/releases/latest`;
 const requestTimeoutMilliseconds = 10_000;

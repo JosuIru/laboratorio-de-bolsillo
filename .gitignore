@@ -42,3 +42,6 @@ yarn-error.*
 
 # APKs de release compilados en local
 /dist
+
+# Salida de Gradle de los módulos nativos locales
+modules/*/android/build/

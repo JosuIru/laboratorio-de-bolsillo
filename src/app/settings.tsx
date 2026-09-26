@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Linking, Pressable, StyleSheet, Switch, View } from 'react-native';
+import { Linking, Pressable, Share, StyleSheet, Switch, View } from 'react-native';
 
 import { type SupportedLocale, supportedLocales } from '@/core/i18n';
 import { useSensorAvailabilityStore } from '@/core/sensors/availabilityStore';
 import { allSensorKinds } from '@/core/sensors/types';
 import { useAppSettingsStore } from '@/core/settings/settingsStore';
-import { getInstalledVersion, repositoryUrl } from '@/core/updates/updateChecker';
+import { getInstalledVersion, releasesUrl, repositoryUrl } from '@/core/updates/updateChecker';
 import { AppButton, BodyText, Card, ScreenContainer, SectionTitle } from '@/ui/components';
 import { describeSensorAvailability, sensorDisplayName } from '@/ui/sensorText';
 import { useThemePalette } from '@/ui/theme';
@@ -40,6 +40,10 @@ export default function SettingsScreen() {
     } else {
       setLocationMessage(`${t('settings.locationDenied')} ${describeSensorAvailability(t, locationAvailability)}`);
     }
+  }
+
+  async function handleShareApp() {
+    await Share.share({ message: t('about.shareMessage', { url: releasesUrl }) });
   }
 
   return (
@@ -111,6 +115,7 @@ export default function SettingsScreen() {
           variant="secondary"
           onPress={() => void Linking.openURL(repositoryUrl)}
         />
+        <AppButton label={t('about.shareApp')} variant="secondary" onPress={() => void handleShareApp()} />
       </Card>
 
       <BodyText tone="secondary" style={styles.privacyNote}>
