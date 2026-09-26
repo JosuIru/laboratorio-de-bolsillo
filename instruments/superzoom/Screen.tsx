@@ -15,19 +15,21 @@ import { useResultImageViewer } from '@/core/camera/useResultImageViewer';
 import type { InstrumentScreenProps } from '@/core/instruments/types';
 import { isExpectedCameraInterruption } from '@/core/sensors/cameraErrors';
 import { useIsCameraAllowed } from '@/core/sensors/useIsCameraAllowed';
-import {
-  defaultSuperResolutionOptions,
-  floatImageToRgba,
-  sharpeningSigmaForScale,
-  superResolveBurst,
-  type SuperResolutionResult,
-} from '@/processing/image/burstSuperResolution';
+import type { DeconvolutionLevel, DeconvolvedVersions } from '@/processing/image/burstDeconvolution';
+import { defaultSuperResolutionOptions, floatImageToRgba, sharpeningSigmaForScale } from '@/processing/image/burstSuperResolution';
 import { type FloatRgbImage, sharpenImage } from '@/processing/image/lunarStacking';
 import { AppButton, BodyText, Card, LoadingState, SectionTitle } from '@/ui/components';
 import { CameraOverlayButton, CameraOverlayText, CameraScreenLayout } from '@/ui/FullScreenCamera';
 import { useThemePalette } from '@/ui/theme';
 
+import {
+  type ChromaticCorrectionMode,
+  deconvolveSingleFrame,
+  processSuperzoomBurst,
+  type SuperzoomProcessingResult,
+} from './processSuperzoomBurst';
 import type { SuperzoomMeasurementValues } from './schema';
+import { type FocusTuningOutcome, useSuperzoomFocusTuning } from './useSuperzoomFocusTuning';
 
 export const superzoomInstrumentId = 'superzoom';
 
@@ -58,23 +60,72 @@ const capturedPhotoTarget = 10;
 const captureCountdownSeconds = 2;
 const zoomStepFactor = Math.SQRT2;
 const meteringMarkerRadius = 28;
-const sharpeningLevels = [
-  { labelKey: 'sharpening.none', amount: 0 },
-  { labelKey: 'sharpening.soft', amount: 0.5 },
-  { labelKey: 'sharpening.medium', amount: 1 },
-  { labelKey: 'sharpening.strong', amount: 1.6 },
-] as const;
-const defaultSharpeningLevelIndex = 1;
+/**
+ * Niveles de nitidez: con deconvolución, iteraciones de Richardson–Lucy (`burstDeconvolution`);
+ * con máscara de enfoque, la cantidad de detalle que se suma.
+ */
+const sharpeningLevels: readonly { labelKey: string; deconvolutionLevel: DeconvolutionLevel | null; unsharpAmount: number }[] = [
+  { labelKey: 'sharpening.none', deconvolutionLevel: null, unsharpAmount: 0 },
+  { labelKey: 'sharpening.soft', deconvolutionLevel: 'soft', unsharpAmount: 0.5 },
+  { labelKey: 'sharpening.medium', deconvolutionLevel: 'medium', unsharpAmount: 1 },
+  { labelKey: 'sharpening.strong', deconvolutionLevel: 'strong', unsharpAmount: 1.6 },
+];
+const defaultSharpeningLevelIndex = 2;
+type SharpeningMethod = 'deconvolution' | 'unsharpMask';
+const sharpeningMethods: readonly SharpeningMethod[] = ['deconvolution', 'unsharpMask'];
+const chromaticCorrectionModes: readonly ChromaticCorrectionMode[] = ['auto', 'profile', 'off'];
+type OnOffChoice = 'on' | 'off';
+const onOffChoices: readonly OnOffChoice[] = ['on', 'off'];
 
 type DisplayedVersion = 'superzoom' | 'singleFrame';
 
 interface SuperzoomOutcome {
-  result: SuperResolutionResult;
+  processing: SuperzoomProcessingResult;
   capturedFrameCount: number;
   cropSizePixels: number;
   zoomFactor: number;
-  processingSeconds: number;
   burstTimings: PhotoBurstTimings;
+  /** Se congeló el balance de blancos durante la ráfaga (si el móvil lo permite). */
+  hasLockedWhiteBalance: boolean;
+  focusTuning: FocusTuningOutcome | null;
+  wasLocalAlignmentRequested: boolean;
+}
+
+/**
+ * Deconvolución del fotograma suelto de cada resultado: se calcula al mirarla por primera vez
+ * (tarda casi lo mismo que la del superzoom) y se guarda mientras exista el resultado.
+ */
+const singleFrameDeconvolutionCache = new WeakMap<SuperzoomProcessingResult, DeconvolvedVersions>();
+
+function singleFrameDeconvolution(processing: SuperzoomProcessingResult): DeconvolvedVersions {
+  let deconvolvedVersions = singleFrameDeconvolutionCache.get(processing);
+  if (!deconvolvedVersions) {
+    deconvolvedVersions = deconvolveSingleFrame(processing);
+    singleFrameDeconvolutionCache.set(processing, deconvolvedVersions);
+  }
+  return deconvolvedVersions;
+}
+
+/** La versión pedida con la nitidez elegida (solo cálculo, sin React). */
+function sharpenedImageFor(
+  outcome: SuperzoomOutcome,
+  version: DisplayedVersion,
+  sharpeningMethod: SharpeningMethod,
+  sharpeningLevelIndex: number,
+): FloatRgbImage {
+  const { processing } = outcome;
+  const baseImage = version === 'superzoom' ? processing.superzoomImage : processing.singleFrameImage;
+  const sharpeningLevel = sharpeningLevels[sharpeningLevelIndex];
+  if (!sharpeningLevel?.deconvolutionLevel) return baseImage;
+  if (sharpeningMethod === 'unsharpMask') {
+    return sharpenImage(baseImage, sharpeningSigmaForScale(defaultSuperResolutionOptions.scale), sharpeningLevel.unsharpAmount);
+  }
+  const deconvolvedVersions = version === 'superzoom' ? processing.superzoomDeconvolution : singleFrameDeconvolution(processing);
+  return deconvolvedVersions.images[sharpeningLevel.deconvolutionLevel];
+}
+
+function secondsText(milliseconds: number): string {
+  return (milliseconds / 1000).toFixed(1);
 }
 
 function waitMilliseconds(durationMilliseconds: number) {
@@ -212,6 +263,7 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
     handleCameraStarted: handleZoomCameraStarted,
   } = useCameraZoomAndExposure(cameraRef, cameraDevice);
   const resultImageViewer = useResultImageViewer();
+  const focusTuning = useSuperzoomFocusTuning(cameraRef, cameraDevice, photoBurst.captureBurst);
 
   function handleCameraStarted() {
     handleZoomCameraStarted();
@@ -228,6 +280,10 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
   const [superzoomOutcome, setSuperzoomOutcome] = useState<SuperzoomOutcome | null>(null);
   const [displayedVersion, setDisplayedVersion] = useState<DisplayedVersion>('superzoom');
   const [sharpeningLevelIndex, setSharpeningLevelIndex] = useState(defaultSharpeningLevelIndex);
+  const [sharpeningMethod, setSharpeningMethod] = useState<SharpeningMethod>('deconvolution');
+  const [localAlignmentChoice, setLocalAlignmentChoice] = useState<OnOffChoice>('on');
+  const [chromaticCorrectionMode, setChromaticCorrectionMode] = useState<ChromaticCorrectionMode>('auto');
+  const [focusTuningChoice, setFocusTuningChoice] = useState<OnOffChoice>('off');
   const [cropSizeOptionIndex, setCropSizeOptionIndex] = useState(defaultCropSizeOptionIndex);
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -241,21 +297,20 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
     };
   }, []);
 
-  const sharpeningAmount = sharpeningLevels[sharpeningLevelIndex]?.amount ?? 0;
-  // Se realza al mostrar (con el mismo nivel en las dos versiones, para compararlas con justicia).
+  // Se realza al mostrar (con el mismo método y nivel en las dos versiones, para compararlas con
+  // justicia). La deconvolución del superzoom ya viene calculada; la del fotograma suelto, al mirarla.
   const displayedSkiaImage = useMemo(() => {
     if (!superzoomOutcome) return null;
-    const baseImage =
-      displayedVersion === 'superzoom' ? superzoomOutcome.result.image : superzoomOutcome.result.singleFrameImage;
-    const sharpeningSigma = sharpeningSigmaForScale(defaultSuperResolutionOptions.scale);
-    return createSkiaImage(sharpeningAmount > 0 ? sharpenImage(baseImage, sharpeningSigma, sharpeningAmount) : baseImage);
-  }, [superzoomOutcome, displayedVersion, sharpeningAmount]);
+    return createSkiaImage(
+      sharpenedImageFor(superzoomOutcome, displayedVersion, sharpeningMethod, sharpeningLevelIndex),
+    );
+  }, [superzoomOutcome, displayedVersion, sharpeningMethod, sharpeningLevelIndex]);
 
   const cropSizePixels =
     cropSizeOptions[cropSizeOptionIndex]?.cropSizePixels ?? cropSizeOptions[defaultCropSizeOptionIndex].cropSizePixels;
   const isFrameLargeEnough = Math.min(uprightPhotoSize.width, uprightPhotoSize.height) >= cropSizePixels;
   const canMeter = Boolean(cameraDevice?.supportsExposureMetering || cameraDevice?.supportsFocusMetering);
-  const isBusy = isCapturing || isProcessing || countdownSecondsLeft !== null;
+  const isBusy = isCapturing || isProcessing || focusTuning.isRunning || countdownSecondsLeft !== null;
 
   async function handlePreviewPress(pressEvent: GestureResponderEvent) {
     // Reenfocar a mitad de ráfaga haría que los fotogramas dejaran de casar.
@@ -304,6 +359,10 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
   async function handleCapture() {
     const captureZoomFactor = zoomFactor;
     const captureCropSizePixels = cropSizePixels;
+    const captureUsesLocalAlignment = localAlignmentChoice === 'on';
+    const captureChromaticCorrectionMode = chromaticCorrectionMode;
+    const shouldTuneFocus = focusTuningChoice === 'on' && focusTuning.isSupported;
+    const planCrop = (photoSize: PixelSize) => centeredSquareCrop(photoSize, captureCropSizePixels);
     setSuperzoomOutcome(null);
     setStatusMessage(null);
     for (let secondsLeft = captureCountdownSeconds; secondsLeft > 0; secondsLeft--) {
@@ -324,18 +383,37 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
     } catch {
       // No admitido: se dispara con la exposición automática.
     }
+    // Balance de blancos congelado: si cambia entre fotos, al fusionar quedan manchas de color
+    // (además, al procesar se igualan las medias de color de todas las fotos).
+    let hasLockedWhiteBalance = false;
+    if (cameraDevice?.supportsWhiteBalanceLocking) {
+      try {
+        await cameraRef.current?.controller?.lockCurrentWhiteBalance();
+        hasLockedWhiteBalance = true;
+      } catch {
+        // No admitido en este móvil: el igualado de color al procesar lo compensa.
+      }
+    }
+    let focusTuningOutcome: FocusTuningOutcome | null = null;
     let burstResult;
     try {
-      burstResult = await photoBurst.captureBurst({
-        photoCount: capturedPhotoTarget,
-        planCrop: (photoSize) => centeredSquareCrop(photoSize, captureCropSizePixels),
-      });
+      if (shouldTuneFocus) {
+        try {
+          focusTuningOutcome = await focusTuning.tuneFocus(planCrop);
+        } catch {
+          // Si el enfoque manual falla, se dispara con el que hubiera.
+        }
+        if (!isMountedRef.current) return;
+      }
+      burstResult = await photoBurst.captureBurst({ photoCount: capturedPhotoTarget, planCrop });
     } catch (burstError) {
       setStatusMessage(t('core:common.error', { message: String(burstError) }));
       return;
     } finally {
-      // Si el usuario no había fijado el enfoque, se vuelve a la exposición automática.
-      if (hasChangedExposure && !isMeteringLocked) cameraRef.current?.resetFocus().catch(() => undefined);
+      // Si el usuario no había fijado el enfoque, se vuelve a la exposición, el enfoque y el
+      // balance automáticos.
+      const hasChangedCameraSettings = hasChangedExposure || hasLockedWhiteBalance || shouldTuneFocus;
+      if (hasChangedCameraSettings && !isMeteringLocked) cameraRef.current?.resetFocus().catch(() => undefined);
     }
     if (!isMountedRef.current) return;
     // Todas las fotos tienen el mismo tamaño, pero por si acaso solo se fusionan las del primero.
@@ -356,20 +434,30 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
     await waitMilliseconds(50);
     if (!isMountedRef.current) return;
     try {
-      const processingStartTime = Date.now();
-      const result = superResolveBurst(
+      const firstCrop = squareCrops[0]!;
+      const processing = processSuperzoomBurst(
         squareCrops.map((photoCrop) => photoCrop.rgbPixels),
         firstCropWidth,
-        defaultSuperResolutionOptions,
+        {
+          useLocalAlignment: captureUsesLocalAlignment,
+          chromaticCorrectionMode: captureChromaticCorrectionMode,
+          zoomFactor: captureZoomFactor,
+          photoWidth: firstCrop.uprightPhotoSize.width,
+          photoHeight: firstCrop.uprightPhotoSize.height,
+          cropLeft: firstCrop.cropRect.left,
+          cropTop: firstCrop.cropRect.top,
+        },
       );
       setDisplayedVersion('superzoom');
       setSuperzoomOutcome({
-        result,
+        processing,
         capturedFrameCount: squareCrops.length,
         cropSizePixels: firstCropWidth,
         zoomFactor: captureZoomFactor,
-        processingSeconds: (Date.now() - processingStartTime) / 1000,
         burstTimings: burstResult.timings,
+        hasLockedWhiteBalance,
+        focusTuning: focusTuningOutcome,
+        wasLocalAlignmentRequested: captureUsesLocalAlignment,
       });
       setResultSequenceNumber((previousSequenceNumber) => previousSequenceNumber + 1);
     } catch (processingError) {
@@ -381,10 +469,7 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
 
   function sharpenedVersion(version: DisplayedVersion): FloatRgbImage | null {
     if (!superzoomOutcome) return null;
-    const baseImage = version === 'superzoom' ? superzoomOutcome.result.image : superzoomOutcome.result.singleFrameImage;
-    return sharpeningAmount > 0
-      ? sharpenImage(baseImage, sharpeningSigmaForScale(defaultSuperResolutionOptions.scale), sharpeningAmount)
-      : baseImage;
+    return sharpenedImageFor(superzoomOutcome, version, sharpeningMethod, sharpeningLevelIndex);
   }
 
   /** Abre el visor a pantalla completa con las dos versiones (se pasa de una a otra deslizando). */
@@ -410,15 +495,25 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
     setStatusMessage(null);
     try {
       const pngFile = writeImageToCachePng(savedSkiaImage, 'superzoom');
+      const { processing } = superzoomOutcome;
+      const sharpeningLevel = sharpeningLevels[sharpeningLevelIndex];
+      const appliedSharpeningMethod = sharpeningLevel?.deconvolutionLevel ? sharpeningMethod : 'none';
       await saveMeasurement({
         values: {
           capturedFrameCount: superzoomOutcome.capturedFrameCount,
-          mergedFrameCount: superzoomOutcome.result.usedFrameCount,
+          mergedFrameCount: processing.merge.usedFrameCount,
           cropSizePixels: superzoomOutcome.cropSizePixels,
-          outputSizePixels: superzoomOutcome.result.image.size,
+          outputSizePixels: processing.superzoomImage.size,
           zoomFactor: Math.round(superzoomOutcome.zoomFactor * 100) / 100,
-          meanShiftPixels: Math.round(superzoomOutcome.result.meanShiftPixels * 10) / 10,
-          sharpeningAmount,
+          meanShiftPixels: Math.round(processing.merge.meanShiftPixels * 10) / 10,
+          sharpeningAmount: appliedSharpeningMethod === 'unsharpMask' ? (sharpeningLevel?.unsharpAmount ?? 0) : 0,
+          sharpeningMethod: appliedSharpeningMethod,
+          sharpeningLevel: sharpeningLevel?.deconvolutionLevel ?? 'none',
+          deconvolutionPsfSigmaPixels: Math.round(processing.superzoomDeconvolution.psfSigmaPixels * 100) / 100,
+          locallyAlignedFrameCount: processing.merge.locallyAlignedFrameCount,
+          redChromaticScale: Math.round(processing.chromatic.scales.redScale * 10000) / 10000,
+          blueChromaticScale: Math.round(processing.chromatic.scales.blueScale * 10000) / 10000,
+          processingSeconds: Math.round(processing.timings.totalMilliseconds / 100) / 10,
         },
         attachments: [
           {
@@ -429,7 +524,7 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
             metadata: {
               widthPixels: savedSkiaImage.width(),
               heightPixels: savedSkiaImage.height(),
-              mergedFrameCount: superzoomOutcome.result.usedFrameCount,
+              mergedFrameCount: processing.merge.usedFrameCount,
             },
           },
         ],
@@ -481,6 +576,31 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
         labelFor={(optionIndex) => t(cropSizeOptions[optionIndex]?.labelKey ?? 'cropSizes.medium')}
         onSelect={setCropSizeOptionIndex}
       />
+      <BodyText tone="secondary">{t('localAlignmentTitle')}</BodyText>
+      <ChoiceChips<OnOffChoice>
+        options={onOffChoices}
+        selectedOption={localAlignmentChoice}
+        labelFor={(choice) => t(`choices.${choice}`)}
+        onSelect={setLocalAlignmentChoice}
+      />
+      <BodyText tone="secondary">{t('chromaticTitle')}</BodyText>
+      <ChoiceChips<ChromaticCorrectionMode>
+        options={chromaticCorrectionModes}
+        selectedOption={chromaticCorrectionMode}
+        labelFor={(mode) => t(`chromaticModes.${mode}`)}
+        onSelect={setChromaticCorrectionMode}
+      />
+      <BodyText tone="secondary">{t('focusTuningTitle')}</BodyText>
+      {focusTuning.isSupported ? (
+        <ChoiceChips<OnOffChoice>
+          options={onOffChoices}
+          selectedOption={focusTuningChoice}
+          labelFor={(choice) => t(`choices.${choice}`)}
+          onSelect={setFocusTuningChoice}
+        />
+      ) : (
+        <BodyText tone="secondary">{t('focusTuningUnavailable')}</BodyText>
+      )}
     </>
   ) : null;
   const processingIndicator = isProcessing ? <LoadingState label={t('processing')} /> : null;
@@ -500,20 +620,39 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
         <AppButton label={t('openFullSize')} onPress={handleOpenFullSize} variant="secondary" />
         <BodyText tone="secondary">{t('compareHint')}</BodyText>
         <BodyText tone="secondary">{t('sharpeningTitle')}</BodyText>
+        <ChoiceChips<SharpeningMethod>
+          options={sharpeningMethods}
+          selectedOption={sharpeningMethod}
+          labelFor={(method) => t(`sharpeningMethods.${method}`)}
+          onSelect={setSharpeningMethod}
+        />
         <ChoiceChips<number>
           options={sharpeningLevels.map((_level, levelIndex) => levelIndex)}
           selectedOption={sharpeningLevelIndex}
           labelFor={(levelIndex) => t(sharpeningLevels[levelIndex]?.labelKey ?? 'sharpening.none')}
           onSelect={setSharpeningLevelIndex}
         />
+        <BodyText tone="secondary">{t('sharpeningMethodHint')}</BodyText>
         <BodyText tone="secondary">
           {t('mergeExplanation', {
             captured: superzoomOutcome.capturedFrameCount,
-            merged: superzoomOutcome.result.usedFrameCount,
-            size: superzoomOutcome.result.image.size,
-            seconds: superzoomOutcome.processingSeconds.toFixed(1),
+            merged: superzoomOutcome.processing.merge.usedFrameCount,
+            size: superzoomOutcome.processing.superzoomImage.size,
+            seconds: secondsText(superzoomOutcome.processing.timings.totalMilliseconds),
           })}
         </BodyText>
+        <BodyText tone="secondary">
+          {t('processingTimings', {
+            alignSeconds: secondsText(
+              superzoomOutcome.processing.timings.selectionMilliseconds + superzoomOutcome.processing.timings.globalAlignmentMilliseconds,
+            ),
+            localSeconds: secondsText(superzoomOutcome.processing.timings.localAlignmentMilliseconds),
+            mergeSeconds: secondsText(superzoomOutcome.processing.timings.mergeMilliseconds),
+            chromaticSeconds: secondsText(superzoomOutcome.processing.timings.chromaticMilliseconds),
+            sharpeningSeconds: secondsText(superzoomOutcome.processing.timings.deconvolutionMilliseconds),
+          })}
+        </BodyText>
+        <ImprovementsSummary outcome={superzoomOutcome} />
         <BodyText tone="secondary">
           {t('burstTimings', {
             count: superzoomOutcome.burstTimings.capturedPhotoCount,
@@ -522,9 +661,9 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
           })}
         </BodyText>
         <BodyText tone="secondary">
-          {superzoomOutcome.result.meanShiftPixels < 0.5
+          {superzoomOutcome.processing.merge.meanShiftPixels < 0.5
             ? t('tooLittleMovement')
-            : t('handMovement', { shift: superzoomOutcome.result.meanShiftPixels.toFixed(1) })}
+            : t('handMovement', { shift: superzoomOutcome.processing.merge.meanShiftPixels.toFixed(1) })}
         </BodyText>
         <AppButton label={t('core:common.save')} onPress={() => void handleSave()} isBusy={isSaving} />
       </>
@@ -536,12 +675,19 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
     </BodyText>
   );
 
-  const progressText = captureProgress
-    ? t(captureProgress.phase === 'capturing' ? 'capturingProgress' : 'decodingProgress', {
-        captured: captureProgress.completedCount,
-        target: captureProgress.totalCount,
-      })
-    : '';
+  let progressText = '';
+  if (focusTuning.progress) {
+    progressText = t('focusTuningProgress', {
+      measured: focusTuning.progress.measuredCount + 1,
+      planned: focusTuning.progress.plannedCount,
+    });
+  } else if (captureProgress) {
+    progressText = t(captureProgress.phase === 'capturing' ? 'capturingProgress' : 'decodingProgress', {
+      captured: captureProgress.completedCount,
+      target: captureProgress.totalCount,
+    });
+  }
+  const isShowingProgress = (isCapturing && captureProgress !== null) || focusTuning.isRunning;
 
   // Lectura flotante en pantalla completa: cuenta atrás, progreso de la ráfaga o zoom y pulso.
   let fullScreenReadout: ReactNode;
@@ -552,7 +698,7 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
         <CameraOverlayText style={styles.readoutCountdown}>{countdownSecondsLeft}</CameraOverlayText>
       </>
     );
-  } else if (isCapturing && captureProgress) {
+  } else if (isShowingProgress) {
     fullScreenReadout = <CameraOverlayText style={styles.readoutValue}>{progressText}</CameraOverlayText>;
   } else if (isProcessing) {
     fullScreenReadout = <CameraOverlayText>{t('processing')}</CameraOverlayText>;
@@ -696,7 +842,7 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
           <BodyText style={styles.countdownValue}>{countdownSecondsLeft}</BodyText>
         </Card>
       ) : null}
-      {isCapturing && captureProgress ? (
+      {isShowingProgress ? (
         <View style={styles.buttonRow}>
           <BodyText style={styles.flexText}>{progressText}</BodyText>
           <View style={styles.unlockButton}>
@@ -711,6 +857,64 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
       {statusText}
       {howItWorksText}
     </CameraScreenLayout>
+  );
+}
+
+/** Qué mejoras se han aplicado a esta ráfaga, con sus cifras. */
+function ImprovementsSummary({ outcome }: { outcome: SuperzoomOutcome }) {
+  const { t } = useTranslation(superzoomInstrumentId);
+  const { merge, chromatic, superzoomDeconvolution } = outcome.processing;
+  const improvementLines: string[] = [];
+
+  if (merge.locallyAlignedFrameCount > 0) {
+    improvementLines.push(
+      t('improvements.localAlignment', {
+        frames: merge.locallyAlignedFrameCount,
+        points: merge.alignmentPointCount,
+        rotation: merge.meanRotationDegrees.toFixed(2),
+        correction: merge.meanMaximumLocalCorrectionPixels.toFixed(1),
+      }),
+    );
+  } else {
+    improvementLines.push(t(outcome.wasLocalAlignmentRequested ? 'improvements.localAlignmentNone' : 'improvements.localAlignmentOff'));
+  }
+  improvementLines.push(
+    t(outcome.hasLockedWhiteBalance ? 'improvements.whiteBalanceLocked' : 'improvements.whiteBalanceNotLocked', {
+      percent: (merge.largestColorGainDeviation * 100).toFixed(1),
+    }),
+  );
+  if (outcome.focusTuning) {
+    improvementLines.push(
+      t('improvements.focusTuned', {
+        count: outcome.focusTuning.testPhotoCount,
+        position: outcome.focusTuning.bestLensPosition.toFixed(3),
+      }),
+    );
+  }
+  const chromaticValues = {
+    red: chromatic.scales.redScale.toFixed(4),
+    blue: chromatic.scales.blueScale.toFixed(4),
+  };
+  if (chromatic.mode === 'off') {
+    improvementLines.push(t('improvements.chromaticOff'));
+  } else if (chromatic.mode === 'profile') {
+    improvementLines.push(t('improvements.chromaticProfile', chromaticValues));
+  } else if (chromatic.isRedReliable || chromatic.isBlueReliable) {
+    improvementLines.push(t('improvements.chromaticMeasured', chromaticValues));
+  } else {
+    improvementLines.push(t('improvements.chromaticNothingMeasured'));
+  }
+  improvementLines.push(t('improvements.deconvolution', { sigma: superzoomDeconvolution.psfSigmaPixels.toFixed(2) }));
+
+  return (
+    <>
+      <BodyText tone="secondary">{t('improvementsTitle')}</BodyText>
+      {improvementLines.map((improvementLine) => (
+        <BodyText key={improvementLine} tone="secondary" style={styles.smallText}>
+          {`• ${improvementLine}`}
+        </BodyText>
+      ))}
+    </>
   );
 }
 
