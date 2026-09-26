@@ -15,6 +15,7 @@ import { motionMagnifierInstrument } from './motion-magnifier';
 import { muonDetectorInstrument } from './muon-detector';
 import { phoneModemInstrument } from './phone-modem';
 import { poolStripsInstrument } from './pool-strips';
+import { propellerBalancerInstrument } from './propeller-balancer';
 import { resonanceScaleInstrument } from './resonance-scale';
 import { rhythmInstrument } from './rhythm';
 import { roomAcousticsInstrument } from './room-acoustics';
@@ -44,6 +45,7 @@ export const instrumentSections: readonly InstrumentSection[] = [
       metalDetectorInstrument,
       mainsFrequencyInstrument,
       machineDiagnosisInstrument,
+      propellerBalancerInstrument,
       tachometerInstrument,
       superzoomInstrument,
     ],
