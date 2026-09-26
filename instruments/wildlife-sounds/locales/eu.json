@@ -1,0 +1,99 @@
+{
+  "name": "Nor ari da kantuan?",
+  "description": "Europako hegaztiak, anfibioak, intsektuak eta ugaztunak soinuaren bidez ezagutzen ditu, konexiorik gabe dabilen AA eredu batekin, eta ikerketetarako erregistroa egiten du.",
+  "intro": "Mikrofonoarekin entzuten du eta, segundo gutxi batzuetan behin, azken 5 segundoak Perch 2.0 ereduari pasatzen dizkio. Googleren eredu hori milaka espezieren soinuekin entrenatu da. 1028 espezie europar eta 200 bat soinu orokor (txakurrak, autoak, euria…) ezagutzen ditu.",
+  "disclaimer": "Emaitza orientagarria da: ereduak huts egiten du, batez ere zarata dagoenean, antzeko espezieekin edo animalia mikrofonotik urrun dagoenean. Egiaztatu ontzat eman aurretik.",
+  "privacyTitle": "Giza ahotsa",
+  "privacy": "Audioa mugikorrean aztertzen da eta baztertu egiten da: ez da grabatzen, ezta inora bidaltzen ere. Giza ahotsak ez dira identifikatzen, eta norbait hizketan edo kantuan entzuten bada, zati hori ez da erregistroan gordetzen.",
+  "accelerator": {
+    "cpu": "PUZa",
+    "gpu": "GPUa"
+  },
+  "model": {
+    "title": "Eredua",
+    "missing": "Eredua behin deskargatu behar da ({{megabytes}} MB inguru). Gero konexiorik gabe dabil.",
+    "download": "Deskargatu eredua",
+    "fetchingManifest": "Ereduaren tamaina begiratzen…",
+    "confirmTitle": "Eredua deskargatu?",
+    "confirmMessage": "{{megabytes}} MB deskargatuko dira. Wifirik ez baduzu, datu mugikorrak erabiliko ditu.",
+    "confirm": "Deskargatu",
+    "downloadStarting": "Deskarga hasten…",
+    "downloading": "Deskargatzen: % {{percent}} ({{downloaded}} / {{total}} MB)",
+    "verifying": "Fitxategia egiaztatzen…",
+    "cancel": "Utzi deskarga",
+    "downloadError": "Ezin izan da eredua deskargatu: {{message}}",
+    "installed": "{{version}} eredua instalatuta dago ({{megabytes}} MB). Konexiorik gabe dabil.",
+    "license": "Eredua: Google Perch 2.0 (Apache 2.0 lizentzia), Europako espezieetara murriztua.",
+    "loading": "Eredua memorian kargatzen…",
+    "loadError": "Ezin izan da eredua kargatu: {{message}}",
+    "useGpu": "Erabili GPUa (esperimentala)",
+    "useGpuHelp": "Azkarrago joan daiteke, baina ez dabil mugikor guztietan. Huts egiten badu, PUZa erabiltzen da.",
+    "gpuFallback": "GPUa ez dago erabilgarri mugikor honetan: PUZa erabiltzen da.",
+    "delete": "Ezabatu eredua",
+    "deleteTitle": "Eredua ezabatu?",
+    "deleteMessage": "{{megabytes}} MB inguru askatzen dira. Tresna berriro erabiltzeko, berriz deskargatu beharko da. Detekzioen erregistroa ez da ezabatzen."
+  },
+  "listen": {
+    "start": "Hasi entzuten",
+    "stop": "Gelditu",
+    "starting": "Mikrofonoa irekitzen…",
+    "listening": "Entzuten ({{sampleRate}} Hz). Azken 5 segundoak aztertzen ditu {{hop}} segundoan behin.",
+    "waitingFirst": "Audioaren lehen 5 segundoen zain…",
+    "interrupted": "Entzuteari utzi zaio, aplikazioa aurreko planoan egoteari utzi diolako.",
+    "keepAwake": "Pantaila piztuta geratzen da entzuten duen bitartean. Aplikaziotik irteten bazara edo mugikorra blokeatzen baduzu, gelditu egiten da.",
+    "timing": "Azken azterketa: {{total}} ms (birlaginketa {{resample}} ms, eredua {{model}} ms) · {{accelerator}}",
+    "quiet": "Ia ez da soinurik iristen mikrofonora ({{level}} dBFS).",
+    "analysisError": "Errorea aztertzean: {{message}}"
+  },
+  "results": {
+    "title": "Zer entzuten da",
+    "nothingYet": "Oraindik ez dago emaitzarik.",
+    "humanVoice": "Giza ahotsa entzuten da: zati hau ez da identifikatzen, ezta gordetzen ere.",
+    "logged": "Erregistroan idatzi da.",
+    "confidence": {
+      "doubtful": "zalantzazkoa",
+      "possible": "posiblea",
+      "probable": "litekeena"
+    },
+    "score": "puntuazioa: {{score}}",
+    "scoreHelp": "Puntuazioa ez da ehunekoa: {{possible}} baino gutxiago bada, zalantzazkoa da; {{probable}} edo gehiago bada, litekeena. Begiz jotako atalaseak dira.",
+    "soundKind": "soinua",
+    "spectrogramTitle": "Azken zatiaren espektrograma",
+    "spectrogramAccessibility": "Aztertutako azken 5 segundoen mel espektrograma: denbora horizontalean eta baxuak behean"
+  },
+  "log": {
+    "title": "Ikerketetarako erregistroa",
+    "explanation": "Espezie batek «posiblea» maila lortzen duen zati bakoitza idazten da: ordua, espezieak beren puntuazioarekin, ereduaren bertsioa eta embeddinga (soinua laburtzen duten 1536 zenbaki, AArekin entrenatzeko edo alderatzeko baliagarriak). Ez da audiorik gordetzen.",
+    "useLocation": "Gorde gutxi gorabeherako kokapena",
+    "useLocationHelp": "0,01 gradura biribilduta (≈1 km).",
+    "locationDenied": "Kokapen-baimenik ez dago: detekzioak koordenaturik gabe gordetzen dira.",
+    "statistics": "{{detections}} detekzio · {{species}} espezie desberdin",
+    "recent": "Azken detekzioak",
+    "empty": "Erregistroa hutsik dago.",
+    "exportJsonl": "Esportatu JSONL (embeddingekin)",
+    "exportCsv": "Esportatu CSV",
+    "shareTitle": "Partekatu erregistroa",
+    "delete": "Ezabatu erregistroa",
+    "deleteTitle": "Erregistroa ezabatu?",
+    "deleteMessage": "{{count}} detekzio ezabatuko dira. Ezin da desegin.",
+    "saveError": "Ezin izan da detekzioa gorde: {{message}}"
+  },
+  "session": {
+    "title": "Saioa",
+    "summary": "{{windows}} zati aztertuta · {{logged}} idatzita · {{voice}} baztertuta giza ahotsagatik",
+    "save": "Gorde saioa neurketa gisa"
+  },
+  "fields": {
+    "speciesSummary": "Detektatutako espezieak",
+    "distinctSpeciesCount": "Espezie desberdinak",
+    "loggedDetectionCount": "Idatzitako detekzioak",
+    "analyzedWindowCount": "Aztertutako zatiak",
+    "humanVoiceWindowCount": "Giza ahotsagatik baztertutako zatiak",
+    "bestSpeciesLabel": "Detekziorik onena",
+    "bestSpeciesScore": "Detekziorik onenaren puntuazioa",
+    "duration": "Iraupena",
+    "averageAnalysis": "Batez besteko azterketa-denbora",
+    "modelVersion": "Ereduaren bertsioa",
+    "sessionStart": "Hasiera"
+  }
+}
