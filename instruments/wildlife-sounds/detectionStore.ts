@@ -25,6 +25,24 @@ const schemaStatements: readonly string[] = [
   );
   CREATE INDEX IF NOT EXISTS detections_by_time ON detections (detected_at DESC);
   `,
+  // 2: clases propias («Enséñale tus sonidos»): sus ejemplos (solo embeddings) y la marca en el registro.
+  `
+  ALTER TABLE detections ADD COLUMN is_custom_class INTEGER NOT NULL DEFAULT 0;
+  CREATE TABLE IF NOT EXISTS custom_sound_classes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    is_background INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS custom_sound_examples (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    class_id INTEGER NOT NULL,
+    recorded_at TEXT NOT NULL,
+    model_version TEXT NOT NULL,
+    embedding BLOB NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS custom_sound_examples_by_class ON custom_sound_examples (class_id);
+  `,
 ];
 
 let databasePromise: Promise<SQLiteDatabase> | null = null;
@@ -43,7 +61,8 @@ async function openAndPrepareDatabase(): Promise<SQLiteDatabase> {
   return database;
 }
 
-function getDetectionDatabase(): Promise<SQLiteDatabase> {
+/** Base de datos del instrumento (también la usa customSoundStore.ts). */
+export function getDetectionDatabase(): Promise<SQLiteDatabase> {
   databasePromise ??= openAndPrepareDatabase().catch((openError: unknown) => {
     databasePromise = null;
     throw openError;
@@ -56,8 +75,8 @@ export async function insertDetection(newRecord: NewDetectionRecord): Promise<vo
   await database.runAsync(
     `INSERT INTO detections
        (detected_at, duration_seconds, latitude, longitude, species_label, species_score,
-        top_classes_json, model_version, embedding)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        top_classes_json, model_version, embedding, is_custom_class)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       newRecord.detectedAtIso,
       newRecord.durationSeconds,
@@ -68,6 +87,7 @@ export async function insertDetection(newRecord: NewDetectionRecord): Promise<vo
       JSON.stringify(newRecord.topClasses),
       newRecord.modelVersion,
       newRecord.embeddingFloat16Bytes,
+      newRecord.isCustomClass ? 1 : 0,
     ],
   );
 }
@@ -80,7 +100,9 @@ export interface DetectionStatistics {
 export async function readDetectionStatistics(): Promise<DetectionStatistics> {
   const database = await getDetectionDatabase();
   const statisticsRow = await database.getFirstAsync<{ detection_count: number; distinct_species_count: number }>(
-    'SELECT COUNT(*) AS detection_count, COUNT(DISTINCT species_label) AS distinct_species_count FROM detections',
+    `SELECT COUNT(*) AS detection_count,
+            COUNT(DISTINCT CASE WHEN is_custom_class = 0 THEN species_label END) AS distinct_species_count
+       FROM detections`,
   );
   return {
     detectionCount: statisticsRow?.detection_count ?? 0,

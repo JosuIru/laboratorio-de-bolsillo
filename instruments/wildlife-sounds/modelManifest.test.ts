@@ -1,4 +1,4 @@
-import { ManifestFormatError, parseFaunaManifest, resolveModelOutputIndices } from './modelManifest';
+import { defaultOccurrenceFileName, ManifestFormatError, parseFaunaManifest, resolveModelOutputIndices } from './modelManifest';
 
 const validManifest = {
   formatVersion: 1,
@@ -39,6 +39,14 @@ describe('parseFaunaManifest', () => {
     expect(() => parseFaunaManifest({ ...validManifest, modelFile: '../../x.tflite' })).toThrow(ManifestFormatError);
     expect(() => parseFaunaManifest({ ...validManifest, classes: [] })).toThrow(ManifestFormatError);
     expect(() => parseFaunaManifest(null)).toThrow(ManifestFormatError);
+    expect(() => parseFaunaManifest({ ...validManifest, occurrenceFile: '../x.json' })).toThrow(ManifestFormatError);
+  });
+
+  it('usa el fichero de presencia por defecto si el manifiesto no lo trae', () => {
+    expect(parseFaunaManifest(validManifest).occurrenceFile).toBe(defaultOccurrenceFileName);
+    expect(parseFaunaManifest({ ...validManifest, occurrenceFile: 'fauna-occurrence-europa-2.json' }).occurrenceFile).toBe(
+      'fauna-occurrence-europa-2.json',
+    );
   });
 });
 

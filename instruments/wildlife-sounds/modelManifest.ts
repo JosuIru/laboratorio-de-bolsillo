@@ -40,8 +40,15 @@ export interface FaunaManifest {
   windowSamples: number;
   outputs: ModelOutputIndices;
   license: string;
+  /**
+   * Fichero de presencia por lugar y época (ver occurrenceFilter.ts), en la misma release que el
+   * modelo. Si el manifiesto no lo trae, se usa `defaultOccurrenceFileName`.
+   */
+  occurrenceFile: string;
   classes: SoundClass[];
 }
+
+export const defaultOccurrenceFileName = 'fauna-occurrence-europa-1.json';
 
 export class ManifestFormatError extends Error {
   constructor(problem: string) {
@@ -98,6 +105,11 @@ export function parseFaunaManifest(rawManifest: unknown): FaunaManifest {
   if (!/^[0-9a-f]{64}$/.test(modelSha256)) throw new ManifestFormatError('«modelSha256» no es un SHA-256');
   const modelFile = requireString(rawManifest, 'modelFile');
   if (!/^[\w.-]+\.tflite$/.test(modelFile)) throw new ManifestFormatError('«modelFile» no es un nombre de fichero .tflite');
+  const occurrenceFile =
+    rawManifest.occurrenceFile === undefined ? defaultOccurrenceFileName : requireString(rawManifest, 'occurrenceFile');
+  if (!/^[\w.-]+\.json$/.test(occurrenceFile)) {
+    throw new ManifestFormatError('«occurrenceFile» no es un nombre de fichero .json');
+  }
   const rawOutputs = rawManifest.outputs;
   if (!isRecord(rawOutputs)) throw new ManifestFormatError('faltan los índices de salida');
   const rawClasses = rawManifest.classes;
@@ -117,6 +129,7 @@ export function parseFaunaManifest(rawManifest: unknown): FaunaManifest {
       logits: requireNumber(rawOutputs, 'logits'),
     },
     license: typeof rawManifest.license === 'string' ? rawManifest.license : '',
+    occurrenceFile,
     classes: rawClasses.map(parseSoundClass),
   };
 }
