@@ -254,6 +254,7 @@
       "unsupported": "Balance de blancos: tu móvil no deja fijarlo (en Android, esta versión de la cámara aún no lo permite). Usa «Corregir color» en el resultado.",
       "pending": "Balance de blancos: se fijará a luz de día al empezar.",
       "lockedDaylight": "Balance de blancos fijo a luz de día (5500 K).",
+      "lockedCurrent": "Balance de blancos congelado: todas las fotos salen con el mismo color (el tono se corrige al procesar con «Corregir color»).",
       "failed": "No se ha podido fijar el balance de blancos: usa «Corregir color» en el resultado."
     },
     "focusButton": "Afinar el enfoque",

@@ -33,7 +33,7 @@ export interface MoonMeasurementValues {
   rawCapture?: boolean;
   /** Posición del objetivo elegida con «Afinar el enfoque» (0 = cerca, 1 = lejos). */
   focusLensPosition?: number;
-  /** 'lockedDaylight' si se fijó el balance a luz de día; si no, 'automatic'. */
+  /** 'lockedDaylight' (fijo a luz de día), 'lockedCurrent' (automático congelado) o 'automatic'. */
   whiteBalanceMode?: string;
   /** Experimento: 'apparentSize', 'earthAlbedo' u 'occultation'. */
   experiment?: string;

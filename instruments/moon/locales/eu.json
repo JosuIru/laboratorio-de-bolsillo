@@ -254,6 +254,7 @@
       "unsupported": "Zuri-balantzea: zure mugikorrak ez du uzten finkatzen (Androiden, kameraren bertsio honek oraindik ez du onartzen). Erabili «Zuzendu kolorea» emaitzan.",
       "pending": "Zuri-balantzea: egun-argira finkatuko da hastean.",
       "lockedDaylight": "Zuri-balantzea egun-argira finkatuta (5500 K).",
+      "lockedCurrent": "Zuri-balantzea izoztuta: argazki guztiak kolore berarekin ateratzen dira (tonua prozesatzean zuzentzen da «Zuzendu kolorea» erabiliz).",
       "failed": "Ezin izan da zuri-balantzea finkatu: erabili «Zuzendu kolorea» emaitzan."
     },
     "focusButton": "Fokua doitu",

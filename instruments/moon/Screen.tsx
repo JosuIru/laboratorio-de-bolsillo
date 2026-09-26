@@ -1174,7 +1174,10 @@ export function MoonScreen({ saveMeasurement, sensorAvailability }: InstrumentSc
       ...(outcome?.exposureRatio !== undefined ? { exposureRatio: roundTo(outcome.exposureRatio, 1) } : {}),
       ...(outcome?.isRawCapture ? { rawCapture: true } : {}),
       ...(focusBracketing.bestLensPosition !== null ? { focusLensPosition: roundTo(focusBracketing.bestLensPosition, 4) } : {}),
-      whiteBalanceMode: daylightWhiteBalance.whiteBalanceStatus === 'lockedDaylight' ? 'lockedDaylight' : 'automatic',
+      whiteBalanceMode:
+        daylightWhiteBalance.whiteBalanceStatus === 'lockedDaylight' || daylightWhiteBalance.whiteBalanceStatus === 'lockedCurrent'
+          ? daylightWhiteBalance.whiteBalanceStatus
+          : 'automatic',
     };
   }
 
