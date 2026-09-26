@@ -21,6 +21,10 @@ fi
 # shellcheck source=/dev/null
 source "$releaseEnvironmentFile"
 
+# `prebuild --clean` borra android/local.properties, así que Gradle solo encuentra el SDK por
+# ANDROID_HOME. Si no está en el entorno, se usa la ruta por defecto de Android Studio.
+export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
+
 cd "$projectRoot"
 appVersion="$(node -p "require('./app.json').expo.version")"
 
