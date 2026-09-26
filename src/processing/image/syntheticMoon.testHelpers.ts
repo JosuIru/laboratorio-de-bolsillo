@@ -113,11 +113,55 @@ export function createWaveTexture(
     };
   });
   const amplitudeSum = waves.reduce((sum, wave) => sum + wave.amplitude, 0);
+  // Arrays planos y bucle indexado: la textura se evalúa millones de veces en los tests.
+  const frequenciesX = Float64Array.from(waves, (wave) => 2 * Math.PI * wave.frequencyX);
+  const frequenciesY = Float64Array.from(waves, (wave) => 2 * Math.PI * wave.frequencyY);
+  const phases = Float64Array.from(waves, (wave) => wave.phase);
+  const amplitudes = Float64Array.from(waves, (wave) => wave.amplitude);
+  const normalization = relativeAmplitude / Math.sqrt((amplitudeSum * waveCount) / 4);
   return (positionX, positionY) => {
     let textureValue = 0;
-    for (const wave of waves) {
-      textureValue += wave.amplitude * Math.sin(2 * Math.PI * (wave.frequencyX * positionX + wave.frequencyY * positionY) + wave.phase);
+    for (let waveIndex = 0; waveIndex < waveCount; waveIndex++) {
+      textureValue +=
+        amplitudes[waveIndex]! *
+        Math.sin(frequenciesX[waveIndex]! * positionX + frequenciesY[waveIndex]! * positionY + phases[waveIndex]!);
     }
-    return 1 + (relativeAmplitude * textureValue) / Math.sqrt(amplitudeSum * waveCount / 4);
+    return 1 + textureValue * normalization;
+  };
+}
+
+/**
+ * Escena precalculada en una rejilla fina y leída con interpolación bilineal: mucho más rápida
+ * que evaluar las ondas en cada submuestra (vale para texturas muy por debajo de 1/(2·paso)).
+ */
+export function createCachedScene(
+  scene: (positionX: number, positionY: number) => number,
+  minimumCoordinate: number,
+  maximumCoordinate: number,
+  gridStep: number,
+): (positionX: number, positionY: number) => number {
+  const gridSide = Math.ceil((maximumCoordinate - minimumCoordinate) / gridStep) + 2;
+  const gridValues = new Float32Array(gridSide * gridSide);
+  for (let gridRow = 0; gridRow < gridSide; gridRow++) {
+    for (let gridColumn = 0; gridColumn < gridSide; gridColumn++) {
+      gridValues[gridRow * gridSide + gridColumn] = scene(
+        minimumCoordinate + gridColumn * gridStep,
+        minimumCoordinate + gridRow * gridStep,
+      );
+    }
+  }
+  return (positionX, positionY) => {
+    const gridX = Math.min(gridSide - 1.001, Math.max(0, (positionX - minimumCoordinate) / gridStep));
+    const gridY = Math.min(gridSide - 1.001, Math.max(0, (positionY - minimumCoordinate) / gridStep));
+    const gridColumn = Math.floor(gridX);
+    const gridRow = Math.floor(gridY);
+    const horizontalWeight = gridX - gridColumn;
+    const verticalWeight = gridY - gridRow;
+    const topLeftIndex = gridRow * gridSide + gridColumn;
+    const topValue = gridValues[topLeftIndex]! + horizontalWeight * (gridValues[topLeftIndex + 1]! - gridValues[topLeftIndex]!);
+    const bottomValue =
+      gridValues[topLeftIndex + gridSide]! +
+      horizontalWeight * (gridValues[topLeftIndex + gridSide + 1]! - gridValues[topLeftIndex + gridSide]!);
+    return topValue + verticalWeight * (bottomValue - topValue);
   };
 }
