@@ -3,7 +3,7 @@
   "description": "Erritmo-jokoa: mugikorrak bere txalaparta-zatia jotzen du eta zuk hutsuneak betetzen dituzu txaloekin edo mahaian kolpeak emanez. Tempoa igo egiten da hiru jarraian huts egin arte.",
   "howTo": {
     "title": "Nola jokatu",
-    "rules": "Txalapartan bezala, bi lagunek jotzen dute: sarrerako lau kolpe entzuten dira eta gero mugikorrak bere tokian jotzen du eta zuk hutsuneetan, txalo batekin edo mahaian kolpe lehor batekin. Noizean behin tempoa igo eta eredua zailtzen da. Hiru huts jarraian eta amaitu da.",
+    "rules": "Txalapartan bezala, bi lagunek jotzen dute: sarrerako lau kolpe entzuten dira eta gero mugikorrak bere tokian jotzen du eta zuk hutsuneetan, txalo batekin edo mahaian kolpe lehor batekin. Noizean behin tempoa igo eta eredua zailtzen da. Hiru huts jarraian eta amaitu da. Isilune batean edo mugikorraren tokian jotzea falta da: bizitza bat kentzen dizu, hainbat jarraian asmatu arte.",
     "setup": "Jarri mugikorra mahai gainean bolumena altu, zaratarik gabeko leku batean. Ez da entzungailurik behar: mugikorraren kolpeak ez dira zureak bezala zenbatzen."
   },
   "start": "Jokatu",
@@ -12,10 +12,15 @@
   "countIn": "Entzun sarrera…",
   "yourTurn": "Bete hutsuneak!",
   "hitsLabel": "asmatutakoak",
+  "bar": {
+    "legend": "Koloretan, zure kolpeak; grisez, mugikorrarenak; hutsik, isilunea.",
+    "accessibilityLabel": "Konpasa: zure kolpeak koloretan, mugikorrarenak grisez"
+  },
   "tempo": "{{bpm}} bpm · {{level}}. maila",
   "judgement": {
     "hit": "Ondo! {{offset}} ms",
-    "miss": "Huts!"
+    "miss": "Huts!",
+    "stray": "Falta! Hutsune hori ez zen zurea"
   },
   "over": {
     "title": "Amaiera",

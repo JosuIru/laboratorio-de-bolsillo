@@ -3,7 +3,7 @@
   "description": "Juego de ritmo: el móvil toca su parte de txalaparta y tú rellenas los huecos con palmadas o golpes en la mesa. El tempo sube hasta que falles tres seguidas.",
   "howTo": {
     "title": "Cómo se juega",
-    "rules": "Como en la txalaparta, se toca a dos: suenan cuatro golpes de entrada y después el móvil toca en su sitio y tú en los huecos, con una palmada o un golpe seco en la mesa. Cada cierto tiempo sube el tempo y el patrón se complica. Tres fallos seguidos y se acaba.",
+    "rules": "Como en la txalaparta, se toca a dos: suenan cuatro golpes de entrada y después el móvil toca en su sitio y tú en los huecos, con una palmada o un golpe seco en la mesa. Cada cierto tiempo sube el tempo y el patrón se complica. Tres fallos seguidos y se acaba. Golpear en un silencio o en el sitio del móvil es falta: te quita una vida hasta que aciertes varias seguidas.",
     "setup": "Pon el móvil sobre la mesa con el volumen alto, en un sitio sin ruido. No hacen falta auriculares: los golpes del propio móvil no cuentan como tuyos."
   },
   "start": "Jugar",
@@ -12,10 +12,15 @@
   "countIn": "Escucha la entrada…",
   "yourTurn": "¡Rellena los huecos!",
   "hitsLabel": "aciertos",
+  "bar": {
+    "legend": "En color, tus golpes; en gris, los del móvil; vacías, silencio.",
+    "accessibilityLabel": "Compás: tus golpes en color, los del móvil en gris"
+  },
   "tempo": "{{bpm}} bpm · nivel {{level}}",
   "judgement": {
     "hit": "¡Bien! {{offset}} ms",
-    "miss": "¡Fallo!"
+    "miss": "¡Fallo!",
+    "stray": "¡Falta! Ese hueco no era tuyo"
   },
   "over": {
     "title": "Fin",

@@ -58,6 +58,18 @@ export function useEarTraining() {
     playReferenceTone(referenceFrequencyHz(referenceNoteIndex));
   }, [currentStepKey, currentStage, referenceNoteIndex, isMicrophoneRunning, playReferenceTone]);
 
+  // Tras un fallo suena la nota que tocaba, para oír la diferencia.
+  const missedTargetNoteIndex =
+    trainingState.phase === 'playing' &&
+    trainingState.stage === 'result' &&
+    trainingState.roundProgress.outcome === 'missed'
+      ? trainingState.roundProgress.targetNoteIndex
+      : null;
+  useEffect(() => {
+    if (missedTargetNoteIndex === null) return;
+    playReferenceTone(referenceFrequencyHz(missedTargetNoteIndex));
+  }, [currentStepKey, missedTargetNoteIndex, playReferenceTone]);
+
   // Al pasar a escuchar se olvida lo que sonó antes (la referencia o la nota anterior de la escala).
   useEffect(() => {
     if (currentStage !== 'listening') return;

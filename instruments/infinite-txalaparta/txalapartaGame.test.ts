@@ -1,6 +1,8 @@
 import {
   addJudgement,
   beatsPerMinuteForBar,
+  cleanHitsToForgiveStray,
+  detectStrayStroke,
   eighthSeconds,
   emptyTally,
   generateBar,
@@ -9,6 +11,7 @@ import {
   maximumBeatsPerMinute,
   slotsPerBar,
   startBeatsPerMinute,
+  strayJudgement,
   toleranceForTempo,
 } from './txalapartaGame';
 
@@ -59,6 +62,45 @@ describe('judgePlayerSlot', () => {
   });
 });
 
+describe('detectStrayStroke', () => {
+  it('un golpe en un silencio es falta', () => {
+    expect(detectStrayStroke(10, [9.97], [], 0.08)).toBe(true);
+    expect(detectStrayStroke(10, [9.8, 10.2], [], 0.08)).toBe(false);
+  });
+
+  it('el golpe del propio móvil y su cola no son falta', () => {
+    expect(detectStrayStroke(10, [10.01], [10], 0.08)).toBe(false);
+    expect(detectStrayStroke(10, [10.07], [10], 0.08)).toBe(false);
+    expect(detectStrayStroke(10, [9.98], [10.02], 0.08)).toBe(false);
+  });
+
+  it('una palmada claramente antes del golpe del móvil, en su hueco, es falta', () => {
+    expect(detectStrayStroke(10, [9.93], [10], 0.08)).toBe(true);
+  });
+
+  it('palmear todas las corcheas ya no gana: las faltas en los silencios acaban la partida', () => {
+    // Patrón «MPMP-PMP» a 0,4 s la corchea, con palmadas en todas las corcheas salvo las del móvil.
+    const slotSeconds = 0.4;
+    const barOwners = ['machine', 'player', 'machine', 'player', 'rest', 'player', 'machine', 'player'];
+    let gameTally = emptyTally;
+    for (let barIndex = 0; barIndex < 10 && !gameTally.isOver; barIndex++) {
+      barOwners.forEach((slotOwner, slotIndex) => {
+        const expectedSeconds = (barIndex * barOwners.length + slotIndex) * slotSeconds;
+        const machineTimes = slotOwner === 'machine' ? [expectedSeconds] : [];
+        const clapTimes = slotOwner === 'machine' ? [] : [expectedSeconds + 0.01];
+        if (slotOwner === 'player') {
+          gameTally = addJudgement(gameTally, judgePlayerSlot(expectedSeconds, clapTimes, machineTimes, 0.08));
+        } else if (detectStrayStroke(expectedSeconds, clapTimes, machineTimes, 0.08)) {
+          gameTally = addJudgement(gameTally, strayJudgement);
+        }
+      });
+    }
+    expect(gameTally.isOver).toBe(true);
+    expect(gameTally.strayStrokes).toBe(3);
+    expect(gameTally.hits).toBe(10);
+  });
+});
+
 describe('addJudgement', () => {
   it('tres fallos seguidos terminan la partida; un acierto reinicia la racha', () => {
     let gameTally = emptyTally;
@@ -70,5 +112,15 @@ describe('addJudgement', () => {
     expect(gameTally).toMatchObject({ hits: 1, misses: 5, isOver: true });
     expect(gameTally.absoluteErrorSumSeconds).toBeCloseTo(0.02, 9);
     expect(addJudgement(gameTally, { isHit: true, errorSeconds: 0 })).toBe(gameTally);
+  });
+
+  it('una falta cuesta una vida que solo devuelven varios aciertos limpios seguidos', () => {
+    const hitJudgement = { isHit: true, errorSeconds: 0 };
+    let gameTally = addJudgement(addJudgement(emptyTally, hitJudgement), strayJudgement);
+    expect(gameTally).toMatchObject({ hits: 1, misses: 1, strayStrokes: 1, consecutiveMisses: 1 });
+    for (let hitIndex = 0; hitIndex < cleanHitsToForgiveStray - 1; hitIndex++) gameTally = addJudgement(gameTally, hitJudgement);
+    expect(gameTally.consecutiveMisses).toBe(1);
+    gameTally = addJudgement(gameTally, hitJudgement);
+    expect(gameTally.consecutiveMisses).toBe(0);
   });
 });

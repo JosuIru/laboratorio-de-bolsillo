@@ -1,7 +1,7 @@
 import Storage from 'expo-sqlite/kv-store';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, TextInput, Vibration, View } from 'react-native';
 
 import type { InstrumentScreenProps } from '@/core/instruments/types';
 import type { NoteIndex } from '@/processing/dsp/musicalNotes';
@@ -31,6 +31,9 @@ function currentTimeMilliseconds(): number {
   return Date.now();
 }
 const tickMilliseconds = 100;
+/** Vibración al abrir una cerradura (con el móvil boca abajo no se ve la pantalla) y al resolver el puzle. */
+const lockOpenedVibrationMilliseconds = 250;
+const puzzleSolvedVibrationPattern = [0, 250, 150, 250, 150, 500];
 const phonePoses: readonly PhonePose[] = ['face-down', 'upright', 'upside-down', 'left-side', 'right-side'];
 const noteIndices = Array.from({ length: 12 }, (_, noteIndex) => noteIndex as NoteIndex);
 
@@ -105,6 +108,20 @@ export function EscapeLocksScreen({ saveMeasurement }: InstrumentScreenProps<Esc
     }, tickMilliseconds);
     return () => clearInterval(lockTimer);
   }, [isPlaying]);
+
+  // Cuántas cerraduras hay abiertas: cada vez que sube, vibra.
+  const openedLockCount =
+    screenMode.view === 'play'
+      ? screenMode.lockIndex
+      : screenMode.view === 'solved'
+        ? screenMode.puzzle.locks.length
+        : 0;
+  const isPuzzleSolved = screenMode.view === 'solved';
+  useEffect(() => {
+    if (openedLockCount === 0) return;
+    if (isPuzzleSolved) Vibration.vibrate(puzzleSolvedVibrationPattern);
+    else Vibration.vibrate(lockOpenedVibrationMilliseconds);
+  }, [openedLockCount, isPuzzleSolved]);
 
   function describeLock(lockDefinition: LockDefinition, withAnswer: boolean): string {
     if (!withAnswer) return t(`lock.${lockDefinition.kind}.riddle`);
@@ -185,7 +202,13 @@ export function EscapeLocksScreen({ saveMeasurement }: InstrumentScreenProps<Esc
             <AppButton
               label={screenMode.isHintVisible ? t('play.hideHint') : t('play.showHint')}
               variant="secondary"
-              onPress={() => setScreenMode({ ...screenMode, isHintVisible: !screenMode.isHintVisible })}
+              onPress={() =>
+                setScreenMode((previousMode) =>
+                  previousMode.view === 'play'
+                    ? { ...previousMode, isHintVisible: !previousMode.isHintVisible }
+                    : previousMode,
+                )
+              }
             />
           </View>
           <View style={styles.buttonCell}>

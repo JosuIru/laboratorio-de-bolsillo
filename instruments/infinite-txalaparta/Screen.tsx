@@ -8,7 +8,7 @@ import { AppButton, BodyText, Card, ScreenContainer, SectionTitle } from '@/ui/c
 import { useThemePalette } from '@/ui/theme';
 
 import type { InfiniteTxalapartaMeasurementValues } from './schema';
-import { missesToLose } from './txalapartaGame';
+import { missesToLose, type SlotOwner, slotsPerBar } from './txalapartaGame';
 import { type TxalapartaState, useTxalapartaGame } from './useTxalapartaGame';
 
 export const infiniteTxalapartaInstrumentId = 'infinite-txalaparta';
@@ -76,6 +76,10 @@ export function InfiniteTxalapartaScreen({ saveMeasurement }: InstrumentScreenPr
           <BodyText style={styles.stageText} tone="accent">
             {gameState.isCountIn ? t('countIn') : t('yourTurn')}
           </BodyText>
+          <BarView barSlots={gameState.currentBarSlots} currentSlotIndex={gameState.currentSlotIndex} />
+          <BodyText tone="secondary" style={styles.centeredText}>
+            {t('bar.legend')}
+          </BodyText>
           <BodyText style={styles.hitsValue}>{gameState.tally.hits}</BodyText>
           <BodyText tone="secondary" style={styles.centeredText}>
             {t('hitsLabel')}
@@ -103,7 +107,9 @@ export function InfiniteTxalapartaScreen({ saveMeasurement }: InstrumentScreenPr
                 ? t('judgement.hit', {
                     offset: `${gameState.lastJudgement.errorSeconds >= 0 ? '+' : ''}${Math.round(gameState.lastJudgement.errorSeconds * 1000)}`,
                   })
-                : t('judgement.miss')}
+                : gameState.lastJudgement.isStray
+                  ? t('judgement.stray')
+                  : t('judgement.miss')}
             </BodyText>
           ) : null}
         </Card>
@@ -157,7 +163,47 @@ export function InfiniteTxalapartaScreen({ saveMeasurement }: InstrumentScreenPr
   );
 }
 
+/**
+ * El compás que suena: 8 casillas, las tuyas en color, las del móvil en gris y los silencios
+ * vacíos; la que suena ahora, más grande. Durante la entrada se ven vacías.
+ */
+function BarView({ barSlots, currentSlotIndex }: { barSlots: readonly SlotOwner[]; currentSlotIndex: number | null }) {
+  const { t } = useTranslation(infiniteTxalapartaInstrumentId);
+  const themePalette = useThemePalette();
+  return (
+    <View style={styles.barRow} accessible accessibilityLabel={t('bar.accessibilityLabel')}>
+      {Array.from({ length: slotsPerBar }, (_, slotIndex) => {
+        const slotOwner = barSlots[slotIndex] ?? 'rest';
+        const isCurrent = slotIndex === currentSlotIndex;
+        const slotColor =
+          slotOwner === 'player'
+            ? themePalette.accent
+            : slotOwner === 'machine'
+              ? themePalette.textSecondary
+              : 'transparent';
+        return (
+          <View
+            key={slotIndex}
+            style={[
+              styles.barSlot,
+              {
+                backgroundColor: slotColor,
+                borderColor: isCurrent ? themePalette.textPrimary : themePalette.border,
+                borderWidth: isCurrent ? 3 : 1.5,
+                opacity: currentSlotIndex === null || isCurrent ? 1 : 0.55,
+                transform: [{ scale: isCurrent ? 1.15 : 1 }],
+              },
+            ]}
+          />
+        );
+      })}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  barRow: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginVertical: 12 },
+  barSlot: { flex: 1, maxWidth: 36, aspectRatio: 1, borderRadius: 8 },
   centeredText: { textAlign: 'center' },
   stageText: { fontSize: 22, fontWeight: '700', textAlign: 'center' },
   hitsValue: { fontSize: 64, fontWeight: '700', lineHeight: 72, textAlign: 'center', fontVariant: ['tabular-nums'] },

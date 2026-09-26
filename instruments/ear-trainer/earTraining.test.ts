@@ -82,10 +82,24 @@ describe('advanceEarTraining', () => {
     ]);
   });
 
+  it('en escalas, tras un fallo se espera a que suene la nota correcta antes del grado siguiente', () => {
+    const scaleSteps = createScaleSteps('major', 0);
+    let trainingState = startEarTraining('scales', 'medium', scaleSteps);
+    trainingState = runFor(trainingState, 1.9 + 8.1, null);
+    expect(trainingState.phase === 'playing' && trainingState.stage).toBe('result');
+    trainingState = runFor(trainingState, 1, null);
+    expect(trainingState.phase === 'playing' && trainingState.stepIndex).toBe(0);
+    trainingState = runFor(trainingState, 0.9, null);
+    expect(trainingState.phase === 'playing' && trainingState.stepIndex).toBe(1);
+  });
+
   it('termina con el resumen de aciertos', () => {
     const intervalSteps = createIntervalSteps('easy', seededRandom(5)).slice(0, 1);
     let trainingState = startEarTraining('intervals', 'easy', intervalSteps);
+    // Tras el fallo, la pausa dura lo que la nota correcta que suena y su eco (1,8 s).
     trainingState = runFor(trainingState, 1.9 + 8.1 + 1.6, null);
+    expect(trainingState.phase).toBe('playing');
+    trainingState = runFor(trainingState, 0.3, null);
     expect(trainingState.phase).toBe('finished');
     if (trainingState.phase === 'finished') expect(trainingState.summary).toMatchObject({ hitCount: 0, roundCount: 1 });
   });

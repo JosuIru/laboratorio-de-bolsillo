@@ -114,6 +114,13 @@ export function createScaleSteps(scaleId: ScaleId, rootNoteIndex: NoteIndex): Ea
 export const referenceGuardSeconds = 0.6;
 /** Pausa tras cada paso: más larga entre intervalos (hay que oír la siguiente nota) que en escalas. */
 const resultSecondsByKind: Record<EarExerciseKind, number> = { intervals: 1.5, scales: 0.5 };
+/** Tras un fallo suena la nota correcta: la pausa dura al menos lo que ella y su eco. */
+const missedResultSeconds = referenceToneSeconds + referenceGuardSeconds;
+
+function resultSecondsFor(exerciseKind: EarExerciseKind, outcome: RoundProgress['outcome']): number {
+  const resultSeconds = resultSecondsByKind[exerciseKind];
+  return outcome === 'missed' ? Math.max(resultSeconds, missedResultSeconds) : resultSeconds;
+}
 
 export type EarStepScore = RoundScore & { isHit: boolean; step: EarTrainingStep };
 
@@ -196,7 +203,8 @@ export function advanceEarTraining(
       };
     }
     case 'result': {
-      if (stageSeconds < resultSecondsByKind[trainingState.exerciseKind]) return { ...trainingState, stageSeconds };
+      const resultSeconds = resultSecondsFor(trainingState.exerciseKind, trainingState.roundProgress.outcome);
+      if (stageSeconds < resultSeconds) return { ...trainingState, stageSeconds };
       const nextStepIndex = trainingState.stepIndex + 1;
       if (nextStepIndex >= trainingState.steps.length) {
         return {
