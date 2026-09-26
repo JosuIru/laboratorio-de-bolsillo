@@ -114,7 +114,7 @@
   },
   "limits": {
     "title": "Mugak",
-    "sound": "Ohiko irismena: zentimetro batzuetatik metro pare batera, bozgorailuaren, mikrofonoaren eta zarataren arabera. Gelako oihartzunek eta kolpeek mezu bat honda dezakete: Hamming kodeak 7 bitetik akats bat zuzentzen du eta CRC-16ak konpondu ezin izan dena baztertzen du; beraz, mezua ondo iristen da edo hondatutzat markatzen da. Kalitateak tonu bakoitza zenbateraino bereizten zen neurtzen du.",
+    "sound": "Ohiko irismena: zentimetro batzuetatik metro pare batera, bozgorailuaren, mikrofonoaren eta zarataren arabera. Gelako oihartzunek eta kolpeek mezu bat honda dezakete: Hamming kodeak 7 bitetik akats bat zuzentzen du eta CRC-16ak konpondu ezin izan dena baztertzen du; beraz, mezua ondo iristen da edo hondatutzat markatzen da. Kalitateak tonu bakoitza zenbateraino bereizten zen neurtzen du. Mezu bakoitza bi aldiz igortzen da jarraian: kopia bat oihartzunak hondatuta iristen bada, bestea baliagarria izan ohi da.",
     "light": "Oso motela: kamerak segundoko 30 irudi ikusten ditu gehienez; beraz, 30 letrako mezu batek 20 s-tik minutu batera behar ditu. Hobeto dabil argi gutxirekin eta mugikorrak geldi daudela. Argiz ez dago akatsen zuzenketarik (bit bakoitzak gehiegi kostatzen du): CRC-16ak hondatutzat markatzen du gaizki iristen dena. Kalitateak distiren erregulartasuna eta Manchester akatsak konbinatzen ditu."
   },
   "fields": {

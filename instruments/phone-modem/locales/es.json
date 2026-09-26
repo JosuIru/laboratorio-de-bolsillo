@@ -114,7 +114,7 @@
   },
   "limits": {
     "title": "Límites",
-    "sound": "Alcance típico: de unos centímetros a un par de metros, según el altavoz, el micrófono y el ruido. Los ecos de la habitación y los golpes pueden estropear un mensaje: el código Hamming corrige un error de cada 7 bits y el CRC-16 descarta lo que no se ha podido arreglar, así que un mensaje o llega bien o se marca como dañado. La calidad mide lo claro que se distinguía cada tono.",
+    "sound": "Alcance típico: de unos centímetros a un par de metros, según el altavoz, el micrófono y el ruido. Los ecos de la habitación y los golpes pueden estropear un mensaje: el código Hamming corrige un error de cada 7 bits y el CRC-16 descarta lo que no se ha podido arreglar, así que un mensaje o llega bien o se marca como dañado. La calidad mide lo claro que se distinguía cada tono. Cada mensaje se emite dos veces seguidas: si una copia llega dañada por el eco, suele valer la otra.",
     "light": "Muy lento: la cámara ve como mucho 30 imágenes por segundo, así que un mensaje de 30 letras tarda de 20 s a un minuto. Funciona mejor con poca luz y los móviles quietos. Por la luz no hay corrección de errores (cada bit cuesta demasiado): el CRC-16 marca como dañado lo que llegue mal. La calidad combina la regularidad de los destellos y los errores de Manchester."
   },
   "fields": {

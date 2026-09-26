@@ -10,6 +10,8 @@ import {
 
 import { acousticVolume } from './modemConfiguration';
 
+import { acousticRepeatCount, acousticRepeatGapSeconds, repeatWithGaps } from './messageRepetition';
+
 export type AcousticTransmissionState =
   | { status: 'idle' }
   | { status: 'sending'; progress: number; durationSeconds: number }
@@ -19,8 +21,8 @@ export type AcousticTransmissionState =
 const progressUpdateMilliseconds = 100;
 
 /**
- * Emite una trama por el altavoz: genera la señal completa, la carga en un búfer y la
- * reproduce una vez. Se corta al salir de la pantalla o al pasar la app a segundo plano.
+ * Emite una trama por el altavoz: genera la señal completa (la trama dos veces, ver
+ * `messageRepetition.ts`), la carga en un búfer y la reproduce. Se corta al salir de la pantalla o al pasar la app a segundo plano.
  */
 export function useAcousticTransmitter() {
   const isScreenActive = useIsScreenActive();
@@ -70,7 +72,12 @@ export function useAcousticTransmitter() {
           setTransmissionState({ status: 'sampleRateTooLow', sampleRateHz });
           return;
         }
-        const frameSamples = modulateAcousticFrame(channelBits, configuration, sampleRateHz);
+        // Dos copias seguidas: si el eco estropea la sincronía de una, suele llegar la otra.
+        const frameSamples = repeatWithGaps(
+          modulateAcousticFrame(channelBits, configuration, sampleRateHz),
+          acousticRepeatCount,
+          Math.round(acousticRepeatGapSeconds * sampleRateHz),
+        );
         const frameBuffer = audioContext.createBuffer(1, frameSamples.length, sampleRateHz);
         frameBuffer.copyToChannel(frameSamples, 0);
         const frameSource = audioContext.createBufferSource();

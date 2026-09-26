@@ -4,12 +4,18 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import type { InstrumentScreenProps } from '@/core/instruments/types';
-import type { AcousticBandPreset, AcousticSpeedPreset } from '@/processing/modem/acousticModem';
+import {
+  acousticConfigurationFor,
+  type AcousticBandPreset,
+  type AcousticSpeedPreset,
+  acousticTransmissionDurationSeconds,
+} from '@/processing/modem/acousticModem';
 import { decodeMessage } from '@/processing/modem/frameCodec';
 import type { OpticalSpeedPreset } from '@/processing/modem/opticalModem';
 import { BodyText, Card, ScreenContainer, SectionTitle } from '@/ui/components';
 import { useThemePalette } from '@/ui/theme';
 
+import { acousticRepeatCount, acousticRepeatGapSeconds, mergeRepeatedMessage } from './messageRepetition';
 import { modemStyles, SegmentedChoice } from './modemControls';
 import {
   acousticBandOptions,
@@ -88,14 +94,23 @@ export function PhoneModemScreen({ saveMeasurement, sensorAvailability }: Instru
         receivedAtMilliseconds: Date.now(),
         revealedAtMilliseconds: null,
       };
+      // Por sonido llegan dos copias de cada emisión: se juntan si caben en la duración de ambas.
+      const repeatWindowMilliseconds =
+        eventChannel === 'sound'
+          ? 1000 *
+            (acousticRepeatCount *
+              acousticTransmissionDurationSeconds(frame.channelBitCount, acousticConfigurationFor(acousticBand, acousticSpeed)) +
+              acousticRepeatGapSeconds +
+              1)
+          : 0;
       setReceivedMessages((previousMessages) => {
         const [markedMessage] = isSelfDestructEnabled
           ? markRevealedMessages([receivedMessage], decryptionKey)
           : [receivedMessage];
-        return [markedMessage!, ...previousMessages].slice(0, maximumListedMessages);
+        return mergeRepeatedMessage(previousMessages, markedMessage!, repeatWindowMilliseconds).slice(0, maximumListedMessages);
       });
     },
-    [acousticSpeed, opticalSpeed, isSelfDestructEnabled, decryptionKey],
+    [acousticBand, acousticSpeed, opticalSpeed, isSelfDestructEnabled, decryptionKey],
   );
 
   // Autodestrucción: marca la hora a la que se descifra cada mensaje secreto y lleva un reloj
