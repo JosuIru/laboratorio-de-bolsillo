@@ -1,5 +1,5 @@
 /**
- * Amplificación y visualización (Wu et al., 2012): a cada fotograma se le suma su variación
+ * Amplificación (Wu et al., 2012): a cada fotograma se le suma su variación
  * filtrada multiplicada por α. La variación se calcula en un nivel grueso de la pirámide y se
  * amplía aquí a la rejilla base con interpolación bilineal.
  */
@@ -80,39 +80,5 @@ export function reconstructAmplifiedRgba(
       }
       outputRgba[basePixelIndex * 4 + 3] = 255;
     }
-  }
-}
-
-/** Colores del mapa: cálido donde la señal sube, frío donde baja. */
-const risingColor = [255, 96, 32] as const;
-const fallingColor = [32, 144, 255] as const;
-/** Opacidad máxima del mapa (sobre 255): siempre se ve algo de la imagen de debajo. */
-const maximumOverlayAlpha = 220;
-
-/**
- * Mapa de la variación amplificada, para superponerlo a la vista de la cámara: cada píxel del
- * nivel grueso se pinta cálido (sube) o frío (baja), con opacidad proporcional a `α · |variación|`
- * y saturada al llegar a `maximumAddedLevels`. Con tres canales se usa el verde, que es el que
- * más cambia con el pulso. Escribe RGBA sin premultiplicar (level.width × level.height × 4).
- */
-export function renderVariationOverlayRgba(
-  filteredLevel: Float32Array,
-  levelWidth: number,
-  levelHeight: number,
-  levelChannelCount: 1 | 3,
-  options: AmplificationOptions,
-  outputRgba: Uint8Array,
-): void {
-  const { amplificationFactor, maximumAddedLevels } = options;
-  const shownChannelIndex = levelChannelCount === 3 ? 1 : 0;
-  const pixelCount = levelWidth * levelHeight;
-  for (let pixelIndex = 0; pixelIndex < pixelCount; pixelIndex++) {
-    const variation = filteredLevel[pixelIndex * levelChannelCount + shownChannelIndex]!;
-    const intensity = Math.min(1, Math.abs(amplificationFactor * variation) / maximumAddedLevels);
-    const overlayColor = variation >= 0 ? risingColor : fallingColor;
-    outputRgba[pixelIndex * 4] = overlayColor[0];
-    outputRgba[pixelIndex * 4 + 1] = overlayColor[1];
-    outputRgba[pixelIndex * 4 + 2] = overlayColor[2];
-    outputRgba[pixelIndex * 4 + 3] = Math.round(intensity * maximumOverlayAlpha);
   }
 }

@@ -1,6 +1,6 @@
 import { createBiquadState, processBiquadSample } from '@/processing/dsp/biquad';
 
-import { reconstructAmplifiedRgba, renderVariationOverlayRgba } from './amplification';
+import { reconstructAmplifiedRgba } from './amplification';
 import {
   convertFrequencyToDisplayUnit,
   magnificationBandPresets,
@@ -297,7 +297,7 @@ describe('medida de la frecuencia dominante', () => {
   });
 });
 
-describe('amplificación y mapa', () => {
+describe('amplificación', () => {
   it('suma α·variación (ampliada a la base) y respeta el tope', () => {
     const baseRgb = new Uint8Array(4 * 4 * 3).fill(100);
     const filteredLevel = new Float32Array(2 * 2).fill(0.5);
@@ -317,16 +317,6 @@ describe('amplificación y mapa', () => {
     reconstructAmplifiedRgba(baseRgb, 4, 1, filteredLevel, 2, 1, 3, { amplificationFactor: 10, maximumAddedLevels: 100 }, outputRgba);
     const redValues = [0, 1, 2, 3].map((pixelIndex) => outputRgba[pixelIndex * 4]);
     expect(redValues).toEqual([90, 95, 105, 110]);
-  });
-
-  it('el mapa es cálido donde sube, frío donde baja y transparente sin cambio', () => {
-    const filteredLevel = Float32Array.from([2, -2, 0]);
-    const overlayRgba = new Uint8Array(3 * 4);
-    renderVariationOverlayRgba(filteredLevel, 3, 1, 1, { amplificationFactor: 50, maximumAddedLevels: 50 }, overlayRgba);
-    expect(overlayRgba[0]).toBeGreaterThan(overlayRgba[2]!);
-    expect(overlayRgba[3]).toBeGreaterThan(200);
-    expect(overlayRgba[6]).toBeGreaterThan(overlayRgba[4]!);
-    expect(overlayRgba[11]).toBe(0);
   });
 });
 
@@ -381,7 +371,7 @@ describe('motor de amplificación', () => {
       pixelCombination: preset.pixelCombination,
     });
     const generateNoise = createNoiseGenerator(21);
-    const outputRequest = { wantsAmplifiedImage: true, wantsOverlay: true };
+    const outputRequest = { wantsAmplifiedImage: true, wantsHeatMap: true, wantsPhaseMap: true };
 
     const firstFrame = magnificationEngine.processFrame(createSyntheticPulseFrame(0, generateNoise), outputRequest);
     expect(firstFrame.status).toBe('estimatingFrameRate');
@@ -423,7 +413,7 @@ describe('motor de amplificación', () => {
       pixelCombination: preset.pixelCombination,
     });
     const generateNoise = createNoiseGenerator(5);
-    const outputRequest = { wantsAmplifiedImage: false, wantsOverlay: false };
+    const outputRequest = { wantsAmplifiedImage: false };
     let frameIndex = 0;
     for (; frameIndex < 30 * 20; frameIndex++) {
       magnificationEngine.processFrame(createSyntheticPulseFrame(frameIndex, generateNoise), outputRequest);
@@ -461,7 +451,6 @@ describe('motor de amplificación', () => {
     for (let frameIndex = 0; frameIndex < 40; frameIndex++) {
       lastStatus = magnificationEngine.processFrame(createSyntheticPulseFrame(frameIndex, generateNoise), {
         wantsAmplifiedImage: false,
-        wantsOverlay: false,
       }).status;
     }
     expect(lastStatus).toBe('bandAboveFrameRate');
