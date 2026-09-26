@@ -16,8 +16,15 @@
  *  4. Ruido de color: las crominancias se suavizan con una gaussiana ponderada por Y (los píxeles
  *     oscuros, más ruidosos, pesan menos). Es el paso clave: el ruido de color aleatorio se
  *     promedia antes de amplificar, mientras que las regiones de color, extensas, sobreviven.
- *  5. Saturación: cR, cB se multiplican por la ganancia (5–15).
- *  6. Recomposición con la luminancia ORIGINAL: R = Y(1 + cR), B = Y(1 + cB) y G sale de Y.
+ *  5. Tendencia radial: se ajusta, por mínimos cuadrados ponderados por Y, un polinomio en la
+ *     distancia al centro (grado 2 por defecto) a cada crominancia suavizada y se resta. En las
+ *     fotos reales (moto g57, zoom 8×) la crominancia sube de forma suave y casi simétrica del
+ *     centro al borde (aberración cromática lateral, el revelado del móvil, el oscurecimiento
+ *     del limbo): amplificada, era un anillo naranja falso. Los mares no son anillos centrados,
+ *     así que el ajuste radial apenas les quita color.
+ *  6. Saturación: cR, cB se multiplican por la ganancia (5–10). En el último 10 % del radio el
+ *     color se apaga poco a poco (ahí se mezclan cielo, desenfoque y lo que quede de la franja).
+ *  7. Recomposición con la luminancia ORIGINAL: R = Y(1 + cR), B = Y(1 + cB) y G sale de Y.
  *     El detalle (que está en Y) no se toca: solo cambia el color.
  *
  * Fuera del disco la imagen queda gris (crominancia 0). Módulo puro: sin React ni React Native.
@@ -42,8 +49,15 @@ const skyInnerRadiusFactor = 1.15;
 const maximumBoostedChroma = 0.9;
 
 export interface MineralMoonOptions {
-  /** Ganancia de saturación (5–15 lo habitual). */
+  /** Ganancia de saturación (5–10 lo habitual). */
   saturationGain: number;
+  /** Grado del polinomio radial que se resta a la crominancia (−1 = no restar nada). */
+  radialTrendDegree: number;
+  /**
+   * Desde esta fracción del radio hasta el borde el color se apaga poco a poco: en el limbo se
+   * mezclan el cielo, la franja de la aberración cromática que queda y el desenfoque del borde.
+   */
+  limbColorFadeStartFraction: number;
   /** σ del suavizado de la crominancia, en píxeles (o en fracción del radio si se da la otra). */
   chromaSmoothingSigmaPixels?: number;
   /** σ del suavizado de la crominancia como fracción del radio del disco (por defecto 0,04). */
@@ -51,7 +65,9 @@ export interface MineralMoonOptions {
 }
 
 export const defaultMineralMoonOptions: MineralMoonOptions = {
-  saturationGain: 8,
+  saturationGain: 5,
+  radialTrendDegree: 2,
+  limbColorFadeStartFraction: 0.9,
   chromaSmoothingRadiusFraction: 0.04,
 };
 
@@ -62,6 +78,73 @@ export interface MineralMoonResult {
   skyLevels: { red: number; green: number; blue: number };
   diskCircle: Circle;
   chromaSmoothingSigmaPixels: number;
+  /** Coeficientes (en potencias de r/R, de grado 0 en adelante) restados a cR y a cB. */
+  radialTrendCoefficients: { red: number[]; blue: number[] };
+}
+
+/** Resuelve un sistema lineal pequeño por eliminación gaussiana con pivote; null si es singular. */
+function solveLinearSystem(matrix: number[][], rightHandSide: number[]): number[] | null {
+  const size = rightHandSide.length;
+  const augmented = matrix.map((matrixRow, rowIndex) => [...matrixRow, rightHandSide[rowIndex]!]);
+  for (let pivotIndex = 0; pivotIndex < size; pivotIndex++) {
+    let bestRow = pivotIndex;
+    for (let rowIndex = pivotIndex + 1; rowIndex < size; rowIndex++) {
+      if (Math.abs(augmented[rowIndex]![pivotIndex]!) > Math.abs(augmented[bestRow]![pivotIndex]!)) bestRow = rowIndex;
+    }
+    if (Math.abs(augmented[bestRow]![pivotIndex]!) < 1e-12) return null;
+    [augmented[pivotIndex], augmented[bestRow]] = [augmented[bestRow]!, augmented[pivotIndex]!];
+    for (let rowIndex = 0; rowIndex < size; rowIndex++) {
+      if (rowIndex === pivotIndex) continue;
+      const factor = augmented[rowIndex]![pivotIndex]! / augmented[pivotIndex]![pivotIndex]!;
+      for (let columnIndex = pivotIndex; columnIndex <= size; columnIndex++) {
+        augmented[rowIndex]![columnIndex] = augmented[rowIndex]![columnIndex]! - factor * augmented[pivotIndex]![columnIndex]!;
+      }
+    }
+  }
+  return augmented.map((augmentedRow, rowIndex) => augmentedRow[size]! / augmentedRow[rowIndex]!);
+}
+
+/**
+ * Polinomio en ρ = r/R ajustado por mínimos cuadrados ponderados a unos valores. Devuelve los
+ * coeficientes (grado 0 primero); ceros si no hay datos suficientes.
+ */
+export function fitRadialPolynomial(
+  normalizedRadii: Float32Array,
+  values: Float32Array,
+  weights: Float32Array,
+  degree: number,
+): number[] {
+  const termCount = degree + 1;
+  const normalMatrix = Array.from({ length: termCount }, () => new Array<number>(termCount).fill(0));
+  const normalVector = new Array<number>(termCount).fill(0);
+  const powers = new Array<number>(2 * termCount).fill(0);
+  for (let sampleIndex = 0; sampleIndex < values.length; sampleIndex++) {
+    const weight = weights[sampleIndex]!;
+    if (!(weight > 0)) continue;
+    const radius = normalizedRadii[sampleIndex]!;
+    powers[0] = 1;
+    for (let powerIndex = 1; powerIndex < 2 * termCount - 1; powerIndex++) powers[powerIndex] = powers[powerIndex - 1]! * radius;
+    for (let rowIndex = 0; rowIndex < termCount; rowIndex++) {
+      normalVector[rowIndex] = normalVector[rowIndex]! + weight * powers[rowIndex]! * values[sampleIndex]!;
+      for (let columnIndex = 0; columnIndex < termCount; columnIndex++) {
+        normalMatrix[rowIndex]![columnIndex] = normalMatrix[rowIndex]![columnIndex]! + weight * powers[rowIndex + columnIndex]!;
+      }
+    }
+  }
+  return solveLinearSystem(normalMatrix, normalVector) ?? new Array<number>(termCount).fill(0);
+}
+
+/** 1 hasta `fadeStartFraction` del radio y baja en coseno hasta 0 en el borde. */
+function limbColorFadeFactor(normalizedRadius: number, fadeStartFraction: number): number {
+  if (normalizedRadius <= fadeStartFraction || fadeStartFraction >= 1) return 1;
+  if (normalizedRadius >= 1) return 0;
+  return 0.5 * (1 + Math.cos((Math.PI * (normalizedRadius - fadeStartFraction)) / (1 - fadeStartFraction)));
+}
+
+function evaluatePolynomial(coefficients: readonly number[], radius: number): number {
+  let value = 0;
+  for (let termIndex = coefficients.length - 1; termIndex >= 0; termIndex--) value = value * radius + coefficients[termIndex]!;
+  return value;
 }
 
 function medianOfList(values: number[]): number {
@@ -70,30 +153,34 @@ function medianOfList(values: number[]): number {
   return values[Math.floor(values.length / 2)]!;
 }
 
+export interface DiskWhiteBalance {
+  /** Ganancias que igualan la media de R y B a la de G sobre el disco iluminado. */
+  whiteBalanceGains: { red: number; green: number; blue: number };
+  /** Nivel del cielo de cada canal (mediana fuera del disco). */
+  skyLevels: { red: number; green: number; blue: number };
+  /** Distancia de cada píxel al centro del disco. */
+  radialDistances: Float32Array;
+  /** Canales con el cielo restado (sin el balance aplicado). */
+  skySubtracted: { red: Float32Array; green: Float32Array; blue: Float32Array };
+}
+
 /**
- * Luna mineral a partir de una imagen RGB lineal apilada, o `null` si no se encuentra el disco.
- * `diskCircle` evita repetir el ajuste si ya se tiene.
+ * Pasos 1 y 2: nivel del cielo por canal y balance de blancos «neutro» tomando la Luna, en
+ * conjunto, como gris. Sirve también para corregir el color de una foto normal cuando el móvil
+ * no deja fijar el balance de blancos. `null` si el disco iluminado no tiene señal.
  */
-export function renderMineralMoon(
-  planes: RgbPlanes,
-  partialOptions: Partial<MineralMoonOptions> = {},
-  diskCircle?: Circle | null,
-): MineralMoonResult | null {
-  const options = { ...defaultMineralMoonOptions, ...partialOptions };
+export function measureDiskWhiteBalance(planes: RgbPlanes, diskCircle: Circle): DiskWhiteBalance | null {
   const { width, height } = planes;
   const pixelCount = width * height;
-  const fittedCircle = diskCircle ?? fitLunarDiskTolerantOfBlur(channelAsGrayImage(planes, 'green'));
-  if (!fittedCircle) return null;
-
   // 1. Nivel del cielo por canal.
   const skySamples = { red: [] as number[], green: [] as number[], blue: [] as number[] };
   const radialDistances = new Float32Array(pixelCount);
   for (let rowIndex = 0; rowIndex < height; rowIndex++) {
     for (let columnIndex = 0; columnIndex < width; columnIndex++) {
       const pixelIndex = rowIndex * width + columnIndex;
-      const radialDistance = Math.hypot(columnIndex - fittedCircle.centerX, rowIndex - fittedCircle.centerY);
+      const radialDistance = Math.hypot(columnIndex - diskCircle.centerX, rowIndex - diskCircle.centerY);
       radialDistances[pixelIndex] = radialDistance;
-      if (radialDistance > skyInnerRadiusFactor * fittedCircle.radius) {
+      if (radialDistance > skyInnerRadiusFactor * diskCircle.radius) {
         skySamples.red.push(planes.red[pixelIndex]!);
         skySamples.green.push(planes.green[pixelIndex]!);
         skySamples.blue.push(planes.blue[pixelIndex]!);
@@ -111,25 +198,50 @@ export function renderMineralMoon(
   }
 
   // 2. Balance de blancos sobre el disco iluminado.
-  const balanceMask = new Uint8Array(pixelCount);
   const diskGreenValues: number[] = [];
   for (let pixelIndex = 0; pixelIndex < pixelCount; pixelIndex++) {
-    if (radialDistances[pixelIndex]! < whiteBalanceRadiusFraction * fittedCircle.radius) diskGreenValues.push(greenValues[pixelIndex]!);
+    if (radialDistances[pixelIndex]! < whiteBalanceRadiusFraction * diskCircle.radius) diskGreenValues.push(greenValues[pixelIndex]!);
   }
   const brightGreenLevel = percentileOfValues(Float32Array.from(diskGreenValues), 95);
   let redSum = 0;
   let greenSum = 0;
   let blueSum = 0;
   for (let pixelIndex = 0; pixelIndex < pixelCount; pixelIndex++) {
-    if (radialDistances[pixelIndex]! >= whiteBalanceRadiusFraction * fittedCircle.radius) continue;
+    if (radialDistances[pixelIndex]! >= whiteBalanceRadiusFraction * diskCircle.radius) continue;
     if (greenValues[pixelIndex]! < minimumLitBrightnessFraction * brightGreenLevel) continue;
-    balanceMask[pixelIndex] = 1;
     redSum += redValues[pixelIndex]!;
     greenSum += greenValues[pixelIndex]!;
     blueSum += blueValues[pixelIndex]!;
   }
   if (greenSum <= 0 || redSum <= 0 || blueSum <= 0) return null;
-  const whiteBalanceGains = { red: greenSum / redSum, green: 1, blue: greenSum / blueSum };
+  return {
+    whiteBalanceGains: { red: greenSum / redSum, green: 1, blue: greenSum / blueSum },
+    skyLevels,
+    radialDistances,
+    skySubtracted: { red: redValues, green: greenValues, blue: blueValues },
+  };
+}
+
+/**
+ * Luna mineral a partir de una imagen RGB lineal apilada, o `null` si no se encuentra el disco.
+ * `diskCircle` evita repetir el ajuste si ya se tiene.
+ */
+export function renderMineralMoon(
+  planes: RgbPlanes,
+  partialOptions: Partial<MineralMoonOptions> = {},
+  diskCircle?: Circle | null,
+): MineralMoonResult | null {
+  const options = { ...defaultMineralMoonOptions, ...partialOptions };
+  const { width, height } = planes;
+  const pixelCount = width * height;
+  const fittedCircle = diskCircle ?? fitLunarDiskTolerantOfBlur(channelAsGrayImage(planes, 'green'));
+  if (!fittedCircle) return null;
+
+  // 1-2. Cielo y balance de blancos.
+  const diskWhiteBalance = measureDiskWhiteBalance(planes, fittedCircle);
+  if (!diskWhiteBalance) return null;
+  const { whiteBalanceGains, skyLevels, radialDistances } = diskWhiteBalance;
+  const { red: redValues, green: greenValues, blue: blueValues } = diskWhiteBalance.skySubtracted;
 
   // 3. Luminancia y crominancias normalizadas (ponderadas por Y para el suavizado).
   const luminanceValues = new Float32Array(pixelCount);
@@ -157,17 +269,42 @@ export function renderMineralMoon(
   const smoothedRedChroma = gaussianBlurGray(createGrayImage(width, height, weightedRedChroma), chromaSmoothingSigmaPixels).values;
   const smoothedBlueChroma = gaussianBlurGray(createGrayImage(width, height, weightedBlueChroma), chromaSmoothingSigmaPixels).values;
 
-  // 5-6. Ganancia y recomposición con la luminancia original.
+  // 5. Tendencia radial de la crominancia suavizada, ajustada solo sobre el disco.
+  const normalizedRadii = new Float32Array(pixelCount);
+  const smoothedRedValues = new Float32Array(pixelCount);
+  const smoothedBlueValues = new Float32Array(pixelCount);
+  for (let pixelIndex = 0; pixelIndex < pixelCount; pixelIndex++) {
+    normalizedRadii[pixelIndex] = radialDistances[pixelIndex]! / fittedCircle.radius;
+    const smoothedWeight = smoothedWeights[pixelIndex]!;
+    if (chromaWeights[pixelIndex]! > 0 && smoothedWeight > 0) {
+      smoothedRedValues[pixelIndex] = smoothedRedChroma[pixelIndex]! / smoothedWeight;
+      smoothedBlueValues[pixelIndex] = smoothedBlueChroma[pixelIndex]! / smoothedWeight;
+    }
+  }
+  const radialTrendCoefficients =
+    options.radialTrendDegree >= 0
+      ? {
+          red: fitRadialPolynomial(normalizedRadii, smoothedRedValues, chromaWeights, options.radialTrendDegree),
+          blue: fitRadialPolynomial(normalizedRadii, smoothedBlueValues, chromaWeights, options.radialTrendDegree),
+        }
+      : { red: [], blue: [] };
+
+  // 6-7. Ganancia y recomposición con la luminancia original.
   const outputRed = new Float32Array(pixelCount);
   const outputGreen = new Float32Array(pixelCount);
   const outputBlue = new Float32Array(pixelCount);
   const clampChroma = (chroma: number) => Math.max(-maximumBoostedChroma, Math.min(maximumBoostedChroma, chroma));
   for (let pixelIndex = 0; pixelIndex < pixelCount; pixelIndex++) {
     const luminance = luminanceValues[pixelIndex]!;
-    const smoothedWeight = smoothedWeights[pixelIndex]!;
-    const hasColor = chromaWeights[pixelIndex]! > 0 && smoothedWeight > 0;
-    const redChroma = hasColor ? clampChroma((options.saturationGain * smoothedRedChroma[pixelIndex]!) / smoothedWeight) : 0;
-    const blueChroma = hasColor ? clampChroma((options.saturationGain * smoothedBlueChroma[pixelIndex]!) / smoothedWeight) : 0;
+    const hasColor = chromaWeights[pixelIndex]! > 0 && smoothedWeights[pixelIndex]! > 0;
+    const normalizedRadius = normalizedRadii[pixelIndex]!;
+    const limbFade = limbColorFadeFactor(normalizedRadius, options.limbColorFadeStartFraction);
+    const redChroma = hasColor
+      ? limbFade * clampChroma(options.saturationGain * (smoothedRedValues[pixelIndex]! - evaluatePolynomial(radialTrendCoefficients.red, normalizedRadius)))
+      : 0;
+    const blueChroma = hasColor
+      ? limbFade * clampChroma(options.saturationGain * (smoothedBlueValues[pixelIndex]! - evaluatePolynomial(radialTrendCoefficients.blue, normalizedRadius)))
+      : 0;
     const recomposedRed = luminance * (1 + redChroma);
     const recomposedBlue = luminance * (1 + blueChroma);
     const recomposedGreen = (luminance - redLuminanceWeight * recomposedRed - blueLuminanceWeight * recomposedBlue) / greenLuminanceWeight;
@@ -181,6 +318,7 @@ export function renderMineralMoon(
     skyLevels,
     diskCircle: fittedCircle,
     chromaSmoothingSigmaPixels,
+    radialTrendCoefficients,
   };
 }
 

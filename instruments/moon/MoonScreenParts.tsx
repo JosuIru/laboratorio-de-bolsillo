@@ -1,4 +1,4 @@
-import { Canvas, Image as SkiaImageView, type SkImage } from '@shopify/react-native-skia';
+import { Canvas, Circle, Image as SkiaImageView, type SkImage } from '@shopify/react-native-skia';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type LayoutChangeEvent, Pressable, StyleSheet, View } from 'react-native';
@@ -214,6 +214,67 @@ export function ResultImage({ label, skiaImage }: { label: string; skiaImage: Sk
       </View>
       <BodyText tone="secondary">{label}</BodyText>
     </View>
+  );
+}
+
+export interface ImageMarker {
+  /** En píxeles de la imagen. */
+  x: number;
+  y: number;
+  radiusPixels: number;
+  color: string;
+}
+
+/**
+ * Imagen cuadrada que se puede tocar: devuelve el punto en píxeles de la imagen y dibuja
+ * círculos encima (las zonas marcadas).
+ */
+export function MarkableImage({
+  skiaImage,
+  imageSide,
+  markers,
+  onPressImagePoint,
+  accessibilityLabel,
+}: {
+  skiaImage: SkImage;
+  /** Lado de la imagen en píxeles. */
+  imageSide: number;
+  markers: readonly ImageMarker[];
+  onPressImagePoint(point: { x: number; y: number }): void;
+  accessibilityLabel: string;
+}) {
+  const [viewSide, setViewSide] = useState(0);
+  const viewPixelsPerImagePixel = viewSide > 0 ? viewSide / imageSide : 0;
+  return (
+    <Pressable
+      accessibilityRole="imagebutton"
+      accessibilityLabel={accessibilityLabel}
+      style={styles.resultImageFrame}
+      onLayout={(layoutEvent: LayoutChangeEvent) => setViewSide(layoutEvent.nativeEvent.layout.width)}
+      onPress={(pressEvent) => {
+        if (viewPixelsPerImagePixel <= 0) return;
+        onPressImagePoint({
+          x: pressEvent.nativeEvent.locationX / viewPixelsPerImagePixel,
+          y: pressEvent.nativeEvent.locationY / viewPixelsPerImagePixel,
+        });
+      }}>
+      {viewSide > 0 ? (
+        <Canvas style={{ width: viewSide, height: viewSide }}>
+          <SkiaImageView image={skiaImage} x={0} y={0} width={viewSide} height={viewSide} fit="contain" />
+          {markers.map((marker, markerIndex) => (
+            <Circle
+              key={markerIndex}
+              cx={marker.x * viewPixelsPerImagePixel}
+              cy={marker.y * viewPixelsPerImagePixel}
+              r={Math.max(4, marker.radiusPixels * viewPixelsPerImagePixel)}
+              color={marker.color}
+              style="stroke"
+              strokeWidth={2}
+            />
+          ))}
+        </Canvas>
+      ) : null}
+    </Pressable>
   );
 }
 
