@@ -23,6 +23,7 @@ import { poolStripsInstrument } from './pool-strips';
 import { propellerBalancerInstrument } from './propeller-balancer';
 import { resonanceScaleInstrument } from './resonance-scale';
 import { rhythmInstrument } from './rhythm';
+import { rvLevelerInstrument } from './rv-leveler';
 import { roomAcousticsInstrument } from './room-acoustics';
 import { seismicNetworkInstrument } from './seismic-network';
 import { seismographInstrument } from './seismograph';
@@ -51,6 +52,7 @@ export const instrumentSections: readonly InstrumentSection[] = [
       metalDetectorInstrument,
       mainsFrequencyInstrument,
       machineDiagnosisInstrument,
+      rvLevelerInstrument,
       propellerBalancerInstrument,
       tachometerInstrument,
       superzoomInstrument,

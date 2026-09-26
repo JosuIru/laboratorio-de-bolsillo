@@ -1,0 +1,74 @@
+{
+  "name": "Nivelar autocaravana",
+  "description": "Cuántos cm calzar cada rueda de una autocaravana o caravana para dejarla a nivel.",
+  "instructions": "Pon el móvil boca arriba sobre el suelo o la encimera del vehículo, con la parte de arriba del móvil hacia delante. Introduce abajo las medidas del vehículo.",
+  "waiting": "Esperando al acelerómetro…",
+  "fields": {
+    "vehicleLayout": "Tipo de vehículo",
+    "lateralTilt": "Lateral",
+    "longitudinalTilt": "Longitudinal",
+    "isLevel": "Nivelado",
+    "trackWidth": "Vía",
+    "wheelbase": "Batalla",
+    "frontLeftLift": "Calzo delantera izquierda",
+    "frontRightLift": "Calzo delantera derecha",
+    "rearLeftLift": "Calzo trasera izquierda",
+    "rearRightLift": "Calzo trasera derecha",
+    "jockeyDistance": "Distancia del eje a la rueda jockey",
+    "leftWheelLift": "Calzo rueda izquierda",
+    "rightWheelLift": "Calzo rueda derecha",
+    "jockeyWheelChange": "Ajuste de la rueda jockey"
+  },
+  "direction": {
+    "level": "a nivel",
+    "rightHigher": "derecha más alta",
+    "leftHigher": "izquierda más alta",
+    "frontHigher": "morro más alto",
+    "rearHigher": "trasera más alta"
+  },
+  "status": {
+    "level": "Nivelado",
+    "notLevel": "Falta nivelar",
+    "moving": "Se está moviendo: espera a que se quede quieto."
+  },
+  "axles": {
+    "front": "Eje delantero: subir {{centimeters}} cm de media",
+    "rear": "Eje trasero: subir {{centimeters}} cm de media"
+  },
+  "diagram": {
+    "front": "▲ Delante",
+    "liftValue": "{{centimeters}} cm",
+    "jockeyRaise": "↑ subir {{centimeters}} cm",
+    "jockeyLower": "↓ bajar {{centimeters}} cm",
+    "fourWheelsDescription": "Calzos: delantera izquierda {{frontLeft}} cm, delantera derecha {{frontRight}} cm, trasera izquierda {{rearLeft}} cm, trasera derecha {{rearRight}} cm.",
+    "singleAxleDescription": "Calzos: izquierda {{left}} cm, derecha {{right}} cm. Rueda jockey: {{jockey}}.",
+    "fourWheelsHelp": "Centímetros que hay que levantar cada rueda con calzos o rampas. La rueda más alta se queda como está.",
+    "singleAxleHelp": "Calza primero la rueda del lado bajo y luego ajusta el morro con la rueda jockey."
+  },
+  "tooHigh": "Hace falta más de {{centimeters}} cm: busca un sitio más llano o usa calzos más altos.",
+  "vehicle": {
+    "title": "Vehículo",
+    "layouts": {
+      "fourWheels": "Dos ejes (autocaravana)",
+      "singleAxle": "Un eje (caravana)"
+    },
+    "trackWidthCentimeters": "Anchura entre ruedas (vía)",
+    "wheelbaseCentimeters": "Distancia entre ejes (batalla)",
+    "jockeyDistanceCentimeters": "Del eje a la rueda jockey",
+    "invalidDimension": "Pon un valor entre {{minimum}} y {{maximum}} cm.",
+    "fourWheelsHelp": "Mide la vía de centro a centro de las ruedas traseras y la batalla de centro a centro de los ejes.",
+    "singleAxleHelp": "Mide la vía de centro a centro de las ruedas y la distancia del eje a la rueda jockey."
+  },
+  "zero": {
+    "title": "Cero del móvil",
+    "none": "Sin cero: se da por hecho que el móvil está a nivel respecto al suelo del vehículo.",
+    "current": "Cero guardado: X {{tiltX}}°, Y {{tiltY}}°",
+    "explanation": "Si la funda o la cámara impiden que el móvil apoye plano, o no te fías del sensor, fija el cero: se mide dos veces girando el móvil 180° y se promedia. No hace falta que el vehículo esté nivelado.",
+    "start": "Fijar el cero (inversión)",
+    "clear": "Borrar el cero",
+    "firstStep": "1/2 · Deja el móvil quieto en su sitio y pulsa Medir.",
+    "secondStep": "2/2 · Gira el móvil 180° en el mismo sitio (con la parte de arriba hacia atrás) y pulsa Medir.",
+    "measure": "Medir",
+    "saved": "Cero guardado."
+  }
+}
