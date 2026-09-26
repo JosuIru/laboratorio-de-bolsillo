@@ -153,30 +153,34 @@ function medianOfList(values: number[]): number {
   return values[Math.floor(values.length / 2)]!;
 }
 
+export interface DiskWhiteBalance {
+  /** Ganancias que igualan la media de R y B a la de G sobre el disco iluminado. */
+  whiteBalanceGains: { red: number; green: number; blue: number };
+  /** Nivel del cielo de cada canal (mediana fuera del disco). */
+  skyLevels: { red: number; green: number; blue: number };
+  /** Distancia de cada píxel al centro del disco. */
+  radialDistances: Float32Array;
+  /** Canales con el cielo restado (sin el balance aplicado). */
+  skySubtracted: { red: Float32Array; green: Float32Array; blue: Float32Array };
+}
+
 /**
- * Luna mineral a partir de una imagen RGB lineal apilada, o `null` si no se encuentra el disco.
- * `diskCircle` evita repetir el ajuste si ya se tiene.
+ * Pasos 1 y 2: nivel del cielo por canal y balance de blancos «neutro» tomando la Luna, en
+ * conjunto, como gris. Sirve también para corregir el color de una foto normal cuando el móvil
+ * no deja fijar el balance de blancos. `null` si el disco iluminado no tiene señal.
  */
-export function renderMineralMoon(
-  planes: RgbPlanes,
-  partialOptions: Partial<MineralMoonOptions> = {},
-  diskCircle?: Circle | null,
-): MineralMoonResult | null {
-  const options = { ...defaultMineralMoonOptions, ...partialOptions };
+export function measureDiskWhiteBalance(planes: RgbPlanes, diskCircle: Circle): DiskWhiteBalance | null {
   const { width, height } = planes;
   const pixelCount = width * height;
-  const fittedCircle = diskCircle ?? fitLunarDiskTolerantOfBlur(channelAsGrayImage(planes, 'green'));
-  if (!fittedCircle) return null;
-
   // 1. Nivel del cielo por canal.
   const skySamples = { red: [] as number[], green: [] as number[], blue: [] as number[] };
   const radialDistances = new Float32Array(pixelCount);
   for (let rowIndex = 0; rowIndex < height; rowIndex++) {
     for (let columnIndex = 0; columnIndex < width; columnIndex++) {
       const pixelIndex = rowIndex * width + columnIndex;
-      const radialDistance = Math.hypot(columnIndex - fittedCircle.centerX, rowIndex - fittedCircle.centerY);
+      const radialDistance = Math.hypot(columnIndex - diskCircle.centerX, rowIndex - diskCircle.centerY);
       radialDistances[pixelIndex] = radialDistance;
-      if (radialDistance > skyInnerRadiusFactor * fittedCircle.radius) {
+      if (radialDistance > skyInnerRadiusFactor * diskCircle.radius) {
         skySamples.red.push(planes.red[pixelIndex]!);
         skySamples.green.push(planes.green[pixelIndex]!);
         skySamples.blue.push(planes.blue[pixelIndex]!);
@@ -194,25 +198,50 @@ export function renderMineralMoon(
   }
 
   // 2. Balance de blancos sobre el disco iluminado.
-  const balanceMask = new Uint8Array(pixelCount);
   const diskGreenValues: number[] = [];
   for (let pixelIndex = 0; pixelIndex < pixelCount; pixelIndex++) {
-    if (radialDistances[pixelIndex]! < whiteBalanceRadiusFraction * fittedCircle.radius) diskGreenValues.push(greenValues[pixelIndex]!);
+    if (radialDistances[pixelIndex]! < whiteBalanceRadiusFraction * diskCircle.radius) diskGreenValues.push(greenValues[pixelIndex]!);
   }
   const brightGreenLevel = percentileOfValues(Float32Array.from(diskGreenValues), 95);
   let redSum = 0;
   let greenSum = 0;
   let blueSum = 0;
   for (let pixelIndex = 0; pixelIndex < pixelCount; pixelIndex++) {
-    if (radialDistances[pixelIndex]! >= whiteBalanceRadiusFraction * fittedCircle.radius) continue;
+    if (radialDistances[pixelIndex]! >= whiteBalanceRadiusFraction * diskCircle.radius) continue;
     if (greenValues[pixelIndex]! < minimumLitBrightnessFraction * brightGreenLevel) continue;
-    balanceMask[pixelIndex] = 1;
     redSum += redValues[pixelIndex]!;
     greenSum += greenValues[pixelIndex]!;
     blueSum += blueValues[pixelIndex]!;
   }
   if (greenSum <= 0 || redSum <= 0 || blueSum <= 0) return null;
-  const whiteBalanceGains = { red: greenSum / redSum, green: 1, blue: greenSum / blueSum };
+  return {
+    whiteBalanceGains: { red: greenSum / redSum, green: 1, blue: greenSum / blueSum },
+    skyLevels,
+    radialDistances,
+    skySubtracted: { red: redValues, green: greenValues, blue: blueValues },
+  };
+}
+
+/**
+ * Luna mineral a partir de una imagen RGB lineal apilada, o `null` si no se encuentra el disco.
+ * `diskCircle` evita repetir el ajuste si ya se tiene.
+ */
+export function renderMineralMoon(
+  planes: RgbPlanes,
+  partialOptions: Partial<MineralMoonOptions> = {},
+  diskCircle?: Circle | null,
+): MineralMoonResult | null {
+  const options = { ...defaultMineralMoonOptions, ...partialOptions };
+  const { width, height } = planes;
+  const pixelCount = width * height;
+  const fittedCircle = diskCircle ?? fitLunarDiskTolerantOfBlur(channelAsGrayImage(planes, 'green'));
+  if (!fittedCircle) return null;
+
+  // 1-2. Cielo y balance de blancos.
+  const diskWhiteBalance = measureDiskWhiteBalance(planes, fittedCircle);
+  if (!diskWhiteBalance) return null;
+  const { whiteBalanceGains, skyLevels, radialDistances } = diskWhiteBalance;
+  const { red: redValues, green: greenValues, blue: blueValues } = diskWhiteBalance.skySubtracted;
 
   // 3. Luminancia y crominancias normalizadas (ponderadas por Y para el suavizado).
   const luminanceValues = new Float32Array(pixelCount);
