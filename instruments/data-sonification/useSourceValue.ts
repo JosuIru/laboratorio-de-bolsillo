@@ -10,6 +10,7 @@ import { useSensorSubscription } from '@/core/sensors/useSensorSubscription';
 
 import {
   createValueSmoother,
+  magneticMagnitudeChange,
   normalizeSourceValue,
   type SonificationSourceId,
   tiltDegreesFromGravity,
@@ -37,8 +38,9 @@ export function useSourceValue(sourceId: SonificationSourceId, isActive: boolean
   const latestReadingRef = useRef<SourceReading | null>(null);
   const [valueSmoother] = useState(() => createValueSmoother(valueTimeConstantSeconds));
   const gravityEstimateRef = useRef<{ x: number; y: number; z: number; timestampSeconds: number } | null>(null);
+  /** Media del módulo del campo durante el primer segundo. */
   const magneticBaselineRef = useRef<{
-    sum: { x: number; y: number; z: number };
+    magnitudeSum: number;
     count: number;
     startSeconds: number;
   } | null>(null);
@@ -92,19 +94,19 @@ export function useSourceValue(sourceId: SonificationSourceId, isActive: boolean
     magnetometerSource,
     ({ timestampSeconds, value }) => {
       const magneticBaseline = magneticBaselineRef.current;
+      const fieldMagnitude = Math.hypot(value.x, value.y, value.z);
       if (!magneticBaseline) {
-        magneticBaselineRef.current = { sum: { ...value }, count: 1, startSeconds: timestampSeconds };
+        magneticBaselineRef.current = { magnitudeSum: fieldMagnitude, count: 1, startSeconds: timestampSeconds };
         return;
       }
       if (timestampSeconds - magneticBaseline.startSeconds < magneticBaselineSeconds) {
-        magneticBaseline.sum.x += value.x;
-        magneticBaseline.sum.y += value.y;
-        magneticBaseline.sum.z += value.z;
+        magneticBaseline.magnitudeSum += fieldMagnitude;
         magneticBaseline.count++;
         return;
       }
-      const { sum, count } = magneticBaseline;
-      publish(Math.hypot(value.x - sum.x / count, value.y - sum.y / count, value.z - sum.z / count), timestampSeconds);
+      // Se comparan módulos, no vectores: girar el móvil no debe sonar como un imán.
+      const baselineMagnitude = magneticBaseline.magnitudeSum / magneticBaseline.count;
+      publish(magneticMagnitudeChange(value.x, value.y, value.z, baselineMagnitude), timestampSeconds);
     },
     { isActive: isActive && sourceId === 'magnetic', targetRateHz: 20 },
   );
