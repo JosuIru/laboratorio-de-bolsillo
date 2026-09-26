@@ -18,6 +18,7 @@ import { metronomeInstrument } from './metronome';
 import { moonInstrument } from './moon';
 import { motionMagnifierInstrument } from './motion-magnifier';
 import { muonDetectorInstrument } from './muon-detector';
+import { noiseLogInstrument } from './noise-log';
 import { phoneModemInstrument } from './phone-modem';
 import { pocketSpectrometerInstrument } from './pocket-spectrometer';
 import { poolStripsInstrument } from './pool-strips';
@@ -71,6 +72,7 @@ export const instrumentSections: readonly InstrumentSection[] = [
       metronomeInstrument,
       audioSpectrumInstrument,
       roomAcousticsInstrument,
+      noiseLogInstrument,
       sonarInstrument,
       dataSonificationInstrument,
     ],
