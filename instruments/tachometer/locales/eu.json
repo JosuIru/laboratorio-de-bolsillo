@@ -9,6 +9,7 @@
   "stable": "Irakurketa egonkorra",
   "unstable": "Egonkortzen…",
   "pulseFrequencyValue": "Pultsuak {{frequency}} Hz-tan",
+  "uncertaintyValue": "± {{uncertainty}} rpm",
   "pulsesHint": "Bira bakoitzean zenbat pultsu entzuten diren: haizagailuaren edo helizearen palak, edo 1 motorraren beraren biraketa entzuten bada.",
   "pulsesAccessibility": "{{count}} pultsu birako",
   "howTo": "Hurbildu mikrofonoa makinara erregimen egonkorrean dagoela, eta itxaron irakurketa egonkortu arte. Emaitza espero zenaren erdia edo bikoitza bada, egiaztatu birako pultsuak.",

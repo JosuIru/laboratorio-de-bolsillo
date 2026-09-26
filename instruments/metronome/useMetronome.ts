@@ -16,6 +16,23 @@ const schedulingHorizonSeconds = 0.15;
 /** Margen entre pulsar «Empezar» y el primer clic. */
 const startDelaySeconds = 0.1;
 const accentClickAmplitude = 0.95;
+
+/**
+ * Retraso entre el reloj de audio y el altavoz. `currentTime` marca lo que se está calculando,
+ * no lo que suena: sin descontarlo, el indicador se adelanta al clic. El AudioContext de la Web
+ * Audio API lo da en `outputLatency` (y `baseLatency`); react-native-audio-api 0.13 aún no los
+ * expone, así que se leen solo si existen y, si no, no se corrige nada.
+ */
+function readOutputLatencySeconds(audioContext: AudioContext): number {
+  const contextWithLatency = audioContext as AudioContext & { outputLatency?: unknown; baseLatency?: unknown };
+  const outputLatencySeconds = contextWithLatency.outputLatency;
+  const baseLatencySeconds = contextWithLatency.baseLatency;
+  const reportedLatencySeconds =
+    (typeof outputLatencySeconds === 'number' ? outputLatencySeconds : 0) +
+    (typeof baseLatencySeconds === 'number' ? baseLatencySeconds : 0);
+  // Un valor disparatado es peor que ninguno: se limita a medio segundo (Bluetooth anda por 0,2-0,3 s).
+  return Number.isFinite(reportedLatencySeconds) ? Math.min(0.5, Math.max(0, reportedLatencySeconds)) : 0;
+}
 const regularClickAmplitude = 0.75;
 
 export type MetronomeState =
@@ -108,7 +125,9 @@ export function useMetronome(beatsPerMinute: number, beatsPerBar: number) {
         }
 
         let soundedBeatInBar: number | null = null;
-        while (pendingBeats.length > 0 && (pendingBeats[0]?.timeSeconds ?? Infinity) <= audioContext.currentTime) {
+        // El pulso se marca cuando sale por el altavoz, no cuando el reloj de audio lo calcula.
+        const audibleTimeSeconds = audioContext.currentTime - readOutputLatencySeconds(audioContext);
+        while (pendingBeats.length > 0 && (pendingBeats[0]?.timeSeconds ?? Infinity) <= audibleTimeSeconds) {
           soundedBeatInBar = pendingBeats.shift()?.beatInBar ?? null;
           soundedBeatCount += 1;
         }

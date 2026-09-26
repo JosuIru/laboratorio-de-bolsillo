@@ -25,6 +25,8 @@ const wifiMapModes: readonly WifiMapMode[] = ['signal', 'map', 'channels'];
 export function WifiMapScreen({ saveMeasurement }: InstrumentScreenProps<WifiMapMeasurementValues>) {
   const { t } = useTranslation(wifiMapInstrumentId);
   const [wifiMapMode, setWifiMapMode] = useState<WifiMapMode>('signal');
+  // Mientras se mide un punto no se deja salir del mapa: la medida se perdería o llegaría tarde.
+  const [isMeasuringPoint, setIsMeasuringPoint] = useState(false);
   const { snapshot, collectRssiSamples } = useWifiConnection(isWifiSignalAvailable);
   const { permissionState, requestPermissions } = useWifiPermissions();
   const { neighborNetworks, scanStatus, requestScan, secondsUntilNextScan } = useWifiScan(
@@ -52,6 +54,7 @@ export function WifiMapScreen({ saveMeasurement }: InstrumentScreenProps<WifiMap
         selectedOption={wifiMapMode}
         onSelect={setWifiMapMode}
         labelFor={(mode) => t(`modes.${mode}`)}
+        isDisabled={isMeasuringPoint}
       />
 
       {isMissingNetworkName && wifiMapMode === 'signal' ? (
@@ -70,6 +73,7 @@ export function WifiMapScreen({ saveMeasurement }: InstrumentScreenProps<WifiMap
           snapshot={snapshot}
           collectRssiSamples={collectRssiSamples}
           saveMeasurement={saveMeasurement}
+          onMeasuringChange={setIsMeasuringPoint}
         />
       ) : null}
       {wifiMapMode === 'channels' ? (

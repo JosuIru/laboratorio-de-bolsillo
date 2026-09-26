@@ -14,12 +14,12 @@ import {
   maximumBeatsPerMinute,
   minimumBeatsPerMinute,
 } from './metronomeTiming';
+import { beatsPerBarOptions, loadMetronomeSettings, saveMetronomeSettings } from './metronomeSettingsStorage';
 import type { MetronomeMeasurementValues } from './schema';
 import { useMetronome } from './useMetronome';
 
 export const metronomeInstrumentId = 'metronome';
 
-const beatsPerBarOptions: readonly number[] = [1, 2, 3, 4, 6];
 const tempoSteps: readonly number[] = [-5, -1, 1, 5];
 const beatFlashMilliseconds = 120;
 
@@ -73,12 +73,18 @@ function BeatIndicator({
 export function MetronomeScreen(_screenProps: InstrumentScreenProps<MetronomeMeasurementValues>) {
   const { t } = useTranslation(metronomeInstrumentId);
   const themePalette = useThemePalette();
-  const [beatsPerMinute, setBeatsPerMinute] = useState(100);
-  const [beatsPerBar, setBeatsPerBar] = useState(4);
+  const [storedSettings] = useState(loadMetronomeSettings);
+  const [beatsPerMinute, setBeatsPerMinute] = useState(storedSettings.beatsPerMinute);
+  const [beatsPerBar, setBeatsPerBar] = useState(storedSettings.beatsPerBar);
   const [tapTimesSeconds, setTapTimesSeconds] = useState<number[]>([]);
   const { metronomeState, start, stop } = useMetronome(beatsPerMinute, beatsPerBar);
   const isPlaying = metronomeState.phase === 'playing';
   useKeepScreenOnWhile(isPlaying, 'metronome');
+
+  // Se recuerdan el tempo y el compás para la próxima vez.
+  useEffect(() => {
+    saveMetronomeSettings({ beatsPerMinute, beatsPerBar });
+  }, [beatsPerMinute, beatsPerBar]);
 
   function handleTap() {
     const updatedTapTimesSeconds = appendTap(tapTimesSeconds, performance.now() / 1000);

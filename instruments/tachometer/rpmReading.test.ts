@@ -1,4 +1,9 @@
-import { createReadingStabilizer, frequencyToRevolutionsPerMinute, revolutionsPerMinuteToFrequency } from './rpmReading';
+import {
+  createReadingStabilizer,
+  frequencyToRevolutionsPerMinute,
+  revolutionsPerMinuteToFrequency,
+  roundWithUncertainty,
+} from './rpmReading';
 
 describe('frequencyToRevolutionsPerMinute', () => {
   it('divide la frecuencia de los pulsos entre los pulsos por vuelta', () => {
@@ -49,5 +54,30 @@ describe('createReadingStabilizer', () => {
     expect(readingStabilizer.push(null)!.medianFrequencyHz).toBe(100);
     for (let silentIndex = 0; silentIndex < 3; silentIndex++) readingStabilizer.push(null);
     expect(readingStabilizer.push(null)).toBeNull();
+  });
+
+  it('da la incertidumbre de las estimaciones, o la dispersión si la lectura baila más', () => {
+    const steadyStabilizer = createReadingStabilizer();
+    let steadyReading = null;
+    for (const frequencyHz of [40, 40.01, 39.99, 40, 40.01]) steadyReading = steadyStabilizer.push(frequencyHz, 0.03);
+    expect(steadyReading!.frequencyUncertaintyHz).toBeCloseTo(0.03, 5);
+
+    const wobblyStabilizer = createReadingStabilizer();
+    let wobblyReading = null;
+    for (const frequencyHz of [38, 42, 38, 42, 40]) wobblyReading = wobblyStabilizer.push(frequencyHz, 0.03);
+    expect(wobblyReading!.frequencyUncertaintyHz).toBeGreaterThan(1);
+  });
+});
+
+describe('roundWithUncertainty', () => {
+  it('redondea el valor a la cifra de la incertidumbre', () => {
+    expect(roundWithUncertainty(1234.6, 2.7)).toEqual({ roundedValue: 1235, roundedUncertainty: 3 });
+    expect(roundWithUncertainty(1234.6, 27)).toEqual({ roundedValue: 1230, roundedUncertainty: 30 });
+    expect(roundWithUncertainty(98_765, 340)).toEqual({ roundedValue: 98_800, roundedUncertainty: 400 });
+  });
+
+  it('nunca baja de la unidad ni inventa incertidumbre', () => {
+    expect(roundWithUncertainty(1234.6, 0.2)).toEqual({ roundedValue: 1235, roundedUncertainty: 1 });
+    expect(roundWithUncertainty(1234.6, 0)).toEqual({ roundedValue: 1235, roundedUncertainty: 0 });
   });
 });

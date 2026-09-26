@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 
@@ -13,7 +13,7 @@ import { FloorPlanCanvas } from './FloorPlanCanvas';
 import type { WifiMapMeasurementValues } from './schema';
 import { SegmentedChoice } from './SegmentedChoice';
 import type { FloorPlanState } from './useFloorPlanState';
-import type { WifiConnectionSnapshot } from './useWifiConnection';
+import type { CollectedRssiSamples, WifiConnectionSnapshot } from './useWifiConnection';
 import {
   planGridColumnCount,
   planGridRowCount,
@@ -57,11 +57,14 @@ export function MapPanel({
   snapshot,
   collectRssiSamples,
   saveMeasurement,
+  onMeasuringChange,
 }: {
   floorPlan: FloorPlanState;
   snapshot: WifiConnectionSnapshot;
-  collectRssiSamples(durationMilliseconds: number): Promise<number[]>;
+  collectRssiSamples(durationMilliseconds: number): Promise<CollectedRssiSamples>;
   saveMeasurement: InstrumentScreenProps<WifiMapMeasurementValues>['saveMeasurement'];
+  /** Avisa a la pantalla de que hay una medida en curso para bloquear el cambio de modo. */
+  onMeasuringChange(isMeasuring: boolean): void;
 }) {
   const { t } = useTranslation(wifiMapInstrumentId);
   const [planEditMode, setPlanEditMode] = useState<PlanEditMode>(() =>
@@ -81,6 +84,19 @@ export function MapPanel({
     repeaterRecommendation,
     hasMixedFrequencies,
   } = floorPlan;
+
+  const isMountedRef = useRef(true);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    onMeasuringChange(measuringPoint !== null);
+  }, [measuringPoint, onMeasuringChange]);
+  useEffect(() => () => onMeasuringChange(false), [onMeasuringChange]);
 
   useEffect(() => {
     if (!measuringPoint) return;
@@ -105,8 +121,17 @@ export function MapPanel({
     setStatusMessage(null);
     setMeasuringSecondsLeft(Math.ceil(pointAveragingDurationMilliseconds / 1000));
     setMeasuringPoint(point);
-    const rssiSamples = await collectRssiSamples(pointAveragingDurationMilliseconds);
+    const { rssiSamples, observedBssids } = await collectRssiSamples(pointAveragingDurationMilliseconds);
+    if (!isMountedRef.current) return;
     setMeasuringPoint(null);
+    // En una red en malla el móvil puede saltar de punto de acceso a mitad de medida: la media
+    // mezclaría dos routers, así que se descarta el punto.
+    const accessPointsDuringMeasurement = new Set(observedBssids);
+    if (connectionAtStart.bssid) accessPointsDuringMeasurement.add(connectionAtStart.bssid);
+    if (accessPointsDuringMeasurement.size > 1) {
+      setStatusMessage(t('map.accessPointChanged'));
+      return;
+    }
     const rssiSummary = summarizeRssiSamples(rssiSamples);
     if (!rssiSummary) {
       setStatusMessage(t('map.noSamples'));
@@ -120,6 +145,13 @@ export function MapPanel({
     });
     setStatusMessage(t('map.pointAdded', { rssi: Math.round(rssiSummary.meanDbm), spread: rssiSummary.standardDeviationDb.toFixed(1) }));
   }
+
+  // El plano está memorizado: se le pasa un manejador estable que llama a la versión más reciente.
+  const latestPlanPressHandlerRef = useRef(handlePlanPress);
+  useEffect(() => {
+    latestPlanPressHandlerRef.current = handlePlanPress;
+  });
+  const handleStablePlanPress = useCallback((point: PlanPoint) => latestPlanPressHandlerRef.current(point), []);
 
   function handlePlanPress(point: PlanPoint) {
     if (measuringPoint) return;
@@ -202,6 +234,7 @@ export function MapPanel({
           setStatusMessage(null);
         }}
         labelFor={(editMode) => t(`map.modes.${editMode}`)}
+        isDisabled={isMeasuring}
       />
       <BodyText tone="secondary" style={styles.smallText}>
         {planEditMode === 'rooms' ? t('map.roomsHelp') : t('map.measureHelp', { seconds: pointAveragingDurationMilliseconds / 1000 })}
@@ -214,7 +247,7 @@ export function MapPanel({
         repeaterLocation={repeaterLocation}
         pendingRoomCorner={pendingRoomCorner}
         measuringPoint={measuringPoint}
-        onPlanPress={handlePlanPress}
+        onPlanPress={handleStablePlanPress}
         accessibilityLabel={t('map.planLabel')}
       />
       <LegendBar />

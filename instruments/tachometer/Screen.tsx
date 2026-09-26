@@ -9,16 +9,13 @@ import {
   frequencyToRevolutionsPerMinute,
   maximumPulsesPerRevolution,
   minimumPulsesPerRevolution,
+  roundWithUncertainty,
 } from './rpmReading';
 import type { TachometerMeasurementValues } from './schema';
 import { useTachometerMicrophone } from './useTachometerMicrophone';
 
 export const tachometerInstrumentId = 'tachometer';
 
-function formatRevolutionsPerMinute(revolutionsPerMinute: number): string {
-  // Tres cifras significativas: más resolución sería ficticia con una FFT de ~3 Hz por bin.
-  return Math.round(Number(revolutionsPerMinute.toPrecision(3))).toLocaleString();
-}
 
 export function TachometerScreen({ saveMeasurement }: InstrumentScreenProps<TachometerMeasurementValues>) {
   const { t } = useTranslation(tachometerInstrumentId);
@@ -53,6 +50,14 @@ export function TachometerScreen({ saveMeasurement }: InstrumentScreenProps<Tach
   const revolutionsPerMinute = stabilizedReading
     ? frequencyToRevolutionsPerMinute(stabilizedReading.medianFrequencyHz, pulsesPerRevolution)
     : null;
+  // Solo se muestran las cifras que permite la incertidumbre (resolución afinada y dispersión).
+  const roundedReading =
+    stabilizedReading && revolutionsPerMinute !== null
+      ? roundWithUncertainty(
+          revolutionsPerMinute,
+          frequencyToRevolutionsPerMinute(stabilizedReading.frequencyUncertaintyHz, pulsesPerRevolution),
+        )
+      : null;
   const stabilityLabel = !stabilizedReading
     ? t('noTone')
     : stabilizedReading.isStable
@@ -92,8 +97,13 @@ export function TachometerScreen({ saveMeasurement }: InstrumentScreenProps<Tach
         </BodyText>
         <View accessibilityLiveRegion="polite">
           <BodyText style={styles.readingValue}>
-            {revolutionsPerMinute !== null ? `${formatRevolutionsPerMinute(revolutionsPerMinute)} rpm` : '—'}
+            {roundedReading ? `${roundedReading.roundedValue.toLocaleString()} rpm` : '—'}
           </BodyText>
+          {roundedReading && roundedReading.roundedUncertainty > 0 ? (
+            <BodyText tone="secondary">
+              {t('uncertaintyValue', { uncertainty: roundedReading.roundedUncertainty.toLocaleString() })}
+            </BodyText>
+          ) : null}
         </View>
         <BodyText tone={stabilizedReading?.isStable ? 'accent' : 'secondary'}>{stabilityLabel}</BodyText>
         {stabilizedReading ? (

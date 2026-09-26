@@ -1,5 +1,5 @@
 import { AlphaType, Canvas, Circle, ColorType, Image, Path, Rect, Skia } from '@shopify/react-native-skia';
-import { useMemo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { type GestureResponderEvent, type LayoutChangeEvent, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { PlanPoint, PlanRoom, SignalMeasurementPoint } from '@/processing/wifi/floorPlan';
@@ -28,8 +28,9 @@ function rgbToHex([red, green, blue]: readonly [number, number, number]): string
 /**
  * Plano de la casa: rejilla, habitaciones, mapa de calor, puntos medidos y el sitio recomendado
  * para el repetidor. Se toca para colocar esquinas o puntos (coordenadas normalizadas 0-1).
+ * Va memorizado: la conexión se lee cada 500 ms y no hace falta repintar el plano si no cambia.
  */
-export function FloorPlanCanvas({
+export const FloorPlanCanvas = memo(function FloorPlanCanvas({
   rooms,
   measurementPoints,
   heatmapGrid,
@@ -206,7 +207,7 @@ export function FloorPlanCanvas({
       ) : null}
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: { borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, overflow: 'hidden' },

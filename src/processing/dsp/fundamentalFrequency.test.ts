@@ -2,13 +2,20 @@ import { createFftPlan } from './fft';
 import { estimateFundamentalFrequency } from './fundamentalFrequency';
 import { generateNoise, generateTone } from './signalGenerator';
 import { computeAmplitudeSpectrum, createSpectrumWorkspace } from './spectrum';
-import { createWindow } from './windows';
+import { createWindow, type WindowKind } from './windows';
 
 const sampleRateHz = 16000;
 const fftSize = 8192;
 
 /** Suma de armónicos de `fundamentalHz` con las amplitudes dadas, más un poco de ruido. */
-function harmonicSpectrum(fundamentalHz: number, harmonicAmplitudes: readonly number[], noiseAmplitude = 0.001) {
+function harmonicSpectrum(
+  fundamentalHz: number,
+  harmonicAmplitudes: readonly number[],
+  noiseAmplitude = 0.001,
+  { spectrumSampleRateHz = sampleRateHz, spectrumFftSize = fftSize, windowKind = 'hann' as WindowKind } = {},
+) {
+  const sampleRateHz = spectrumSampleRateHz;
+  const fftSize = spectrumFftSize;
   const durationSeconds = fftSize / sampleRateHz;
   const mixedSamples = generateNoise({ sampleRateHz, durationSeconds, amplitude: noiseAmplitude, seed: 4 });
   harmonicAmplitudes.forEach((harmonicAmplitude, harmonicIndex) => {
@@ -20,7 +27,7 @@ function harmonicSpectrum(fundamentalHz: number, harmonicAmplitudes: readonly nu
     });
     harmonicSamples.forEach((sampleValue, sampleIndex) => (mixedSamples[sampleIndex]! += sampleValue));
   });
-  const analysisWindow = createWindow('hann', fftSize);
+  const analysisWindow = createWindow(windowKind, fftSize);
   return Float64Array.from(
     computeAmplitudeSpectrum(
       createFftPlan(fftSize),
@@ -62,5 +69,45 @@ describe('estimateFundamentalFrequency', () => {
 
   it('devuelve null con solo ruido', () => {
     expect(estimateFundamentalFrequency(harmonicSpectrum(100, [], 0.1), searchOptions)).toBeNull();
+  });
+
+  describe('con los ajustes del tacómetro (48 kHz, FFT de 16384, ventana Blackman del AnalyserNode)', () => {
+    const tachometerSpectrumOptions = { spectrumSampleRateHz: 48000, spectrumFftSize: 16384, windowKind: 'blackman' as const };
+    const tachometerSearchOptions = { sampleRateHz: 48000, fftSize: 16384, minimumFrequencyHz: 5, maximumFrequencyHz: 2000 };
+    const lowFundamentalsHz = [12.3, 23.7, 37.1, 48.9];
+
+    it.each(lowFundamentalsHz)('con armónicos, %s Hz sale con menos del 0,1 %% de error', (fundamentalHz) => {
+      const fundamentalEstimate = estimateFundamentalFrequency(
+        harmonicSpectrum(fundamentalHz, [0.5, 0.3, 0.2, 0.15], 0.001, tachometerSpectrumOptions),
+        tachometerSearchOptions,
+      )!;
+      const frequencyErrorHz = Math.abs(fundamentalEstimate.frequencyHz - fundamentalHz);
+      expect(frequencyErrorHz / fundamentalHz).toBeLessThan(0.001);
+      // La incertidumbre declarada cubre el error real y es menor que con un solo pico.
+      expect(frequencyErrorHz).toBeLessThan(2 * fundamentalEstimate.frequencyUncertaintyHz);
+      expect(fundamentalEstimate.frequencyUncertaintyHz).toBeLessThan(0.05);
+    });
+
+    it.each(lowFundamentalsHz)('un tono puro de %s Hz no cae a una suboctava por los lóbulos de la ventana', (fundamentalHz) => {
+      const fundamentalEstimate = estimateFundamentalFrequency(
+        harmonicSpectrum(fundamentalHz, [0.5], 0.001, tachometerSpectrumOptions),
+        tachometerSearchOptions,
+      )!;
+      const frequencyErrorHz = Math.abs(fundamentalEstimate.frequencyHz - fundamentalHz);
+      expect(frequencyErrorHz / fundamentalHz).toBeLessThan(0.005);
+      expect(frequencyErrorHz).toBeLessThan(fundamentalEstimate.frequencyUncertaintyHz);
+    });
+
+    it('los armónicos afinan: la incertidumbre baja al detectar más', () => {
+      const pureToneEstimate = estimateFundamentalFrequency(
+        harmonicSpectrum(30, [0.5], 0.001, tachometerSpectrumOptions),
+        tachometerSearchOptions,
+      )!;
+      const harmonicEstimate = estimateFundamentalFrequency(
+        harmonicSpectrum(30, [0.5, 0.4, 0.3], 0.001, tachometerSpectrumOptions),
+        tachometerSearchOptions,
+      )!;
+      expect(harmonicEstimate.frequencyUncertaintyHz).toBeLessThan(pureToneEstimate.frequencyUncertaintyHz / 2);
+    });
   });
 });

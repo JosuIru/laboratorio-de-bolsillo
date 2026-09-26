@@ -9,7 +9,9 @@ import { SignalChart } from '@/ui/charts/SignalChart';
 import { AppButton, BodyText, Card, LoadingState, ScreenContainer } from '@/ui/components';
 import { useThemePalette } from '@/ui/theme';
 
+import { useProximityBeeper } from '../tracker-hunter/useProximityBeeper';
 import type { MetalDetectorCalibrationParameters } from './calibration';
+import { detectorBeepHeat } from './detectorBeep';
 import { metalDetectorInstrumentId } from './instrumentId';
 import type { MetalDetectorMeasurementValues } from './schema';
 import { chartDurationSeconds, useMagneticField } from './useMagneticField';
@@ -30,6 +32,8 @@ export function MetalDetectorScreen({
   const themePalette = useThemePalette();
   const [sensitivity, setSensitivity] = useState<DetectorSensitivity>('medium');
   const [isVibrationEnabled, setIsVibrationEnabled] = useState(true);
+  // Apagado por defecto: ya avisa la vibración, y el pitido es para barrer sin mirar la pantalla.
+  const [isBeepEnabled, setIsBeepEnabled] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   // El magnetómetro y el repintado a 20 fps se paran si Historial o Calibrar tapan la pantalla.
@@ -40,6 +44,12 @@ export function MetalDetectorScreen({
     isVibrationEnabled,
   });
   const { trigger: alertThreshold } = detectorThresholdsBySensitivity[sensitivity];
+  // Pitido tipo contador Geiger (el mismo que el buscador de rastreadores): más agudo y rápido
+  // cuanto mayor es ΔB. Calla mientras se pone a cero.
+  useProximityBeeper(
+    isBeepEnabled && isScreenActive,
+    snapshot.isZeroing ? null : detectorBeepHeat(snapshot.deviationMicroteslas, alertThreshold),
+  );
 
   if (snapshot.magnitudeMicroteslas === null) return <LoadingState label={t('starting')} />;
 
@@ -144,6 +154,18 @@ export function MetalDetectorScreen({
             trackColor={{ true: themePalette.accent, false: themePalette.border }}
           />
         </View>
+        <View style={styles.switchRow}>
+          <BodyText style={styles.switchLabel}>{t('beep')}</BodyText>
+          <Switch
+            value={isBeepEnabled}
+            onValueChange={setIsBeepEnabled}
+            accessibilityLabel={t('beep')}
+            trackColor={{ true: themePalette.accent, false: themePalette.border }}
+          />
+        </View>
+        <BodyText tone="secondary" style={styles.smallText}>
+          {t('beepHelp')}
+        </BodyText>
       </Card>
 
       {statusMessage ? <BodyText tone="secondary">{statusMessage}</BodyText> : null}
@@ -168,4 +190,5 @@ const styles = StyleSheet.create({
   segmentedRow: { flexDirection: 'row', gap: 8 },
   segment: { flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: 10, borderWidth: 1.5 },
   switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  switchLabel: { flex: 1 },
 });

@@ -11,6 +11,8 @@
   "zero": "Zerora jarri",
   "zeroHelp": "Jarri zerora edozein metaletatik urrun, eta gero pasatu mugikorraren goiko aldea poliki gainazalaren gainetik. Eremuaren indarra zenbat aldatzen den neurtzen du, ez norabidea; beraz, mugikorra makurtzeak edo biratzeak ez du abisua pizten. Erreferentzia bere kabuz doitzen da poliki-poliki; zerbait arraro geratzen bada, jarri berriro zerora. Lurraren eremua 25 eta 65 µT artekoa da.",
   "vibrate": "Dardaratu detektatzean",
+  "beep": "Etengabeko txistua",
+  "beepHelp": "Etengabe txistu egiten du, eremua zenbat eta gehiago aldatu orduan eta zorrotzago eta azkarrago: horma edo lurra pantailari begiratu gabe miatzeko balio du.",
   "sensitivity": {
     "title": "Sentikortasuna",
     "low": "Txikia",
