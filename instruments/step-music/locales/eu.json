@@ -1,0 +1,43 @@
+{
+  "name": "Zure urratsari jarraitzen dion musika",
+  "description": "Oinez, korrika edo bizikletan, mugikorrak zure urratsak zenbatzen ditu eta zure kadentziako erritmo bat sortzen du, edo helburuko kadentzia bat markatzen du entrenatzeko.",
+  "intro": "Eraman mugikorra poltsikoan edo eskuan eta sakatu «Hasi». Musika mugikorrean sortzen da eta zure urratsarekin aldatzen da.",
+  "mode": {
+    "title": "Modua",
+    "follow": "Jarraitu nire urratsari",
+    "target": "Helburuko kadentzia"
+  },
+  "modeHint": {
+    "follow": "Tempoak zure urratsei jarraitzen die eta musika bizkortu egiten da zenbat eta azkarrago joan.",
+    "target": "Musikak aukeratzen duzun kadentzian doa eta esaten dizu azpitik edo gainetik zoazen. Minutuko 170–180 urratsetan korrika egiteak zapalduraren inpaktua gutxitzen du."
+  },
+  "target": {
+    "title": "Kadentzia",
+    "preset": "{{cadence}} · {{label}}",
+    "label": {
+      "100": "paseatu",
+      "120": "oinez azkar",
+      "160": "trostan",
+      "170": "korrika",
+      "180": "korrika arin"
+    }
+  },
+  "start": "Hasi",
+  "stop": "Gelditu",
+  "cadenceLabel": "Zure kadentzia",
+  "stepsPerMinute": "urrats minutuko",
+  "waitingSteps": "Hasi oinez…",
+  "pace": {
+    "slower": "Azkarrago",
+    "on-pace": "Erritmoan",
+    "faster": "Mantsoago"
+  },
+  "musicTempo": "Musika {{bpm}} bpm-tan · {{minutes}}:{{seconds}}",
+  "fields": {
+    "meanCadence": "Batez besteko kadentzia",
+    "durationSeconds": "Iraupena",
+    "targetCadence": "Helburuko kadentzia",
+    "onPacePercent": "Erritmoan emandako denbora",
+    "mode": "Modua"
+  }
+}

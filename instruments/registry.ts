@@ -23,6 +23,7 @@ import { seismographInstrument } from './seismograph';
 import { sonarInstrument } from './sonar';
 import { singTheNoteInstrument } from './sing-the-note';
 import { soundLocatorInstrument } from './sound-locator';
+import { stepMusicInstrument } from './step-music';
 import { superzoomInstrument } from './superzoom';
 import { traditionalTunerInstrument } from './traditional-tuner';
 import { tachometerInstrument } from './tachometer';
@@ -78,6 +79,7 @@ export const instrumentSections: readonly InstrumentSection[] = [
     instruments: [
       colorHuntInstrument,
       singTheNoteInstrument,
+      stepMusicInstrument,
       rhythmInstrument,
       phoneModemInstrument,
       soundLocatorInstrument,
