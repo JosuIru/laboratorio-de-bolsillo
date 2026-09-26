@@ -16,7 +16,8 @@ const manifestFileName = 'fauna-manifest.json';
 /** Tamaño aproximado que se anuncia antes de saber el exacto (el del manifiesto). */
 export const approximateModelMegabytes = 37;
 
-function modelDirectory(): Directory {
+/** Carpeta del modelo; también guarda el fichero de presencia (ver occurrenceStore.ts). */
+export function modelDirectory(): Directory {
   return new Directory(Paths.document, 'wildlife-sounds', 'model');
 }
 
@@ -120,7 +121,7 @@ export async function downloadModel(
   }
 }
 
-/** Borra el modelo y su manifiesto. No lanza. */
+/** Borra el modelo, su manifiesto y el fichero de presencia (todo va en la misma carpeta). No lanza. */
 export function deleteInstalledModel(): void {
   try {
     const targetDirectory = modelDirectory();

@@ -19,9 +19,15 @@ export interface DetectionRecord {
   durationSeconds: number;
   latitude: number | null;
   longitude: number | null;
-  /** Especie que hizo que se apuntara la detección. */
+  /**
+   * Especie que hizo que se apuntara la detección o, si `isCustomClass`, el nombre de la clase
+   * propia del usuario («Mi perro»).
+   */
   speciesLabel: string;
+  /** Puntuación del modelo (sin el filtro de lugar y época) o, en clases propias, la similitud coseno. */
   speciesScore: number;
+  /** Detección de una clase enseñada por el usuario, no de una especie del modelo. */
+  isCustomClass: boolean;
   topClasses: LoggedClassScore[];
   modelVersion: string;
   /** Embedding de 1536 valores en float16 little-endian. */
@@ -122,6 +128,28 @@ export function bytesToBase64(bytes: Uint8Array): string {
   return outputParts.join('');
 }
 
+const base64ValueByCharacter = new Map(Array.from(base64Alphabet, (character, characterIndex) => [character, characterIndex]));
+
+/** Decodifica base64 estándar (con o sin relleno «=»). Lanza si hay caracteres no válidos. */
+export function base64ToBytes(base64Text: string): Uint8Array {
+  const cleanText = base64Text.replace(/=+$/, '');
+  const decodedBytes = new Uint8Array(Math.floor((cleanText.length * 3) / 4));
+  let accumulatedBits = 0;
+  let accumulatedBitCount = 0;
+  let outputIndex = 0;
+  for (const character of cleanText) {
+    const characterValue = base64ValueByCharacter.get(character);
+    if (characterValue === undefined) throw new Error(`Carácter base64 no válido: «${character}»`);
+    accumulatedBits = ((accumulatedBits << 6) | characterValue) & 0xffffff;
+    accumulatedBitCount += 6;
+    if (accumulatedBitCount >= 8) {
+      accumulatedBitCount -= 8;
+      decodedBytes[outputIndex++] = (accumulatedBits >>> accumulatedBitCount) & 0xff;
+    }
+  }
+  return decodedBytes.subarray(0, outputIndex);
+}
+
 // --- exportación ---
 
 /** Cómo va codificado el embedding en el JSONL (va en cada línea, para que sea autoexplicativo). */
@@ -136,6 +164,7 @@ export function formatDetectionJsonLine(record: DetectionRecord): string {
     longitude: record.longitude,
     species: record.speciesLabel,
     speciesScore: roundScore(record.speciesScore),
+    customClass: record.isCustomClass,
     top: record.topClasses.map((classScore) => ({ label: classScore.label, score: roundScore(classScore.score) })),
     modelVersion: record.modelVersion,
     embedding: {
@@ -160,7 +189,8 @@ const csvTopCount = 5;
 
 /**
  * CSV sin embeddings, para hojas de cálculo. `commonNameForLabel` añade el nombre común de la
- * especie en el idioma de la app.
+ * especie en el idioma de la app. La última columna marca las clases propias (1) frente a las
+ * especies del modelo (0).
  */
 export function formatDetectionsCsv(
   records: readonly DetectionRecord[],
@@ -168,7 +198,7 @@ export function formatDetectionsCsv(
 ): string {
   const headerFields = ['detected_at', 'duration_s', 'latitude', 'longitude', 'species', 'common_name', 'species_score'];
   for (let rankIndex = 1; rankIndex <= csvTopCount; rankIndex++) headerFields.push(`top${rankIndex}_label`, `top${rankIndex}_score`);
-  headerFields.push('model_version');
+  headerFields.push('model_version', 'custom_class');
   const csvLines = [headerFields.join(',')];
   for (const record of records) {
     const rowFields: (string | number | null)[] = [
@@ -184,7 +214,7 @@ export function formatDetectionsCsv(
       const classScore = record.topClasses[rankIndex];
       rowFields.push(classScore?.label ?? null, classScore ? roundScore(classScore.score) : null);
     }
-    rowFields.push(record.modelVersion);
+    rowFields.push(record.modelVersion, record.isCustomClass ? 1 : 0);
     csvLines.push(rowFields.map(csvField).join(','));
   }
   return csvLines.join('\n') + '\n';
@@ -203,6 +233,7 @@ export interface DetectionRow {
   top_classes_json: string;
   model_version: string;
   embedding: Uint8Array;
+  is_custom_class: number;
 }
 
 export function rowToDetectionRecord(detectionRow: DetectionRow): DetectionRecord {
@@ -218,5 +249,6 @@ export function rowToDetectionRecord(detectionRow: DetectionRow): DetectionRecor
     topClasses: Array.isArray(parsedTopClasses) ? (parsedTopClasses as LoggedClassScore[]) : [],
     modelVersion: detectionRow.model_version,
     embeddingFloat16Bytes: detectionRow.embedding,
+    isCustomClass: detectionRow.is_custom_class === 1,
   };
 }

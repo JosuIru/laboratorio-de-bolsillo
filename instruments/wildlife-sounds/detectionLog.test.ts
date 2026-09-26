@@ -1,4 +1,5 @@
 import {
+  base64ToBytes,
   bytesToBase64,
   decodeFloat16LittleEndian,
   type DetectionRecord,
@@ -47,6 +48,16 @@ describe('bytesToBase64', () => {
     expect(encoder('foobar')).toBe('Zm9vYmFy');
     expect(bytesToBase64(Uint8Array.from([255, 254, 253]))).toBe('//79');
   });
+
+  it('base64ToBytes deshace la codificación, con y sin relleno', () => {
+    for (const byteCount of [0, 1, 2, 3, 4, 5, 130]) {
+      const originalBytes = Uint8Array.from({ length: byteCount }, (_, byteIndex) => (byteIndex * 37 + 11) & 0xff);
+      const encodedText = bytesToBase64(originalBytes);
+      expect(Array.from(base64ToBytes(encodedText))).toEqual(Array.from(originalBytes));
+      expect(Array.from(base64ToBytes(encodedText.replace(/=+$/, '')))).toEqual(Array.from(originalBytes));
+    }
+    expect(() => base64ToBytes('ab$c')).toThrow();
+  });
 });
 
 describe('roundCoordinate', () => {
@@ -70,6 +81,7 @@ const sampleRecord: DetectionRecord = {
   ],
   modelVersion: 'europa-1',
   embeddingFloat16Bytes: encodeFloat16LittleEndian([1, -2]),
+  isCustomClass: false,
 };
 
 describe('exportación', () => {
@@ -85,6 +97,7 @@ describe('exportación', () => {
       longitude: -1.98,
       species: 'Turdus merula',
       speciesScore: 11.23,
+      customClass: false,
       top: [
         { label: 'Turdus merula', score: 11.23 },
         { label: 'Wind', score: 6.5 },
@@ -101,10 +114,10 @@ describe('exportación', () => {
     expect(headerLine).toBe(
       'detected_at,duration_s,latitude,longitude,species,common_name,species_score,' +
         'top1_label,top1_score,top2_label,top2_score,top3_label,top3_score,top4_label,top4_score,top5_label,top5_score,' +
-        'model_version',
+        'model_version,custom_class',
     );
     expect(firstRow).toBe(
-      '2026-09-26T06:30:05.000Z,5,,,Turdus merula,"Mirlo, común",11.23,Turdus merula,11.23,Wind,6.5,,,,,,,europa-1',
+      '2026-09-26T06:30:05.000Z,5,,,Turdus merula,"Mirlo, común",11.23,Turdus merula,11.23,Wind,6.5,,,,,,,europa-1,0',
     );
   });
 });
@@ -122,7 +135,9 @@ describe('rowToDetectionRecord', () => {
       top_classes_json: JSON.stringify(sampleRecord.topClasses),
       model_version: 'europa-1',
       embedding: sampleRecord.embeddingFloat16Bytes,
+      is_custom_class: 1,
     });
+    expect(detectionRecord.isCustomClass).toBe(true);
     expect(detectionRecord.topClasses).toEqual(sampleRecord.topClasses);
     expect(detectionRecord.latitude).toBeNull();
     expect(detectionRecord.id).toBe(3);
