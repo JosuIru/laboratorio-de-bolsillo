@@ -1,4 +1,4 @@
-import { luminanceOfPlanes, renderMineralMoon } from './mineralMoon';
+import { defaultMineralMoonOptions, luminanceOfPlanes, renderMineralMoon } from './mineralMoon';
 import type { RgbPlanes } from './rgbPlanes';
 import { createGaussianNoise, createWaveTexture, renderSyntheticMoon } from './syntheticMoon.testHelpers';
 
@@ -100,5 +100,54 @@ describe('Luna mineral', () => {
     const skyIndex = 3 * imageSize + 3;
     expect(result.planes.red[skyIndex]).toBeCloseTo(result.planes.green[skyIndex]!, 5);
     expect(result.planes.blue[skyIndex]).toBeCloseTo(result.planes.green[skyIndex]!, 5);
+  });
+});
+
+describe('Luna mineral: tendencia radial del color', () => {
+  // Además del tinte de cada mitad, un color que crece del centro al borde (anaranjado en el
+  // limbo), como el de las fotos reales: sin quitarlo, sale un anillo naranja.
+  const radialPlanes: RgbPlanes = { width: imageSize, height: imageSize, red: new Float32Array(imageSize ** 2), green: new Float32Array(imageSize ** 2), blue: new Float32Array(imageSize ** 2) };
+  const radialRedNoise = createGaussianNoise(31);
+  const radialGreenNoise = createGaussianNoise(32);
+  const radialBlueNoise = createGaussianNoise(33);
+  for (let pixelIndex = 0; pixelIndex < imageSize ** 2; pixelIndex++) {
+    const columnIndex = pixelIndex % imageSize;
+    const rowIndex = Math.floor(pixelIndex / imageSize);
+    const normalizedRadius = Math.min(1, Math.hypot(columnIndex - moonCenter, rowIndex - moonCenter) / moonRadius);
+    const tint = 0.04 * normalizedRadius ** 2 - 0.015 + (columnIndex < moonCenter ? 0.015 : -0.015);
+    const pixelLuminance = luminance.values[pixelIndex]!;
+    radialPlanes.red[pixelIndex] = skyLevel + pixelLuminance * (1 + tint) + 2 * radialRedNoise();
+    radialPlanes.green[pixelIndex] = skyLevel + pixelLuminance + 2 * radialGreenNoise();
+    radialPlanes.blue[pixelIndex] = skyLevel + pixelLuminance * (1 - tint) + 2 * radialBlueNoise();
+  }
+
+  /** Media de (R − B)/G en una corona entre dos fracciones del radio. */
+  function meanHueInAnnulus(planes: RgbPlanes, innerFraction: number, outerFraction: number): number {
+    let hueSum = 0;
+    let sampleCount = 0;
+    for (let pixelIndex = 0; pixelIndex < imageSize ** 2; pixelIndex++) {
+      const normalizedRadius = Math.hypot((pixelIndex % imageSize) - moonCenter, Math.floor(pixelIndex / imageSize) - moonCenter) / moonRadius;
+      if (normalizedRadius < innerFraction || normalizedRadius >= outerFraction) continue;
+      hueSum += (planes.red[pixelIndex]! - planes.blue[pixelIndex]!) / planes.green[pixelIndex]!;
+      sampleCount++;
+    }
+    return hueSum / sampleCount;
+  }
+
+  it('sin restar la tendencia sale un anillo de color; restándola desaparece y las dos zonas siguen separadas', () => {
+    const withTrend = renderMineralMoon(radialPlanes, { radialTrendDegree: -1 })!;
+    const withoutTrend = renderMineralMoon(radialPlanes)!;
+    const ringContrastWithTrend = meanHueInAnnulus(withTrend.planes, 0.75, 0.88) - meanHueInAnnulus(withTrend.planes, 0, 0.3);
+    const ringContrastWithoutTrend = meanHueInAnnulus(withoutTrend.planes, 0.75, 0.88) - meanHueInAnnulus(withoutTrend.planes, 0, 0.3);
+    expect(ringContrastWithTrend).toBeGreaterThan(0.15);
+    expect(Math.abs(ringContrastWithoutTrend)).toBeLessThan(0.03);
+    const leftHue = redMinusBlueStatistics(withoutTrend.planes, { red: 1, blue: 1 }, ...[moonCenter - 25, moonCenter - 8] as const).mean;
+    const rightHue = redMinusBlueStatistics(withoutTrend.planes, { red: 1, blue: 1 }, ...[moonCenter + 8, moonCenter + 25] as const).mean;
+    expect(leftHue).toBeGreaterThan(0.08);
+    expect(rightHue).toBeLessThan(-0.08);
+  });
+
+  it('la ganancia por defecto es moderada (5)', () => {
+    expect(defaultMineralMoonOptions.saturationGain).toBe(5);
   });
 });

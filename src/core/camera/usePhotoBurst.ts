@@ -12,6 +12,10 @@
  *    `react-native-nitro-image`), se recorta SOLO la zona que pide el instrumento, se gira el
  *    recorte según el EXIF para que coincida con la pantalla y se pasa a RGB. El fichero se borra.
  *
+ * Con `containerFormat: 'dng'` las fotos salen en RAW (DNG) y `captureBurstFiles` entrega cada
+ * fichero a quien llama para que lo lea como quiera (p. ej., solo una zona del mosaico) antes de
+ * borrarlo: en Android CameraX no da fotos RAW en memoria, solo a fichero.
+ *
  * El recorte se planea en la foto «derecha» (como se ve en pantalla). Para que coincida, la
  * `<Camera>` debe llevar `orientationSource="interface"`: con la orientación del aparato (la
  * opción por defecto), apuntar al cielo o girar el móvil giraría las fotos respecto a la pantalla.
@@ -92,6 +96,26 @@ export interface PhotoBurstRequest {
   isPhotoUsable?(): boolean;
   /** Si el recorte es más grande, se reduce (en nativo) hasta este lado. */
   maximumOutputSide?: number;
+}
+
+/** Ráfaga cuyo fichero procesa quien llama (p. ej., DNG): el fichero se borra después. */
+export interface PhotoFileBurstRequest<TResult> {
+  photoCount: number;
+  isPhotoUsable?(): boolean;
+  /** Lee el fichero (ruta `file://…`) y devuelve lo que interese; null para descartarlo. */
+  processFile(fileUri: string, photoIndex: number, wasMarkedUsable: boolean): Promise<TResult | null>;
+}
+
+export interface PhotoFileBurstResult<TResult> {
+  results: TResult[];
+  timings: PhotoBurstTimings;
+  failedPhotoCount: number;
+  firstErrorMessage: string | null;
+}
+
+export interface PhotoBurstOptions {
+  /** 'jpeg' (por defecto) o 'dng' (RAW; solo si el móvil lo permite). */
+  containerFormat?: 'jpeg' | 'dng';
 }
 
 export interface PhotoBurstProgress {
@@ -216,10 +240,11 @@ async function decodePhotoCrop(
  * salida de fotogramas) y llama a `handleCameraStarted` desde `onStarted` para conocer el tamaño
  * real de las fotos.
  */
-export function usePhotoBurst() {
+export function usePhotoBurst(burstOptions: PhotoBurstOptions = {}) {
+  const containerFormat = burstOptions.containerFormat ?? 'jpeg';
   const photoOutput: CameraPhotoOutput = usePhotoOutput({
     targetResolution: burstPhotoResolution,
-    containerFormat: 'jpeg',
+    containerFormat,
     // Poca compresión: los artefactos JPEG se confundirían con detalle al fusionar.
     quality: 0.95,
     // «balanced» = mínima latencia en Android: fotos rápidas sin el procesado multifoto lento.
@@ -245,12 +270,16 @@ export function usePhotoBurst() {
     }
   }, [photoOutput]);
 
-  const captureBurst = useCallback(
-    async (burstRequest: PhotoBurstRequest): Promise<PhotoBurstResult> => {
+  /**
+   * Dispara la ráfaga a ficheros y luego pasa cada fichero, de uno en uno, a `processFile`
+   * (siempre se borran). Común a la ráfaga JPEG recortada y a la de ficheros (DNG).
+   */
+  const captureAndProcessFiles = useCallback(
+    async <TResult>(fileBurstRequest: PhotoFileBurstRequest<TResult>): Promise<PhotoFileBurstResult<TResult>> => {
       if (isBurstRunningRef.current) throw new Error('Ya hay una ráfaga en marcha');
       isBurstRunningRef.current = true;
       isStopRequestedRef.current = false;
-      const { photoCount, isPhotoUsable } = burstRequest;
+      const { photoCount, isPhotoUsable } = fileBurstRequest;
       const capturedPhotos: CapturedPhotoFile[] = [];
       let firstErrorMessage: string | null = null;
       try {
@@ -275,8 +304,8 @@ export function usePhotoBurst() {
         }
         const captureMilliseconds = Date.now() - captureStartTime;
 
-        // 2. Decodificar y recortar de una en una (siempre se borran los ficheros).
-        const crops: PhotoBurstCrop[] = [];
+        // 2. Procesar de uno en uno (siempre se borran los ficheros).
+        const results: TResult[] = [];
         let failedPhotoCount = 0;
         const decodeStartTime = Date.now();
         for (let photoIndex = 0; photoIndex < capturedPhotos.length; photoIndex++) {
@@ -287,8 +316,8 @@ export function usePhotoBurst() {
           }
           setCaptureProgress({ phase: 'decoding', completedCount: photoIndex, totalCount: capturedPhotos.length });
           try {
-            const photoCrop = await decodePhotoCrop(capturedPhoto, photoIndex, burstRequest);
-            if (photoCrop) crops.push(photoCrop);
+            const processedResult = await fileBurstRequest.processFile(capturedPhoto.fileUri, photoIndex, capturedPhoto.wasMarkedUsable);
+            if (processedResult !== null) results.push(processedResult);
           } catch (decodeError) {
             failedPhotoCount++;
             firstErrorMessage ??= decodeError instanceof Error ? decodeError.message : String(decodeError);
@@ -297,7 +326,7 @@ export function usePhotoBurst() {
           }
         }
         return {
-          crops: isUnmountedRef.current ? [] : crops,
+          results: isUnmountedRef.current ? [] : results,
           timings: {
             captureMilliseconds,
             decodeMilliseconds: Date.now() - decodeStartTime,
@@ -314,6 +343,24 @@ export function usePhotoBurst() {
     [photoOutput],
   );
 
+  const captureBurst = useCallback(
+    async (burstRequest: PhotoBurstRequest): Promise<PhotoBurstResult> => {
+      const fileBurstResult = await captureAndProcessFiles({
+        photoCount: burstRequest.photoCount,
+        isPhotoUsable: burstRequest.isPhotoUsable,
+        processFile: (fileUri, photoIndex, wasMarkedUsable) =>
+          decodePhotoCrop({ fileUri, wasMarkedUsable }, photoIndex, burstRequest),
+      });
+      return {
+        crops: fileBurstResult.results,
+        timings: fileBurstResult.timings,
+        failedPhotoCount: fileBurstResult.failedPhotoCount,
+        firstErrorMessage: fileBurstResult.firstErrorMessage,
+      };
+    },
+    [captureAndProcessFiles],
+  );
+
   /** Deja de disparar: se decodifican las fotos ya tomadas. */
   const stopCapture = useCallback(() => {
     isStopRequestedRef.current = true;
@@ -328,6 +375,9 @@ export function usePhotoBurst() {
     captureProgress,
     isCapturing: captureProgress !== null,
     captureBurst,
+    /** Ráfaga cuyos ficheros (JPEG o DNG) procesa quien llama. */
+    captureBurstFiles: captureAndProcessFiles,
+    containerFormat,
     stopCapture,
   };
 }

@@ -82,3 +82,59 @@ describe('Richardson–Lucy con la PSF del limbo', () => {
     expect(rmsErrorInsideDisk(withTotalVariation.image, truth)).toBeLessThan(rmsErrorInsideDisk(blurredNoisy, truth));
   });
 });
+
+describe('anillo de Gibbs en el limbo', () => {
+  const flatMoonRadius = 44;
+  const flatMoonCenterX = 63.7;
+  const flatMoonCenterY = 64.2;
+  const flatImageSize = 128;
+  const blurSigma = 3;
+  // Luna llena sin textura: el borde verdadero no tiene ningún pico, todo pico es un artefacto.
+  const flatMoon = renderSyntheticMoon({
+    width: flatImageSize,
+    height: flatImageSize,
+    centerX: flatMoonCenterX,
+    centerY: flatMoonCenterY,
+    radius: flatMoonRadius,
+    diskBrightness: 200,
+    backgroundBrightness: 5,
+    blurSigmaPixels: blurSigma,
+    noiseSigma: 0.5,
+    subsamplesPerSide: 4,
+  });
+
+  /** Pico del perfil radial junto al limbo sobre el nivel del interior, en tanto por uno. */
+  function limbOvershoot(image: GrayImage): number {
+    const radialSums = new Float64Array(flatMoonRadius + 10);
+    const radialCounts = new Float64Array(flatMoonRadius + 10);
+    for (let rowIndex = 0; rowIndex < flatImageSize; rowIndex++) {
+      for (let columnIndex = 0; columnIndex < flatImageSize; columnIndex++) {
+        const radiusIndex = Math.round(Math.hypot(columnIndex - flatMoonCenterX, rowIndex - flatMoonCenterY));
+        if (radiusIndex >= radialSums.length) continue;
+        radialSums[radiusIndex] = radialSums[radiusIndex]! + image.values[rowIndex * flatImageSize + columnIndex]!;
+        radialCounts[radiusIndex] = radialCounts[radiusIndex]! + 1;
+      }
+    }
+    const radialProfile = Array.from(radialSums, (sum, radiusIndex) => sum / Math.max(1, radialCounts[radiusIndex]!));
+    const interiorValues = radialProfile.slice(Math.round(0.4 * flatMoonRadius), Math.round(0.7 * flatMoonRadius));
+    const interiorLevel = interiorValues.reduce((sum, value) => sum + value, 0) / interiorValues.length;
+    const limbPeak = Math.max(...radialProfile.slice(Math.round(flatMoonRadius - 5 * blurSigma), flatMoonRadius + 1));
+    return limbPeak / interiorLevel - 1;
+  }
+
+  it('Richardson–Lucy solo deja un anillo claro y la supresión lo quita sin tocar el interior', () => {
+    const withRing = deconvolveWithLimbPsf(flatMoon, {}, null, { suppressRinging: false })!;
+    const withoutRing = deconvolveWithLimbPsf(flatMoon)!;
+    expect(limbOvershoot(withRing.image)).toBeGreaterThan(0.08);
+    expect(limbOvershoot(withoutRing.image)).toBeLessThan(0.035);
+    const diskCircle = withoutRing.pointSpreadFunction.diskCircle;
+    const bandInnerRadius = diskCircle.radius - 4 * withoutRing.pointSpreadFunction.sigmaPixels - 1;
+    for (let pixelIndex = 0; pixelIndex < flatImageSize ** 2; pixelIndex++) {
+      const columnIndex = pixelIndex % flatImageSize;
+      const rowIndex = Math.floor(pixelIndex / flatImageSize);
+      if (Math.hypot(columnIndex - diskCircle.centerX, rowIndex - diskCircle.centerY) < bandInnerRadius) {
+        expect(withoutRing.image.values[pixelIndex]).toBe(withRing.image.values[pixelIndex]);
+      }
+    }
+  });
+});

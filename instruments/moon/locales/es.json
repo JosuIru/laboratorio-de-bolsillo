@@ -87,7 +87,29 @@
     "iso": "ISO",
     "throughOptics": "A través de prismáticos o telescopio",
     "captureTechnique": "Técnica",
-    "exposureRatio": "Relación entre exposiciones"
+    "exposureRatio": "Relación entre exposiciones",
+    "colorCorrected": "Color corregido",
+    "deconvolutionIterations": "Iteraciones de deconvolución",
+    "mineralSaturationGain": "Saturación de la Luna mineral",
+    "rawCapture": "Ráfaga RAW",
+    "focusLensPosition": "Posición del enfoque",
+    "whiteBalanceMode": "Balance de blancos",
+    "experiment": "Experimento",
+    "measuredDiameterPixels": "Diámetro medido",
+    "diameterUncertaintyPixels": "Incertidumbre del diámetro",
+    "sizeScaleSource": "Escala del diámetro",
+    "predictedDiameterArcminutes": "Diámetro predicho",
+    "earthshineRatio": "Razón luz cenicienta / Sol",
+    "earthshineRatioRelativeUncertainty": "Incertidumbre relativa de la razón",
+    "lunarPhaseAngleDegrees": "Ángulo de fase lunar",
+    "earthAlbedo": "Albedo aparente de la Tierra",
+    "earthAlbedoLower": "Albedo (mínimo)",
+    "earthAlbedoUpper": "Albedo (máximo)",
+    "occultationEventUtc": "Instante de la ocultación (UTC)",
+    "occultationUncertaintyMilliseconds": "Incertidumbre del instante",
+    "occultationEventType": "Tipo de evento",
+    "occultationSignificance": "Significación del salto",
+    "clockOffsetMilliseconds": "Desfase del reloj"
   },
   "exposureTimeLabel": "Exposición {{duration}} · ISO {{iso}}",
   "automaticLunarExposure": "Exposición ajustada sola sobre la Luna: lo más clara posible sin quemarse.",
@@ -197,5 +219,163 @@
       "title": "Consejos",
       "body": "• Las mejores noches son las de cuarto creciente o menguante: en el terminador las sombras largas marcan los cráteres. La luna llena se ve plana.\n• Deja el tubo fuera 10 minutos antes de empezar, para que se enfríe.\n• Si la imagen tiembla, es la turbulencia del aire: haz muchas fotos y deja que la app se quede con las más nítidas."
     }
+  },
+  "captureRawAndStack": "Tomar {{count}} fotos RAW y apilar",
+  "rawExplanation": "RAW: de {{captured}} fotos DNG se ha leído solo la zona de la Luna y su canal verde (patrón {{pattern}}, negro {{black}}, blanco {{white}}); se han alineado por el disco las {{stacked}} más nítidas y se han promediado en una rejilla {{factor}} veces más fina. La Luna mide {{diameter}} px del sensor.",
+  "rawTimings": "Ráfaga RAW: {{count}} fotos en {{captureSeconds}} s; leer cada DNG, {{readMilliseconds}} ms ({{kilobytes}} KB de la zona de la Luna, no los ~25 MB del fichero); apilado: {{processSeconds}} s.",
+  "rawResultLabel": "RAW verde ({{count}} apiladas)",
+  "rawNotUnderstood": "No he podido leer los DNG de este móvil ({{reason}}): vuelvo a JPEG. Prueba otra vez.",
+  "rawNeedsPhotoBurst": "Con RAW activado solo se pueden hacer ráfagas de fotos: desactiva RAW (en «Fotografiar») para este modo.",
+  "rawUnsupportedByCamera": "La cámara no ha aceptado las fotos RAW: vuelvo a JPEG.",
+  "tabs": {
+    "photograph": "Fotografiar",
+    "experiments": "Experimentos",
+    "help": "Ayuda"
+  },
+  "assistant": {
+    "title": "Antes de fotografiar",
+    "altitudeQuality": {
+      "belowHorizon": "La Luna está bajo el horizonte ({{altitude}}°).",
+      "poor": "La Luna está muy baja ({{altitude}}°): mucho aire delante, imagen borrosa y rojiza.",
+      "fair": "La Luna está algo baja ({{altitude}}°): se puede, pero más alta saldrá mejor.",
+      "good": "Buena altura ({{altitude}}°).",
+      "excellent": "Altura excelente ({{altitude}}°): el mejor momento para fotografiarla."
+    },
+    "altitudeWarnings": {
+      "belowHorizon": "Espera a que salga.",
+      "lowAltitudeBlurAndTint": "Cerca del horizonte la turbulencia emborrona la imagen y el aire enrojece la Luna (y separa sus colores).",
+      "strongExtinction": "El aire le quita unas {{extinction}} magnitudes de brillo."
+    },
+    "altitudeNeedsLocation": "Activa la ubicación (arriba) para saber a qué altura está la Luna y cuál es la mejor hora de esta noche.",
+    "noDarkMoonTonight": "Esta noche la Luna no está sobre el horizonte mientras es de noche.",
+    "bestTime": "Mejor momento de esta noche: {{time}}, a {{altitude}}° de altura.",
+    "bestTimePassed": "El mejor momento de esta noche ya ha pasado ({{time}}, a {{altitude}}°).",
+    "whiteBalance": {
+      "unsupported": "Balance de blancos: tu móvil no deja fijarlo (en Android, esta versión de la cámara aún no lo permite). Usa «Corregir color» en el resultado.",
+      "pending": "Balance de blancos: se fijará a luz de día al empezar.",
+      "lockedDaylight": "Balance de blancos fijo a luz de día (5500 K).",
+      "lockedCurrent": "Balance de blancos congelado: todas las fotos salen con el mismo color (el tono se corrige al procesar con «Corregir color»).",
+      "failed": "No se ha podido fijar el balance de blancos: usa «Corregir color» en el resultado."
+    },
+    "focusButton": "Afinar el enfoque",
+    "focusProgress": "Probando enfoques… serie {{series}}, {{measured}} medidos (posición {{position}})",
+    "focusResult": "Enfoque afinado: posición {{position}} ({{count}} pruebas). Se usará en esta sesión.",
+    "focusResultRough": "Enfoque aproximado: posición {{position}} ({{count}} pruebas); la serie no ha llegado a afinar del todo.",
+    "focusForget": "Olvidar",
+    "focusExplanation": "Hace varias ráfagas cortas con el enfoque fijado en distintas posiciones cerca del infinito, mide la nitidez del borde de la Luna en cada una y se queda con la mejor. Tarda un minuto: apoya el móvil.",
+    "focusUnsupported": "Afinar el enfoque: tu móvil no deja mover el enfoque a mano (en Android, esta versión de la cámara aún no lo permite). Toca la Luna en la imagen para enfocar sobre ella.",
+    "focusFailed": "No se ha podido medir la nitidez: comprueba que la Luna está en la imagen y vuelve a intentarlo.",
+    "rawToggle": "RAW (experimental): canal verde",
+    "rawExplanation": "Las fotos se toman en DNG, sin el revelado del móvil. De cada una se lee solo la zona de la Luna y se usan solo los píxeles verdes (la mitad del sensor, los mejor enfocados). El resultado sale en blanco y negro. El DNG es siempre el sensor entero: el zoom no amplía, solo sirve para apuntar. Si el DNG no se entiende, se vuelve a JPEG."
+  },
+  "processing": {
+    "correctColor": "Corregir color (aberración cromática y balance de blancos)",
+    "deconvolutionTitle": "Nitidez (deconvolución con el borde de la Luna)",
+    "deconvolution": {
+      "off": "No",
+      "soft": "Suave",
+      "medium": "Media",
+      "strong": "Fuerte"
+    },
+    "mineralView": "Luna mineral",
+    "mineralExplanation": "Exagera los colores reales, muy tenues, de la superficie: los mares ricos en titanio salen azulados y los pobres en titanio, anaranjados. Solo tiene sentido con muchas fotos apiladas.",
+    "mineralGain": "×{{gain}}",
+    "mineralFailed": "No se ha encontrado el disco para la Luna mineral.",
+    "mineralLabel": "Luna mineral (saturación ×{{gain}})",
+    "chromaticReport": "Aberración cromática: franja de {{fringe}} px; escala del rojo {{redScale}} y del azul {{blueScale}} respecto al verde.",
+    "whiteBalanceReport": "Balance de blancos sobre la Luna: rojo ×{{red}}, azul ×{{blue}}.",
+    "deconvolutionReport": "Deconvolución: borrón medido en el limbo σ = {{sigma}} px, {{iterations}} iteraciones, {{seconds}} s.",
+    "colorFailed": "No se ha podido corregir el color (no se encuentra el disco en los tres colores).",
+    "deconvolutionFailed": "No se ha podido deconvolucionar: no se encuentra un borde iluminado del disco."
+  },
+  "experiments": {
+    "title": "Experimentos",
+    "names": {
+      "apparentSize": "Tamaño de la Luna",
+      "earthAlbedo": "Albedo de la Tierra",
+      "occultation": "Ocultación"
+    },
+    "size": {
+      "title": "Tamaño de la Luna (ilusión lunar y superluna)",
+      "explanation": "Junto al horizonte la Luna PARECE enorme, pero en la foto es un 1,5 % más pequeña que cuando está alta: arriba estamos un radio terrestre más cerca de ella. Y entre el perigeo y el apogeo su tamaño cambia un 14 % (superluna). Mide el diámetro del disco con precisión de décimas de píxel en varias noches y a distintas alturas, siempre con el mismo zoom, y compáralo con lo predicho.",
+      "needsLocation": "Hace falta tu ubicación (arriba) para calcular el tamaño predicho.",
+      "captureAndMeasure": "Tomar fotos y medir",
+      "measureLatest": "Medir el último resultado",
+      "diskNotFound": "No se encuentra bien el borde del disco (hace falta al menos un cuarto del limbo iluminado).",
+      "measured": "Diámetro medido: {{diameter}} ± {{uncertainty}} px (guardado).",
+      "seriesTitleJpeg": "Serie ({{count}} medidas, en px de la foto a zoom ×1):",
+      "seriesTitleRaw": "Serie ({{count}} medidas, en px del sensor RAW):",
+      "seriesRow": "{{date}} · altura {{altitude}}° · {{diameter}} ± {{uncertainty}} px · predicho {{predicted}}′",
+      "verdict": {
+        "consistentWithGeometry": "Resultado: el tamaño crece con la altura como predice la geometría. La Luna baja es más pequeña: la «ilusión lunar» está en el cerebro, no en la foto.",
+        "horizonLarger": "Resultado: las medidas dicen que la Luna baja es más grande, al revés que la geometría. Revisa el enfoque, el zoom (debe ser siempre el mismo) y la refracción cerca del horizonte.",
+        "inconclusive": "Resultado: aún no se distingue el efecto (1,5 %). Hacen falta más medidas y más separadas en altura (del horizonte a lo más alto)."
+      },
+      "growth": "Crecimiento medido: {{measured}} ± {{uncertainty}} % por unidad de sen(altura); predicho: {{predicted}} %. Entre la medida más baja y la más alta se espera un {{lowToHigh}} %.",
+      "scale": "Escala ajustada: {{scale}} ± {{uncertainty}}″ por píxel (χ² reducido {{chiSquared}}).",
+      "needMore": "Faltan {{count}} medidas más para el análisis (mínimo 3).",
+      "tips": "• Usa siempre el mismo zoom y el mismo modo (JPEG o RAW): las series no se mezclan.\n• Mide cuando la Luna sale y horas después, cuando está alta; y otra noche, cerca del perigeo.\n• Enfoca bien (o usa «Afinar el enfoque»): un borde borroso cambia el diámetro medido."
+    },
+    "albedo": {
+      "title": "Albedo de la Tierra",
+      "explanation": "La parte oscura de la Luna creciente brilla por la luz que refleja la Tierra. Comparando su brillo con el de la parte al Sol se estima cuánta luz refleja la Tierra (su albedo, ~0,3). Hace falta una captura de luz cenicienta (dos ráfagas: corta y larga).",
+      "needsEarthshine": "Primero toma una captura de luz cenicienta (con trípode y exposición manual).",
+      "automatic": "Zonas automáticas",
+      "manual": "Marcar con el dedo",
+      "tapDark": "Toca una zona de la parte en luz cenicienta (círculo azul).",
+      "tapSunlit": "Ahora toca una zona de la parte iluminada por el Sol (círculo amarillo).",
+      "imageLabel": "Exposición larga de la luz cenicienta; toca para marcar las zonas",
+      "legend": "Azul: luz cenicienta (medida en la exposición larga). Amarillo: luz del Sol (medida en la corta).",
+      "terrainTitle": "Tipo de terreno en las dos zonas:",
+      "terrain": {
+        "sameTerrain": "El mismo",
+        "mareInShadow": "Mar en la sombra",
+        "mareInSunlight": "Mar al Sol"
+      },
+      "problems": {
+        "noSunlitSignal": "La zona al Sol no tiene señal: márcala sobre la parte iluminada.",
+        "noEarthshineSignal": "En esa zona la luz cenicienta no se distingue del cielo: prueba otra zona o una exposición larga más larga.",
+        "earthshineSaturated": "La zona de la luz cenicienta está saturada en la exposición larga: márcala lejos de la parte iluminada.",
+        "sunlitSaturated": "La zona al Sol está saturada en la exposición corta: baja la exposición y repite la captura.",
+        "outsideDisk": "Marca las dos zonas dentro del disco."
+      },
+      "result": "Albedo aparente de la Tierra: {{albedo}} (entre {{lower}} y {{upper}}).",
+      "details": "Razón de brillos {{ratio}} (±{{uncertainty}} %), ángulo de fase {{phase}}°, Tierra iluminada al {{earthPhase}} % vista desde la Luna; relación de exposiciones ×{{exposureRatio}}.",
+      "noAutomaticRegions": "No se pueden elegir las zonas solas (¿Luna casi llena?): márcalas con el dedo.",
+      "assumptions": "Supuestos: la Tierra se trata como una esfera que refleja la luz por igual en todas direcciones; la ley de fase de la Luna es una aproximación; los JPEG se pasan a brillo lineal con la curva sRGB, que no es exactamente la del móvil (por eso se añade un 25 % de incertidumbre). El valor medio de la Tierra es ~0,30. Es un experimento didáctico, no una medida para el clima.",
+      "captureAgain": "Tomar otra luz cenicienta"
+    },
+    "occultation": {
+      "title": "Ocultación de una estrella",
+      "explanation": "Cuando la Luna pasa por delante de una estrella, esta desaparece de golpe (en menos de una centésima de segundo). Midiendo el brillo de la estrella en cada fotograma del vídeo se calcula el instante con precisión de milisegundos. Necesitas trípode, zoom y la exposición subida hasta ver la estrella; mejor por el borde oscuro de la Luna.",
+      "starMarked": "Estrella marcada (círculo azul). Toca otra vez para corregirla.",
+      "tapStar": "Toca la estrella en la imagen.",
+      "recording": "Grabando… {{frames}} fotogramas (~{{seconds}} s)",
+      "record": "Grabar (hasta {{seconds}} s)",
+      "tooFewFrames": "Se han grabado muy pocos fotogramas: ¿se ha perdido la Luna?",
+      "noEvent": "No se ve un salto de brillo claro en la curva.",
+      "clockFailed": "No se ha podido comparar la hora con un servidor (¿sin conexión?).",
+      "chartLabel": "Curva de luz de la estrella",
+      "recordingSummary": "{{frames}} fotogramas a {{framesPerSecond}} por segundo; la entrega de fotogramas varía {{jitter}} ms.",
+      "event": {
+        "disappearance": "Desaparición: {{time}} ± {{uncertainty}} ms (según el reloj del móvil).",
+        "reappearance": "Reaparición: {{time}} ± {{uncertainty}} ms (según el reloj del móvil)."
+      },
+      "correctedTime": "Con el desfase del reloj corregido: {{time}} (± {{uncertainty}} ms por el reloj).",
+      "doubtful": "Salto poco claro (significación {{significance}}): el instante es dudoso.",
+      "significance": "Salto claro (significación {{significance}}).",
+      "clockWarning": "La hora del móvil puede ir desfasada unas décimas de segundo (o más) respecto a la hora UTC, y la cámara entrega los fotogramas con un pequeño retraso que aquí no se puede medir (unas decenas de ms).",
+      "checkClock": "Comprobar el reloj del móvil",
+      "clockOffset": "Desfase del reloj: {{offset}} s ± {{uncertainty}} s (servidor − móvil; la cabecera Date solo da segundos enteros).",
+      "tips": "• Busca las ocultaciones previstas para tu zona (IOTA, efemérides astronómicas).\n• Pon el móvil en un trípode, sube el zoom, fija la exposición hasta ver la estrella y márcala unos segundos antes.\n• No toques el móvil mientras graba."
+    }
+  },
+  "help": {
+    "captureTitle": "Enfoque, balance de blancos y RAW",
+    "capture": "• «Afinar el enfoque» busca la posición del enfoque que deja más fino el borde de la Luna (solo en móviles que dejan mover el enfoque a mano).\n• El balance de blancos se fija a luz de día si el móvil lo permite; si no, «Corregir color» lo ajusta después tomando la Luna, en conjunto, como gris.\n• RAW (experimental): fotos DNG sin revelar; se usa solo el canal verde. Útil para medir (tamaño, brillos), menos bonito que el JPEG.\n• Arriba verás la altura de la Luna y la mejor hora de esta noche: cuanto más alta, menos aire delante.",
+    "processingTitle": "Procesado del resultado",
+    "processing": "• Corregir color: el rojo y el azul salen algo más grandes o más pequeños que el verde (aberración cromática); se miden con el propio borde de la Luna y se alinean.\n• Nitidez: el borde de la Luna es un escalón perfecto; lo borroso que sale en la foto es el borrón de esa foto concreta, y se deshace con Richardson–Lucy, evitando el anillo brillante que esta técnica deja en el borde.\n• Luna mineral: los colores reales de la Luna, multiplicados.",
+    "experimentsTitle": "Experimentos",
+    "experiments": "• Tamaño de la Luna: comprueba con medidas que la «ilusión lunar» no está en la foto, y mide la superluna.\n• Albedo de la Tierra: con la luz cenicienta, cuánta luz refleja nuestro planeta.\n• Ocultación: el instante exacto en que la Luna tapa una estrella.\nCada medida se guarda en el historial de la Luna y se puede exportar."
   }
 }

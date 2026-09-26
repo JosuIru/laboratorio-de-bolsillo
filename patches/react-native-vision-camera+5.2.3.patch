@@ -1,5 +1,5 @@
 diff --git a/node_modules/react-native-vision-camera/android/src/main/java/com/margelo/nitro/camera/hybrids/HybridCameraController.kt b/node_modules/react-native-vision-camera/android/src/main/java/com/margelo/nitro/camera/hybrids/HybridCameraController.kt
-index 337601a..38b0abe 100644
+index 337601a..5ae9479 100644
 --- a/node_modules/react-native-vision-camera/android/src/main/java/com/margelo/nitro/camera/hybrids/HybridCameraController.kt
 +++ b/node_modules/react-native-vision-camera/android/src/main/java/com/margelo/nitro/camera/hybrids/HybridCameraController.kt
 @@ -2,6 +2,12 @@ package com.margelo.nitro.camera.hybrids
@@ -40,25 +40,67 @@ index 337601a..38b0abe 100644
    override val isConnected: Boolean
      get() = cameraState?.type == CameraState.Type.OPEN
  
-@@ -93,7 +110,7 @@ class HybridCameraController(
+@@ -91,11 +108,11 @@ class HybridCameraController(
+ 
+   // TODO: CameraX only supports continuous AE/AF/AWB
    override val focusMode: FocusMode
-     get() = FocusMode.CONTINUOUS_AUTO_FOCUS
+-    get() = FocusMode.CONTINUOUS_AUTO_FOCUS
++    get() = if (lockedLensPosition != null) FocusMode.LOCKED else FocusMode.CONTINUOUS_AUTO_FOCUS
    override val exposureMode: ExposureMode
 -    get() = ExposureMode.CONTINUOUS_AUTO_EXPOSURE
 +    get() = if (lockedExposureDurationSeconds != null) ExposureMode.CUSTOM else ExposureMode.CONTINUOUS_AUTO_EXPOSURE
    override val whiteBalanceMode: WhiteBalanceMode
-     get() = WhiteBalanceMode.CONTINUOUS_AUTO_WHITE_BALANCE
+-    get() = WhiteBalanceMode.CONTINUOUS_AUTO_WHITE_BALANCE
++    get() = if (isWhiteBalanceLocked) WhiteBalanceMode.LOCKED else WhiteBalanceMode.CONTINUOUS_AUTO_WHITE_BALANCE
  
-@@ -184,6 +201,8 @@ class HybridCameraController(
+   override fun configure(config: CameraControllerConfiguration): Promise<Unit> {
+     return Promise.async {
+@@ -184,6 +201,9 @@ class HybridCameraController(
  
    override fun resetFocus(): Promise<Unit> {
      return Promise.async {
-+      // Parche del Laboratorio de Bolsillo: también vuelve de la exposición manual a la automática.
-+      clearManualExposure()
++      // Parche del Laboratorio de Bolsillo: también vuelve de la exposición, el enfoque y el balance
++      // de blancos manuales a los automáticos.
++      clearManualControls()
        camera.cameraControl
          .cancelFocusAndMetering()
          .await()
-@@ -300,28 +319,59 @@ class HybridCameraController(
+@@ -282,15 +302,28 @@ class HybridCameraController(
+     return Promise.resolved()
+   }
+ 
+-  // TODO: Once CameraX implements locking Focus to a custom lens position, implement this:
++  // Parche del Laboratorio de Bolsillo: enfoque manual con Camera2Interop. `lensPosition` va de 0
++  // (lo más cerca, LENS_INFO_MINIMUM_FOCUS_DISTANCE dioptrías) a 1 (infinito, 0 dioptrías).
++  private val minimumFocusDistanceDiopters: Float? by lazy {
++    if (device.supportsFocusLocking) sensorCharacteristics?.get(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE) else null
++  }
++  private var lockedLensPosition: Double? = null
++
+   override val lensPosition: Double
+-    get() = 0.0
++    get() = lockedLensPosition ?: 0.0
+ 
+   override fun setFocusLocked(lensPosition: Double): Promise<Unit> {
+-    throw Error(
+-      "Setting Focus Lens Position is not yet supported on Android! " +
+-        "You can use AF metering locks (`focusTo(point, { modes: ['AF'], adaptiveness: 'locked' })`) instead.",
+-    )
++    val minimumFocusDistance =
++      minimumFocusDistanceDiopters ?: throw Error("This Camera does not support manual focus (MANUAL_SENSOR)!")
++    if (lensPosition < 0.0 || lensPosition > 1.0) throw Error("lensPosition must be between 0.0 and 1.0, got $lensPosition!")
++    val focusDistanceDiopters = (minimumFocusDistance * (1.0 - lensPosition)).toFloat()
++    return Promise.async {
++      updateManualCaptureRequestOptions {
++        it[CaptureRequest.CONTROL_AF_MODE] = CaptureRequest.CONTROL_AF_MODE_OFF
++        it[CaptureRequest.LENS_FOCUS_DISTANCE] = focusDistanceDiopters
++      }
++      lockedLensPosition = lensPosition
++    }
+   }
+ 
+   override fun lockCurrentFocus(): Promise<Unit> {
+@@ -300,28 +333,78 @@ class HybridCameraController(
      )
    }
  
@@ -106,43 +148,88 @@ index 337601a..38b0abe 100644
 +    val sensitivityRange = sensorSensitivityRange ?: throw Error("This Camera does not support manual exposure (MANUAL_SENSOR)!")
 +    val exposureTimeNanoseconds = (duration * NANOSECONDS_PER_SECOND).toLong().coerceIn(exposureTimeRange.lower, exposureTimeRange.upper)
 +    val sensitivity = iso.toInt().coerceIn(sensitivityRange.lower, sensitivityRange.upper)
-+    val captureRequestOptions =
-+      CaptureRequestOptions
-+        .Builder()
-+        .setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_OFF)
-+        .setCaptureRequestOption(CaptureRequest.SENSOR_EXPOSURE_TIME, exposureTimeNanoseconds)
-+        .setCaptureRequestOption(CaptureRequest.SENSOR_SENSITIVITY, sensitivity)
-+        .build()
 +    return Promise.async {
-+      Camera2CameraControl.from(camera.cameraControl).setCaptureRequestOptions(captureRequestOptions).await()
++      updateManualCaptureRequestOptions {
++        it[CaptureRequest.CONTROL_AE_MODE] = CaptureRequest.CONTROL_AE_MODE_OFF
++        it[CaptureRequest.SENSOR_EXPOSURE_TIME] = exposureTimeNanoseconds
++        it[CaptureRequest.SENSOR_SENSITIVITY] = sensitivity
++      }
 +      lockedExposureDurationSeconds = exposureTimeNanoseconds / NANOSECONDS_PER_SECOND
 +      lockedIso = sensitivity.toDouble()
 +    }
 +  }
 +
++  // Parche del Laboratorio de Bolsillo: `setCaptureRequestOptions` sustituye TODAS las opciones de
++  // Camera2Interop, así que exposición, enfoque y balance de blancos se guardan juntos y se envían
++  // siempre completos (si no, fijar el enfoque borraría la exposición manual y al revés).
++  private val manualCaptureRequestOptions = LinkedHashMap<CaptureRequest.Key<*>, Any>()
++
 +  @OptIn(ExperimentalCamera2Interop::class)
-+  private suspend fun clearManualExposure() {
++  private suspend fun updateManualCaptureRequestOptions(update: (MutableMap<CaptureRequest.Key<*>, Any>) -> Unit) {
++    val captureRequestOptions =
++      synchronized(manualCaptureRequestOptions) {
++        update(manualCaptureRequestOptions)
++        val builder = CaptureRequestOptions.Builder()
++        for ((key, value) in manualCaptureRequestOptions) {
++          @Suppress("UNCHECKED_CAST")
++          builder.setCaptureRequestOption(key as CaptureRequest.Key<Any>, value)
++        }
++        builder.build()
++      }
++    Camera2CameraControl.from(camera.cameraControl).setCaptureRequestOptions(captureRequestOptions).await()
++  }
++
++  private suspend fun clearManualControls() {
 +    // Sin mirar el estado local: otro controlador de la misma cámara pudo dejarla fijada.
 +    lockedExposureDurationSeconds = null
 +    lockedIso = null
++    lockedLensPosition = null
++    isWhiteBalanceLocked = false
++    synchronized(manualCaptureRequestOptions) { manualCaptureRequestOptions.clear() }
 +    clearCamera2InteropOptions().await()
    }
  
    override fun lockCurrentExposure(): Promise<Unit> {
-@@ -356,3 +406,5 @@ class HybridCameraController(
+@@ -349,10 +432,18 @@ class HybridCameraController(
      )
+   }
+ 
++  // Parche del Laboratorio de Bolsillo: congela el balance de blancos automático actual
++  // (CONTROL_AWB_LOCK), para que toda una ráfaga salga con el mismo color. Fijar ganancias a mano
++  // (`setWhiteBalanceLocked`) exigiría también la matriz de color del sensor, que no se expone.
++  private var isWhiteBalanceLocked = false
++
+   override fun lockCurrentWhiteBalance(): Promise<Unit> {
+-    throw Error(
+-      "Locking White Balance Gains is not yet supported on Android! " +
+-        "You can use AWB metering locks (`focusTo(point, { modes: ['AWB'], adaptiveness: 'locked' })`) instead.",
+-    )
++    if (!device.supportsWhiteBalanceLocking) throw Error("This Camera does not support locking White Balance (AWB lock)!")
++    return Promise.async {
++      updateManualCaptureRequestOptions { it[CaptureRequest.CONTROL_AWB_LOCK] = true }
++      isWhiteBalanceLocked = true
++    }
    }
  }
 +
 +private const val NANOSECONDS_PER_SECOND = 1_000_000_000.0
 diff --git a/node_modules/react-native-vision-camera/android/src/main/java/com/margelo/nitro/camera/hybrids/inputs/HybridCameraDevice.kt b/node_modules/react-native-vision-camera/android/src/main/java/com/margelo/nitro/camera/hybrids/inputs/HybridCameraDevice.kt
-index a00188f..ade5565 100644
+index a00188f..e2c3896 100644
 --- a/node_modules/react-native-vision-camera/android/src/main/java/com/margelo/nitro/camera/hybrids/inputs/HybridCameraDevice.kt
 +++ b/node_modules/react-native-vision-camera/android/src/main/java/com/margelo/nitro/camera/hybrids/inputs/HybridCameraDevice.kt
-@@ -128,8 +128,12 @@ class HybridCameraDevice(
+@@ -126,12 +126,24 @@ class HybridCameraDevice(
+     get() = cameraInfo.isFocusMeteringSupported(createDummyMeteringAction(FocusMeteringAction.FLAG_AWB))
+ 
    // TODO: CameraX doesn't support manual Focus/Exposure/WB locking...
++  // Parche del Laboratorio de Bolsillo: enfoque manual con Camera2 si el sensor lo admite y la
++  // lente no es de foco fijo (distancia mínima de enfoque > 0).
    override val supportsFocusLocking: Boolean
-     get() = false
+-    get() = false
++    get() =
++      cameraCharacteristics
++        ?.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
++        ?.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR) == true &&
++        (cameraCharacteristics?.get(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE) ?: 0f) > 0f
 +  // Parche del Laboratorio de Bolsillo: exposición manual con Camera2 si el sensor la admite.
    override val supportsExposureLocking: Boolean
 -    get() = false
@@ -150,6 +237,11 @@ index a00188f..ade5565 100644
 +      cameraCharacteristics
 +        ?.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
 +        ?.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR) == true
++  // Parche del Laboratorio de Bolsillo: solo el bloqueo del balance actual (CONTROL_AWB_LOCK), no
++  // ganancias a mano: ver `lockCurrentWhiteBalance` en HybridCameraController.
    override val supportsWhiteBalanceLocking: Boolean
-     get() = false
+-    get() = false
++    get() = cameraCharacteristics?.get(CameraCharacteristics.CONTROL_AWB_LOCK_AVAILABLE) == true
  
+   override val maxWhiteBalanceGain: Double
+     get() = 0.0
