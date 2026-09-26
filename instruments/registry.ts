@@ -6,6 +6,7 @@ import { colorHuntInstrument } from './color-hunt';
 import { colorimeterInstrument } from './colorimeter';
 import { dataSonificationInstrument } from './data-sonification';
 import { earTrainerInstrument } from './ear-trainer';
+import { escapeLocksInstrument } from './escape-locks';
 import { exampleLevelInstrument } from './example-level';
 import { gnssSkyInstrument } from './gnss-sky';
 import { machineDiagnosisInstrument } from './machine-diagnosis';
@@ -86,6 +87,7 @@ export const instrumentSections: readonly InstrumentSection[] = [
       singTheNoteInstrument,
       earTrainerInstrument,
       stepMusicInstrument,
+      escapeLocksInstrument,
       rhythmInstrument,
       phoneModemInstrument,
       soundLocatorInstrument,

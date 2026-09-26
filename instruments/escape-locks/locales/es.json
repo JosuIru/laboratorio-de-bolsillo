@@ -1,0 +1,85 @@
+{
+  "name": "Cerraduras de escape room",
+  "description": "Monta retos para escape rooms: cerraduras que se abren cantando una nota, poniendo el móvil de una forma, acercando un imán o dando golpes. Al abrirlas todas aparece el secreto.",
+  "list": {
+    "title": "Tus retos",
+    "intro": "Crea un reto con varias cerraduras y un secreto (un código, una frase). Las pistas para abrirlas las pones tú en la sala.",
+    "play": "Jugar",
+    "edit": "Editar",
+    "delete": "Borrar",
+    "create": "Crear un reto"
+  },
+  "edit": {
+    "title": "Reto",
+    "namePlaceholder": "Nombre (p. ej. El sótano)",
+    "secretPlaceholder": "Secreto que aparece al final (p. ej. 4721)",
+    "locksTitle": "Cerraduras, en orden",
+    "noLocks": "Añade al menos una cerradura con los botones de abajo.",
+    "removeLock": "Quitar cerradura",
+    "addMagnet": "Añadir",
+    "save": "Guardar el reto",
+    "cancel": "Cancelar"
+  },
+  "lock": {
+    "note": {
+      "title": "Nota",
+      "riddle": "Canta o silba la nota correcta y aguántala.",
+      "answer": "Cantar o silbar un {{note}}"
+    },
+    "pose": {
+      "title": "Posición",
+      "riddle": "Pon el móvil en la posición correcta y no lo muevas.",
+      "answer": "Móvil {{pose}}"
+    },
+    "magnet": {
+      "title": "Imán",
+      "riddle": "Algo escondido abre esta cerradura: acércalo al móvil.",
+      "answer": "Acercar un imán"
+    },
+    "knocks": {
+      "title": "Golpes",
+      "riddle": "Llama a la puerta las veces justas, seguidas.",
+      "answer": "Dar {{count}} golpes seguidos"
+    }
+  },
+  "pose": {
+    "face-down": "boca abajo",
+    "upright": "de pie",
+    "upside-down": "cabeza abajo",
+    "left-side": "tumbado sobre el lado izquierdo",
+    "right-side": "tumbado sobre el lado derecho"
+  },
+  "play": {
+    "lockOf": "Cerradura {{lock}} de {{total}}",
+    "showHint": "Ver pista",
+    "hideHint": "Ocultar pista",
+    "giveUp": "Salir",
+    "wrongKnocks": "{{count}} golpes… no es eso.",
+    "microphoneError": "No se puede usar el micrófono: {{message}}"
+  },
+  "solved": {
+    "title": "¡Abierto!",
+    "time": "Tiempo: {{minutes}}:{{seconds}}",
+    "back": "Volver a los retos"
+  },
+  "notes": {
+    "0": "Do",
+    "1": "Do♯",
+    "2": "Re",
+    "3": "Re♯",
+    "4": "Mi",
+    "5": "Fa",
+    "6": "Fa♯",
+    "7": "Sol",
+    "8": "Sol♯",
+    "9": "La",
+    "10": "La♯",
+    "11": "Si"
+  },
+  "fields": {
+    "puzzleName": "Reto",
+    "elapsedSeconds": "Tiempo",
+    "lockCount": "Cerraduras",
+    "lockKinds": "Tipos de cerradura"
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "name": "Escape room-eko sarrailak",
+  "description": "Muntatu erronkak escape roometarako: nota bat abestuz, mugikorra modu batean jarriz, iman bat hurbilduz edo kolpeak emanez irekitzen diren sarrailak. Denak irekitzean sekretua agertzen da.",
+  "list": {
+    "title": "Zure erronkak",
+    "intro": "Sortu erronka bat hainbat sarrailarekin eta sekretu batekin (kode bat, esaldi bat). Irekitzeko pistak zuk jartzen dituzu gelan.",
+    "play": "Jokatu",
+    "edit": "Editatu",
+    "delete": "Ezabatu",
+    "create": "Sortu erronka bat"
+  },
+  "edit": {
+    "title": "Erronka",
+    "namePlaceholder": "Izena (adib. Sotoa)",
+    "secretPlaceholder": "Amaieran agertzen den sekretua (adib. 4721)",
+    "locksTitle": "Sarrailak, ordenan",
+    "noLocks": "Gehitu sarraila bat gutxienez beheko botoiekin.",
+    "removeLock": "Kendu sarraila",
+    "addMagnet": "Gehitu",
+    "save": "Gorde erronka",
+    "cancel": "Utzi"
+  },
+  "lock": {
+    "note": {
+      "title": "Nota",
+      "riddle": "Abestu edo txistukatu nota zuzena eta eutsi.",
+      "answer": "{{note}} bat abestu edo txistukatu"
+    },
+    "pose": {
+      "title": "Posizioa",
+      "riddle": "Jarri mugikorra posizio zuzenean eta ez mugitu.",
+      "answer": "Mugikorra {{pose}}"
+    },
+    "magnet": {
+      "title": "Imana",
+      "riddle": "Ezkutatutako zerbaitek irekitzen du sarraila hau: hurbildu mugikorrera.",
+      "answer": "Iman bat hurbildu"
+    },
+    "knocks": {
+      "title": "Kolpeak",
+      "riddle": "Jo atea behar adina aldiz, jarraian.",
+      "answer": "{{count}} kolpe jarraian eman"
+    }
+  },
+  "pose": {
+    "face-down": "ahoz behera",
+    "upright": "zutik",
+    "upside-down": "buruz behera",
+    "left-side": "ezkerreko alboan etzanda",
+    "right-side": "eskuineko alboan etzanda"
+  },
+  "play": {
+    "lockOf": "{{lock}}. sarraila {{total}}tik",
+    "showHint": "Ikusi pista",
+    "hideHint": "Ezkutatu pista",
+    "giveUp": "Irten",
+    "wrongKnocks": "{{count}} kolpe… ez da hori.",
+    "microphoneError": "Ezin da mikrofonoa erabili: {{message}}"
+  },
+  "solved": {
+    "title": "Irekita!",
+    "time": "Denbora: {{minutes}}:{{seconds}}",
+    "back": "Itzuli erronketara"
+  },
+  "notes": {
+    "0": "Do",
+    "1": "Do♯",
+    "2": "Re",
+    "3": "Re♯",
+    "4": "Mi",
+    "5": "Fa",
+    "6": "Fa♯",
+    "7": "Sol",
+    "8": "Sol♯",
+    "9": "La",
+    "10": "La♯",
+    "11": "Si"
+  },
+  "fields": {
+    "puzzleName": "Erronka",
+    "elapsedSeconds": "Denbora",
+    "lockCount": "Sarrailak",
+    "lockKinds": "Sarraila motak"
+  }
+}
