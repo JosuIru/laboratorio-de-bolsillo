@@ -1,0 +1,74 @@
+{
+  "name": "Autokarabana nibelatu",
+  "description": "Autokarabana edo karabana zuzen uzteko gurpil bakoitza zenbat cm altxatu behar den.",
+  "instructions": "Jarri mugikorra ahoz gora ibilgailuaren zoruan edo sukalde-gainean, mugikorraren goiko aldea aurrera begira. Idatzi behean ibilgailuaren neurriak.",
+  "waiting": "Azelerometroaren zain…",
+  "fields": {
+    "vehicleLayout": "Ibilgailu mota",
+    "lateralTilt": "Alboz",
+    "longitudinalTilt": "Luzetara",
+    "isLevel": "Nibelatuta",
+    "trackWidth": "Gurpilen arteko zabalera",
+    "wheelbase": "Ardatzen arteko distantzia",
+    "frontLeftLift": "Aurreko ezkerreko gurpilaren altxaera",
+    "frontRightLift": "Aurreko eskuineko gurpilaren altxaera",
+    "rearLeftLift": "Atzeko ezkerreko gurpilaren altxaera",
+    "rearRightLift": "Atzeko eskuineko gurpilaren altxaera",
+    "jockeyDistance": "Ardatzetik jockey gurpilerainoko distantzia",
+    "leftWheelLift": "Ezkerreko gurpilaren altxaera",
+    "rightWheelLift": "Eskuineko gurpilaren altxaera",
+    "jockeyWheelChange": "Jockey gurpilaren doikuntza"
+  },
+  "direction": {
+    "level": "zuzen",
+    "rightHigher": "eskuinaldea gorago",
+    "leftHigher": "ezkerraldea gorago",
+    "frontHigher": "aurrealdea gorago",
+    "rearHigher": "atzealdea gorago"
+  },
+  "status": {
+    "level": "Nibelatuta",
+    "notLevel": "Oraindik ez dago nibelatuta",
+    "moving": "Mugitzen ari da: itxaron geldi egon arte."
+  },
+  "axles": {
+    "front": "Aurreko ardatza: batez beste {{centimeters}} cm igo",
+    "rear": "Atzeko ardatza: batez beste {{centimeters}} cm igo"
+  },
+  "diagram": {
+    "front": "▲ Aurrealdea",
+    "liftValue": "{{centimeters}} cm",
+    "jockeyRaise": "↑ igo {{centimeters}} cm",
+    "jockeyLower": "↓ jaitsi {{centimeters}} cm",
+    "fourWheelsDescription": "Altxaerak: aurreko ezkerra {{frontLeft}} cm, aurreko eskuina {{frontRight}} cm, atzeko ezkerra {{rearLeft}} cm, atzeko eskuina {{rearRight}} cm.",
+    "singleAxleDescription": "Altxaerak: ezkerra {{left}} cm, eskuina {{right}} cm. Jockey gurpila: {{jockey}}.",
+    "fourWheelsHelp": "Gurpil bakoitza zenbat zentimetro altxatu behar den ziriekin edo arrapalekin. Gurpilik altuena dagoen bezala geratzen da.",
+    "singleAxleHelp": "Lehenik, jarri ziria alde baxuko gurpilaren azpian, eta gero doitu aurrealdea jockey gurpilarekin."
+  },
+  "tooHigh": "{{centimeters}} cm baino gehiago behar dira: bilatu leku lauago bat edo erabili arrapala altuagoak.",
+  "vehicle": {
+    "title": "Ibilgailua",
+    "layouts": {
+      "fourWheels": "Bi ardatz (autokarabana)",
+      "singleAxle": "Ardatz bat (karabana)"
+    },
+    "trackWidthCentimeters": "Gurpilen arteko zabalera",
+    "wheelbaseCentimeters": "Ardatzen arteko distantzia",
+    "jockeyDistanceCentimeters": "Ardatzetik jockey gurpilera",
+    "invalidDimension": "Idatzi {{minimum}} eta {{maximum}} cm arteko balio bat.",
+    "fourWheelsHelp": "Neurtu atzeko gurpilen arteko zabalera erdiz erdi, eta ardatzen arteko distantzia ardatz batetik bestera.",
+    "singleAxleHelp": "Neurtu gurpilen arteko zabalera erdiz erdi, eta ardatzetik jockey gurpilerainoko distantzia."
+  },
+  "zero": {
+    "title": "Mugikorraren zeroa",
+    "none": "Zerorik gabe: mugikorra ibilgailuaren zoruarekiko zuzen dagoela jotzen da.",
+    "current": "Gordetako zeroa: X {{tiltX}}°, Y {{tiltY}}°",
+    "explanation": "Fundak edo kamerak mugikorra lau jartzea eragozten badute, edo sentsoreaz fidatzen ez bazara, finkatu zeroa: bi aldiz neurtzen da, mugikorra 180° biratuta, eta batez bestekoa hartzen da. Ez da beharrezkoa ibilgailua nibelatuta egotea.",
+    "start": "Finkatu zeroa (alderantzikatuz)",
+    "clear": "Ezabatu zeroa",
+    "firstStep": "1/2 · Utzi mugikorra geldi bere lekuan eta sakatu Neurtu.",
+    "secondStep": "2/2 · Biratu mugikorra 180° leku berean (goiko aldea atzera begira) eta sakatu Neurtu.",
+    "measure": "Neurtu",
+    "saved": "Zeroa gordeta."
+  }
+}
