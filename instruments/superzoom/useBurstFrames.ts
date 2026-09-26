@@ -116,8 +116,9 @@ export function useBurstFrames() {
   );
 
   const frameOutput = useFrameOutput({
-    // Resolución alta: el detalle está en los píxeles del recorte central.
-    targetResolution: CommonResolutions.FHD_4_3,
+    // La mayor resolución que dé el sensor: el detalle está en los píxeles del recorte central, y
+    // con fotogramas de vídeo (1440 × 1920) el recorte tenía menos detalle que una foto normal.
+    targetResolution: CommonResolutions.UHD_4_3,
     pixelFormat: 'rgb',
     // Fotogramas ya derechos: así el resultado sale con la misma orientación que la vista previa.
     enablePhysicalBufferRotation: true,

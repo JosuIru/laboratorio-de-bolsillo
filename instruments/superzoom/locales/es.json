@@ -12,6 +12,12 @@
   "zoomOut": "− Zoom",
   "zoomIn": "+ Zoom",
   "zoomHint": "Con zoom ×1 (o en un teleobjetivo) se gana más: el superzoom sustituye al zoom digital.",
+  "cropSizeTitle": "Tamaño del recuadro: cuanto más grande, más escena abarca, pero más tarda el cálculo.",
+  "cropSizes": {
+    "small": "Pequeño",
+    "medium": "Mediano",
+    "large": "Grande"
+  },
   "holdStill": "Sujeta el móvil sin moverlo…",
   "capture": "Capturar {{count}} fotogramas",
   "capturingProgress": "Capturando… {{captured}} / {{target}}",
@@ -31,7 +37,7 @@
     "medium": "Medio",
     "strong": "Fuerte"
   },
-  "mergeExplanation": "Se han fusionado los {{merged}} fotogramas más nítidos de {{captured}} en una imagen de {{size}} × {{size}} px.",
+  "mergeExplanation": "Se han fusionado los {{merged}} fotogramas más nítidos de {{captured}} en una imagen de {{size}} × {{size}} px, en {{seconds}} s.",
   "handMovement": "La mano se movió {{shift}} px de media entre fotogramas: ese temblor es el que aporta el detalle extra.",
   "tooLittleMovement": "Casi no hubo movimiento entre fotogramas (¿móvil apoyado?): el superzoom solo quita ruido, no gana detalle. Prueba sujetándolo a mano.",
   "howItWorks": "Cómo funciona: entre foto y foto el pulso desplaza la imagen fracciones de píxel, así que cada fotograma ve la escena en posiciones algo distintas. Se alinean con precisión subpíxel y se reparten sobre una rejilla el doble de fina; lo que se movió en la escena se descarta para que no deje fantasmas. Todo se calcula en el móvil.",
