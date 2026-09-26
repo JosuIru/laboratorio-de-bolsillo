@@ -23,14 +23,14 @@
   "capturingProgress": "Sujeta el móvil… foto {{captured}} / {{target}}",
   "stopCapture": "Parar",
   "noFramesCaptured": "No ha llegado ninguna foto. Vuelve a intentarlo.",
-  "processing": "Alineando y fusionando las fotos… (unos segundos)",
+  "processing": "Alineando, fusionando y afinando las fotos… (unos segundos)",
   "resultTitle": "Resultado",
   "versions": {
     "superzoom": "Superzoom",
     "singleFrame": "Zoom normal"
   },
   "compareHint": "Cambia entre las dos versiones para comparar: el zoom normal es una sola foto ampliada. Tócala para verla a tamaño real (pellizca para ampliar y desliza para pasar a la otra versión).",
-  "sharpeningTitle": "Realce del detalle",
+  "sharpeningTitle": "Nitidez",
   "sharpening": {
     "none": "Sin realce",
     "soft": "Suave",
@@ -40,7 +40,7 @@
   "mergeExplanation": "Se han fusionado las {{merged}} fotos más nítidas de {{captured}} en una imagen de {{size}} × {{size}} px, en {{seconds}} s.",
   "handMovement": "La mano se movió {{shift}} px de media entre fotos: ese temblor es el que aporta el detalle extra.",
   "tooLittleMovement": "Casi no hubo movimiento entre fotos (¿móvil apoyado?): el superzoom solo quita ruido, no gana detalle. Prueba sujetándolo a mano.",
-  "howItWorks": "Cómo funciona: se toma una ráfaga de fotos a resolución completa (tienen mucho más detalle que el vídeo) y de cada una se usa solo el recuadro. Entre foto y foto el pulso desplaza la imagen fracciones de píxel, así que cada una ve la escena en posiciones algo distintas. Se descartan las más movidas, se alinean con precisión subpíxel y se reparten sobre una rejilla el doble de fina; lo que se movió en la escena se descarta para que no deje fantasmas. Todo se calcula en el móvil.",
+  "howItWorks": "Cómo funciona: se toma una ráfaga de fotos a resolución completa (tienen mucho más detalle que el vídeo) y de cada una se usa solo el recuadro. Entre foto y foto el pulso desplaza la imagen fracciones de píxel, así que cada una ve la escena en posiciones algo distintas. Se descartan las más movidas, se alinean con precisión subpíxel (primero en bloque y luego zona a zona, para corregir giros leves y la deformación del obturador) y se reparten sobre una rejilla el doble de fina; lo que se movió en la escena se descarta para que no deje fantasmas. Después se corrigen los filos de color de la lente y se deshace el desenfoque de la óptica por deconvolución. Todo se calcula en el móvil.",
   "fields": {
     "capturedFrameCount": "Fotogramas capturados",
     "mergedFrameCount": "Fotogramas fusionados",
@@ -48,10 +48,51 @@
     "outputSize": "Tamaño del resultado",
     "zoomFactor": "Zoom de la cámara",
     "meanShift": "Movimiento medio de la mano",
-    "sharpeningAmount": "Realce"
+    "sharpeningAmount": "Realce",
+    "sharpeningMethod": "Método de nitidez",
+    "sharpeningLevel": "Nivel de nitidez",
+    "deconvolutionPsfSigma": "σ de la PSF de la deconvolución",
+    "locallyAlignedFrameCount": "Fotos alineadas por zonas",
+    "redChromaticScale": "Escala del rojo (aberración cromática)",
+    "blueChromaticScale": "Escala del azul (aberración cromática)",
+    "processingSeconds": "Tiempo de cálculo"
   },
   "decodingProgress": "Ya puedes moverte. Leyendo foto {{captured}} / {{target}}…",
   "burstFailed": "No se han podido tomar las fotos: {{message}}",
   "openFullSize": "Ver a tamaño real",
-  "burstTimings": "Ráfaga: {{count}} fotos en {{captureSeconds}} s; leerlas y recortarlas, {{decodeSeconds}} s."
+  "burstTimings": "Ráfaga: {{count}} fotos en {{captureSeconds}} s; leerlas y recortarlas, {{decodeSeconds}} s.",
+  "sharpeningMethods": {
+    "deconvolution": "Deconvolución",
+    "unsharpMask": "Máscara de enfoque"
+  },
+  "sharpeningMethodHint": "La deconvolución deshace el desenfoque de la óptica medido en este móvil, sin subir el grano de las zonas lisas; la máscara de enfoque solo sube el contraste del detalle fino (y con él el ruido y los halos).",
+  "localAlignmentTitle": "Alineado por zonas: corrige los giros leves de la mano y la deformación del obturador (tarda algo más).",
+  "chromaticTitle": "Aberración cromática (filos de color en los contornos, más hacia los bordes):",
+  "chromaticModes": {
+    "auto": "Medirla en la foto",
+    "profile": "Perfil del móvil",
+    "off": "No corregir"
+  },
+  "focusTuningTitle": "Afinar el enfoque antes de la ráfaga (unas fotos de prueba a distintas distancias, unos segundos más):",
+  "focusTuningUnavailable": "Este móvil no deja enfocar a mano: se usa el autoenfoque.",
+  "focusTuningProgress": "Afinando el enfoque… foto de prueba {{measured}} / {{planned}}",
+  "choices": {
+    "on": "Sí",
+    "off": "No"
+  },
+  "processingTimings": "Tiempos: elegir y alinear {{alignSeconds}} s; alineado por zonas {{localSeconds}} s; fusión {{mergeSeconds}} s; color {{chromaticSeconds}} s; nitidez {{sharpeningSeconds}} s.",
+  "improvementsTitle": "Mejoras aplicadas:",
+  "improvements": {
+    "localAlignment": "Alineado por zonas en {{frames}} fotos ({{points}} puntos de alineado): giro medio {{rotation}}°, hasta {{correction}} px corregidos respecto al alineado global.",
+    "localAlignmentNone": "Alineado por zonas: no había textura suficiente; solo alineado global.",
+    "localAlignmentOff": "Alineado por zonas desactivado: solo alineado global.",
+    "whiteBalanceLocked": "Balance de blancos fijo durante la ráfaga; color igualado entre fotos (hasta un {{percent}} % de diferencia).",
+    "whiteBalanceNotLocked": "Este móvil no deja fijar el balance de blancos: se ha igualado el color entre fotos al procesar (hasta un {{percent}} % de diferencia).",
+    "focusTuned": "Enfoque afinado con {{count}} fotos de prueba (posición del objetivo {{position}}).",
+    "chromaticMeasured": "Aberración cromática medida en la foto y corregida: rojo ×{{red}}, azul ×{{blue}} respecto al verde.",
+    "chromaticNothingMeasured": "Aberración cromática: no se ha medido nada que corregir.",
+    "chromaticProfile": "Aberración cromática corregida con el perfil del moto g57: rojo ×{{red}}, azul ×{{blue}} respecto al verde.",
+    "chromaticOff": "Aberración cromática sin corregir.",
+    "deconvolution": "Deconvolución preparada con una PSF gaussiana de σ = {{sigma}} px (la de la óptica del móvil más la de la fusión)."
+  }
 }

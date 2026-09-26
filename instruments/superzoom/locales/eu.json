@@ -23,14 +23,14 @@
   "capturingProgress": "Eutsi mugikorrari… {{captured}} / {{target}} argazkia",
   "stopCapture": "Gelditu",
   "noFramesCaptured": "Ez da argazkirik iritsi. Saiatu berriro.",
-  "processing": "Argazkiak lerrokatzen eta batzen… (segundo batzuk)",
+  "processing": "Argazkiak lerrokatzen, batzen eta zorrozten… (segundo batzuk)",
   "resultTitle": "Emaitza",
   "versions": {
     "superzoom": "Superzooma",
     "singleFrame": "Zoom arrunta"
   },
   "compareHint": "Aldatu bi bertsioen artean alderatzeko: zoom arrunta argazki bakar bat handituta da. Ukitu benetako tamainan ikusteko (atximurkatu handitzeko eta irristatu beste bertsiora pasatzeko).",
-  "sharpeningTitle": "Xehetasunaren nabarmentzea",
+  "sharpeningTitle": "Zorroztasuna",
   "sharpening": {
     "none": "Nabarmendu gabe",
     "soft": "Leuna",
@@ -40,7 +40,7 @@
   "mergeExplanation": "{{captured}} argazkietatik {{merged}} garbienak batu dira {{size}} × {{size}} px-eko irudi batean, {{seconds}} s-tan.",
   "handMovement": "Eskua {{shift}} px mugitu zen batez beste argazki batetik bestera: dardara horrek ematen du xehetasun gehigarria.",
   "tooLittleMovement": "Ia ez zen mugimendurik egon argazkien artean (mugikorra bermatuta?): superzoomak zarata bakarrik kentzen du, ez du xehetasunik irabazten. Saiatu eskuz helduta.",
-  "howItWorks": "Nola dabilen: bereizmen osoko argazki segida bat ateratzen da (bideoak baino xehetasun askoz gehiago dute) eta bakoitzetik laukia bakarrik erabiltzen da. Argazki batetik bestera pultsuak irudia pixel zati batzuk mugitzen du, beraz bakoitzak eszena posizio apur bat desberdinetan ikusten du. Mugituenak baztertzen dira, pixel azpiko zehaztasunez lerrokatzen dira eta bi aldiz finagoa den sare batean banatzen dira; eszenan mugitu zena baztertu egiten da mamurik utz ez dezan. Dena mugikorrean kalkulatzen da.",
+  "howItWorks": "Nola dabilen: bereizmen osoko argazki segida bat ateratzen da (bideoak baino xehetasun askoz gehiago dute) eta bakoitzetik laukia bakarrik erabiltzen da. Argazki batetik bestera pultsuak irudia pixel zati batzuk mugitzen du, beraz bakoitzak eszena posizio apur bat desberdinetan ikusten du. Mugituenak baztertzen dira, pixel azpiko zehaztasunez lerrokatzen dira (lehenik osorik eta gero eremuka, biraketa txikiak eta obturadorearen deformazioa zuzentzeko) eta bi aldiz finagoa den sare batean banatzen dira; eszenan mugitu zena baztertu egiten da mamurik utz ez dezan. Ondoren, lentearen kolore-ertzak zuzentzen dira eta optikaren lausotzea dekonboluzioz desegiten da. Dena mugikorrean kalkulatzen da.",
   "fields": {
     "capturedFrameCount": "Ateratako fotogramak",
     "mergedFrameCount": "Batutako fotogramak",
@@ -48,10 +48,51 @@
     "outputSize": "Emaitzaren tamaina",
     "zoomFactor": "Kameraren zooma",
     "meanShift": "Eskuaren batez besteko mugimendua",
-    "sharpeningAmount": "Nabarmentzea"
+    "sharpeningAmount": "Nabarmentzea",
+    "sharpeningMethod": "Zorrozteko metodoa",
+    "sharpeningLevel": "Zorroztasun-maila",
+    "deconvolutionPsfSigma": "Dekonboluzioaren PSFaren σ",
+    "locallyAlignedFrameCount": "Eremuka lerrokatutako argazkiak",
+    "redChromaticScale": "Gorriaren eskala (aberrazio kromatikoa)",
+    "blueChromaticScale": "Urdinaren eskala (aberrazio kromatikoa)",
+    "processingSeconds": "Kalkulu-denbora"
   },
   "decodingProgress": "Orain mugi zaitezke. {{captured}} / {{target}} argazkia irakurtzen…",
   "burstFailed": "Ezin izan dira argazkiak atera: {{message}}",
   "openFullSize": "Ikusi benetako tamainan",
-  "burstTimings": "Segida: {{count}} argazki {{captureSeconds}} s-tan; irakurri eta mozteko, {{decodeSeconds}} s."
+  "burstTimings": "Segida: {{count}} argazki {{captureSeconds}} s-tan; irakurri eta mozteko, {{decodeSeconds}} s.",
+  "sharpeningMethods": {
+    "deconvolution": "Dekonboluzioa",
+    "unsharpMask": "Fokatze-maskara"
+  },
+  "sharpeningMethodHint": "Dekonboluzioak mugikor honetan neurtutako optikaren lausotzea desegiten du, eremu leunetako pikorra igo gabe; fokatze-maskarak xehetasun finaren kontrastea igotzen du soilik (eta harekin batera zarata eta haloak).",
+  "localAlignmentTitle": "Eremuka lerrokatzea: eskuaren biraketa txikiak eta obturadorearen deformazioa zuzentzen ditu (pixka bat gehiago irauten du).",
+  "chromaticTitle": "Aberrazio kromatikoa (kolore-ertzak ingeradetan, gehiago bazterretarantz):",
+  "chromaticModes": {
+    "auto": "Argazkian neurtu",
+    "profile": "Mugikorraren profila",
+    "off": "Ez zuzendu"
+  },
+  "focusTuningTitle": "Fokua doitu segidaren aurretik (proba-argazki batzuk distantzia desberdinetan, segundo batzuk gehiago):",
+  "focusTuningUnavailable": "Mugikor honek ez du eskuz fokatzen uzten: fokatze automatikoa erabiltzen da.",
+  "focusTuningProgress": "Fokua doitzen… {{measured}} / {{planned}} proba-argazkia",
+  "choices": {
+    "on": "Bai",
+    "off": "Ez"
+  },
+  "processingTimings": "Denborak: aukeratu eta lerrokatu {{alignSeconds}} s; eremuka lerrokatu {{localSeconds}} s; batu {{mergeSeconds}} s; kolorea {{chromaticSeconds}} s; zorroztasuna {{sharpeningSeconds}} s.",
+  "improvementsTitle": "Aplikatutako hobekuntzak:",
+  "improvements": {
+    "localAlignment": "Eremuka lerrokatzea {{frames}} argazkitan ({{points}} lerrokatze-puntu): batez besteko biraketa {{rotation}}°, lerrokatze globalaren aldean {{correction}} px arte zuzenduta.",
+    "localAlignmentNone": "Eremuka lerrokatzea: ez zegoen ehundura nahikorik; lerrokatze globala bakarrik.",
+    "localAlignmentOff": "Eremuka lerrokatzea desaktibatuta: lerrokatze globala bakarrik.",
+    "whiteBalanceLocked": "Zuri-balantzea finko segidan zehar; kolorea argazkien artean berdinduta (% {{percent}} arteko aldea).",
+    "whiteBalanceNotLocked": "Mugikor honek ez du zuri-balantzea finkatzen uzten: kolorea argazkien artean berdindu da prozesatzean (% {{percent}} arteko aldea).",
+    "focusTuned": "Fokua {{count}} proba-argazkirekin doitu da (objektiboaren posizioa: {{position}}).",
+    "chromaticMeasured": "Aberrazio kromatikoa argazkian neurtu eta zuzendu da: gorria ×{{red}}, urdina ×{{blue}} berdearen aldean.",
+    "chromaticNothingMeasured": "Aberrazio kromatikoa: ez da zuzentzeko ezer neurtu.",
+    "chromaticProfile": "Aberrazio kromatikoa moto g57aren profilarekin zuzendu da: gorria ×{{red}}, urdina ×{{blue}} berdearen aldean.",
+    "chromaticOff": "Aberrazio kromatikoa zuzendu gabe.",
+    "deconvolution": "Dekonboluzioa σ = {{sigma}} px-eko PSF gaussiar batekin prestatu da (mugikorraren optikarena gehi batzearena)."
+  }
 }
