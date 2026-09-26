@@ -1,0 +1,140 @@
+{
+  "name": "Zeru izarratua",
+  "description": "Izar metatuak, izarren arrastoak eta meteoroen zaintza, mugikorra tripode batean geldi dagoela.",
+  "intro": "Jarri mugikorra tripode batean (edo ondo bermatuta) zerura begira. Metatu argazki asko izar gehiago ikusteko, marraztu haien arrastoak edo zaindu izar iheskorrak.",
+  "modeTitle": "Modua",
+  "modes": {
+    "stack": "Izarrak metatu",
+    "trails": "Arrastoak",
+    "meteors": "Meteoroak"
+  },
+  "modeHints": {
+    "stack": "Argazki labur asko, zeruaren biraketari jarraituz lerrokatuak eta batez bestekoa eginez: zarata jaitsi egiten da, eta argazki bakar batean ikusten ez diren izarrak agertzen dira.",
+    "trails": "Argazki guztietako pixel bakoitzaren maximoa: izarrek arkuak marrazten dituzte poloaren inguruan. Zenbat eta denbora gehiago, orduan eta luzeagoak. Gelditu nahi duzunean.",
+    "meteors": "Kameraren bideoa zaintzen du eta izar iheskor bakoitzaren argazkia gordetzen du, orduarekin. Sateliteak, hegazkinak eta pixel beroak baztertzen ditu."
+  },
+  "isoTitle": "Sentikortasuna (ISO handiagoa: izar gehiago, baina zarata gehiago)",
+  "frameCountTitle": "Metatzen diren argazkiak",
+  "fieldTitle": "Argazkiaren eremua",
+  "fieldChoices": {
+    "whole": "Eremu osoa (txikituta)",
+    "center": "Erdigunea (bereizmen osoa)"
+  },
+  "gapFillingTitle": "Argazkien arteko hutsuneak bete",
+  "choices": {
+    "on": "Bai",
+    "off": "Ez"
+  },
+  "nightView": {
+    "enable": "Gaueko ikuspegia",
+    "disable": "Esposizio automatikoa",
+    "exposure": "Esposizioa {{milliseconds}} ms · ISO {{iso}}",
+    "automaticExposure": "Mugikor honek ez du esposizioa finkatzen uzten: automatikoa erabiltzen da",
+    "focusInfinity": "fokua infinituan",
+    "focusAutomatic": "foku automatikoa",
+    "whiteBalanceLocked": "zuri-balantze finkoa"
+  },
+  "start": {
+    "stack": "Metatu {{frames}} argazki",
+    "trails": "Hasi arrastoak",
+    "meteors": "Hasi zaintzen"
+  },
+  "stop": "Gelditu",
+  "processing": "Prozesatzen…",
+  "noPhotos": "ez da argazkirik iritsi",
+  "burstFailed": "Ezin izan dira argazkiak atera: {{message}}",
+  "progress": {
+    "photos": "{{target}} argazkietatik {{captured}}.a… ez ukitu mugikorra",
+    "stack": {
+      "detecting": "Izarrak bilatzen: {{total}} argazkietatik {{completed}}.a",
+      "firstPass": "Lerrokatzen eta batzen (1. pasaldia): {{completed}} / {{total}}",
+      "secondPass": "Lerrokatzen eta batzen (2. pasaldia): {{completed}} / {{total}}",
+      "finishing": "Hondoa kentzen eta izarrak zenbatzen…"
+    },
+    "trails": "{{frames}} argazki · {{elapsed}}"
+  },
+  "stack": {
+    "title": "Izar metatuak",
+    "versions": {
+      "stacked": "Metatua",
+      "single": "Argazki bakar bat"
+    },
+    "compareHint": "Bi bertsioek distira-luzatze bera dute: horrela ikusten da metatzeak zenbat zarata kentzen duen. Ukitu irudia pantaila osoan ikusteko.",
+    "starCounts": "Detektatutako izarrak: {{stacked}} metatuan eta {{single}} argazki bakar batean.",
+    "limitingMagnitudes": "Gutxi gorabeherako magnitude-muga: {{stacked}} metatuta, {{single}} argazki batekin.",
+    "magnitudeUnknown": "ez dakigu (izar gutxiegi)",
+    "magnitudeValue": "{{magnitude}}",
+    "noiseReduction": "Zeruaren zarata ×{{factor}} jaitsi da (onena ×{{expected}} litzateke, hau da, +{{gain}} magnitude).",
+    "alignment": "{{captured}} argazkietatik {{stacked}} metatu dira. Zerua {{rotation}}° arte biratu da eta {{shift}} px arte mugitu da erreferentziako argazkiarekiko.",
+    "unaligned": "{{frames}} argazki ezin izan dira lerrokatu (hodeiak? mugikorra mugitu da?) eta ez dira erabili.",
+    "field": "{{width}}° × {{height}}°-ko eremua, {{scale}}″ pixeleko. Kendutako hondoa: {{gradient}} mailako gradientea. Moztutako laginak: % {{rejected}}.",
+    "magnitudeCaveat": "Magnitude-muga gradu karratu bakoitzeko izarrak zenbatuz kalkulatzen da (zeru osoko batez bestekoa): Esne Bidetik gertu benetakoa baino handiagoa ateratzen da, eta handik urrun, txikiagoa."
+  },
+  "trails": {
+    "title": "Izarren arrastoak",
+    "summary": "{{frames}} argazki {{elapsed}}-(e)an. Hutsuneak betetzeko tarteko kopiak: {{copies}}."
+  },
+  "meteors": {
+    "title": "Meteoroen zaintza",
+    "count": "Meteoroak: {{meteors}}, {{elapsed}}-(e)an",
+    "liveCount": "☄ {{meteors}} · {{elapsed}}",
+    "rate": "Maiztasuna: {{rate}} meteoro orduko (kameraren eremu honetan, ez zeru osoan).",
+    "rateTooShort": "Orduko maiztasuna lehen minututik aurrera kalkulatzen da.",
+    "statistics": "Aztertutako fotogramak: {{frames}} · argi-aldaketa bortitzengatik saltatuak: {{skipped}} · baztertutako objektu motelak (sateliteak, hegazkinak): {{slow}}",
+    "warmingUp": "Hondoa prestatzen lehen fotogramekin…",
+    "latest": "Azken meteoroa, {{time}}(e)tan",
+    "eventRow": "#{{number}} · {{time}} · {{length}} px",
+    "eventCaption": "Meteoroa {{time}}(e)tan"
+  },
+  "conditions": {
+    "title": "Zerua orain",
+    "darkness": {
+      "day": "Eguna da: itxaron gaua arte.",
+      "civilTwilight": "Ilunabar zibila: argi handia dago oraindik.",
+      "nauticalTwilight": "Ilunabar nautikoa: izar distiratsuak ikusten dira jada.",
+      "astronomicalTwilight": "Ilunabar astronomikoa: ia gau beltza.",
+      "night": "Gau beltza: Eguzkia horizontetik 18° baino gehiago behera dago."
+    },
+    "moonPhaseOnly": "Ilargia % {{percent}} argituta.",
+    "moonBelowHorizon": "Ilargia (% {{percent}} argituta) horizontetik behera dago.",
+    "moonAboveHorizon": "Ilargia (% {{percent}} argituta) horizontetik {{altitude}}° gora dago.",
+    "moonInterference": {
+      "none": "Ilargiak ez du orain traba egiten.",
+      "low": "Ilargiak ia ez du zerua argitzen.",
+      "moderate": "Ilargiak zerua argitzen du: izar ahul gutxiago ikusiko dira.",
+      "strong": "Ilargiak asko argitzen du zerua: hobe beste gau batean izar ahulentzat edo meteoroentzat."
+    },
+    "locationHint": "Kokapenarekin jakin daiteke Eguzkia eta Ilargia horizontetik gora dauden.",
+    "useLocation": "Erabili kokapena"
+  },
+  "tips": {
+    "title": "Aholkuak",
+    "tripod": "Tripodea edo mugikorra ondo bermatuta, eta ez ukitu argazkiak ateratzen ari den bitartean (kamerak berak egiten du dena).",
+    "noMoon": "Hobe Ilargirik gabe edo Ilargia horizontetik behera dagoenean.",
+    "darkPlace": "Farola eta herriko argietatik urrun; begiratu hiriko distiratik urrun.",
+    "darkAdaptation": "Utzi begiei 10 minutu inguru iluntasunera ohitzen, eta jaitsi pantailaren distira.",
+    "exposureLimit": "Mugikorrak ez du uzten argazki bakoitza 185 ms inguru baino gehiago esposatzen: horrek mugatzen ditu argazki bakoitzean ateratzen diren izar ahulak. Argazki asko metatzeak konpentsatzen du (100 argazki ≈ +2,5 magnitude).",
+    "batteryAndDew": "Hotzak bateria xahutzen du eta lentea lausotu dezake: eraman kanpoko bateria bat eta zapi bat."
+  },
+  "howItWorks": "Nola dabilen: argazki bakoitzean izarrak bilatzen dira (hondoaren gaineko maximoak, zaratari egokitutako atalasearekin eta pixel-azpiko zentroidearekin). Erreferentziako argazkikoekin parekatzen dira beren arteko distantziengatik, zeruaren biraketa eta desplazamendua kalkulatzeko; gero lerrokatu eta batez bestekoa egiten da, ateratzen dena baztertuz (hegazkinak, pixel beroak). Ondoren, zeruaren gradientea polinomio leun batekin kentzen da eta distira asinh bidez luzatzen da. Meteoroak zuzen-zati berri gisa bilatzen dira (aurreko fotogramen medianarekiko aldea eta Hough transformatua), hurrengo fotogrametan jarraitzen ez dutenak.",
+  "fields": {
+    "mode": "Modua",
+    "capturedFrameCount": "Ateratako argazkiak",
+    "exposure": "Esposizioa",
+    "iso": "ISO",
+    "stackedFrameCount": "Metatutako argazkiak",
+    "starsInStack": "Izarrak metatuan",
+    "starsInSingleFrame": "Izarrak argazki batean",
+    "limitingMagnitudeStack": "Magnitude-muga (metatua)",
+    "limitingMagnitudeSingle": "Magnitude-muga (argazki bat)",
+    "noiseReductionFactor": "Zarataren murrizketa",
+    "largestRotation": "Zeruaren biraketa",
+    "fieldWidth": "Eremuaren zabalera",
+    "fieldHeight": "Eremuaren altuera",
+    "trailDuration": "Arrastoen iraupena",
+    "meteorCount": "Meteoroak",
+    "meteorsPerHour": "Meteoroak orduko",
+    "watchedMinutes": "Zaintza-denbora",
+    "rejectedSlowMoverCount": "Baztertutako objektu motelak"
+  }
+}
