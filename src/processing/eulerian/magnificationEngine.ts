@@ -1,24 +1,41 @@
-import { reconstructAmplifiedRgba, renderVariationOverlayRgba } from './amplification';
+import { reconstructAmplifiedRgba } from './amplification';
 import type { AmplifiedSignal } from './bands';
 import {
   clearRegionHistory,
   createRegionHistory,
   type DominantFrequencyEstimate,
   estimateDominantFrequency,
-  extractCentralRegion,
+  extractRegion,
   type PixelCombination,
   pushRegionFrame,
   type RegionHistory,
   regionHistoryDurationSeconds,
 } from './dominantFrequency';
 import { createFrameClock } from './frameTiming';
+import {
+  centeredMeasurementRegion,
+  type MeasurementRegion,
+  placeMeasurementRegion,
+  regionCellBounds,
+} from './measurementRegion';
+import {
+  amplitudeTimeConstantSeconds,
+  createMotionMapState,
+  type MotionMapState,
+  renderHeatMapRgba,
+  renderPhaseMapRgba,
+  resetMotionMapState,
+  setLockInFrequency,
+  updateMotionMaps,
+} from './motionMaps';
 import { createPixelBandpassFilter, filterPixelFrame, type PixelBandpassFilter } from './pixelBandpass';
 
 /**
  * Motor de la amplificación euleriana en el hilo JS. Recibe, por cada fotograma, la rejilla
  * base (para reconstruir la imagen) y el nivel grueso de la pirámide (ya calculados en el hilo
- * de la cámara); filtra cada valor del nivel en el tiempo, reconstruye la imagen amplificada y
- * guarda la región central filtrada para la medida de frecuencia.
+ * de la cámara); filtra cada valor del nivel en el tiempo, reconstruye la imagen amplificada,
+ * actualiza los mapas de calor y de fase y guarda la zona de medida filtrada para la medida de
+ * frecuencia.
  */
 
 export interface MagnificationSettings {
@@ -58,17 +75,22 @@ export interface ProcessedFrame {
   effectiveHighCutoffHz: number | null;
   /** RGBA opaco de baseWidth × baseHeight: el fotograma amplificado. */
   amplifiedRgba: Uint8Array | null;
-  /** RGBA sin premultiplicar de levelWidth × levelHeight: el mapa de la variación. */
-  overlayRgba: Uint8Array | null;
+  /** RGBA sin premultiplicar de levelWidth × levelHeight: amplitud del movimiento (inferno). */
+  heatMapRgba: Uint8Array | null;
+  /** RGBA sin premultiplicar de levelWidth × levelHeight: fase a f0; null si aún no hay f0. */
+  phaseMapRgba: Uint8Array | null;
+  /**
+   * Media de la señal filtrada en la zona de medida (canal medido), para el monitor en vivo.
+   * Null mientras el filtro se asienta.
+   */
+  regionFilteredMean: number | null;
 }
 
 export interface FrameOutputRequest {
   wantsAmplifiedImage: boolean;
-  wantsOverlay: boolean;
+  wantsHeatMap?: boolean;
+  wantsPhaseMap?: boolean;
 }
-
-/** Fracción de cada lado de la rejilla que forma la región central de medida. */
-export const centralRegionFraction = 1 / 3;
 /** Si la cadencia estimada cambia más que esto, se rediseña el filtro. */
 const frameRateChangeTolerance = 0.15;
 /** Tras (re)crear el filtro, segundos antes de guardar valores para la medida (transitorio). */
@@ -87,6 +109,14 @@ export interface MagnificationEngine {
    * se vuelve a esperar a que el filtro se asiente antes de guardar valores.
    */
   restartMeasurementWindow(): void;
+  /**
+   * Mueve la zona de medida (centro en fracciones del fotograma). Vacía la historia de la medida,
+   * que era de otra zona, pero no la vista ni los mapas.
+   */
+  setMeasurementRegionCenter(centerXFraction: number, centerYFraction: number): void;
+  measurementRegion(): MeasurementRegion;
+  /** Frecuencia del lock-in del mapa de fase (la dominante medida); null la olvida. */
+  setLockInFrequency(lockInFrequencyHz: number | null): void;
   reset(): void;
 }
 
@@ -100,6 +130,11 @@ export function createMagnificationEngine(initialSettings: MagnificationSettings
   let isBandAboveFrameRate = false;
   /** El próximo fotograma cuenta como el de creación del filtro (transitorio del movimiento). */
   let isMeasurementRestartPending = false;
+  let measurementRegion: MeasurementRegion = centeredMeasurementRegion;
+  let motionMapState: MotionMapState | null = null;
+  let lockInFrequencyHz: number | null = null;
+  let previousRunningTimeSeconds: number | null = null;
+  let regionValuesBuffer: Float32Array | undefined;
 
   function ensureFilter(gridFrame: GridFrame, framesPerSecond: number, currentTimeSeconds: number) {
     const valueCount = gridFrame.levelWidth * gridFrame.levelHeight * gridFrame.levelChannelCount;
@@ -118,7 +153,15 @@ export function createMagnificationEngine(initialSettings: MagnificationSettings
     }
     filteredLevel = new Float32Array(valueCount);
     filterCreationTimeSeconds = currentTimeSeconds;
+    previousRunningTimeSeconds = null;
     if (regionHistory) clearRegionHistory(regionHistory);
+    // Los mapas empiezan de cero con el filtro nuevo (su transitorio los ensuciaría).
+    if (motionMapState?.gridWidth === gridFrame.levelWidth && motionMapState.gridHeight === gridFrame.levelHeight) {
+      resetMotionMapState(motionMapState);
+    } else {
+      motionMapState = createMotionMapState(gridFrame.levelWidth, gridFrame.levelHeight);
+    }
+    setLockInFrequency(motionMapState, lockInFrequencyHz);
   }
 
   return {
@@ -156,7 +199,9 @@ export function createMagnificationEngine(initialSettings: MagnificationSettings
           framesPerSecond,
           effectiveHighCutoffHz: null,
           amplifiedRgba: unamplifiedRgba,
-          overlayRgba: null,
+          heatMapRgba: null,
+          phaseMapRgba: null,
+          regionFilteredMean: null,
         };
       }
 
@@ -168,23 +213,66 @@ export function createMagnificationEngine(initialSettings: MagnificationSettings
         if (regionHistory) clearRegionHistory(regionHistory);
       }
 
-      if (currentTimeSeconds - filterCreationTimeSeconds >= filterSettlingSeconds) {
-        const measuredChannelIndex = gridFrame.levelChannelCount === 3 ? 1 : 0;
-        const centralValues = extractCentralRegion(
+      // Con tres canales (pulso) se mide el verde, el que más cambia con la sangre.
+      const measuredChannelIndex = gridFrame.levelChannelCount === 3 ? 1 : 0;
+      const isFilterSettled = currentTimeSeconds - filterCreationTimeSeconds >= filterSettlingSeconds;
+      let regionFilteredMean: number | null = null;
+      if (isFilterSettled) {
+        const regionValues = extractRegion(
           filteredLevel,
           gridFrame.levelWidth,
           gridFrame.levelHeight,
           gridFrame.levelChannelCount,
           measuredChannelIndex,
-          centralRegionFraction,
+          measurementRegion,
+          regionValuesBuffer,
         );
-        if (!regionHistory || regionHistory.valuesPerFrame !== centralValues.length) {
+        regionValuesBuffer = regionValues;
+        if (!regionHistory || regionHistory.valuesPerFrame !== regionValues.length) {
           regionHistory = createRegionHistory(
             Math.ceil(settings.measurementWindowSeconds * maximumExpectedFramesPerSecond),
-            centralValues.length,
+            regionValues.length,
           );
         }
-        pushRegionFrame(regionHistory, currentTimeSeconds, centralValues);
+        pushRegionFrame(regionHistory, currentTimeSeconds, regionValues);
+        let regionSum = 0;
+        for (let valueIndex = 0; valueIndex < regionValues.length; valueIndex++) regionSum += regionValues[valueIndex]!;
+        regionFilteredMean = regionSum / regionValues.length;
+      }
+
+      // Mapas: se actualizan en cada fotograma (son baratos) para que estén listos al elegirlos.
+      const stepSeconds =
+        previousRunningTimeSeconds === null
+          ? 1 / framesPerSecond
+          : Math.min(0.5, Math.max(0, currentTimeSeconds - previousRunningTimeSeconds));
+      previousRunningTimeSeconds = currentTimeSeconds;
+      let heatMapRgba: Uint8Array | null = null;
+      let phaseMapRgba: Uint8Array | null = null;
+      if (motionMapState && isFilterSettled) {
+        updateMotionMaps(
+          motionMapState,
+          filteredLevel,
+          gridFrame.levelChannelCount,
+          measuredChannelIndex,
+          currentTimeSeconds,
+          stepSeconds,
+          amplitudeTimeConstantSeconds(settings.lowCutoffHz, bandpassFilter.highCutoffHz),
+        );
+        const mapByteCount = gridFrame.levelWidth * gridFrame.levelHeight * 4;
+        if (outputRequest.wantsHeatMap) {
+          heatMapRgba = new Uint8Array(mapByteCount);
+          renderHeatMapRgba(motionMapState, stepSeconds, heatMapRgba);
+        }
+        if (outputRequest.wantsPhaseMap) {
+          const candidatePhaseMap = new Uint8Array(mapByteCount);
+          const hasPhaseMap = renderPhaseMapRgba(
+            motionMapState,
+            regionCellBounds(gridFrame.levelWidth, gridFrame.levelHeight, measurementRegion),
+            stepSeconds,
+            candidatePhaseMap,
+          );
+          phaseMapRgba = hasPhaseMap ? candidatePhaseMap : null;
+        }
       }
 
       let amplifiedRgba: Uint8Array | null = null;
@@ -202,24 +290,14 @@ export function createMagnificationEngine(initialSettings: MagnificationSettings
           amplifiedRgba,
         );
       }
-      let overlayRgba: Uint8Array | null = null;
-      if (outputRequest.wantsOverlay) {
-        overlayRgba = new Uint8Array(gridFrame.levelWidth * gridFrame.levelHeight * 4);
-        renderVariationOverlayRgba(
-          filteredLevel,
-          gridFrame.levelWidth,
-          gridFrame.levelHeight,
-          gridFrame.levelChannelCount,
-          amplificationOptions,
-          overlayRgba,
-        );
-      }
       return {
         status: 'running',
         framesPerSecond,
         effectiveHighCutoffHz: bandpassFilter.highCutoffHz,
         amplifiedRgba,
-        overlayRgba,
+        heatMapRgba,
+        phaseMapRgba,
+        regionFilteredMean,
       };
     },
 
@@ -259,8 +337,24 @@ export function createMagnificationEngine(initialSettings: MagnificationSettings
       if (regionHistory) clearRegionHistory(regionHistory);
     },
 
+    setMeasurementRegionCenter(centerXFraction, centerYFraction) {
+      measurementRegion = placeMeasurementRegion(centerXFraction, centerYFraction, measurementRegion.sizeFraction);
+      if (regionHistory) clearRegionHistory(regionHistory);
+    },
+
+    measurementRegion() {
+      return measurementRegion;
+    },
+
+    setLockInFrequency(nextLockInFrequencyHz) {
+      lockInFrequencyHz = nextLockInFrequencyHz;
+      if (motionMapState) setLockInFrequency(motionMapState, nextLockInFrequencyHz);
+    },
+
     reset() {
       isMeasurementRestartPending = false;
+      previousRunningTimeSeconds = null;
+      if (motionMapState) resetMotionMapState(motionMapState);
       frameClock.reset();
       bandpassFilter = null;
       filteredLevel = null;

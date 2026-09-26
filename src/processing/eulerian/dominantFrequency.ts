@@ -2,10 +2,12 @@ import { createFftPlan, type FftPlan, fftInPlace } from '@/processing/dsp/fft';
 import { findDominantFrequency } from '@/processing/dsp/spectrum';
 import { createWindow } from '@/processing/dsp/windows';
 
+import { type MeasurementRegion, regionCellBounds } from './measurementRegion';
+
 /**
- * Modo de medida: frecuencia dominante de la región central de la imagen.
+ * Modo de medida: frecuencia dominante de la zona de medida de la imagen (el recuadro).
  *
- * Se guarda la historia de unos cuantos píxeles (los de la región central de la rejilla) con
+ * Se guarda la historia de unos cuantos píxeles (los de la zona de medida de la rejilla) con
  * la marca de tiempo de cada fotograma. Para estimar la frecuencia se remuestrea cada serie a
  * un paso uniforme (los fotogramas no llegan exactamente espaciados), se quita la tendencia, se
  * enventana con Hann y se calcula la FFT (con relleno de ceros). Dos formas de combinar píxeles:
@@ -71,6 +73,33 @@ export function regionHistoryDurationSeconds(history: RegionHistory): number {
 }
 
 /**
+ * Valores de la zona de medida de una rejilla (el rectángulo de `region`), del canal
+ * `channelIndex`. Escribe en `outputValues` si se pasa (y tiene el tamaño justo).
+ */
+export function extractRegion(
+  gridPixels: ArrayLike<number>,
+  gridWidth: number,
+  gridHeight: number,
+  channelCount: number,
+  channelIndex: number,
+  region: MeasurementRegion,
+  outputValues?: Float32Array,
+): Float32Array {
+  const { firstColumn, firstRow, regionWidth, regionHeight } = regionCellBounds(gridWidth, gridHeight, region);
+  const regionValues =
+    outputValues && outputValues.length === regionWidth * regionHeight
+      ? outputValues
+      : new Float32Array(regionWidth * regionHeight);
+  for (let regionRow = 0; regionRow < regionHeight; regionRow++) {
+    for (let regionColumn = 0; regionColumn < regionWidth; regionColumn++) {
+      const gridIndex = (firstRow + regionRow) * gridWidth + firstColumn + regionColumn;
+      regionValues[regionRow * regionWidth + regionColumn] = gridPixels[gridIndex * channelCount + channelIndex]!;
+    }
+  }
+  return regionValues;
+}
+
+/**
  * Valores de la región central de una rejilla: el rectángulo centrado que ocupa
  * `regionFraction` de cada lado, del canal `channelIndex`.
  */
@@ -82,18 +111,11 @@ export function extractCentralRegion(
   channelIndex: number,
   regionFraction: number,
 ): Float32Array {
-  const regionWidth = Math.max(1, Math.round(gridWidth * regionFraction));
-  const regionHeight = Math.max(1, Math.round(gridHeight * regionFraction));
-  const firstColumn = Math.floor((gridWidth - regionWidth) / 2);
-  const firstRow = Math.floor((gridHeight - regionHeight) / 2);
-  const regionValues = new Float32Array(regionWidth * regionHeight);
-  for (let regionRow = 0; regionRow < regionHeight; regionRow++) {
-    for (let regionColumn = 0; regionColumn < regionWidth; regionColumn++) {
-      const gridIndex = (firstRow + regionRow) * gridWidth + firstColumn + regionColumn;
-      regionValues[regionRow * regionWidth + regionColumn] = gridPixels[gridIndex * channelCount + channelIndex]!;
-    }
-  }
-  return regionValues;
+  return extractRegion(gridPixels, gridWidth, gridHeight, channelCount, channelIndex, {
+    centerXFraction: 0.5,
+    centerYFraction: 0.5,
+    sizeFraction: regionFraction,
+  });
 }
 
 export interface DominantFrequencyOptions {
