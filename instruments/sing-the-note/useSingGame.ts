@@ -24,6 +24,7 @@ import { referenceToneSeconds, useReferenceTone } from './useReferenceTone';
  * escuchar se olvidan las lecturas anteriores para que la referencia no cuente como canto.
  */
 const referenceGuardSeconds = 0.6;
+/** Más larga que la nota de referencia: tras un fallo, la nota correcta suena en esta pausa. */
 const roundResultSeconds = 1.5;
 const tickMilliseconds = 80;
 
@@ -135,6 +136,17 @@ export function useSingGame() {
     if (!isMicrophoneRunning || currentStage !== 'reference' || targetNoteForReference === null) return;
     playReferenceTone(referenceFrequencyHz(targetNoteForReference));
   }, [currentRoundKey, currentStage, targetNoteForReference, isMicrophoneRunning, playReferenceTone]);
+
+  // Tras un fallo suena otra vez la nota objetivo, para oír la diferencia (cabe en la pausa del
+  // resultado, antes de la referencia de la ronda siguiente).
+  const missedTargetNoteIndex =
+    gameState.phase === 'playing' && gameState.stage === 'result' && gameState.roundProgress.outcome === 'missed'
+      ? gameState.roundProgress.targetNoteIndex
+      : null;
+  useEffect(() => {
+    if (missedTargetNoteIndex === null) return;
+    playReferenceTone(referenceFrequencyHz(missedTargetNoteIndex));
+  }, [currentRoundKey, missedTargetNoteIndex, playReferenceTone]);
 
   // Al pasar a escuchar se olvida lo que sonó antes (la propia nota de referencia).
   useEffect(() => {

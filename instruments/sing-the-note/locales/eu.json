@@ -26,6 +26,7 @@
   },
   "flat": "Baxua",
   "sharp": "Altua",
+  "sungNote": "{{note}} ari zara abesten",
   "holdProgress": "Eutsi nota afinatuta",
   "timeLeft": "{{seconds}} s falta dira",
   "anyOctave": "Edozein zortzikotan balio du.",

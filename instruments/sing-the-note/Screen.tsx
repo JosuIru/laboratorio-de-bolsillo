@@ -85,6 +85,11 @@ export function SingTheNoteScreen({ saveMeasurement }: InstrumentScreenProps<Sin
       latestError === null
         ? null
         : 0.5 + Math.max(-meterRangeCents, Math.min(meterRangeCents, latestError)) / (2 * meterRangeCents);
+    // Fuera de la barra, la aguja se queda en el borde: se dice qué nota suena para saber hacia dónde ir.
+    const sungNoteIndex =
+      stage === 'listening' && latestError !== null && Math.abs(latestError) > meterRangeCents
+        ? (((roundProgress.targetNoteIndex + Math.round(latestError / 100)) % 12) + 12) % 12
+        : null;
 
     return (
       <ScreenContainer>
@@ -135,6 +140,11 @@ export function SingTheNoteScreen({ saveMeasurement }: InstrumentScreenProps<Sin
             </BodyText>
             <BodyText tone="secondary">{t('sharp')}</BodyText>
           </View>
+          {sungNoteIndex !== null ? (
+            <BodyText tone="secondary" style={styles.centeredText}>
+              {t('sungNote', { note: t(`notes.${sungNoteIndex}`) })}
+            </BodyText>
+          ) : null}
 
           <BodyText tone="secondary">{t('holdProgress')}</BodyText>
           <View style={[styles.progressTrack, { backgroundColor: themePalette.border }]}>

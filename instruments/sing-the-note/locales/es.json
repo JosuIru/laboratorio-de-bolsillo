@@ -26,6 +26,7 @@
   },
   "flat": "Bajo",
   "sharp": "Alto",
+  "sungNote": "Estás cantando {{note}}",
   "holdProgress": "Aguanta la nota afinada",
   "timeLeft": "Quedan {{seconds}} s",
   "anyOctave": "Vale en cualquier octava.",
