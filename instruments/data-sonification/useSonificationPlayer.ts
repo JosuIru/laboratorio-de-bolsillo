@@ -1,7 +1,7 @@
 import { type RefObject, useEffect } from 'react';
 import { type AudioBuffer, AudioContext } from 'react-native-audio-api';
 
-import { useIsAppActive } from '@/core/useIsAppActive';
+import { useIsScreenActive } from '@/core/useIsScreenActive';
 import { generateTone } from '@/processing/dsp/signalGenerator';
 
 import {
@@ -46,7 +46,7 @@ function createPluckBuffer(audioContext: AudioContext, frequencyHz: number): Aud
 
 /**
  * Hace sonar el valor de la fuente mientras `isPlaying`. Lee el último valor de una referencia
- * (no del estado de React) para no reiniciar el audio en cada lectura. Calla en segundo plano.
+ * (no del estado de React) para no reiniciar el audio en cada lectura. Calla en segundo plano o si otra pantalla la tapa.
  */
 export function useSonificationPlayer({
   isPlaying,
@@ -59,8 +59,8 @@ export function useSonificationPlayer({
   scaleId: SonificationScaleId;
   latestReadingRef: RefObject<SourceReading | null>;
 }) {
-  const isAppActive = useIsAppActive();
-  const shouldPlay = isPlaying && isAppActive;
+  const isScreenActive = useIsScreenActive();
+  const shouldPlay = isPlaying && isScreenActive;
 
   useEffect(() => {
     if (!shouldPlay) return;
