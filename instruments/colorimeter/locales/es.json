@@ -45,6 +45,14 @@
       "custom": "Tarjeta propia"
     },
     "patchName": "Nombre",
+    "patchNames": {
+      "white": "Blanco",
+      "neutral": "Gris 5",
+      "black": "Negro 2",
+      "red": "Rojo",
+      "green": "Verde",
+      "blue": "Azul"
+    },
     "saveFailed": "No se ha podido guardar la calibración: {{message}}",
     "addPatch": "Añadir parche",
     "invalid": "Revisa los colores: deben tener el formato #RRGGBB."

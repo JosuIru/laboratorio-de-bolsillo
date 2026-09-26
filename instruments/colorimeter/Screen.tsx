@@ -10,7 +10,7 @@ import { AppButton, BodyText, Card, ScreenContainer } from '@/ui/components';
 import { useThemePalette } from '@/ui/theme';
 
 import { evaluateColorimeterFrame, type UserColorScale } from './colorimeterEngine';
-import { type ColorimeterCalibrationParameters, defaultReferenceCard } from './referenceCards';
+import { type ColorimeterCalibrationParameters, defaultReferenceCard, referencePatchLabel } from './referenceCards';
 import { colorimeterInstrumentId, ScaleEditor } from './ScaleEditor';
 import { loadColorScales, saveColorScales } from './scaleStorage';
 import type { ColorimeterMeasurementValues } from './schema';
@@ -129,7 +129,10 @@ export function ColorimeterScreen({
     }
   }
 
-  const markerLabels = [t('sampleMarker'), ...referenceCard.patches.map((patch) => patch.name)];
+  const markerLabels = [
+    t('sampleMarker'),
+    ...referenceCard.patches.map((patch) => referencePatchLabel(patch, (translationKey) => t(translationKey))),
+  ];
   const markerColors = [themePalette.onAccent, ...referenceCard.patches.map((patch) => patch.hexColor)];
   const scaleMatch = colorimeterReading?.scaleMatch;
 

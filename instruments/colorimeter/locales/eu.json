@@ -45,6 +45,14 @@
       "custom": "Txartel propioa"
     },
     "patchName": "Izena",
+    "patchNames": {
+      "white": "Zuria",
+      "neutral": "Grisa 5",
+      "black": "Beltza 2",
+      "red": "Gorria",
+      "green": "Berdea",
+      "blue": "Urdina"
+    },
     "saveFailed": "Ezin izan da kalibrazioa gorde: {{message}}",
     "addPatch": "Gehitu adabakia",
     "invalid": "Berrikusi koloreak: #RRGGBB formatua izan behar dute."

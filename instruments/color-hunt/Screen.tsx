@@ -14,7 +14,11 @@ import { useThemePalette } from '@/ui/theme';
 
 import { colorimeterInstrument } from '@instruments/colorimeter';
 import { evaluateColorimeterFrame } from '@instruments/colorimeter/colorimeterEngine';
-import type { ColorimeterCalibrationParameters, ReferencePatch } from '@instruments/colorimeter/referenceCards';
+import {
+  type ColorimeterCalibrationParameters,
+  type ReferencePatch,
+  referencePatchLabel,
+} from '@instruments/colorimeter/referenceCards';
 
 import {
   bestCapturePerRound,
@@ -109,6 +113,7 @@ export function ColorHuntScreen({ saveMeasurement }: InstrumentScreenProps<Color
   const [isWhitePatchFromColorimeter, setIsWhitePatchFromColorimeter] = useState(false);
   const [whiteReference, setWhiteReference] = useState<WhiteReference | null>(null);
   const [whiteBalanceMessage, setWhiteBalanceMessage] = useState<string | null>(null);
+  const whiteReferencePatchName = referencePatchLabel(whiteReferencePatch, (translationKey) => t(translationKey));
 
   useEffect(() => {
     let isCurrentLoad = true;
@@ -292,7 +297,7 @@ export function ColorHuntScreen({ saveMeasurement }: InstrumentScreenProps<Color
           onCameraError={(message) => setWhiteBalanceMessage(t('core:common.error', { message }))}
         />
         <BodyText>{t('whiteBalance.aimHint', {
-            patch: isWhitePatchFromColorimeter ? whiteReferencePatch.name : t('whiteBalance.whitePaper'),
+            patch: isWhitePatchFromColorimeter ? whiteReferencePatchName : t('whiteBalance.whitePaper'),
           })}</BodyText>
         {whiteBalanceMessage ? <BodyText tone="danger">{whiteBalanceMessage}</BodyText> : null}
         <AppButton label={t('whiteBalance.fix')} onPress={handleFixWhite} isDisabled={!latestCrosshairRegion} />
@@ -351,7 +356,7 @@ export function ColorHuntScreen({ saveMeasurement }: InstrumentScreenProps<Color
           </BodyText>
           <BodyText tone="secondary" style={styles.smallText}>
             {isWhitePatchFromColorimeter
-              ? t('whiteBalance.fromColorimeter', { patch: whiteReferencePatch.name })
+              ? t('whiteBalance.fromColorimeter', { patch: whiteReferencePatchName })
               : t('whiteBalance.defaultReference')}
           </BodyText>
           <BodyText tone={whiteReference ? 'accent' : 'secondary'}>

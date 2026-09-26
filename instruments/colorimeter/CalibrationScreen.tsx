@@ -14,6 +14,7 @@ import {
   maximumPatchCount,
   type ReferenceCard,
   type ReferenceCardPresetId,
+  referencePatchLabel,
   validateColorimeterCalibration,
 } from './referenceCards';
 import { colorimeterInstrumentId } from './ScaleEditor';
@@ -95,7 +96,8 @@ export function ColorimeterCalibrationScreen({
               ]}
             />
             <TextInput
-              value={patch.name}
+              // Los parches de preajuste no tienen nombre propio: se muestra el traducido hasta que se edite.
+              value={patch.name ?? referencePatchLabel(patch, (translationKey) => t(translationKey))}
               onChangeText={(name) => updatePatch(patchIndex, { name })}
               placeholder={t('card.patchName')}
               placeholderTextColor={themePalette.textSecondary}
