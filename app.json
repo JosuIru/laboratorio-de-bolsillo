@@ -81,7 +81,8 @@
             "minSdkVersion": 26
           }
         }
-      ]
+      ],
+      "react-native-fast-tflite"
     ],
     "experiments": {
       "typedRoutes": true
