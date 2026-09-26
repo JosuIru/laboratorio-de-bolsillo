@@ -9,7 +9,9 @@
   "clearMarkers": "Quitar marcadores",
   "rawColor": "Cámara",
   "correctedColor": "Corregido",
-  "correctionSummary": "Corregido con {{patchCount}} parches ({{model}}), error medio ΔE {{residual}}",
+  "correctionSummary": "Corregido con {{patchCount}} parches ({{model}}), error estimado ΔE {{residual}}",
+  "correctionSummaryUnvalidated": "Corregido con {{patchCount}} parches ({{model}}). Con tan pocos parches el ajuste es exacto y no se puede estimar su error: coloca más para comprobarlo.",
+  "reducedToWhiteBalance": "Los parches colocados son casi todos grises: solo se corrige el balance de blancos. Coloca también al menos dos parches de colores distintos para corregir con matriz.",
   "noCorrection": "Sin corrección: coloca los parches de la tarjeta de referencia para medir colores fiables.",
   "nonUniformSample": "La zona de muestra no es uniforme: acércate o céntrala en un color liso.",
   "nearestEntry": "Más parecido: {{label}} (ΔE {{deltaE}})",
@@ -43,6 +45,15 @@
       "custom": "Tarjeta propia"
     },
     "patchName": "Nombre",
+    "patchNames": {
+      "white": "Blanco",
+      "neutral": "Gris 5",
+      "black": "Negro 2",
+      "red": "Rojo",
+      "green": "Verde",
+      "blue": "Azul"
+    },
+    "saveFailed": "No se ha podido guardar la calibración: {{message}}",
     "addPatch": "Añadir parche",
     "invalid": "Revisa los colores: deben tener el formato #RRGGBB."
   },
@@ -60,7 +71,7 @@
     "scaleName": "Escala",
     "correctionModel": "Corrección",
     "referencePatchCount": "Parches de referencia",
-    "correctionResidual": "Error de la corrección",
+    "correctionResidual": "Error estimado de la corrección",
     "sampleRelativeDeviation": "Variación dentro de la muestra"
   }
 }

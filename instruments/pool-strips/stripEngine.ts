@@ -286,7 +286,10 @@ export function buildStripMeasurementValues(
     ...(secondsAfterDip !== null ? { secondsAfterDip: Math.round(secondsAfterDip) } : {}),
     correctionModel: correction?.model ?? 'none',
     referencePatchCount: stripReading.usedPatchCount,
-    ...(correction ? { correctionMeanResidualDeltaE: roundTo(correction.meanResidualDeltaE, 2) } : {}),
+    // Error de validación dejando un parche fuera; sin parches de sobra no hay valor honesto.
+    ...(correction && correction.meanValidationDeltaE !== null
+      ? { correctionMeanResidualDeltaE: roundTo(correction.meanValidationDeltaE, 2) }
+      : {}),
   };
 }
 

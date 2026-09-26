@@ -16,7 +16,9 @@
     "summary": "Kolorimetroaren txartela erabiltzen da: {{name}}.",
     "defaultName": "folio zuria (lehenetsia)",
     "placeHint": "Ukitu irudia, gidatik kanpo, adabaki hau jartzeko: {{patch}}",
-    "correctionSummary": "{{patchCount}} adabakirekin zuzenduta ({{model}}), batez besteko errorea ΔE {{residual}}",
+    "correctionSummary": "{{patchCount}} adabakirekin zuzenduta ({{model}}), errore estimatua ΔE {{residual}}",
+    "correctionSummaryUnvalidated": "{{patchCount}} adabakirekin zuzenduta ({{model}}). Hain adabaki gutxirekin doikuntza zehatza da eta ezin da haren errorea estimatu: jarri gehiago egiaztatzeko.",
+    "reducedToWhiteBalance": "Jarritako adabakiak ia denak grisak dira: zuri-balantzea bakarrik zuzentzen da. Jarri gutxienez kolore desberdineko bi adabaki ere, matrizearekin zuzentzeko.",
     "noCorrection": "Kolore-zuzenketarik gabe: jarri zerrenda folio zuri baten gainean eta ukitu folioa argia konpentsatzeko.",
     "clearPatches": "Kendu adabakiak",
     "change": "Aldatu txartela (kolorimetroan)"
@@ -177,6 +179,6 @@
     "secondsAfterDip": "Zerrenda busti ondoko denbora",
     "correctionModel": "Zuzenketa",
     "referencePatchCount": "Erreferentzia-adabakiak",
-    "correctionResidual": "Zuzenketaren errorea"
+    "correctionResidual": "Zuzenketaren errore estimatua"
   }
 }

@@ -12,7 +12,11 @@ import { AppButton, BodyText, Card, ScreenContainer } from '@/ui/components';
 import { useThemePalette } from '@/ui/theme';
 
 import { colorimeterInstrument } from '@instruments/colorimeter';
-import { type ColorimeterCalibrationParameters, defaultReferenceCard } from '@instruments/colorimeter/referenceCards';
+import {
+  type ColorimeterCalibrationParameters,
+  defaultReferenceCard,
+  referencePatchLabel,
+} from '@instruments/colorimeter/referenceCards';
 
 import { initialLevelTexts, ScaleCalibrationCard } from './ScaleCalibrationCard';
 import type { PoolStripsMeasurementValues } from './schema';
@@ -226,7 +230,9 @@ export function PoolStripsScreen({ saveMeasurement }: InstrumentScreenProps<Pool
     }
   }
 
-  const activePatchName = referenceCard.patches[activePatchIndex]?.name ?? '';
+  const translatePatchName = (translationKey: string) => t(translationKey);
+  const activePatch = referenceCard.patches[activePatchIndex];
+  const activePatchName = activePatch ? referencePatchLabel(activePatch, translatePatchName) : '';
   const cellLabels =
     screenMode === 'read' ? padSlots.map((_, slotIndex) => String(slotIndex + 1)) : levelValueTexts.map((levelText) => levelText);
   const guideHint =
@@ -371,7 +377,7 @@ export function PoolStripsScreen({ saveMeasurement }: InstrumentScreenProps<Pool
                 style={[styles.patchChip, { borderColor: isActivePatch ? themePalette.accent : themePalette.border }]}>
                 <View style={[styles.patchSwatch, { backgroundColor: patch.hexColor }]} />
                 <BodyText tone={isActivePatch ? 'accent' : patchMarkerPoints[patchIndex] ? 'primary' : 'secondary'}>
-                  {`${patchIndex + 1} · ${patch.name}`}
+                  {`${patchIndex + 1} · ${referencePatchLabel(patch, translatePatchName)}`}
                 </BodyText>
               </Pressable>
             );
@@ -379,15 +385,23 @@ export function PoolStripsScreen({ saveMeasurement }: InstrumentScreenProps<Pool
         </View>
         {displayedReading?.correction ? (
           <BodyText tone="secondary">
-            {t('card.correctionSummary', {
-              patchCount: displayedReading.usedPatchCount,
-              model: t(`correctionModel.${displayedReading.correction.model}`),
-              residual: displayedReading.correction.meanResidualDeltaE.toFixed(1),
-            })}
+            {displayedReading.correction.meanValidationDeltaE !== null
+              ? t('card.correctionSummary', {
+                  patchCount: displayedReading.usedPatchCount,
+                  model: t(`correctionModel.${displayedReading.correction.model}`),
+                  residual: displayedReading.correction.meanValidationDeltaE.toFixed(1),
+                })
+              : t('card.correctionSummaryUnvalidated', {
+                  patchCount: displayedReading.usedPatchCount,
+                  model: t(`correctionModel.${displayedReading.correction.model}`),
+                })}
           </BodyText>
         ) : (
           <BodyText tone="secondary">{t('card.noCorrection')}</BodyText>
         )}
+        {displayedReading?.correction?.isReducedToWhiteBalance ? (
+          <BodyText tone="danger">{t('card.reducedToWhiteBalance')}</BodyText>
+        ) : null}
         <View style={styles.buttonRow}>
           <View style={styles.buttonCell}>
             <AppButton

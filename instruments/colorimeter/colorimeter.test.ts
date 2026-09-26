@@ -2,7 +2,14 @@ import { type LinearRgb, srgbToLinear } from '@/processing/color/colorSpaces';
 import type { RegionColorStatistics } from '@/processing/color/regionSampling';
 
 import { createRegionAverager, evaluateColorimeterFrame, type UserColorScale } from './colorimeterEngine';
-import { createCardFromPreset, validateColorimeterCalibration } from './referenceCards';
+import esTranslations from './locales/es.json';
+import euTranslations from './locales/eu.json';
+import {
+  createCardFromPreset,
+  presetPatchIds,
+  referencePatchLabel,
+  validateColorimeterCalibration,
+} from './referenceCards';
 
 function uniformRegion(meanLinear: LinearRgb, relativeNoise = 0): RegionColorStatistics {
   return {
@@ -105,9 +112,29 @@ describe('validateColorimeterCalibration', () => {
   it('normaliza los colores y detecta el preajuste', () => {
     expect(
       validateColorimeterCalibration({
-        card: { presetId: 'white-paper', patches: [{ id: 'white', name: ' Blanco ', hexColor: 'f2f2f2' }] },
+        card: { presetId: 'white-paper', patches: [{ id: 'white', hexColor: 'f2f2f2' }] },
       }),
-    ).toEqual({ card: { presetId: 'white-paper', patches: [{ id: 'white', name: 'Blanco', hexColor: '#F2F2F2' }] } });
+    ).toEqual({ card: { presetId: 'white-paper', patches: [{ id: 'white', hexColor: '#F2F2F2' }] } });
+  });
+
+  it('los perfiles guardados con los nombres antiguos en castellano pasan a traducirse por id', () => {
+    const legacyCard = {
+      presetId: 'colorchecker-six',
+      patches: [
+        { id: 'white', name: ' Blanco 9.5 ', hexColor: '#F3F3F2' },
+        { id: 'red', name: 'Rojo', hexColor: '#AF363C' },
+        { id: 'blue', name: 'Mi azul', hexColor: '#383D96' },
+        { id: 'patch-7', name: 'Rosa', hexColor: '#FF88AA' },
+        { id: 'patch-8', name: '', hexColor: '#808080' },
+      ],
+    };
+    expect(validateColorimeterCalibration({ card: legacyCard }).card.patches).toEqual([
+      { id: 'white', hexColor: '#F3F3F2' },
+      { id: 'red', hexColor: '#AF363C' },
+      { id: 'blue', name: 'Mi azul', hexColor: '#383D96' },
+      { id: 'patch-7', name: 'Rosa', hexColor: '#FF88AA' },
+      { id: 'patch-8', name: '5', hexColor: '#808080' },
+    ]);
   });
 
   it('rechaza tarjetas vacías, demasiado grandes o con colores no válidos', () => {
@@ -117,5 +144,30 @@ describe('validateColorimeterCalibration', () => {
     ).toThrow();
     const tooManyPatches = Array.from({ length: 9 }, (_, patchIndex) => ({ id: `${patchIndex}`, name: '', hexColor: '#000000' }));
     expect(() => validateColorimeterCalibration({ card: { presetId: 'custom', patches: tooManyPatches } })).toThrow();
+  });
+});
+
+describe('referencePatchLabel', () => {
+  const translateToBasque = (translationKey: string) => {
+    const patchId = translationKey.replace('colorimeter:card.patchNames.', '') as keyof typeof euTranslations.card.patchNames;
+    return euTranslations.card.patchNames[patchId];
+  };
+
+  it('traduce los parches de preajuste, también los de perfiles antiguos, y respeta los nombres propios', () => {
+    expect(referencePatchLabel({ id: 'white' }, translateToBasque)).toBe('Zuria');
+    expect(referencePatchLabel({ id: 'neutral', name: 'Gris 5' }, translateToBasque)).toBe('Grisa 5');
+    expect(referencePatchLabel({ id: 'red', name: 'Mi rojo' }, translateToBasque)).toBe('Mi rojo');
+    expect(referencePatchLabel({ id: 'patch-3', name: 'Rosa' }, translateToBasque)).toBe('Rosa');
+  });
+
+  it('todos los parches de los preajustes tienen nombre en castellano y en euskera', () => {
+    for (const patchId of presetPatchIds) {
+      expect(esTranslations.card.patchNames[patchId]).toBeTruthy();
+      expect(euTranslations.card.patchNames[patchId]).toBeTruthy();
+    }
+    for (const patch of createCardFromPreset('colorchecker-six').patches) {
+      expect(presetPatchIds).toContain(patch.id);
+      expect(patch.name).toBeUndefined();
+    }
   });
 });

@@ -14,6 +14,7 @@ import {
   maximumPatchCount,
   type ReferenceCard,
   type ReferenceCardPresetId,
+  referencePatchLabel,
   validateColorimeterCalibration,
 } from './referenceCards';
 import { colorimeterInstrumentId } from './ScaleEditor';
@@ -52,8 +53,14 @@ export function ColorimeterCalibrationScreen({
       return;
     }
     setIsSaving(true);
+    setErrorMessage(null);
     try {
       await saveProfile(profileName || t(`card.preset.${editedCard.presetId}`), parameters);
+    } catch (saveError) {
+      // Se llama con `void`: sin este catch el fallo (p. ej. de la base de datos) se perdería en silencio.
+      setErrorMessage(
+        t('card.saveFailed', { message: saveError instanceof Error ? saveError.message : String(saveError) }),
+      );
     } finally {
       setIsSaving(false);
     }
@@ -89,7 +96,8 @@ export function ColorimeterCalibrationScreen({
               ]}
             />
             <TextInput
-              value={patch.name}
+              // Los parches de preajuste no tienen nombre propio: se muestra el traducido hasta que se edite.
+              value={patch.name ?? referencePatchLabel(patch, (translationKey) => t(translationKey))}
               onChangeText={(name) => updatePatch(patchIndex, { name })}
               placeholder={t('card.patchName')}
               placeholderTextColor={themePalette.textSecondary}

@@ -16,7 +16,9 @@
     "summary": "Se usa la tarjeta del colorímetro: {{name}}.",
     "defaultName": "folio blanco (por defecto)",
     "placeHint": "Toca la imagen, fuera de la guía, para colocar el parche: {{patch}}",
-    "correctionSummary": "Corregido con {{patchCount}} parches ({{model}}), error medio ΔE {{residual}}",
+    "correctionSummary": "Corregido con {{patchCount}} parches ({{model}}), error estimado ΔE {{residual}}",
+    "correctionSummaryUnvalidated": "Corregido con {{patchCount}} parches ({{model}}). Con tan pocos parches el ajuste es exacto y no se puede estimar su error: coloca más para comprobarlo.",
+    "reducedToWhiteBalance": "Los parches colocados son casi todos grises: solo se corrige el balance de blancos. Coloca también al menos dos parches de colores distintos para corregir con matriz.",
     "noCorrection": "Sin corrección de color: pon la tira sobre un folio blanco y toca el folio para compensar la luz.",
     "clearPatches": "Quitar parches",
     "change": "Cambiar la tarjeta (en el colorímetro)"
@@ -177,6 +179,6 @@
     "secondsAfterDip": "Tiempo tras mojar la tira",
     "correctionModel": "Corrección",
     "referencePatchCount": "Parches de referencia",
-    "correctionResidual": "Error de la corrección"
+    "correctionResidual": "Error estimado de la corrección"
   }
 }

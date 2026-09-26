@@ -3,9 +3,54 @@ import { hexToRgb8 } from '@/processing/color/colorSpaces';
 /** Un parche de color conocido de la tarjeta de referencia. */
 export interface ReferencePatch {
   id: string;
-  name: string;
+  /**
+   * Nombre escrito por el usuario. Los parches de los preajustes no lo llevan: se muestran con la
+   * traducción de su id (ver `referencePatchLabel`).
+   */
+  name?: string;
   /** Color real del parche en sRGB (el que publica el fabricante de la tarjeta). */
   hexColor: string;
+}
+
+export const presetPatchIds = ['white', 'neutral', 'black', 'red', 'green', 'blue'] as const;
+export type PresetPatchId = (typeof presetPatchIds)[number];
+
+function isPresetPatchId(patchId: string): patchId is PresetPatchId {
+  return (presetPatchIds as readonly string[]).includes(patchId);
+}
+
+/** Nombres fijos en castellano que guardaban los perfiles anteriores a la traducción de los parches. */
+const legacyPresetPatchNames: Record<PresetPatchId, readonly string[]> = {
+  white: ['Blanco', 'Blanco 9.5'],
+  neutral: ['Gris 5'],
+  black: ['Negro 2'],
+  red: ['Rojo'],
+  green: ['Verde'],
+  blue: ['Azul'],
+};
+
+/** Clave i18n (espacio de nombres del colorímetro) del nombre de un parche de preajuste. */
+export function presetPatchNameKey(patchId: PresetPatchId): string {
+  return `colorimeter:card.patchNames.${patchId}`;
+}
+
+/** Si el parche es de un preajuste y no tiene nombre propio (o tiene el antiguo en castellano fijo). */
+function translatablePresetPatchId(patch: Pick<ReferencePatch, 'id' | 'name'>): PresetPatchId | null {
+  if (!isPresetPatchId(patch.id)) return null;
+  const ownName = patch.name?.trim() ?? '';
+  return ownName === '' || legacyPresetPatchNames[patch.id].includes(ownName) ? patch.id : null;
+}
+
+/**
+ * Nombre visible de un parche: el traducido si es de un preajuste; si no, el que escribió el
+ * usuario. `translate` resuelve claves con espacio de nombres (vale el `t` de cualquier instrumento).
+ */
+export function referencePatchLabel(
+  patch: Pick<ReferencePatch, 'id' | 'name'>,
+  translate: (translationKey: string) => string,
+): string {
+  const presetPatchId = translatablePresetPatchId(patch);
+  return presetPatchId ? translate(presetPatchNameKey(presetPatchId)) : (patch.name ?? '');
 }
 
 export interface ReferenceCard {
@@ -21,14 +66,14 @@ export type ReferenceCardPresetId = 'white-paper' | 'colorchecker-six';
  * para balance de blancos.
  */
 export const referenceCardPresets: Record<ReferenceCardPresetId, ReferencePatch[]> = {
-  'white-paper': [{ id: 'white', name: 'Blanco', hexColor: '#F2F2F2' }],
+  'white-paper': [{ id: 'white', hexColor: '#F2F2F2' }],
   'colorchecker-six': [
-    { id: 'white', name: 'Blanco 9.5', hexColor: '#F3F3F2' },
-    { id: 'neutral', name: 'Gris 5', hexColor: '#7A7A79' },
-    { id: 'black', name: 'Negro 2', hexColor: '#343434' },
-    { id: 'red', name: 'Rojo', hexColor: '#AF363C' },
-    { id: 'green', name: 'Verde', hexColor: '#469449' },
-    { id: 'blue', name: 'Azul', hexColor: '#383D96' },
+    { id: 'white', hexColor: '#F3F3F2' },
+    { id: 'neutral', hexColor: '#7A7A79' },
+    { id: 'black', hexColor: '#343434' },
+    { id: 'red', hexColor: '#AF363C' },
+    { id: 'green', hexColor: '#469449' },
+    { id: 'blue', hexColor: '#383D96' },
   ],
 };
 
@@ -55,11 +100,12 @@ export function validateColorimeterCalibration(rawParameters: unknown): Colorime
     if (typeof patch?.hexColor !== 'string' || !hexToRgb8(patch.hexColor)) {
       throw new Error(`Color no válido en el parche ${patchIndex + 1}`);
     }
-    return {
-      id: typeof patch.id === 'string' && patch.id ? patch.id : `patch-${patchIndex + 1}`,
-      name: typeof patch.name === 'string' && patch.name.trim() ? patch.name.trim() : `${patchIndex + 1}`,
-      hexColor: patch.hexColor.toUpperCase().startsWith('#') ? patch.hexColor.toUpperCase() : `#${patch.hexColor.toUpperCase()}`,
-    };
+    const patchId = typeof patch.id === 'string' && patch.id ? patch.id : `patch-${patchIndex + 1}`;
+    const trimmedName = typeof patch.name === 'string' ? patch.name.trim() : '';
+    const hexColor = patch.hexColor.toUpperCase().startsWith('#') ? patch.hexColor.toUpperCase() : `#${patch.hexColor.toUpperCase()}`;
+    // Los parches de preajuste sin nombre propio (o con el antiguo en castellano) se traducen por id.
+    if (translatablePresetPatchId({ id: patchId, name: trimmedName })) return { id: patchId, hexColor };
+    return { id: patchId, name: trimmedName || `${patchIndex + 1}`, hexColor };
   });
   const presetId =
     card.presetId === 'white-paper' || card.presetId === 'colorchecker-six' ? card.presetId : 'custom';
