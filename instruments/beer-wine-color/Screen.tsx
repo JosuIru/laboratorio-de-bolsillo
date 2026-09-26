@@ -1,8 +1,10 @@
 import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type GestureResponderEvent, Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { Camera, type CameraRef } from 'react-native-vision-camera';
+import { Camera, type CameraRef, useCameraDevice } from 'react-native-vision-camera';
 
+import { brightnessReadingFromLinearMean } from '@/core/camera/lockedCameraExposure';
+import { useLockedCameraSettings } from '@/core/camera/useLockedCameraSettings';
 import type { InstrumentScreenProps } from '@/core/instruments/types';
 import { isExpectedCameraInterruption } from '@/core/sensors/cameraErrors';
 import { useIsCameraAllowed } from '@/core/sensors/useIsCameraAllowed';
@@ -11,6 +13,7 @@ import { AppButton, BodyText, Card, ScreenContainer, SectionTitle } from '@/ui/c
 import { parseDecimalInput } from '@/ui/decimalInput';
 import { useThemePalette } from '@/ui/theme';
 
+import { LockedCameraPanel } from '@instruments/colorimeter/LockedCameraPanel';
 import { type CameraPoint, useColorimeterFrames } from '@instruments/colorimeter/useColorimeterFrames';
 
 import {
@@ -32,6 +35,8 @@ const liquidTypes: readonly LiquidType[] = ['beer', 'white', 'rose', 'red'];
 const previewHeight = 340;
 /** Marcador 0: el papel visto a través del líquido; marcador 1: el papel sin líquido. */
 const markerKeys = ['sample', 'paper'] as const;
+/** El papel sin líquido es la referencia blanca con la que se fija la exposición. */
+const paperMarkerIndex = 1;
 
 interface PlacedMarker {
   viewPoint: { x: number; y: number };
@@ -53,6 +58,7 @@ export function BeerWineColorScreen({ saveMeasurement }: InstrumentScreenProps<B
   const { t } = useTranslation(beerWineColorInstrumentId);
   const themePalette = useThemePalette();
   const cameraRef = useRef<CameraRef>(null);
+  const cameraDevice = useCameraDevice('back');
   const isCameraAllowed = useIsCameraAllowed();
 
   const [liquidType, setLiquidType] = useState<LiquidType>('beer');
@@ -61,9 +67,23 @@ export function BeerWineColorScreen({ saveMeasurement }: InstrumentScreenProps<B
   const [activeMarkerIndex, setActiveMarkerIndex] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [isCameraLockEnabled, setIsCameraLockEnabled] = useState(true);
 
   const regionCenters = useMemo(() => placedMarkers.map((marker) => marker?.cameraPoint ?? null), [placedMarkers]);
-  const { frameOutput, latestRegions: averagedRegions, resetAverage } = useColorimeterFrames(regionCenters);
+  const lockedCamera = useLockedCameraSettings({
+    cameraRef,
+    cameraDevice,
+    isEnabled: isCameraLockEnabled,
+    isTargetReady: placedMarkers[paperMarkerIndex] != null,
+    onCameraSettingsChanged: () => resetAverage(),
+  });
+  const { frameOutput, latestRegions: averagedRegions, resetAverage } = useColorimeterFrames(
+    regionCenters,
+    (latestAveragedRegions) => {
+      const paperRegion = latestAveragedRegions[paperMarkerIndex];
+      if (paperRegion) lockedCamera.handleReferenceBrightness(brightnessReadingFromLinearMean(paperRegion.meanLinear));
+    },
+  );
 
   const pathLengthMm = parseDecimalInput(pathLengthText);
   const isPathLengthValid = isValidPathLengthMm(pathLengthMm);
@@ -139,6 +159,7 @@ export function BeerWineColorScreen({ saveMeasurement }: InstrumentScreenProps<B
           sampleColor: colorReading.sampleHex,
           paperColor: colorReading.paperHex,
           exposureProblems: colorReading.problems.join(','),
+          isCameraLocked: lockedCamera.isLocked,
         },
       });
       setStatusMessage(t('core:instrument.savedMeasurement'));
@@ -197,10 +218,11 @@ export function BeerWineColorScreen({ saveMeasurement }: InstrumentScreenProps<B
         <Camera
           ref={cameraRef}
           style={StyleSheet.absoluteFill}
-          device="back"
+          device={cameraDevice ?? 'back'}
           isActive={isCameraAllowed}
           outputs={[frameOutput]}
           resizeMode="cover"
+          onStarted={lockedCamera.handleCameraStarted}
           onError={(cameraError) => {
             if (!isExpectedCameraInterruption(cameraError)) {
               setStatusMessage(t('core:common.error', { message: cameraError.message }));
@@ -317,9 +339,15 @@ export function BeerWineColorScreen({ saveMeasurement }: InstrumentScreenProps<B
         label={t('core:common.save')}
         onPress={() => void handleSave()}
         isBusy={isSaving}
-        isDisabled={!colorReading}
+        isDisabled={!colorReading || lockedCamera.isSettling}
       />
       {statusMessage ? <BodyText tone="secondary">{statusMessage}</BodyText> : null}
+      <LockedCameraPanel
+        lockedCamera={lockedCamera}
+        isEnabled={isCameraLockEnabled}
+        onEnabledChange={setIsCameraLockEnabled}
+        waitingForTargetHint={t('lockedCameraWaitingHint')}
+      />
       <BodyText tone="secondary" style={styles.privacyNote}>
         {t('privacy')}
       </BodyText>

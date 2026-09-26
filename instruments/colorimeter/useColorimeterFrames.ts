@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { CommonResolutions, type Frame, useFrameOutput } from 'react-native-vision-camera';
 import { scheduleOnRN } from 'react-native-worklets';
 
@@ -28,19 +28,30 @@ const averagedReadingCount = 8;
  * Procesa cada fotograma en el hilo de la cámara (worklet): mide el color medio de la región de
  * muestra y de cada parche de referencia, y envía solo esos pocos números al hilo JS.
  * `regionCenters[0]` es la muestra; el resto, los parches. `null` = región sin colocar.
- * Las regiones que devuelve están promediadas en las últimas lecturas.
+ * Las regiones que devuelve están promediadas en las últimas lecturas. `onRegionsAveraged` recibe
+ * cada promedio nuevo (p. ej. para ajustar la exposición con la cámara fijada).
  */
-export function useColorimeterFrames(regionCenters: readonly (CameraPoint | null)[]) {
+export function useColorimeterFrames(
+  regionCenters: readonly (CameraPoint | null)[],
+  onRegionsAveraged?: (averagedRegions: (RegionColorStatistics | null)[]) => void,
+) {
   const [srgbToLinearTable] = useState(createSrgbToLinearTable);
   const [latestRegions, setLatestRegions] = useState<(RegionColorStatistics | null)[] | null>(null);
   const lastDeliveryTime = useRef(0);
   const [regionAverager] = useState(() => createRegionAverager(averagedReadingCount));
+  // El último `onRegionsAveraged`, sin rehacer la salida de fotogramas cada vez que cambia.
+  const onRegionsAveragedRef = useRef(onRegionsAveraged);
+  useEffect(() => {
+    onRegionsAveragedRef.current = onRegionsAveraged;
+  });
 
   const deliverRegions = useCallback((measuredRegions: (RegionColorStatistics | null)[]) => {
     const currentTime = Date.now();
     if (currentTime - lastDeliveryTime.current < 1000 / maximumReadingsPerSecond) return;
     lastDeliveryTime.current = currentTime;
-    setLatestRegions(regionAverager.push(measuredRegions));
+    const averagedRegions = regionAverager.push(measuredRegions);
+    setLatestRegions(averagedRegions);
+    onRegionsAveragedRef.current?.(averagedRegions);
   }, [regionAverager]);
 
   /** Olvida el promedio (p. ej. al mover un marcador). */

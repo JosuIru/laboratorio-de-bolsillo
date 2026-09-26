@@ -21,6 +21,8 @@ export interface BeerWineColorMeasurementValues {
   paperColor: string;
   /** Avisos de exposición separados por comas (vacío si no hubo). */
   exposureProblems: string;
+  /** Exposición y balance de blancos fijados («Cámara fijada») al medir; ausente en mediciones antiguas. */
+  isCameraLocked?: boolean;
 }
 
 export const beerWineColorSchema = defineMeasurementSchema<BeerWineColorMeasurementValues>(1, [
@@ -38,4 +40,5 @@ export const beerWineColorSchema = defineMeasurementSchema<BeerWineColorMeasurem
   { key: 'transmittanceBlue', labelKey: 'fields.transmittanceBlue', type: 'number' },
   { key: 'fitResidual', labelKey: 'fields.fitResidual', type: 'number', optional: true },
   { key: 'exposureProblems', labelKey: 'fields.exposureProblems', type: 'string' },
+  { key: 'isCameraLocked', labelKey: 'fields.isCameraLocked', type: 'boolean', optional: true },
 ]);

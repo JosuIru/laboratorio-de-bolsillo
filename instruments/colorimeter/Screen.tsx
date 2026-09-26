@@ -1,9 +1,11 @@
 import { type RefObject, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type GestureResponderEvent, Pressable, StyleSheet, View } from 'react-native';
-import { Camera, type CameraRef } from 'react-native-vision-camera';
+import { Camera, type CameraRef, useCameraDevice } from 'react-native-vision-camera';
 
+import { brightnessReadingFromLinearMean } from '@/core/camera/lockedCameraExposure';
 import { useCameraPointsInView } from '@/core/camera/useCameraPointsInView';
+import { useLockedCameraSettings } from '@/core/camera/useLockedCameraSettings';
 import type { InstrumentScreenProps } from '@/core/instruments/types';
 import { isExpectedCameraInterruption } from '@/core/sensors/cameraErrors';
 import { useIsCameraAllowed } from '@/core/sensors/useIsCameraAllowed';
@@ -12,7 +14,13 @@ import { CameraOverlayButton, CameraOverlayText, CameraScreenLayout } from '@/ui
 import { useThemePalette } from '@/ui/theme';
 
 import { evaluateColorimeterFrame, type UserColorScale } from './colorimeterEngine';
-import { type ColorimeterCalibrationParameters, defaultReferenceCard, referencePatchLabel } from './referenceCards';
+import { LockedCameraPanel } from './LockedCameraPanel';
+import {
+  brightestPlacedPatchIndex,
+  type ColorimeterCalibrationParameters,
+  defaultReferenceCard,
+  referencePatchLabel,
+} from './referenceCards';
 import { colorimeterInstrumentId, ScaleEditor } from './ScaleEditor';
 import { loadColorScales, saveColorScales } from './scaleStorage';
 import type { ColorimeterMeasurementValues } from './schema';
@@ -21,6 +29,19 @@ import { type CameraPoint, useColorimeterFrames } from './useColorimeterFrames';
 /** Por encima de este ΔE00 la muestra no se parece a ningún color de la escala. */
 const poorScaleMatchDeltaE = 10;
 
+/**
+ * Marcador cuya zona fija la exposición: el parche colocado más claro de la tarjeta o, sin
+ * parches, la muestra (marcador 0). −1 si no hay nada colocado.
+ */
+function exposureReferenceMarkerIndex(
+  markerCameraPoints: readonly (CameraPoint | null)[],
+  patches: Parameters<typeof brightestPlacedPatchIndex>[0],
+): number {
+  const brightestPatchIndex = brightestPlacedPatchIndex(patches, (patchIndex) => markerCameraPoints[patchIndex + 1] != null);
+  if (brightestPatchIndex >= 0) return brightestPatchIndex + 1;
+  return markerCameraPoints[0] ? 0 : -1;
+}
+
 export function ColorimeterScreen({
   calibrationParameters,
   saveMeasurement,
@@ -28,6 +49,7 @@ export function ColorimeterScreen({
   const { t } = useTranslation(colorimeterInstrumentId);
   const themePalette = useThemePalette();
   const cameraRef = useRef<CameraRef>(null);
+  const cameraDevice = useCameraDevice('back');
   const isCameraAllowed = useIsCameraAllowed();
   const referenceCard = calibrationParameters?.card ?? defaultReferenceCard;
   const markerCount = 1 + referenceCard.patches.length;
@@ -43,6 +65,7 @@ export function ColorimeterScreen({
   const [selectedScaleId, setSelectedScaleId] = useState<string | null>(() => loadColorScales()[0]?.id ?? null);
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [isCameraLockEnabled, setIsCameraLockEnabled] = useState(true);
 
   // Si cambia la tarjeta (otra calibración), los marcadores de parches ya no valen.
   const [markersCardKey, setMarkersCardKey] = useState(referenceCard);
@@ -52,7 +75,21 @@ export function ColorimeterScreen({
     setActiveMarkerIndex(0);
   }
 
-  const { frameOutput, latestRegions: averagedRegions, resetAverage } = useColorimeterFrames(markerCameraPoints);
+  const referenceMarkerIndex = exposureReferenceMarkerIndex(markerCameraPoints, referenceCard.patches);
+  const lockedCamera = useLockedCameraSettings({
+    cameraRef,
+    cameraDevice,
+    isEnabled: isCameraLockEnabled,
+    isTargetReady: referenceMarkerIndex >= 0,
+    onCameraSettingsChanged: () => resetAverage(),
+  });
+  const { frameOutput, latestRegions: averagedRegions, resetAverage } = useColorimeterFrames(
+    markerCameraPoints,
+    (latestAveragedRegions) => {
+      const referenceRegion = latestAveragedRegions[referenceMarkerIndex];
+      if (referenceRegion) lockedCamera.handleReferenceBrightness(brightnessReadingFromLinearMean(referenceRegion.meanLinear));
+    },
+  );
   const selectedScale = scales.find((scale) => scale.id === selectedScaleId) ?? null;
   const colorimeterReading = useMemo(() => {
     const sampleRegion = averagedRegions?.[0];
@@ -70,12 +107,15 @@ export function ColorimeterScreen({
     } catch {
       return;
     }
-    setMarkerCameraPoints((previousCameraPoints) =>
-      previousCameraPoints.map((markerCameraPoint, markerIndex) =>
-        markerIndex === activeMarkerIndex ? cameraPoint : markerCameraPoint,
-      ),
+    const updatedCameraPoints = markerCameraPoints.map((markerCameraPoint, markerIndex) =>
+      markerIndex === activeMarkerIndex ? cameraPoint : markerCameraPoint,
     );
+    setMarkerCameraPoints(updatedCameraPoints);
     resetAverage();
+    // Si ahora la referencia de la exposición es otra zona (p. ej. el parche blanco en vez de la
+    // muestra), se vuelve a fijar con ella.
+    const updatedReferenceMarkerIndex = exposureReferenceMarkerIndex(updatedCameraPoints, referenceCard.patches);
+    if (referenceMarkerIndex >= 0 && updatedReferenceMarkerIndex !== referenceMarkerIndex) lockedCamera.relock();
     // Pasa al siguiente marcador sin colocar, para colocar la tarjeta de una vez.
     const nextUnplacedIndex = markerCameraPoints.findIndex(
       (marker, markerIndex) => marker === null && markerIndex !== activeMarkerIndex,
@@ -110,6 +150,7 @@ export function ColorimeterScreen({
             ? { correctionMeanResidualDeltaE: roundTo(correction.meanValidationDeltaE, 2) }
             : {}),
           sampleRelativeDeviation: roundTo(colorimeterReading.sampleRelativeDeviation, 3),
+          isCameraLocked: lockedCamera.isLocked,
           ...(selectedScale && scaleMatch
             ? {
                 scaleName: selectedScale.name,
@@ -140,6 +181,8 @@ export function ColorimeterScreen({
 
   function toggleTorch() {
     setIsTorchOn((wasTorchOn) => !wasTorchOn);
+    // Con otra luz, la exposición y el balance fijados ya no valen.
+    lockedCamera.relock();
   }
 
   function clearMarkers() {
@@ -177,7 +220,15 @@ export function ColorimeterScreen({
       label={t('core:common.save')}
       onPress={() => void handleSave()}
       isBusy={isSaving}
-      isDisabled={!colorimeterReading}
+      isDisabled={!colorimeterReading || lockedCamera.isSettling}
+    />
+  );
+  const lockedCameraPanel = (
+    <LockedCameraPanel
+      lockedCamera={lockedCamera}
+      isEnabled={isCameraLockEnabled}
+      onEnabledChange={setIsCameraLockEnabled}
+      waitingForTargetHint={t('lockedCameraWaitingHint')}
     />
   );
   const statusText = statusMessage ? <BodyText tone="secondary">{statusMessage}</BodyText> : null;
@@ -272,11 +323,12 @@ export function ColorimeterScreen({
           <Camera
             ref={cameraRef}
             style={StyleSheet.absoluteFill}
-            device="back"
+            device={cameraDevice ?? 'back'}
             isActive={isCameraAllowed}
             outputs={[frameOutput]}
             torchMode={isTorchOn ? 'on' : 'off'}
             resizeMode="cover"
+            onStarted={lockedCamera.handleCameraStarted}
             onError={(cameraError) => {
               if (!isExpectedCameraInterruption(cameraError)) {
                 setStatusMessage(t('core:common.error', { message: cameraError.message }));
@@ -312,6 +364,7 @@ export function ColorimeterScreen({
           {markerChips}
           {statusText}
           {resultCard}
+          {lockedCameraPanel}
           {scaleEditor}
           {privacyNote}
         </>
@@ -327,6 +380,7 @@ export function ColorimeterScreen({
       {resultCard}
       {saveButton}
       {statusText}
+      {lockedCameraPanel}
       {scaleEditor}
       {privacyNote}
     </CameraScreenLayout>

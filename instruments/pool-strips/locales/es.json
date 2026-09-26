@@ -182,6 +182,8 @@
     "secondsAfterDip": "Tiempo tras mojar la tira",
     "correctionModel": "Corrección",
     "referencePatchCount": "Parches de referencia",
-    "correctionResidual": "Error estimado de la corrección"
-  }
+    "correctionResidual": "Error estimado de la corrección",
+    "isCameraLocked": "Cámara fijada"
+  },
+  "lockedCameraWaitingHint": "La exposición y el color se fijarán al colocar el parche blanco (el más claro) de la tarjeta."
 }

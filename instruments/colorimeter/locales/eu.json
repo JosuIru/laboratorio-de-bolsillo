@@ -73,6 +73,30 @@
     "correctionModel": "Zuzenketa",
     "referencePatchCount": "Erreferentzia-adabakiak",
     "correctionResidual": "Zuzenketaren errore estimatua",
-    "sampleRelativeDeviation": "Laginaren barneko aldakuntza"
-  }
+    "sampleRelativeDeviation": "Laginaren barneko aldakuntza",
+    "isCameraLocked": "Kamera finkatuta"
+  },
+  "lockedCamera": {
+    "title": "Kamera finkatuta",
+    "status": {
+      "unsupported": "Mugikor honek ez du uzten esposizioa eta zuri-balantzea finkatzen: kamerak automatikoan jarraitzen du, eta kolorea apur bat alda daiteke irakurketa batetik bestera.",
+      "disabled": "Kamera automatikoan: esposizioa eta kolorea alda daitezke irakurketa batetik bestera.",
+      "waitingForTarget": "Esposizioa eta kolorea erreferentzia jartzean finkatuko dira.",
+      "converging": "Kamera doitzen ari da…",
+      "adjustingExposure": "Esposizioa doitzen…",
+      "locked": "Esposizioa eta kolorea finkatuta",
+      "lockedExposureOnly": "Esposizioa finkatuta (mugikor honek ez du uzten zuri-balantzea finkatzen)",
+      "lockedWhiteBalanceOnly": "Kolorea finkatuta (mugikor honek ez du uzten esposizioa finkatzen)",
+      "failed": "Ezin izan da kamera finkatu: automatikoan jarraitzen du."
+    },
+    "exposureValues": "{{duration}} · ISO {{iso}}",
+    "limitReached": "Esposizioa mugikorraren mugara iritsi da: aldatu argia eta finkatu berriro.",
+    "gaveUp": "Ezin izan da esposizioa guztiz doitu: argia aldatzen bada, finkatu berriro.",
+    "relock": "Berriro finkatu",
+    "enable": "Kamera finkatu",
+    "disable": "Automatikoan utzi",
+    "hint": "Kamera finkatuta, esposizioa eta zuri-balantzea ez dira aldatzen irakurketa batetik bestera. Argia edo linterna aldatzen baduzu, finkatu berriro.",
+    "waitBeforeSaving": "Itxaron kamera finkatu arte, gorde ahal izateko."
+  },
+  "lockedCameraWaitingHint": "Esposizioa eta kolorea lagina jartzean finkatuko dira; txartelaren adabakiak jartzen badituzu, argienera doituko dira."
 }

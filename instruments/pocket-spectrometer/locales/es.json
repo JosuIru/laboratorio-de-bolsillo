@@ -38,7 +38,11 @@
     "isCalibrated": "Calibrado",
     "startWavelengthNm": "Inicio del espectro",
     "endWavelengthNm": "Final del espectro",
-    "profile": "Perfil"
+    "profile": "Perfil",
+    "isCameraLocked": "Cámara fijada",
+    "exposureDurationSeconds": "Tiempo de exposición",
+    "exposureIso": "ISO"
   },
-  "saturationWarning": "Hay zonas saturadas (blanco puro): la altura de esos picos está recortada. Aleja la luz o apunta a un borde menos brillante."
+  "saturationWarning": "Hay zonas saturadas (blanco puro): la altura de esos picos está recortada. Aleja la luz o apunta a un borde menos brillante.",
+  "lockedCameraWaitingHint": "La exposición y el color se fijarán cuando llegue el espectro."
 }

@@ -23,6 +23,8 @@ export type PoolStripsMeasurementValues = Partial<Record<StripQuantity, number>>
   correctionModel: string;
   referencePatchCount: number;
   correctionMeanResidualDeltaE?: number;
+  /** Exposición y balance de blancos fijados («Cámara fijada») al medir; ausente en mediciones antiguas. */
+  isCameraLocked?: boolean;
   secondsAfterDip?: number;
 };
 
@@ -55,4 +57,5 @@ export const poolStripsSchema = defineMeasurementSchema<PoolStripsMeasurementVal
     unit: 'ΔE00',
     optional: true,
   },
+  { key: 'isCameraLocked', labelKey: 'fields.isCameraLocked', type: 'boolean', optional: true },
 ]);

@@ -7,6 +7,7 @@ import {
   parseStoredCalibration,
   positionToWavelengthNm,
   sampleProfileAlongLine,
+  spectrumPeakBrightness,
   type WavelengthCalibration,
   wavelengthToDisplayColor,
 } from './spectrumEngine';
@@ -117,5 +118,26 @@ describe('otros', () => {
     const blendedProfile = blendProfiles(Float64Array.from([0, 10]), Float64Array.from([10, 10]), 0.5);
     expect(Array.from(blendedProfile)).toEqual([5, 10]);
     expect(Array.from(blendProfiles(null, Float64Array.from([3]), 0.5))).toEqual([3]);
+  });
+});
+
+describe('spectrumPeakBrightness', () => {
+  it('toma el canal más alto de toda la línea, en lineal, y la fracción saturada', () => {
+    const peakBrightness = spectrumPeakBrightness(
+      Float64Array.from([10, 20, 30, 40]),
+      Float64Array.from([5, 255, 5, 5]),
+      Float64Array.from([0, 0, 0, 100]),
+      1,
+    );
+    expect(peakBrightness.brightestChannelLinear).toBeCloseTo(1, 6);
+    expect(peakBrightness.saturatedFraction).toBeCloseTo(0.25, 6);
+  });
+
+  it('sin puntos no hay brillo ni saturación', () => {
+    const emptyProfile = new Float64Array(0);
+    expect(spectrumPeakBrightness(emptyProfile, emptyProfile, emptyProfile, 0)).toEqual({
+      brightestChannelLinear: 0,
+      saturatedFraction: 0,
+    });
   });
 });

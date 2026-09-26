@@ -111,3 +111,25 @@ export function validateColorimeterCalibration(rawParameters: unknown): Colorime
     card.presetId === 'white-paper' || card.presetId === 'colorchecker-six' ? card.presetId : 'custom';
   return { card: { presetId, patches: validatedPatches } };
 }
+
+/**
+ * Índice del parche colocado más claro (el blanco, en las tarjetas normales): es la zona que se usa
+ * para fijar la exposición de la cámara. −1 si no hay ninguno colocado.
+ */
+export function brightestPlacedPatchIndex(
+  patches: readonly Pick<ReferencePatch, 'hexColor'>[],
+  isPatchPlaced: (patchIndex: number) => boolean,
+): number {
+  let brightestIndex = -1;
+  let brightestChannelSum = -1;
+  patches.forEach((patch, patchIndex) => {
+    const patchColor = hexToRgb8(patch.hexColor);
+    if (!patchColor || !isPatchPlaced(patchIndex)) return;
+    const channelSum = patchColor.red + patchColor.green + patchColor.blue;
+    if (channelSum > brightestChannelSum) {
+      brightestChannelSum = channelSum;
+      brightestIndex = patchIndex;
+    }
+  });
+  return brightestIndex;
+}

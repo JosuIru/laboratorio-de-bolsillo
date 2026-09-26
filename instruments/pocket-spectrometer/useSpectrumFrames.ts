@@ -1,13 +1,14 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { CommonResolutions, type Frame, useFrameOutput } from 'react-native-vision-camera';
 import { scheduleOnRN } from 'react-native-worklets';
 
 import { readFramePixels } from '@/core/camera/framePixels';
+import type { ReferenceBrightnessReading } from '@/core/camera/lockedCameraExposure';
 import { createSrgbToLinearTable } from '@/processing/color/regionSampling';
 
 import type { CameraPoint } from '@instruments/colorimeter/useColorimeterFrames';
 
-import { blendProfiles, profileSampleCount, sampleProfileAlongLine } from './spectrumEngine';
+import { blendProfiles, profileSampleCount, sampleProfileAlongLine, spectrumPeakBrightness } from './spectrumEngine';
 
 /** Actualizaciones por segundo en el hilo JS (el muestreo va en el hilo de la cámara). */
 const maximumProfilesPerSecond = 8;
@@ -33,9 +34,14 @@ export interface SpectrumProfile {
 
 /**
  * Lee en cada fotograma la intensidad a lo largo de la línea guía (convertida a coordenadas de
- * cámara) y devuelve la media de los últimos perfiles. Al mover la línea se empieza de cero.
+ * cámara) y devuelve la media de los últimos perfiles. Al mover la línea (o con `resetProfile`)
+ * se empieza de cero. `onPeakBrightness` recibe el brillo del pico de cada perfil nuevo, sin
+ * promediar (para ajustar la exposición con la cámara fijada).
  */
-export function useSpectrumFrames(cameraLine: CameraLine | null) {
+export function useSpectrumFrames(
+  cameraLine: CameraLine | null,
+  onPeakBrightness?: (peakBrightness: ReferenceBrightnessReading) => void,
+) {
   const [srgbToLinearTable] = useState(createSrgbToLinearTable);
   const lastDeliveryTime = useRef(0);
   const [spectrumProfile, setSpectrumProfile] = useState<SpectrumProfile | null>(null);
@@ -44,6 +50,14 @@ export function useSpectrumFrames(cameraLine: CameraLine | null) {
     setProfiledLine(cameraLine);
     setSpectrumProfile(null);
   }
+  // El último `onPeakBrightness`, sin rehacer la salida de fotogramas cada vez que cambia.
+  const onPeakBrightnessRef = useRef(onPeakBrightness);
+  useEffect(() => {
+    onPeakBrightnessRef.current = onPeakBrightness;
+  });
+
+  /** Olvida los perfiles anteriores (p. ej. al cambiar la exposición). */
+  const resetProfile = useCallback(() => setSpectrumProfile(null), []);
 
   const deliverProfile = useCallback(
     (
@@ -64,6 +78,7 @@ export function useSpectrumFrames(cameraLine: CameraLine | null) {
         saturatedFraction: saturatedSampleCount / newIntensities.length,
         revision: (previousProfile?.revision ?? 0) + 1,
       }));
+      onPeakBrightnessRef.current?.(spectrumPeakBrightness(newReds, newGreens, newBlues, saturatedSampleCount));
     },
     [],
   );
@@ -103,5 +118,5 @@ export function useSpectrumFrames(cameraLine: CameraLine | null) {
     onFrame: handleFrame,
   });
 
-  return { frameOutput, spectrumProfile: profiledLine === cameraLine ? spectrumProfile : null };
+  return { frameOutput, spectrumProfile: profiledLine === cameraLine ? spectrumProfile : null, resetProfile };
 }

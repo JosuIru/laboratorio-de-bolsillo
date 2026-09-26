@@ -5,6 +5,7 @@ import { createRegionAverager, evaluateColorimeterFrame, type UserColorScale } f
 import esTranslations from './locales/es.json';
 import euTranslations from './locales/eu.json';
 import {
+  brightestPlacedPatchIndex,
   createCardFromPreset,
   presetPatchIds,
   referencePatchLabel,
@@ -169,5 +170,21 @@ describe('referencePatchLabel', () => {
       expect(presetPatchIds).toContain(patch.id);
       expect(patch.name).toBeUndefined();
     }
+  });
+});
+
+describe('brightestPlacedPatchIndex', () => {
+  const patches = [{ hexColor: '#777777' }, { hexColor: '#F2F2F2' }, { hexColor: '#202020' }, { hexColor: 'mal' }];
+
+  it('elige el parche colocado más claro', () => {
+    expect(brightestPlacedPatchIndex(patches, () => true)).toBe(1);
+  });
+
+  it('ignora los parches sin colocar', () => {
+    expect(brightestPlacedPatchIndex(patches, (patchIndex) => patchIndex !== 1)).toBe(0);
+  });
+
+  it('devuelve −1 si no hay ninguno colocado', () => {
+    expect(brightestPlacedPatchIndex(patches, () => false)).toBe(-1);
   });
 });

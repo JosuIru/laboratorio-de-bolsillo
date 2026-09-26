@@ -77,6 +77,8 @@
     "transmittanceGreen": "Transmitantzia berdea",
     "transmittanceBlue": "Transmitantzia urdina",
     "fitResidual": "Doikuntzaren errorea",
-    "exposureProblems": "Oharrak"
-  }
+    "exposureProblems": "Oharrak",
+    "isCameraLocked": "Kamera finkatuta"
+  },
+  "lockedCameraWaitingHint": "Esposizioa eta kolorea paperaren markatzailea (P) jartzean finkatuko dira."
 }
