@@ -3,55 +3,27 @@ import { CommonResolutions, type Frame, useFrameOutput } from 'react-native-visi
 import { scheduleOnRN } from 'react-native-worklets';
 
 import { readFramePixels } from '@/core/camera/framePixels';
-import {
-  type AlignedCrop,
-  type BrightObjectDetection,
-  copyCenteredCrop,
-  locateBrightObject,
-  planCenteredCrop,
-} from '@/processing/image/lunarStacking';
+import { type BrightObjectDetection, locateBrightObject } from '@/processing/image/lunarStacking';
 
-/** Detecciones por segundo que se envían al hilo JS mientras no se captura. */
+/** Detecciones por segundo que se envían al hilo JS. */
 const maximumDetectionsPerSecond = 4;
-/** Salto de píxeles al buscar la Luna: con fotogramas de 1440×1920 basta y es mucho más ligero. */
-const detectionSampleStride = 4;
+/** Salto de píxeles al buscar la Luna: con fotogramas de 768×1024 va de sobra y es ligero. */
+const detectionSampleStride = 2;
 
 export interface LiveMoonDetection extends BrightObjectDetection {
   frameWidth: number;
   frameHeight: number;
 }
 
-export interface CaptureProgress {
-  capturedCropCount: number;
-  targetCropCount: number;
-  /** Fotogramas descartados porque el móvil se movía. */
-  rejectedCropCount: number;
-}
-
-export interface CaptureResult {
-  crops: AlignedCrop[];
-  rejectedCropCount: number;
-}
-
-/** Si en este tiempo no se reúnen los fotogramas pedidos, se apila lo que haya. */
-const maximumCaptureMilliseconds = 20_000;
-
 /**
- * Procesa los fotogramas en el hilo de la cámara. Sin captura, localiza la Luna y envía unas
- * pocas cifras (posición, tamaño, saturación). Durante la captura, además recorta en cada
- * fotograma un cuadrado centrado en ella y lo envía al hilo JS, que lo acumula.
+ * Localiza la Luna en los fotogramas de la vista previa (en el hilo de la cámara) y envía unas
+ * pocas cifras (posición, tamaño, saturación) para apuntar, medir la luz y saber dónde recortar
+ * las fotos de la ráfaga. Las fotos se toman aparte, a resolución completa.
  * `onDetection` recibe cada detección que llega al hilo JS (para ajustar la exposición).
  */
-export function useMoonFrames(isDeviceSteady: () => boolean, onDetection?: (detection: LiveMoonDetection) => void) {
+export function useMoonFrames(onDetection?: (detection: LiveMoonDetection) => void) {
   const [liveDetection, setLiveDetection] = useState<LiveMoonDetection | null>(null);
-  const [captureCropSize, setCaptureCropSize] = useState<number | null>(null);
-  const [captureProgress, setCaptureProgress] = useState<CaptureProgress | null>(null);
   const lastDetectionDeliveryTime = useRef(0);
-  const capturedCrops = useRef<AlignedCrop[]>([]);
-  const targetCropCount = useRef(0);
-  const resolveCapture = useRef<((captureResult: CaptureResult) => void) | null>(null);
-  const rejectedCropCount = useRef(0);
-  const captureTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   // En una ref para no recrear la salida de fotogramas cada vez que cambia la función.
   const onDetectionRef = useRef(onDetection);
   useEffect(() => {
@@ -66,48 +38,6 @@ export function useMoonFrames(isDeviceSteady: () => boolean, onDetection?: (dete
     if (detection) onDetectionRef.current?.(detection);
   }, []);
 
-  const finishCapture = useCallback(() => {
-    const resolveCaptureNow = resolveCapture.current;
-    if (!resolveCaptureNow) return;
-    resolveCapture.current = null;
-    if (captureTimeout.current) clearTimeout(captureTimeout.current);
-    captureTimeout.current = null;
-    setCaptureCropSize(null);
-    resolveCaptureNow({ crops: capturedCrops.current, rejectedCropCount: rejectedCropCount.current });
-    capturedCrops.current = [];
-  }, []);
-
-  // Al salir de la pantalla se descarta la captura en curso: se borra el temporizador y quien
-  // espera recibe una captura vacía (y no se apila nada en la pantalla siguiente).
-  useEffect(
-    () => () => {
-      if (captureTimeout.current) clearTimeout(captureTimeout.current);
-      captureTimeout.current = null;
-      const resolveCaptureNow = resolveCapture.current;
-      resolveCapture.current = null;
-      capturedCrops.current = [];
-      resolveCaptureNow?.({ crops: [], rejectedCropCount: 0 });
-    },
-    [],
-  );
-
-  const deliverCrop = useCallback(
-    (crop: AlignedCrop) => {
-      if (!resolveCapture.current) return;
-      // Un fotograma tomado mientras el móvil se mueve sale corrido: no aporta, emborrona.
-      if (isDeviceSteady()) capturedCrops.current.push(crop);
-      else rejectedCropCount.current++;
-      const capturedCropCount = capturedCrops.current.length;
-      setCaptureProgress({
-        capturedCropCount,
-        targetCropCount: targetCropCount.current,
-        rejectedCropCount: rejectedCropCount.current,
-      });
-      if (capturedCropCount >= targetCropCount.current) finishCapture();
-    },
-    [isDeviceSteady, finishCapture],
-  );
-
   const handleFrame = useCallback(
     (frame: Frame) => {
       'worklet';
@@ -117,75 +47,24 @@ export function useMoonFrames(isDeviceSteady: () => boolean, onDetection?: (dete
         return;
       }
       const { pixels, bytesPerRow, bytesPerPixel } = framePixels;
-      const isBgrOrder = framePixels.pixelLayout === 'bgra';
       const frameWidth = framePixels.width;
       const frameHeight = framePixels.height;
       const detection = locateBrightObject(pixels, frameWidth, frameHeight, bytesPerRow, bytesPerPixel, detectionSampleStride);
-
-      let crop: AlignedCrop | null = null;
-      if (captureCropSize !== null && detection) {
-        const cropPlan = planCenteredCrop(detection.centerX, detection.centerY, captureCropSize);
-        const rgbPixels = new Uint8Array(captureCropSize * captureCropSize * 3);
-        copyCenteredCrop(
-          pixels,
-          frameWidth,
-          frameHeight,
-          bytesPerRow,
-          bytesPerPixel,
-          isBgrOrder,
-          cropPlan.cropLeft,
-          cropPlan.cropTop,
-          captureCropSize,
-          rgbPixels,
-        );
-        crop = {
-          rgbPixels,
-          fractionalOffsetX: cropPlan.fractionalOffsetX,
-          fractionalOffsetY: cropPlan.fractionalOffsetY,
-        };
-      }
       frame.dispose();
-
-      if (crop) scheduleOnRN(deliverCrop, crop);
       scheduleOnRN(deliverDetection, detection ? { ...detection, frameWidth, frameHeight } : null);
     },
-    [captureCropSize, deliverCrop, deliverDetection],
+    [deliverDetection],
   );
 
   const frameOutput = useFrameOutput({
-    // Resolución alta: el detalle lunar está en los píxeles. Solo se recorta la zona de la Luna.
-    targetResolution: CommonResolutions.FHD_4_3,
+    // Resolución moderada: solo sirve para localizar la Luna. Así la salida de fotos (12 MP) cabe
+    // con ella en la misma sesión de cámara en móviles de gama media.
+    targetResolution: CommonResolutions.HD_4_3,
     pixelFormat: 'rgb',
-    // Fotogramas ya derechos: así la foto final sale con la misma orientación que la vista previa.
+    // Fotogramas ya derechos, como la vista previa y las fotos.
     enablePhysicalBufferRotation: true,
     onFrame: handleFrame,
   });
 
-  /** Captura `cropCount` recortes de lado `cropSize` centrados en la Luna (con el móvil quieto). */
-  const captureCrops = useCallback(
-    (cropCount: number, cropSize: number) => {
-      capturedCrops.current = [];
-      rejectedCropCount.current = 0;
-      targetCropCount.current = cropCount;
-      setCaptureProgress({ capturedCropCount: 0, targetCropCount: cropCount, rejectedCropCount: 0 });
-      setCaptureCropSize(cropSize);
-      captureTimeout.current = setTimeout(finishCapture, maximumCaptureMilliseconds);
-      return new Promise<CaptureResult>((resolve) => {
-        resolveCapture.current = resolve;
-      });
-    },
-    [finishCapture],
-  );
-
-  /** Termina la captura en curso y entrega lo capturado hasta ahora. */
-  const stopCapture = finishCapture;
-
-  return {
-    frameOutput,
-    liveDetection,
-    isCapturing: captureCropSize !== null,
-    captureProgress,
-    captureCrops,
-    stopCapture,
-  };
+  return { frameOutput, liveDetection };
 }
