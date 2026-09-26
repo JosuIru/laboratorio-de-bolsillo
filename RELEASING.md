@@ -21,23 +21,62 @@ si su tag es una versión semántica mayor que la instalada (`v0.2.0`), no es bo
 3. La Action [`release.yml`](.github/workflows/release.yml) hace el resto:
    - comprueba que el tag coincide con `app.json`
    - pasa tests, tipos y lint
-   - compila el APK de release y verifica que está firmado con la clave oficial
-   - crea la release con el APK y notas generadas a partir de los commits
+   - compila los APK de release (universal y por arquitectura, ver abajo) y verifica que
+     todos están firmados con la clave oficial
+   - crea la release con los APK y notas generadas a partir de los commits
 
    Tarda unos 15-20 minutos. Puedes seguirla en la pestaña *Actions* del repositorio.
+
+## Qué APK se publican
+
+El plugin [`withAndroidAbiSplits`](plugins/withAndroidAbiSplits.js) activa las divisiones por
+arquitectura (*ABI splits*) en los builds de release: un solo `assembleRelease` genera un APK
+por arquitectura y otro universal. Todos llevan el mismo `versionCode` y la misma firma.
+
+| Fichero en la release | Para qué móviles | Tamaño |
+|---|---|---|
+| `laboratorio-de-bolsillo-<v>.apk` | cualquiera (universal: lleva las dos arquitecturas) | el mayor |
+| `laboratorio-de-bolsillo-<v>-arm64-v8a.apk` | 64 bits: casi todos los actuales | ~la mitad |
+| `laboratorio-de-bolsillo-<v>-armeabi-v7a.apk` | 32 bits: móviles antiguos | ~la mitad |
+
+La app (**Ajustes → Actualizaciones**) elige el APK de la arquitectura del móvil y, si no lo
+encuentra, el universal. Lo descarga dentro de la propia app (en su caché, no en Descargas),
+muestra el progreso, no lo vuelve a bajar si ya lo tiene completo y abre el instalador de
+Android. El APK se borra solo al arrancar la versión nueva.
+
+Las versiones de la app hasta la 0.4.5 cogen **el primer `.apk`** de la release y lo abren con
+el navegador. Por eso el universal se sube primero y solo, y los demás después.
+
+x86 solo lo usan los emuladores: no se compila para publicar.
 
 ## Compilar en local
 
 ```bash
-npm run build:release   # deja el APK firmado en dist/
+npm run build:release   # deja los tres APK firmados en dist/
 ```
 
-El APK incluye solo las arquitecturas ARM (`arm64-v8a` y `armeabi-v7a`), que cubren
-prácticamente todos los móviles; x86 solo lo usan los emuladores.
+El script copia a `dist/` el universal como `laboratorio-de-bolsillo-<versión>.apk` y los de
+cada arquitectura como `laboratorio-de-bolsillo-<versión>-arm64-v8a.apk` y
+`laboratorio-de-bolsillo-<versión>-armeabi-v7a.apk`, y comprueba la firma de cada uno con
+`scripts/verify-apk-signature.sh`. Antes borra de `dist/` los APK anteriores de esa versión.
 
 Para probar en un móvil actual basta con `npm run build:release:arm64`: compila solo
-`arm64-v8a`, tarda la mitad y deja `dist/laboratorio-de-bolsillo-<versión>-arm64.apk`. No lo
-publiques, porque no funciona en los móviles de 32 bits.
+`arm64-v8a`, tarda la mitad y deja únicamente
+`dist/laboratorio-de-bolsillo-<versión>-arm64-v8a.apk`. No publiques una release solo con él:
+los móviles de 32 bits se quedarían sin APK.
+
+### Publicar a mano (sin la Action)
+
+Con los tres APK en `dist/`, primero el universal y luego los demás:
+
+```bash
+gh release create v<X> dist/laboratorio-de-bolsillo-<X>.apk --title "<X>" --generate-notes
+gh release upload v<X> dist/laboratorio-de-bolsillo-<X>-*.apk
+```
+
+También vale de una vez, `gh release create v<X> dist/laboratorio-de-bolsillo-<X>*.apk`, pero
+entonces el orden de los ficheros no está garantizado y una app 0.4.5 o anterior podría abrir
+el APK de 64 bits en un móvil de 32.
 
 El build es incremental: `android/` solo se regenera desde cero cuando cambian
 `package-lock.json`, `plugins/` o `modules/`. Si no cambian, se reaprovecha el C++ ya compilado.

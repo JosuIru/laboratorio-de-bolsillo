@@ -1,4 +1,4 @@
-# Al subir un tag vX.Y.Z: comprueba, compila el APK firmado y publica la release en GitHub.
+# Al subir un tag vX.Y.Z: comprueba, compila los APK firmados (universal y por arquitectura) y publica la release en GitHub.
 # La app la encuentra desde Ajustes → Actualizaciones.
 name: Release
 
@@ -60,7 +60,7 @@ jobs:
       - name: Generar el proyecto nativo
         run: npx expo prebuild --platform android --clean
 
-      - name: Compilar el APK de release
+      - name: Compilar los APK de release
         working-directory: android
         env:
           LAB_RELEASE_STORE_FILE: ${{ runner.temp }}/release.p12
@@ -69,22 +69,31 @@ jobs:
           LAB_RELEASE_KEY_PASSWORD: ${{ secrets.LAB_RELEASE_KEY_PASSWORD }}
         run: ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=armeabi-v7a,arm64-v8a
 
-      - name: Verificar la firma
+      # Con el plugin withAndroidAbiSplits salen tres APK: universal, arm64-v8a y armeabi-v7a.
+      - name: Copiar los APK y verificar la firma
         run: |
           mkdir -p dist
-          releaseApkPath="dist/laboratorio-de-bolsillo-$APP_VERSION.apk"
-          cp android/app/build/outputs/apk/release/app-release.apk "$releaseApkPath"
-          bash scripts/verify-apk-signature.sh "$releaseApkPath"
-          echo "RELEASE_APK_PATH=$releaseApkPath" >> "$GITHUB_ENV"
+          apkOutputDirectory=android/app/build/outputs/apk/release
+          distributionApkPrefix="dist/laboratorio-de-bolsillo-$APP_VERSION"
+          cp "$apkOutputDirectory/app-universal-release.apk" "$distributionApkPrefix.apk"
+          cp "$apkOutputDirectory/app-arm64-v8a-release.apk" "$distributionApkPrefix-arm64-v8a.apk"
+          cp "$apkOutputDirectory/app-armeabi-v7a-release.apk" "$distributionApkPrefix-armeabi-v7a.apk"
+          for releaseApkPath in "$distributionApkPrefix".apk "$distributionApkPrefix"-*.apk; do
+            bash scripts/verify-apk-signature.sh "$releaseApkPath"
+          done
+          ls -l dist
 
       - name: Publicar la release
         env:
           GH_TOKEN: ${{ github.token }}
+        # El universal se sube primero y solo: las versiones de la app hasta la 0.4.5 cogen el
+        # primer .apk de la release, y ese debe servir en cualquier móvil.
         run: |
-          gh release create "$GITHUB_REF_NAME" "$RELEASE_APK_PATH" \
+          gh release create "$GITHUB_REF_NAME" "dist/laboratorio-de-bolsillo-$APP_VERSION.apk" \
             --title "$APP_VERSION" \
             --generate-notes \
             --verify-tag
+          gh release upload "$GITHUB_REF_NAME" dist/laboratorio-de-bolsillo-"$APP_VERSION"-*.apk
 
       - name: Borrar la clave del runner
         if: always()
