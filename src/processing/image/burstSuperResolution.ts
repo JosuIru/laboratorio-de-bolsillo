@@ -586,10 +586,16 @@ export interface SuperResolutionResult {
   meanShiftPixels: number;
 }
 
+/**
+ * Para ráfagas de fotos a resolución completa tomadas a mano: se fusiona la mitad más nítida
+ * (las fotos movidas salen con menos nitidez y solo emborronan; con 5-6 buenas la ganancia ya
+ * casi no crece) y se buscan desplazamientos de hasta 64 px, porque a 12 MP la deriva del pulso
+ * durante los ~3 s de la ráfaga es mayor que con fotogramas de vídeo.
+ */
 export const defaultSuperResolutionOptions: SuperResolutionOptions = {
   scale: 2,
-  keptFraction: 0.75,
-  maximumShiftPixels: 32,
+  keptFraction: 0.5,
+  maximumShiftPixels: 64,
 };
 
 /** Radio del desenfoque de la máscara de enfoque para una imagen ampliada `scale` veces. */

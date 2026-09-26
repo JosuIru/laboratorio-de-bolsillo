@@ -1,14 +1,17 @@
 import { AlphaType, Canvas, ColorType, Image as SkiaImageView, type SkImage, Skia } from '@shopify/react-native-skia';
-import { type ReactNode, type RefObject, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, type ReactNode, type RefObject, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type GestureResponderEvent, type LayoutChangeEvent, Pressable, StyleSheet, View } from 'react-native';
 import { Camera, type CameraRef, type MeteringMode, useCameraDevice } from 'react-native-vision-camera';
 
 import { writeImageToCachePng } from '@/core/camera/imageFiles';
-import { centeredFrameSquareInView, type PreviewPoint } from '@/core/camera/previewGeometry';
+import { centeredSquareCrop, type PixelSize, photoRectToViewRect } from '@/core/camera/photoCropGeometry';
+import type { PreviewPoint } from '@/core/camera/previewGeometry';
 import { useCameraZoomAndExposure } from '@/core/camera/useCameraZoomAndExposure';
 import { useCameraPointsInView } from '@/core/camera/useCameraPointsInView';
 import { useDeviceSteadiness } from '@/core/camera/useDeviceSteadiness';
+import { applyHandheldBurstExposure, type PhotoBurstTimings, usePhotoBurst } from '@/core/camera/usePhotoBurst';
+import { useResultImageViewer } from '@/core/camera/useResultImageViewer';
 import type { InstrumentScreenProps } from '@/core/instruments/types';
 import { isExpectedCameraInterruption } from '@/core/sensors/cameraErrors';
 import { useIsCameraAllowed } from '@/core/sensors/useIsCameraAllowed';
@@ -25,13 +28,19 @@ import { CameraOverlayButton, CameraOverlayText, CameraScreenLayout } from '@/ui
 import { useThemePalette } from '@/ui/theme';
 
 import type { SuperzoomMeasurementValues } from './schema';
-import { useBurstFrames } from './useBurstFrames';
 
 export const superzoomInstrumentId = 'superzoom';
 
 /**
- * Lado del recorte central de cada fotograma (el resultado mide el doble). Más grande abarca más
- * escena, pero el cálculo crece con el área: el grande tarda unas cuatro veces lo que el pequeño.
+ * El visor se carga al abrirlo: arrastra módulos nativos (galería, compartir) que no hacen falta
+ * hasta entonces y que no existen en los tests que importan todos los instrumentos.
+ */
+const ImageViewer = lazy(() => import('@/ui/ImageViewer').then((viewerModule) => ({ default: viewerModule.ImageViewer })));
+
+/**
+ * Lado del recorte central de cada foto, en píxeles de la foto a resolución completa (el resultado
+ * mide el doble). Más grande abarca más escena, pero el cálculo crece con el área: el grande
+ * tarda unas cuatro veces lo que el pequeño.
  */
 const cropSizeOptions = [
   { labelKey: 'cropSizes.small', cropSizePixels: 512 },
@@ -39,8 +48,12 @@ const cropSizeOptions = [
   { labelKey: 'cropSizes.large', cropSizePixels: 1024 },
 ] as const;
 const defaultCropSizeOptionIndex = 1;
-/** Fotogramas de cada ráfaga (~0,5 s); se fusiona la fracción más nítida. */
-const capturedFrameTarget = 12;
+/**
+ * Fotos de cada ráfaga (unos 3 s en un móvil de gama media). Se fusiona la mitad más nítida
+ * (`keptFraction` 0,5): con fotos a mano, las movidas se notan en la nitidez y es mejor
+ * descartarlas; con 5-6 fotos buenas la ganancia de la superresolución ya casi no crece.
+ */
+const capturedPhotoTarget = 10;
 /** Cuenta atrás antes de capturar, para que el toque en la pantalla no mueva la imagen. */
 const captureCountdownSeconds = 2;
 const zoomStepFactor = Math.SQRT2;
@@ -61,6 +74,7 @@ interface SuperzoomOutcome {
   cropSizePixels: number;
   zoomFactor: number;
   processingSeconds: number;
+  burstTimings: PhotoBurstTimings;
 }
 
 function waitMilliseconds(durationMilliseconds: number) {
@@ -75,26 +89,21 @@ function createSkiaImage(image: FloatRgbImage): SkImage | null {
   );
 }
 
-/** Recuadro que marca en la vista previa la zona que se amplía (la vista usa `contain`). */
+/** Recuadro que marca en la vista previa la zona de la foto que se amplía (la vista usa `contain`). */
 function CropFrameOverlay({
   previewWidth,
   previewHeight,
-  frameWidth,
-  frameHeight,
+  photoSize,
   cropSizePixels,
 }: {
   previewWidth: number;
   previewHeight: number;
-  frameWidth: number;
-  frameHeight: number;
+  photoSize: PixelSize;
   cropSizePixels: number;
 }) {
-  const cropRect = centeredFrameSquareInView({
-    viewWidth: previewWidth,
-    viewHeight: previewHeight,
-    frameWidth,
-    frameHeight,
-    squareSidePixels: cropSizePixels,
+  const cropRect = photoRectToViewRect(centeredSquareCrop(photoSize, cropSizePixels), photoSize, {
+    width: previewWidth,
+    height: previewHeight,
   });
   return <View pointerEvents="none" style={[styles.cropFrame, cropRect]} />;
 }
@@ -192,9 +201,22 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
   const isCameraAllowed = useIsCameraAllowed();
   const hasGyroscope = sensorAvailability.gyroscope.status === 'available';
   const { isSteadyForDisplay } = useDeviceSteadiness(isCameraAllowed, hasGyroscope);
-  const { frameOutput, frameDimensions, isCapturing, captureProgress, captureBurst, stopCapture } = useBurstFrames();
-  const { zoomFactor, minimumZoom, maximumZoom, setRequestedZoom, exposureBias, handleCameraStarted } =
-    useCameraZoomAndExposure(cameraRef, cameraDevice);
+  const photoBurst = usePhotoBurst();
+  const { isCapturing, captureProgress, stopCapture, uprightPhotoSize } = photoBurst;
+  const {
+    zoomFactor,
+    minimumZoom,
+    maximumZoom,
+    setRequestedZoom,
+    exposureBias,
+    handleCameraStarted: handleZoomCameraStarted,
+  } = useCameraZoomAndExposure(cameraRef, cameraDevice);
+  const resultImageViewer = useResultImageViewer();
+
+  function handleCameraStarted() {
+    handleZoomCameraStarted();
+    photoBurst.handleCameraStarted();
+  }
 
   // Enfoque fijado: se guarda el punto en coordenadas de cámara para dibujarlo bien a cualquier tamaño.
   const [isMeteringLocked, setIsMeteringLocked] = useState(false);
@@ -231,8 +253,7 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
 
   const cropSizePixels =
     cropSizeOptions[cropSizeOptionIndex]?.cropSizePixels ?? cropSizeOptions[defaultCropSizeOptionIndex].cropSizePixels;
-  const isFrameLargeEnough =
-    frameDimensions === null || Math.min(frameDimensions.frameWidth, frameDimensions.frameHeight) >= cropSizePixels;
+  const isFrameLargeEnough = Math.min(uprightPhotoSize.width, uprightPhotoSize.height) >= cropSizePixels;
   const canMeter = Boolean(cameraDevice?.supportsExposureMetering || cameraDevice?.supportsFocusMetering);
   const isBusy = isCapturing || isProcessing || countdownSecondsLeft !== null;
 
@@ -291,10 +312,43 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
       if (!isMountedRef.current) return;
     }
     setCountdownSecondsLeft(null);
-    const capturedFrames = await captureBurst(capturedFrameTarget, captureCropSizePixels);
+    // Con poca luz, la exposición automática alarga el tiempo y cada foto sale movida: se acorta
+    // (subiendo el ISO) si el móvil lo permite. El ruido lo quita la fusión; lo movido, no.
+    let hasChangedExposure = false;
+    try {
+      hasChangedExposure =
+        (await applyHandheldBurstExposure(
+          cameraRef.current?.controller,
+          cameraDevice?.supportsExposureLocking ?? false,
+        )) !== null;
+    } catch {
+      // No admitido: se dispara con la exposición automática.
+    }
+    let burstResult;
+    try {
+      burstResult = await photoBurst.captureBurst({
+        photoCount: capturedPhotoTarget,
+        planCrop: (photoSize) => centeredSquareCrop(photoSize, captureCropSizePixels),
+      });
+    } catch (burstError) {
+      setStatusMessage(t('core:common.error', { message: String(burstError) }));
+      return;
+    } finally {
+      // Si el usuario no había fijado el enfoque, se vuelve a la exposición automática.
+      if (hasChangedExposure && !isMeteringLocked) cameraRef.current?.resetFocus().catch(() => undefined);
+    }
     if (!isMountedRef.current) return;
-    if (capturedFrames.length === 0) {
-      setStatusMessage(t('noFramesCaptured'));
+    // Todas las fotos tienen el mismo tamaño, pero por si acaso solo se fusionan las del primero.
+    const firstCropWidth = burstResult.crops[0]?.width ?? 0;
+    const squareCrops = burstResult.crops.filter(
+      (photoCrop) => photoCrop.width === firstCropWidth && photoCrop.height === firstCropWidth,
+    );
+    if (squareCrops.length === 0) {
+      setStatusMessage(
+        burstResult.firstErrorMessage
+          ? t('burstFailed', { message: burstResult.firstErrorMessage })
+          : t('noFramesCaptured'),
+      );
       return;
     }
     setIsProcessing(true);
@@ -303,14 +357,19 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
     if (!isMountedRef.current) return;
     try {
       const processingStartTime = Date.now();
-      const result = superResolveBurst(capturedFrames, captureCropSizePixels, defaultSuperResolutionOptions);
+      const result = superResolveBurst(
+        squareCrops.map((photoCrop) => photoCrop.rgbPixels),
+        firstCropWidth,
+        defaultSuperResolutionOptions,
+      );
       setDisplayedVersion('superzoom');
       setSuperzoomOutcome({
         result,
-        capturedFrameCount: capturedFrames.length,
-        cropSizePixels: captureCropSizePixels,
+        capturedFrameCount: squareCrops.length,
+        cropSizePixels: firstCropWidth,
         zoomFactor: captureZoomFactor,
         processingSeconds: (Date.now() - processingStartTime) / 1000,
+        burstTimings: burstResult.timings,
       });
       setResultSequenceNumber((previousSequenceNumber) => previousSequenceNumber + 1);
     } catch (processingError) {
@@ -320,17 +379,32 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
     }
   }
 
+  function sharpenedVersion(version: DisplayedVersion): FloatRgbImage | null {
+    if (!superzoomOutcome) return null;
+    const baseImage = version === 'superzoom' ? superzoomOutcome.result.image : superzoomOutcome.result.singleFrameImage;
+    return sharpeningAmount > 0
+      ? sharpenImage(baseImage, sharpeningSigmaForScale(defaultSuperResolutionOptions.scale), sharpeningAmount)
+      : baseImage;
+  }
+
+  /** Abre el visor a pantalla completa con las dos versiones (se pasa de una a otra deslizando). */
+  function handleOpenFullSize() {
+    const viewerVersions: DisplayedVersion[] =
+      displayedVersion === 'superzoom' ? ['superzoom', 'singleFrame'] : ['singleFrame', 'superzoom'];
+    const resultImages = viewerVersions.flatMap((version) => {
+      const versionImage = sharpenedVersion(version);
+      const versionSkiaImage = versionImage ? createSkiaImage(versionImage) : null;
+      return versionSkiaImage
+        ? [{ skiaImage: versionSkiaImage, caption: t(`versions.${version}`), fileNamePrefix: `superzoom-${version}` }]
+        : [];
+    });
+    if (resultImages.length > 0) resultImageViewer.openViewer(resultImages);
+  }
+
   async function handleSave() {
     if (!superzoomOutcome) return;
-    const sharpenedImage =
-      sharpeningAmount > 0
-        ? sharpenImage(
-            superzoomOutcome.result.image,
-            sharpeningSigmaForScale(defaultSuperResolutionOptions.scale),
-            sharpeningAmount,
-          )
-        : superzoomOutcome.result.image;
-    const savedSkiaImage = createSkiaImage(sharpenedImage);
+    const sharpenedImage = sharpenedVersion('superzoom');
+    const savedSkiaImage = sharpenedImage ? createSkiaImage(sharpenedImage) : null;
     if (!savedSkiaImage) return;
     setIsSaving(true);
     setStatusMessage(null);
@@ -379,7 +453,7 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
 
   const isZoomOutDisabled = zoomFactor <= minimumZoom || isBusy;
   const isZoomInDisabled = zoomFactor >= maximumZoom || isBusy;
-  const captureLabel = t('capture', { count: capturedFrameTarget });
+  const captureLabel = t('capture', { count: capturedPhotoTarget });
   const isCaptureDisabled = !isCameraAllowed || !isFrameLargeEnough;
 
   // Piezas que se reparten de forma distinta en el modo normal y en pantalla completa.
@@ -420,7 +494,10 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
           labelFor={(version) => t(`versions.${version}`)}
           onSelect={setDisplayedVersion}
         />
-        <ResultImage label={t(`versions.${displayedVersion}`)} skiaImage={displayedSkiaImage} />
+        <Pressable accessibilityRole="button" accessibilityLabel={t('openFullSize')} onPress={handleOpenFullSize}>
+          <ResultImage label={t(`versions.${displayedVersion}`)} skiaImage={displayedSkiaImage} />
+        </Pressable>
+        <AppButton label={t('openFullSize')} onPress={handleOpenFullSize} variant="secondary" />
         <BodyText tone="secondary">{t('compareHint')}</BodyText>
         <BodyText tone="secondary">{t('sharpeningTitle')}</BodyText>
         <ChoiceChips<number>
@@ -438,6 +515,13 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
           })}
         </BodyText>
         <BodyText tone="secondary">
+          {t('burstTimings', {
+            count: superzoomOutcome.burstTimings.capturedPhotoCount,
+            captureSeconds: (superzoomOutcome.burstTimings.captureMilliseconds / 1000).toFixed(1),
+            decodeSeconds: (superzoomOutcome.burstTimings.decodeMilliseconds / 1000).toFixed(1),
+          })}
+        </BodyText>
+        <BodyText tone="secondary">
           {superzoomOutcome.result.meanShiftPixels < 0.5
             ? t('tooLittleMovement')
             : t('handMovement', { shift: superzoomOutcome.result.meanShiftPixels.toFixed(1) })}
@@ -452,6 +536,13 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
     </BodyText>
   );
 
+  const progressText = captureProgress
+    ? t(captureProgress.phase === 'capturing' ? 'capturingProgress' : 'decodingProgress', {
+        captured: captureProgress.completedCount,
+        target: captureProgress.totalCount,
+      })
+    : '';
+
   // Lectura flotante en pantalla completa: cuenta atrás, progreso de la ráfaga o zoom y pulso.
   let fullScreenReadout: ReactNode;
   if (countdownSecondsLeft !== null) {
@@ -462,14 +553,7 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
       </>
     );
   } else if (isCapturing && captureProgress) {
-    fullScreenReadout = (
-      <CameraOverlayText style={styles.readoutValue}>
-        {t('capturingProgress', {
-          captured: captureProgress.capturedFrameCount,
-          target: captureProgress.targetFrameCount,
-        })}
-      </CameraOverlayText>
-    );
+    fullScreenReadout = <CameraOverlayText style={styles.readoutValue}>{progressText}</CameraOverlayText>;
   } else if (isProcessing) {
     fullScreenReadout = <CameraOverlayText>{t('processing')}</CameraOverlayText>;
   } else {
@@ -498,19 +582,20 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
             style={StyleSheet.absoluteFill}
             device={cameraDevice ?? 'back'}
             isActive={isCameraAllowed}
-            outputs={[frameOutput]}
+            outputs={[photoBurst.photoOutput]}
+            // Fotos orientadas como la pantalla (vertical), no según cómo se sujete el móvil.
+            orientationSource="interface"
             zoom={zoomFactor}
             exposure={exposureBias}
             onError={handleCameraError}
             onStarted={handleCameraStarted}
             resizeMode="contain"
           />
-          {frameDimensions && previewWidth > 0 && previewHeight > 0 ? (
+          {previewWidth > 0 && previewHeight > 0 ? (
             <CropFrameOverlay
               previewWidth={previewWidth}
               previewHeight={previewHeight}
-              frameWidth={frameDimensions.frameWidth}
-              frameHeight={frameDimensions.frameHeight}
+              photoSize={uprightPhotoSize}
               cropSizePixels={cropSizePixels}
             />
           ) : null}
@@ -528,6 +613,16 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
               previewHeight={previewHeight}
             />
           </Pressable>
+          {/* Aquí porque la vista previa está montada en los dos modos (el visor es un Modal). */}
+          {resultImageViewer.openedIndex !== null ? (
+            <Suspense fallback={null}>
+              <ImageViewer
+                images={resultImageViewer.viewerImages}
+                openedIndex={resultImageViewer.openedIndex}
+                onClose={resultImageViewer.closeViewer}
+              />
+            </Suspense>
+          ) : null}
         </>
       )}
       topActions={
@@ -603,12 +698,7 @@ export function SuperzoomScreen({ saveMeasurement, sensorAvailability }: Instrum
       ) : null}
       {isCapturing && captureProgress ? (
         <View style={styles.buttonRow}>
-          <BodyText style={styles.flexText}>
-            {t('capturingProgress', {
-              captured: captureProgress.capturedFrameCount,
-              target: captureProgress.targetFrameCount,
-            })}
-          </BodyText>
+          <BodyText style={styles.flexText}>{progressText}</BodyText>
           <View style={styles.unlockButton}>
             <AppButton label={t('stopCapture')} onPress={stopCapture} variant="secondary" />
           </View>

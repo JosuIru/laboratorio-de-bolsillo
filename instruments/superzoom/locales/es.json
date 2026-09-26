@@ -2,10 +2,10 @@
   "name": "Superzoom",
   "description": "Fotos con más detalle que el zoom normal: junta una ráfaga tomada a mano aprovechando el temblor del pulso.",
   "intro": "Apunta a algo con detalle fino (un cartel lejano, una textura, un texto) y deja lo que quieres ampliar dentro del recuadro amarillo.",
-  "tapToFocusHint": "Toca la imagen para enfocar y fijar la luz: así todos los fotogramas de la ráfaga casan.",
+  "tapToFocusHint": "Toca la imagen para enfocar y fijar la luz: así todas las fotos de la ráfaga casan.",
   "focusLocked": "Enfoque y exposición fijados.",
   "unlockFocus": "Soltar",
-  "frameTooSmall": "La cámara entrega fotogramas demasiado pequeños para el superzoom en este móvil.",
+  "frameTooSmall": "Las fotos de este móvil son demasiado pequeñas para este recuadro: elige uno más pequeño.",
   "deviceSteady": "Móvil firme: bien. Un temblor leve de la mano ayuda.",
   "deviceMoving": "Te mueves demasiado: sujeta el móvil con las dos manos.",
   "zoomLabel": "Zoom ×{{zoom}}",
@@ -18,18 +18,18 @@
     "medium": "Mediano",
     "large": "Grande"
   },
-  "holdStill": "Sujeta el móvil sin moverlo…",
-  "capture": "Capturar {{count}} fotogramas",
-  "capturingProgress": "Capturando… {{captured}} / {{target}}",
+  "holdStill": "Sujeta el móvil 3 s sin moverlo…",
+  "capture": "Tomar {{count}} fotos",
+  "capturingProgress": "Sujeta el móvil… foto {{captured}} / {{target}}",
   "stopCapture": "Parar",
-  "noFramesCaptured": "No ha llegado ningún fotograma. Vuelve a intentarlo.",
-  "processing": "Alineando y fusionando los fotogramas… (unos segundos)",
+  "noFramesCaptured": "No ha llegado ninguna foto. Vuelve a intentarlo.",
+  "processing": "Alineando y fusionando las fotos… (unos segundos)",
   "resultTitle": "Resultado",
   "versions": {
     "superzoom": "Superzoom",
     "singleFrame": "Zoom normal"
   },
-  "compareHint": "Cambia entre las dos versiones para comparar: el zoom normal es un solo fotograma ampliado.",
+  "compareHint": "Cambia entre las dos versiones para comparar: el zoom normal es una sola foto ampliada. Tócala para verla a tamaño real (pellizca para ampliar y desliza para pasar a la otra versión).",
   "sharpeningTitle": "Realce del detalle",
   "sharpening": {
     "none": "Sin realce",
@@ -37,10 +37,10 @@
     "medium": "Medio",
     "strong": "Fuerte"
   },
-  "mergeExplanation": "Se han fusionado los {{merged}} fotogramas más nítidos de {{captured}} en una imagen de {{size}} × {{size}} px, en {{seconds}} s.",
-  "handMovement": "La mano se movió {{shift}} px de media entre fotogramas: ese temblor es el que aporta el detalle extra.",
-  "tooLittleMovement": "Casi no hubo movimiento entre fotogramas (¿móvil apoyado?): el superzoom solo quita ruido, no gana detalle. Prueba sujetándolo a mano.",
-  "howItWorks": "Cómo funciona: entre foto y foto el pulso desplaza la imagen fracciones de píxel, así que cada fotograma ve la escena en posiciones algo distintas. Se alinean con precisión subpíxel y se reparten sobre una rejilla el doble de fina; lo que se movió en la escena se descarta para que no deje fantasmas. Todo se calcula en el móvil.",
+  "mergeExplanation": "Se han fusionado las {{merged}} fotos más nítidas de {{captured}} en una imagen de {{size}} × {{size}} px, en {{seconds}} s.",
+  "handMovement": "La mano se movió {{shift}} px de media entre fotos: ese temblor es el que aporta el detalle extra.",
+  "tooLittleMovement": "Casi no hubo movimiento entre fotos (¿móvil apoyado?): el superzoom solo quita ruido, no gana detalle. Prueba sujetándolo a mano.",
+  "howItWorks": "Cómo funciona: se toma una ráfaga de fotos a resolución completa (tienen mucho más detalle que el vídeo) y de cada una se usa solo el recuadro. Entre foto y foto el pulso desplaza la imagen fracciones de píxel, así que cada una ve la escena en posiciones algo distintas. Se descartan las más movidas, se alinean con precisión subpíxel y se reparten sobre una rejilla el doble de fina; lo que se movió en la escena se descarta para que no deje fantasmas. Todo se calcula en el móvil.",
   "fields": {
     "capturedFrameCount": "Fotogramas capturados",
     "mergedFrameCount": "Fotogramas fusionados",
@@ -49,5 +49,9 @@
     "zoomFactor": "Zoom de la cámara",
     "meanShift": "Movimiento medio de la mano",
     "sharpeningAmount": "Realce"
-  }
+  },
+  "decodingProgress": "Ya puedes moverte. Leyendo foto {{captured}} / {{target}}…",
+  "burstFailed": "No se han podido tomar las fotos: {{message}}",
+  "openFullSize": "Ver a tamaño real",
+  "burstTimings": "Ráfaga: {{count}} fotos en {{captureSeconds}} s; leerlas y recortarlas, {{decodeSeconds}} s."
 }

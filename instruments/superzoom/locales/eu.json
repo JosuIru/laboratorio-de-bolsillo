@@ -2,10 +2,10 @@
   "name": "Superzooma",
   "description": "Zoom arruntak baino xehetasun gehiago duten argazkiak: eskuz ateratako segida bat batzen du, pultsuaren dardara aprobetxatuz.",
   "intro": "Zuzendu xehetasun fina duen zerbaitera (urruneko kartel bat, ehundura bat, testu bat) eta utzi handitu nahi duzuna lauki horiaren barruan.",
-  "tapToFocusHint": "Ukitu irudia fokatzeko eta argia finkatzeko: horrela segidako fotograma guztiak bat datoz.",
+  "tapToFocusHint": "Ukitu irudia fokatzeko eta argia finkatzeko: horrela segidako argazki guztiak bat datoz.",
   "focusLocked": "Fokua eta esposizioa finkatuta.",
   "unlockFocus": "Askatu",
-  "frameTooSmall": "Mugikor honetan kamerak txikiegiak diren fotogramak ematen ditu superzoomerako.",
+  "frameTooSmall": "Mugikor honen argazkiak txikiegiak dira lauki honetarako: aukeratu txikiago bat.",
   "deviceSteady": "Mugikorra tinko: ondo. Eskuaren dardara txiki batek laguntzen du.",
   "deviceMoving": "Gehiegi mugitzen zara: heldu mugikorrari bi eskuekin.",
   "zoomLabel": "Zooma ×{{zoom}}",
@@ -18,18 +18,18 @@
     "medium": "Ertaina",
     "large": "Handia"
   },
-  "holdStill": "Eutsi mugikorrari mugitu gabe…",
-  "capture": "Atera {{count}} fotograma",
-  "capturingProgress": "Ateratzen… {{captured}} / {{target}}",
+  "holdStill": "Eutsi mugikorrari 3 s mugitu gabe…",
+  "capture": "Atera {{count}} argazki",
+  "capturingProgress": "Eutsi mugikorrari… {{captured}} / {{target}} argazkia",
   "stopCapture": "Gelditu",
-  "noFramesCaptured": "Ez da fotogramarik iritsi. Saiatu berriro.",
-  "processing": "Fotogramak lerrokatzen eta batzen… (segundo batzuk)",
+  "noFramesCaptured": "Ez da argazkirik iritsi. Saiatu berriro.",
+  "processing": "Argazkiak lerrokatzen eta batzen… (segundo batzuk)",
   "resultTitle": "Emaitza",
   "versions": {
     "superzoom": "Superzooma",
     "singleFrame": "Zoom arrunta"
   },
-  "compareHint": "Aldatu bi bertsioen artean alderatzeko: zoom arrunta fotograma bakar bat handituta da.",
+  "compareHint": "Aldatu bi bertsioen artean alderatzeko: zoom arrunta argazki bakar bat handituta da. Ukitu benetako tamainan ikusteko (atximurkatu handitzeko eta irristatu beste bertsiora pasatzeko).",
   "sharpeningTitle": "Xehetasunaren nabarmentzea",
   "sharpening": {
     "none": "Nabarmendu gabe",
@@ -37,10 +37,10 @@
     "medium": "Ertaina",
     "strong": "Gogorra"
   },
-  "mergeExplanation": "{{captured}} fotogrametatik {{merged}} garbienak batu dira {{size}} × {{size}} px-eko irudi batean, {{seconds}} s-tan.",
-  "handMovement": "Eskua {{shift}} px mugitu zen batez beste fotograma batetik bestera: dardara horrek ematen du xehetasun gehigarria.",
-  "tooLittleMovement": "Ia ez zen mugimendurik egon fotogramen artean (mugikorra bermatuta?): superzoomak zarata bakarrik kentzen du, ez du xehetasunik irabazten. Saiatu eskuz helduta.",
-  "howItWorks": "Nola dabilen: argazki batetik bestera pultsuak irudia pixel zati batzuk mugitzen du, beraz fotograma bakoitzak eszena posizio apur bat desberdinetan ikusten du. Pixel azpiko zehaztasunez lerrokatzen dira eta bi aldiz finagoa den sare batean banatzen dira; eszenan mugitu zena baztertu egiten da mamurik utz ez dezan. Dena mugikorrean kalkulatzen da.",
+  "mergeExplanation": "{{captured}} argazkietatik {{merged}} garbienak batu dira {{size}} × {{size}} px-eko irudi batean, {{seconds}} s-tan.",
+  "handMovement": "Eskua {{shift}} px mugitu zen batez beste argazki batetik bestera: dardara horrek ematen du xehetasun gehigarria.",
+  "tooLittleMovement": "Ia ez zen mugimendurik egon argazkien artean (mugikorra bermatuta?): superzoomak zarata bakarrik kentzen du, ez du xehetasunik irabazten. Saiatu eskuz helduta.",
+  "howItWorks": "Nola dabilen: bereizmen osoko argazki segida bat ateratzen da (bideoak baino xehetasun askoz gehiago dute) eta bakoitzetik laukia bakarrik erabiltzen da. Argazki batetik bestera pultsuak irudia pixel zati batzuk mugitzen du, beraz bakoitzak eszena posizio apur bat desberdinetan ikusten du. Mugituenak baztertzen dira, pixel azpiko zehaztasunez lerrokatzen dira eta bi aldiz finagoa den sare batean banatzen dira; eszenan mugitu zena baztertu egiten da mamurik utz ez dezan. Dena mugikorrean kalkulatzen da.",
   "fields": {
     "capturedFrameCount": "Ateratako fotogramak",
     "mergedFrameCount": "Batutako fotogramak",
@@ -49,5 +49,9 @@
     "zoomFactor": "Kameraren zooma",
     "meanShift": "Eskuaren batez besteko mugimendua",
     "sharpeningAmount": "Nabarmentzea"
-  }
+  },
+  "decodingProgress": "Orain mugi zaitezke. {{captured}} / {{target}} argazkia irakurtzen…",
+  "burstFailed": "Ezin izan dira argazkiak atera: {{message}}",
+  "openFullSize": "Ikusi benetako tamainan",
+  "burstTimings": "Segida: {{count}} argazki {{captureSeconds}} s-tan; irakurri eta mozteko, {{decodeSeconds}} s."
 }
